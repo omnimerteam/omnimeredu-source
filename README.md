@@ -6,6 +6,7 @@
 
 ## 📁 **Cấu trúc thư mục**
 
+```bash
 omnimeredi-source/
 │
 ├── apps/ # Chứa các ứng dụng chính (Client)
@@ -39,6 +40,7 @@ omnimeredi-source/
 ├── .gitignore # Bỏ qua node_modules, build, env, cache,...
 ├── README.md # File này
 └── LICENSE # (Nếu public)
+```
 
 ---
 
