@@ -1,37 +1,78 @@
+# 📚 OmnimerEDI Source
+
+> Đây là repo **OmnimerEDI** chứa toàn bộ mã nguồn **Frontend (Apps)** và **Backend Services**, sẵn sàng mở rộng thêm **AI Server** và hệ thống CI/CD.
+
+---
+
+## 📁 **Cấu trúc thư mục**
+
 omnimeredi-source/
 │
-├── apps/ # Chứa các ứng dụng chính (Frontend)
-│ ├── mobile/ # Flutter app cho iOS, Android
-│ │ └── ...
-│ │
-│ ├── web/ # Flutter Web (hoặc Next.js)
-│ │ └── ...
+├── apps/ # Chứa các ứng dụng chính (Client)
+│ ├── mobile/ # Source Flutter app cho iOS & Android
+│ ├── web/ # Source Flutter Web (hoặc Next.js nếu cần)
 │
-├── services/ # Chứa các backend service
-│ ├── api/ # Backend Node.js / Express API chính
-│ ├── ai/ # AI Server riêng (Python FastAPI, Node, ...)
-│ │ ├── models/ # Mô hình ML đã train
-│ │ ├── src/ # API phục vụ AI
-│ │ ├── requirements.txt # Nếu Python
-│ │ ├── app.py
-│ │ └── ...
+├── services/ # Chứa các Backend Services
+│ ├── api/ # Node.js/Express.js API chính (Business Logic, Auth, DB)
+│ ├── ai/ # AI Server riêng (Python FastAPI hoặc Node)
+│ │ ├── models/ # Mô hình Machine Learning đã train
+│ │ ├── src/ # Source code API phục vụ AI
+│ │ ├── requirements.txt # Python dependencies (nếu dùng Python)
+│ │ ├── app.py # Entry point (FastAPI app)
 │
-├── configs/ # File cấu hình CI/CD, env template
+├── configs/ # Các file cấu hình, template env, CI/CD, proxy server
 │ ├── .env.example
 │ ├── docker-compose.yml
-│ ├── nginx.conf (nếu deploy nginx proxy)
+│ ├── nginx.conf
 │ └── README.md
 │
-├── scripts/ # Script hỗ trợ build, deploy, migrate DB, seed data
+├── scripts/ # Các script hỗ trợ build, deploy, migrate DB, seed data
 │ ├── deploy.sh
 │ ├── seed.js
 │ └── ...
 │
-├── docs/ # Tài liệu kỹ thuật, swagger, diagram kiến trúc
+├── docs/ # Tài liệu kỹ thuật: Swagger, Architecture Diagram,...
 │ ├── API-spec.md
 │ ├── ARCHITECTURE.md
 │ └── ...
 │
-├── .gitignore
-├── README.md # Giải thích toàn bộ cấu trúc
-└── LICENSE (nếu public)
+├── .gitignore # Bỏ qua node_modules, build, env, cache,...
+├── README.md # File này
+└── LICENSE # (Nếu public)
+
+---
+
+## ✨ **Mục tiêu tổ chức**
+
+- 🗂 **apps/**: Tách riêng **Frontend Mobile & Web**, giúp dễ maintain và build CI/CD riêng.
+- ⚙️ **services/**: Chia nhỏ Microservices:
+  - `api/`: Chứa **Node.js/Express.js**, business logic, auth, DB connection.
+  - `ai/`: Tách riêng server AI (FastAPI, Tensorflow Serving,...).
+- ⚡ **configs/**: Tập trung các file cấu hình CI/CD, docker, reverse proxy.
+- 📜 **docs/**: Ghi chú kỹ thuật, swagger, sơ đồ kiến trúc để dễ onboard dev mới.
+- 🔧 **scripts/**: Các script tiện ích build/deploy, tự động seed DB,...
+
+---
+
+## ✅ **Hướng dẫn triển khai**
+
+- **Clone Repo**
+  ```bash
+  git clone https://github.com/your-org/omnimeredi-source.git
+  ```
+
+## ** Cài đặt front-end**
+
+cd apps/mobile
+flutter pub get
+flutter run
+
+cd services/api
+npm install
+npm run dev
+
+cd services/ai
+python -m venv venv
+source venv/bin/activate # or venv\Scripts\activate (Windows)
+pip install -r requirements.txt
+uvicorn app:app --reload
