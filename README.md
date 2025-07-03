@@ -1,80 +1,103 @@
-# 📚 OmnimerEDI Source
+# OmniMer EDU - School Management Ecosystem
 
-> Đây là repo **OmnimerEDI** chứa toàn bộ mã nguồn **Frontend (Apps)** và **Backend Services**, sẵn sàng mở rộng thêm **AI Server** và hệ thống CI/CD.
+OmniMer EDU là một hệ thống quản lý trường học đa nền tảng gồm:
+
+- Ứng dụng mobile (Flutter: iOS & Android)
+- Web dashboard (Flutter web / Next.js)
+- Hệ thống backend API (Node.js / Express)
+- Dịch vụ AI (nâng cấp sau)
+- Module Thanh toán học phí & nâng cấp gói VIP (scale sau)
 
 ---
 
-## 📁 **Cấu trúc thư mục**
+## **1. Cấu trúc thư mục**
 
 ```bash
-omnimeredi-source/
+omnimeredu-source/
 │
-├── apps/ # Chứa các ứng dụng chính (Client)
-│ ├── mobile/ # Source Flutter app cho iOS & Android
-│ ├── web/ # Source Flutter Web (hoặc Next.js nếu cần)
+├── apps/            # Frontend
+│   ├── mobile/      # iOS, Android (Flutter)
+│   ├── web/         # Web (dành cho SuperAdmin) (ReactJS)
 │
-├── services/ # Chứa các Backend Services
-│ ├── api/ # Node.js/Express.js API chính (Business Logic, Auth, DB)
-│ ├── ai/ # AI Server riêng (Python FastAPI hoặc Node)
-│ │ ├── models/ # Mô hình Machine Learning đã train
-│ │ ├── src/ # Source code API phục vụ AI
-│ │ ├── requirements.txt # Python dependencies (nếu dùng Python)
-│ │ ├── app.py # Entry point (FastAPI app)
+├── services/        # Backend
+│   ├── api/         # Node.js/Express.js - API chính
+│   ├── ai/          # AI module (phát triển sau)
+│   ├── payments/    # Service riêng xử lý giao dịch thanh toán (phát triển sau)
 │
-├── configs/ # Các file cấu hình, template env, CI/CD, proxy server
-│ ├── .env.example
-│ ├── docker-compose.yml
-│ ├── nginx.conf
-│ └── README.md
-│
-├── scripts/ # Các script hỗ trợ build, deploy, migrate DB, seed data
-│ ├── deploy.sh
-│ ├── seed.js
-│ └── ...
-│
-├── docs/ # Tài liệu kỹ thuật: Swagger, Architecture Diagram,...
-│ ├── API-spec.md
-│ ├── ARCHITECTURE.md
-│ └── ...
-│
-├── .gitignore # Bỏ qua node_modules, build, env, cache,...
-├── README.md # File này
-└── LICENSE # (Nếu public)
+├── configs/         # Docker, Nginx, Env
+├── scripts/         # Build/Deploy/Seed
+├── docs/            # Kiến trúc, Swagger
+├── .gitignore
+└── README.md
+
 ```
 
 ---
 
-## ✨ **Mục tiêu tổ chức**
+## **2. Cách chạy nhanh (Dev Local)**
 
-- 🗂 **apps/**: Tách riêng **Frontend Mobile & Web**, giúp dễ maintain và build CI/CD riêng.
-- ⚙️ **services/**: Chia nhỏ Microservices:
-  - `api/`: Chứa **Node.js/Express.js**, business logic, auth, DB connection.
-  - `ai/`: Tách riêng server AI (FastAPI, Tensorflow Serving,...).
-- ⚡ **configs/**: Tập trung các file cấu hình CI/CD, docker, reverse proxy.
-- 📜 **docs/**: Ghi chú kỹ thuật, swagger, sơ đồ kiến trúc để dễ onboard dev mới.
-- 🔧 **scripts/**: Các script tiện ích build/deploy, tự động seed DB,...
+_Chạy front-end:_
 
----
-
-## ✅ **Hướng dẫn triển khai**
-
-- **Clone Repo**
-  ```bash
-  git clone https://github.com/your-org/omnimeredi-source.git
-  ```
-
-## ** Cài đặt front-end**
-
+```bash
 cd apps/mobile
-flutter pub get
 flutter run
+```
 
+_Chạy back-end:_
+
+```bash
 cd services/api
 npm install
 npm run dev
+```
 
-cd services/ai
-python -m venv venv
-source venv/bin/activate # or venv\Scripts\activate (Windows)
-pip install -r requirements.txt
-uvicorn app:app --reload
+---
+
+## **3. Nguyên tắc phát triển**
+
+**1. Nguyên tắc đặt tên**
+Thành phần Quy tắc
+
+- Folder snake_case
+- File snake_case
+- Class, Model PascalCase
+- Biến, Hàm camelCase
+- Hằng số UPPER_SNAKE_CASE
+- API URL danh từ số nhiều, lowercase (ví dụ: /students/, /schools/)
+  Đặt tên ngắn gọn, có ý nghĩa, không viết tắt khó hiểu, viết bằng tiếng anh => dễ đọc hơn khi code
+
+**2. Clean Code & Module**
+
+- Code rõ ràng, dễ đọc, logic tách module.
+- Không hard-code magic number, dùng biến hằng số.
+- Viết comment ngắn gọn, mô tả logic phức tạp.
+
+**3. Quản lý cấu hình**
+
+- Sử dụng .env để quản lý các giá trị nhạy cảm như token, DB_URI, API_KEY.
+- Không push file .env lên Git, chỉ để .env.example.
+
+**4. Quy ước API**
+
+- Thiết kế API RESTful.
+- Tài liệu đầy đủ bằng Swagger (lưu trong thư mục docs/).
+
+**5. Quy trình làm việc**
+
+- Mỗi sprint/task có một branch riêng.
+- Không merge thẳng vào main/master.
+- Pull Request phải có mô tả rõ ràng, ghi chú thay đổi.
+- Mọi commit phải rõ ràng: feat:, fix:, chore:, docs:, test:, ...
+- Merge code phải qua review, chạy test trước khi lên main.
+
+**6. Quy tắc repository**
+
+- Không push node_modules/ hoặc thư mục build.
+- Không push file sensitive (.env).
+- Luôn cập nhật README, sơ đồ kiến trúc khi có thay đổi lớn.
+
+**7. Quy tắc teamwork**
+
+- Luôn code review lẫn nhau.
+- Tôn trọng coding style đã thống nhất.
+- Chủ động báo tiến độ và khó khăn cho cả nhóm.
