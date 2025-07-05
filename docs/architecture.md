@@ -13,17 +13,35 @@
 ## 1. Sơ đồ tổng quan
 
 ```
-┌──────────────┐       ┌─────────────┐        ┌───────────────┐
-│  Flutter App │<----->│ API Service │<------>│  MongoDB Atlas│
-│  (Web/Mobile)│       │ (Node/Express) │     │ (Database)    │
-└──────────────┘       └─────────────┘        └───────────────┘
-                               │
-                          ┌───────────────┐
-                          │  AI Service   │ (FastAPI/Node)
-                          └───────────────┘
-                               │
-                       ┌──────────────┐
-                       │   Payments   │ (Momo/ZaloPay)
+┌───────────────────────────────┐
+│           Client              │
+│ ┌────────────┬─────────────┐  │
+│ │ Flutter    │ ReactJS Web │  │
+│ └────────────┴─────────────┘  │
+└──────────────┬────────────────┘
+               │ HTTPS/REST
+               ▼
+┌───────────────────────────────┐
+│          API Server           │
+│ (Node.js + Express.js + TS)   │
+│                               │
+│ - Verify Firebase ID Token    │
+│ - CRUD Business Logic         │
+│ - Call MongoDB Atlas          │
+│ - Generate Signed URLs for    │
+│   Cloud Storage               │
+│ - Serve Swagger Docs          │
+└──────────────┬────────────────┘
+               │
+      ┌────────┴─────────┐
+      ▼                  ▼
+┌──────────────┐  ┌────────────────┐
+│ MongoDB Atlas│  │Cloud Storage   │
+│   (User,     │  │(Images, Files) │
+│  Data Logic) │  └────────────────┘
+└──────────────┘
+
+[Auth]: Firebase Auth quản lý người dùng, cấp ID Token.
                        └──────────────┘
 ```
 
@@ -63,7 +81,7 @@
 
 ## 3. Bảo mật
 
-- Xác thực JWT/OAuth2/Firebase Auth.
+- Xác thực Firebase Auth.
 - API HTTPS, rate limit, SSL, Cloudflare.
 - Token secrets trong `.env`.
 - Phân quyền SuperAdmin, Quản lý trường, Giáo viên, Học sinh.
@@ -72,11 +90,49 @@
 
 ## 4. DevOps & Triển khai
 
-- Railway, Render, Vercel, Firebase Hosting.
-- NGINX/Cloudflare proxy.
-- Docker, docker-compose.yml.
-- Theo dõi uptime với UptimeRobot.
+**Dev & Testing**
 
----
+- Backend API:
+
+* Railway, Render, hoặc Vercel (Serverless Function nếu nhẹ).
+* Tự động deploy branch develop.
+* .env.development chứa MONGODB_URI_DEV, FIREBASE_ADMIN_SDK_KEY.
+
+- Frontend Flutter:
+  +Mobile build cài .apk hoặc test iOS simulator.
+  +ReactJS Web: Vercel, Netlify.
+  +Kết nối backend staging.
+
+- MongoDB Atlas: Sử dụng bảng free
+
+- Cloud Storage & Firebase:
+
+**Production**
+
+- Backend API:
+
+* Deploy Railway/Render/EC2 (nếu cần custom infra).
+* Chạy NGINX reverse proxy + PM2.
+* Sử dụng TLS/SSL (Cloudflare Proxy).
+
+- MongoDB Atlas:
+
+* Cluster M10+ (scale auto).
+* Bật IP Whitelist, Database User Access.
+
+- Firebase Auth:
+
+* Cùng project hoặc tách project prod để tách người dùng thật.
+
+- Cloud Storage:
+
+* Tích hợp Google Cloud Storage (hoặc S3).
+* Chỉ public URL file qua Signed URL.
+
+- Domain:
+
+* Cloudflare DNS + HTTPS Proxy.
+
+- Monitoring: UptimeRobot.
 
 > File cần update khi thay đổi kiến trúc.
