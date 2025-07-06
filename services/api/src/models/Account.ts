@@ -3,9 +3,9 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IAccount extends Document {
   email: string;
   password: string;
-  uid: string; // Mã định danh riêng
-  token?: string; // Dùng để lưu JWT hoặc refresh token
-  userId: Types.ObjectId; // Liên kết với BaseUser
+  uid: string; //Mã định danh riêng
+  token?: string; //Dùng để lưu JWT hoặc refresh token
+  userId: Types.ObjectId; //Liên kết với BaseUser
 }
 
 const AccountSchema = new Schema<IAccount>({
