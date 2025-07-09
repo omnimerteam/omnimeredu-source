@@ -99,3 +99,6 @@ coverage/
 # Others
 # ====================
 !.gitignore
+
+
+**/omnimeredu-firebase-adminsdk-fbsvc-d064810c5d.json
