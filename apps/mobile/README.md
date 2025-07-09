@@ -1,4 +1,4 @@
-# android_ios_flutter
+# flutter_ios_android_platforms
 
 A new Flutter project.
 
