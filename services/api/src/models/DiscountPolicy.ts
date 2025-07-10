@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IDiscountPolicy extends Document {
+  _id: Types.ObjectId;
   name: string;
   type: 'percentage' | 'fixed';
   value: number;
@@ -8,6 +9,7 @@ export interface IDiscountPolicy extends Document {
 }
 
 const DiscountPolicySchema = new Schema<IDiscountPolicy>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   name: { type: String, required: true },
   type: { type: String, enum: ['percentage', 'fixed'], required: true },
   value: { type: Number, required: true },

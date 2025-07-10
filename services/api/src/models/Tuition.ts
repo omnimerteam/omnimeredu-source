@@ -1,22 +1,24 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ITuition extends Document {
+  _id: Types.ObjectId;
   studentId: Types.ObjectId;
   month: string;
   extraFeeIds: Types.ObjectId[];
   discountId?: Types.ObjectId;
   totalAmount: number;
-  attendedDays: number; //Tổng số ngày học sinh có mặt trong tháng
+  attendedDays: number;
   status: 'paid' | 'pending';
 }
 
 const TuitionSchema = new Schema<ITuition>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   month: { type: String, required: true },
   extraFeeIds: [{ type: Schema.Types.ObjectId, ref: 'ExtraFee' }],
   discountId: { type: Schema.Types.ObjectId, ref: 'DiscountPolicy' },
   totalAmount: { type: Number, required: true },
-  attendedDays: { type: Number, default: 0 }, //thêm
+  attendedDays: { type: Number, default: 0 },
   status: { type: String, enum: ['paid', 'pending'], default: 'pending' }
 }, { timestamps: true });
 

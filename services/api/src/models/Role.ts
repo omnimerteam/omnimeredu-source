@@ -1,18 +1,12 @@
-import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IRole extends Document {
   _id: Types.ObjectId;
-  name:
-    | "SuperAdmin"
-    | "SchoolAdmin"
-    | "Teacher"
-    | "Student"
-    | "CanteenStaff"
-    | "Nurse"
-    | "Security";
+  name: 'SuperAdmin' | 'SchoolAdmin' | 'Teacher' | 'Student' | 'CanteenStaff' | 'Nurse' | 'Security';
   description?: string;
   permissions?: string[];
 }
+
 
 const RoleSchema = new Schema<IRole>(
   {
@@ -38,3 +32,4 @@ const RoleSchema = new Schema<IRole>(
 );
 
 export default mongoose.model<IRole>("Role", RoleSchema);
+
