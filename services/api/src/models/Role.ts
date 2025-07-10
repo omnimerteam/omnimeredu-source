@@ -1,23 +1,17 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IRole extends Document {
+  _id: Types.ObjectId;
   name: 'SuperAdmin' | 'SchoolAdmin' | 'Teacher' | 'Student' | 'CanteenStaff' | 'Nurse' | 'Security';
   description?: string;
   permissions?: string[];
 }
 
 const RoleSchema = new Schema<IRole>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   name: {
     type: String,
-    enum: [
-      'SuperAdmin',
-      'SchoolAdmin',
-      'Teacher',
-      'Student',
-      'CanteenStaff',
-      'Nurse',    
-      'Security'    
-    ],
+    enum: ['SuperAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'CanteenStaff', 'Nurse', 'Security'],
     required: true,
     unique: true
   },

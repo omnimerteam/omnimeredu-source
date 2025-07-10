@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IBillPackage extends Document {
+  _id: Types.ObjectId;
   schoolId: Types.ObjectId;
   packageId: Types.ObjectId;
   activatedAt: Date;
@@ -9,6 +10,7 @@ export interface IBillPackage extends Document {
 }
 
 const BillPackageSchema = new Schema<IBillPackage>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true },
   packageId: { type: Schema.Types.ObjectId, ref: 'VipPackage', required: true },
   activatedAt: { type: Date, default: Date.now },

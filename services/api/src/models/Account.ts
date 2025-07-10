@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IAccount extends Document {
+  _id: Types.ObjectId;
   email: string;
   password: string;
   uid: string;              // Mã định danh riêng
@@ -10,6 +11,7 @@ export interface IAccount extends Document {
 }
 
 const AccountSchema = new Schema<IAccount>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   uid: { type: String, required: true, unique: true },

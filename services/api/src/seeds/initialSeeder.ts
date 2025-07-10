@@ -20,22 +20,34 @@ async function runSeeder() {
     // 🧩 Seed Roles
     const roles = ['SuperAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'CanteenStaff', 'Nurse', 'Security'];
     for (const roleName of roles) {
-      await Role.updateOne(
+      const result = await Role.updateOne(
         { name: roleName },
-        { $setOnInsert: { name: roleName } },
+        {
+          $setOnInsert: {
+            _id: new mongoose.Types.ObjectId(),
+            name: roleName
+          }
+        },
         { upsert: true }
       );
+      if (result.upsertedId) console.log(`🟢 Inserted role: ${roleName}`);
     }
     console.log('✅ Seeded roles');
 
     // 💳 Seed Payment Methods
     const methods = ['Momo', 'ZaloPay', 'Bank', 'QRCode'];
     for (const name of methods) {
-      await PaymentMethod.updateOne(
+      const result = await PaymentMethod.updateOne(
         { name },
-        { $setOnInsert: { name } },
+        {
+          $setOnInsert: {
+            _id: new mongoose.Types.ObjectId(),
+            name
+          }
+        },
         { upsert: true }
       );
+      if (result.upsertedId) console.log(`🟢 Inserted payment method: ${name}`);
     }
     console.log('✅ Seeded payment methods');
 
@@ -65,17 +77,21 @@ async function runSeeder() {
     ];
 
     for (const pack of vipPackages) {
-      await VipPackage.updateOne(
+      const result = await VipPackage.updateOne(
         { name: pack.name },
-        { $setOnInsert: pack },
+        {
+          $setOnInsert: {
+            _id: new mongoose.Types.ObjectId(),
+            ...pack
+          }
+        },
         { upsert: true }
       );
+      if (result.upsertedId) console.log(`🟢 Inserted VIP package: ${pack.name}`);
     }
 
-    console.log('✅ Seeded VIP packages');
     console.log('🌱 All seeding completed successfully!');
     process.exit(0);
-
   } catch (error) {
     console.error('❌ Seeder failed:', error);
     process.exit(1);

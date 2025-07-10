@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IBaseUser extends Document {
+  _id: Types.ObjectId;
   fullName: string;
   roleId: Types.ObjectId;
   gender?: 'Male' | 'Female' | 'Other';
@@ -11,6 +12,7 @@ export interface IBaseUser extends Document {
 }
 
 const BaseUserSchema = new Schema<IBaseUser>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   fullName: { type: String, required: true },
   roleId: { type: Schema.Types.ObjectId, ref: 'Role', required: true },
   gender: { type: String, enum: ['Male', 'Female', 'Other'] },

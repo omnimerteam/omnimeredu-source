@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IActivityLog extends Document {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   action: string;
   targetId?: Types.ObjectId;
@@ -10,6 +11,7 @@ export interface IActivityLog extends Document {
 }
 
 const ActivityLogSchema = new Schema<IActivityLog>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   action: { type: String, required: true },
   targetId: Schema.Types.ObjectId,

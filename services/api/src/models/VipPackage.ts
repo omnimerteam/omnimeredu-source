@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IVipPackage extends Document {
+  _id: Types.ObjectId;
   name: 'Basic' | 'Pro' | 'Enterprise';
   price: number;
   maxStudents: number;
@@ -9,6 +10,7 @@ export interface IVipPackage extends Document {
 }
 
 const VipPackageSchema = new Schema<IVipPackage>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   name: { type: String, enum: ['Basic', 'Pro', 'Enterprise'], unique: true, required: true },
   price: Number,
   maxStudents: Number,

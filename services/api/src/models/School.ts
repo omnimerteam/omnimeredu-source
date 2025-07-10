@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ISchool extends Document {
+  _id: Types.ObjectId;
   name: string;
   code: string;
   address: string;
@@ -13,6 +14,7 @@ export interface ISchool extends Document {
 }
 
 const SchoolSchema = new Schema<ISchool>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   name: { type: String, required: true },
   code: { type: String, required: true, unique: true },
   address: { type: String, required: true },

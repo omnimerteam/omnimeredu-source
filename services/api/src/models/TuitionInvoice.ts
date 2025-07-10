@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ITuitionInvoice extends Document {
+  _id: Types.ObjectId;
   studentId: Types.ObjectId;
   tuitionId: Types.ObjectId;
   paymentMethodId: Types.ObjectId;
@@ -11,6 +12,7 @@ export interface ITuitionInvoice extends Document {
 }
 
 const TuitionInvoiceSchema = new Schema<ITuitionInvoice>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   tuitionId: { type: Schema.Types.ObjectId, ref: 'Tuition', required: true },
   paymentMethodId: { type: Schema.Types.ObjectId, ref: 'PaymentMethod', required: true },
