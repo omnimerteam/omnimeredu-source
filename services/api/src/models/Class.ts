@@ -15,7 +15,7 @@ const ClassSchema = new Schema<IClass>({
   schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true },
   teacherId: { type: Schema.Types.ObjectId, ref: 'User' },
   students: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-  baseFee: { type: Number, required: true } // ✅ thêm trường học phí mặc định
+  baseFee: { type: Number, required: true } //thêm trường học phí mặc định
 }, { timestamps: true });
 
 export default mongoose.model<IClass>('Class', ClassSchema);
