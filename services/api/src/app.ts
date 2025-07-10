@@ -1,24 +1,27 @@
-import express, { Application } from "express";
+import express from "express";
 import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
+import dotenv from "dotenv";
 
-import routes from "./routes/index";
-import { errorHandler } from "./middlewares/error.middleware";
+import { connectMongoDB } from "./configs/mongoDBConfig";
+import { initializeFirebaseAdmin } from "./configs/firebaseAdminConfig";
 
-const app: Application = express();
+import indexRoutes from "./routes/index";
+import authRoutes from "./routes/auth.route";
 
-// Middleware
+dotenv.config();
+
+const app = express();
+
+// Middleware cơ bản
 app.use(cors());
-app.use(helmet());
-app.use(morgan("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use("/", routes);
+// Mount routes
+app.use("/", indexRoutes); // Root: /
+app.use("/api/user", authRoutes); // API Auth: /api/users/...
 
-// Error Handler
-app.use(errorHandler);
+// Kết nối DB + Firebase
+connectMongoDB();
+initializeFirebaseAdmin();
 
 export default app;

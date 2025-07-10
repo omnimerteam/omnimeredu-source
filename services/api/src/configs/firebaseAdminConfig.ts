@@ -1,29 +1,38 @@
 import admin from "firebase-admin";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
- * Khởi tạo Firebase Admin SDK cho backend.
- * Lưu ý: Đảm bảo file serviceAccountKey.json KHÔNG đưa lên Git.
+ * Khởi tạo Firebase Admin SDK.
  */
 export const initializeFirebaseAdmin = (): void => {
   try {
-    // Tạo đường dẫn tuyệt đối để tránh lỗi relative path khi chạy ở nhiều môi trường
+    const firebaseAdmin = process.env.FIREBASE_ADMIN_SDK_JSON;
+
+    if (!firebaseAdmin) {
+      throw new Error("FIREBASE_ADMIN_SDK_JSON chưa được cấu hình.");
+    }
+
     const serviceAccountPath = path.resolve(
       __dirname,
-      "../../serviceAccountKey.json"
+      firebaseAdmin || "serviceAccountKey.json"
     );
 
-    // Import file JSON
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serviceAccount = require(serviceAccountPath);
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
+      projectId: process.env.FIREBASE_PROJECT_ID,
     });
 
-    console.log("✅ Firebase Admin SDK đã được khởi tạo.");
+    console.log("✅ Firebase Admin SDK đã khởi tạo.");
   } catch (error: any) {
-    console.error("❌ Lỗi khi khởi tạo Firebase Admin SDK:", error.message);
-    process.exit(1); // Thoát nếu không khởi tạo được
+    console.error("❌ Lỗi Firebase Admin:", error.message);
+    process.exit(1);
   }
 };
+
+export default admin;

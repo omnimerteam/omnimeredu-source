@@ -1,21 +1,17 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
- * Kết nối MongoDB sử dụng URI từ biến môi trường.
- * Gọi hàm này khi khởi động server để thiết lập kết nối.
+ * Kết nối MongoDB Atlas.
  */
-export const connectDB = async (): Promise<void> => {
+export const connectMongoDB = async (): Promise<void> => {
   try {
-    const mongoUri = process.env.MONGO_URI;
-
-    if (!mongoUri) {
-      throw new Error("Biến môi trường MONGO_URI chưa được cấu hình.");
-    }
-
-    await mongoose.connect(mongoUri);
-    console.log("MongoDB đã kết nối thành công!");
-  } catch (error: any) {
-    console.error("Lỗi kết nối MongoDB:", error.message);
-    process.exit(1); // Thoát ứng dụng nếu không kết nối được DB
+    await mongoose.connect(process.env.MONGO_URI!);
+    console.log("✅ MongoDB Atlas connected.");
+  } catch (error) {
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1);
   }
 };

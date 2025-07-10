@@ -100,5 +100,5 @@ coverage/
 # ====================
 !.gitignore
 
-
-**/omnimeredu-firebase-adminsdk-fbsvc-d064810c5d.json
+# Firebase Admin SDK JSON
+**/omnimeredu-bb808-firebase-adminsdk-fbsvc-2af6165375.json
