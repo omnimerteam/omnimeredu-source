@@ -7,16 +7,29 @@ export interface IRole extends Document {
   permissions?: string[];
 }
 
-const RoleSchema = new Schema<IRole>({
-  _id: { type: Schema.Types.ObjectId, auto: true },
-  name: {
-    type: String,
-    enum: ['SuperAdmin', 'SchoolAdmin', 'Teacher', 'Student', 'CanteenStaff', 'Nurse', 'Security'],
-    required: true,
-    unique: true
-  },
-  description: { type: String },
-  permissions: [{ type: String }]
-}, { timestamps: true });
 
-export default mongoose.model<IRole>('Role', RoleSchema);
+const RoleSchema = new Schema<IRole>(
+  {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+    name: {
+      type: String,
+      enum: [
+        "SuperAdmin",
+        "SchoolAdmin",
+        "Teacher",
+        "Student",
+        "CanteenStaff",
+        "Nurse",
+        "Security",
+      ],
+      required: true,
+      unique: true,
+    },
+    description: { type: String },
+    permissions: [{ type: String }],
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IRole>("Role", RoleSchema);
+

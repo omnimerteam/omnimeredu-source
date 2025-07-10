@@ -1,13 +1,18 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 
 const router = Router();
 
-// Test route
-router.get("/", (req, res) => {
-  res.send("API is working ✅");
+/**
+ * Root route để test server đang hoạt động.
+ * Truy cập: GET /
+ */
+router.get("/", (req: Request, res: Response) => {
+  res.json({
+    status: "success",
+    message: "🎉 OmniMerEDU API is running!",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+  });
 });
-
-// TODO: Import route module khác
-// router.use('/users', userRoutes);
 
 export default router;

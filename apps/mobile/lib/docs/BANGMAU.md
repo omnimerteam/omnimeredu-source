@@ -1,0 +1,4 @@
+- Primary: #1E88E5
+- Secondary: #4A90E2
+- Light Blue: #D0E6FF
+- Background: #FFFFFF
