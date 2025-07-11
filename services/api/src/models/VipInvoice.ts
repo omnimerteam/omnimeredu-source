@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IVipInvoice extends Document {
+  _id: Types.ObjectId;
   schoolId: Types.ObjectId;
   packageId: Types.ObjectId;
   subscriptionId: Types.ObjectId;
@@ -12,6 +13,7 @@ export interface IVipInvoice extends Document {
 }
 
 const VipInvoiceSchema = new Schema<IVipInvoice>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true },
   packageId: { type: Schema.Types.ObjectId, ref: 'VipPackage', required: true },
   subscriptionId: { type: Schema.Types.ObjectId, ref: 'Subscription', required: true },

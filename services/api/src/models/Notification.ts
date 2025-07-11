@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface INotification extends Document {
+  _id: Types.ObjectId;
   userId: Types.ObjectId;
   content: string;
   type: 'system' | 'reminder' | 'warning';
@@ -9,6 +10,7 @@ export interface INotification extends Document {
 }
 
 const NotificationSchema = new Schema<INotification>({
+  _id: { type: Schema.Types.ObjectId, auto: true },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   content: String,
   type: { type: String, enum: ['system', 'reminder', 'warning'], default: 'system' },
