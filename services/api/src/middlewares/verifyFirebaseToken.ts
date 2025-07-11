@@ -20,8 +20,8 @@ export const verifyFirebaseToken = async (
     const idToken = authHeader.split("Bearer ")[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-    // Có thể lưu thông tin user để dùng downstream
-    req.user = decodedToken; // Thêm thuộc tính user vào req (cần mở rộng type)
+    // Lưu thông tin user cho downstream
+    req.user = decodedToken;
 
     console.log("✅ Firebase token verified:", decodedToken.uid);
     next();

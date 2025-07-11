@@ -1,16 +1,18 @@
 import { Request, Response } from "express";
 import * as AuthService from "../services/auth.services";
+import Role from "../models/Role";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { uid, email, fullName, gender, phone, role } = req.body;
+    const { uid, email, fullName, gender, phone, role, password } = req.body;
     const user = await AuthService.registerUser(
       uid,
       email,
       fullName,
       gender,
       phone,
-      role
+      role,
+      password
     );
     res.json({ message: "Register success", user });
   } catch (error: any) {
@@ -21,9 +23,11 @@ export const register = async (req: Request, res: Response) => {
 export const getUserByUid = async (req: Request, res: Response) => {
   try {
     const uid = req.params.uid;
+    console.log("uid", uid);
     const account = await AuthService.getUserByUid(uid);
-    res.json({
-      profile: account.userId,
+    res.status(200).json({
+      userId: account.userId,
+      role: "account.role,",
     });
   } catch (error: any) {
     res.status(404).json({ message: "Not found", error: error.message });

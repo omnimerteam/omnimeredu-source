@@ -5,7 +5,7 @@ import 'package:flutter_ios_android_platforms/blocs/auth/login/login_event.dart'
 import 'package:flutter_ios_android_platforms/blocs/auth/login/login_state.dart';
 import 'package:flutter_ios_android_platforms/repositories/auth_repository.dart';
 import 'package:flutter_ios_android_platforms/widgets/button/primary_button.dart';
-import 'package:flutter_ios_android_platforms/widgets/textField/custom_text_field.dart.dart';
+import 'package:flutter_ios_android_platforms/widgets/input/primary_text_field.dart.dart';
 
 /// [LoginScreen] là màn hình đăng nhập chính.
 ///
@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
-                      label: 'Password',
+                      label: 'Mật khẩu',
                       controller: passwordController,
                       isObscure: true,
                     ),
@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Center(child: CircularProgressIndicator())
                     else
                       PrimaryButton(
-                        label: 'Login',
+                        label: 'Đăng nhập',
                         onPressed: () {
                           context.read<LoginBloc>().add(
                             LoginSubmitted(
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextButton(
                         onPressed: () =>
                             Navigator.pushReplacementNamed(context, '/signup'),
-                        child: const Text('Don\'t have an account? Sign Up'),
+                        child: const Text('Chưa có tài khoản? Đăng ký'),
                       ),
                     ),
                   ],

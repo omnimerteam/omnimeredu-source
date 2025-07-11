@@ -28,6 +28,7 @@ class AuthApi {
     required String gender,
     required String phone,
     required String role,
+    required String password,
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/user/register'),
@@ -39,6 +40,7 @@ class AuthApi {
         'gender': gender,
         'phone': phone,
         'role': role,
+        'password': password,
       }),
     );
 
@@ -54,8 +56,14 @@ class AuthApi {
   ///
   /// Trả về [String] vai trò của người dùng (ví dụ: admin, student).
   /// Nếu không tìm thấy người dùng, sẽ ném ra một [Exception].
-  Future<String> getUserRoleByUid(String uid) async {
-    final response = await http.get(Uri.parse('$baseUrl/user/$uid'));
+  Future<String> getUserRoleByUid(String uid, String? idToken) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/user/$uid'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

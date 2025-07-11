@@ -52,6 +52,7 @@ class AuthRepository {
       gender: gender,
       phone: phone,
       role: role,
+      password: password,
     );
   }
 
@@ -68,8 +69,13 @@ class AuthRepository {
       email: email,
       password: password,
     );
-    final uid = userCredential.user!.uid;
-    final role = await _apiClient.getUserRoleByUid(uid);
+
+    final user = userCredential.user;
+    if (user == null) throw Exception('No user returned');
+
+    final idToken = await user.getIdToken(true); // force refresh
+
+    final role = await _apiClient.getUserRoleByUid(user.uid, idToken);
     return role;
   }
 

@@ -8,7 +8,8 @@ export const registerUser = async (
   fullName: string,
   gender: "Male" | "Female" | "Other",
   phone: string,
-  role: string
+  role: string,
+  password: string
 ) => {
   // 1) Tìm role
   const roleDoc = await RoleRepo.findRoleByName(role);
@@ -26,6 +27,7 @@ export const registerUser = async (
   await AccountRepo.createAccount({
     uid,
     email,
+    password,
     userId: baseUser._id, // đã là ObjectId rồi!
   });
 

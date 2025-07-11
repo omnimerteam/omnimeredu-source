@@ -5,7 +5,8 @@ import 'package:flutter_ios_android_platforms/blocs/auth/signup/signup_event.dar
 import 'package:flutter_ios_android_platforms/blocs/auth/signup/signup_state.dart';
 import 'package:flutter_ios_android_platforms/repositories/auth_repository.dart';
 import 'package:flutter_ios_android_platforms/widgets/button/primary_button.dart';
-import 'package:flutter_ios_android_platforms/widgets/textField/custom_text_field.dart.dart';
+import 'package:flutter_ios_android_platforms/widgets/input/primary_text_field.dart.dart';
+import 'package:flutter_ios_android_platforms/widgets/input/primary_dropdown_field.dart';
 
 /// [SignupScreen] là màn hình đăng ký tài khoản.
 ///
@@ -28,6 +29,22 @@ class _SignupScreenState extends State<SignupScreen> {
   final phoneController = TextEditingController();
   String gender = 'Male';
   String role = 'Student';
+
+  final Map<String, String> roleLabels = {
+    'SuperAdmin': 'Quản trị viên cấp cao',
+    'SchoolAdmin': 'Quản trị viên trường',
+    'Teacher': 'Giáo viên',
+    'Student': 'Học sinh',
+    'CanteenStaff': 'Nhân viên căng tin',
+    'Nurse': 'Y tá',
+    'Security': 'Bảo vệ',
+  };
+
+  final Map<String, String> genderLabels = {
+    'Male': 'Nam',
+    'Female': 'Nữ',
+    'Other': 'Khác',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +74,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   children: [
                     const SizedBox(height: 32),
                     Text(
-                      'Create Account',
+                      'Tạo tài khoản',
                       style: TextStyle(
                         color: Color(0xFF1E88E5),
                         fontSize: 28,
@@ -66,7 +83,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 32),
                     CustomTextField(
-                      label: 'Full Name',
+                      label: 'Họ và tên',
                       controller: fullNameController,
                     ),
                     const SizedBox(height: 16),
@@ -76,73 +93,49 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
-                      label: 'Phone',
+                      label: 'Số điện thoại',
                       controller: phoneController,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
-                      label: 'Password',
+                      label: 'Mật khẩu',
                       controller: passwordController,
                       isObscure: true,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
-                      label: 'Re-enter Password',
+                      label: 'Xác nhận mật khẩu',
                       controller: rePasswordController,
                       isObscure: true,
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    CustomDropdownField(
+                      label: 'Giới tính',
                       value: gender,
-                      items: ['Male', 'Female', 'Other']
-                          .map(
-                            (g) => DropdownMenuItem(value: g, child: Text(g)),
-                          )
-                          .toList(),
-                      onChanged: (value) => setState(() => gender = value!),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Color(0xFFD0E6FF),
-                        labelText: 'Gender',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      items: {'male': 'Nam', 'female': 'Nữ', 'other': 'Khác'},
+                      onChanged: (value) {
+                        setState(() {
+                          gender = value!;
+                        });
+                      },
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
+                    CustomDropdownField(
+                      label: 'Bạn là',
                       value: role,
-                      items:
-                          [
-                                'SuperAdmin',
-                                'SchoolAdmin',
-                                'Teacher',
-                                'Student',
-                                'CanteenStaff',
-                                'Nurse',
-                                'Security',
-                              ]
-                              .map(
-                                (r) =>
-                                    DropdownMenuItem(value: r, child: Text(r)),
-                              )
-                              .toList(),
-                      onChanged: (value) => setState(() => role = value!),
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Color(0xFFD0E6FF),
-                        labelText: 'Role',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      items: roleLabels,
+                      onChanged: (value) {
+                        setState(() {
+                          role = value!;
+                        });
+                      },
                     ),
                     const SizedBox(height: 32),
                     if (state is SignupLoading)
                       const Center(child: CircularProgressIndicator())
                     else
                       PrimaryButton(
-                        label: 'Sign Up',
+                        label: 'Tạo tài khoản',
                         onPressed: () {
                           context.read<SignupBloc>().add(
                             SignupSubmitted(
@@ -162,7 +155,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       child: TextButton(
                         onPressed: () =>
                             Navigator.pushReplacementNamed(context, '/login'),
-                        child: const Text('Already have an account? Sign In'),
+                        child: const Text('Đã có tài khoản? Đăng nhập'),
                       ),
                     ),
                   ],
