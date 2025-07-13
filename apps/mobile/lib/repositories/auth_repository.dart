@@ -76,6 +76,7 @@ class AuthRepository {
     final idToken = await user.getIdToken(true); // force refresh
 
     final role = await _apiClient.getUserRole(idToken);
+
     return role;
   }
 

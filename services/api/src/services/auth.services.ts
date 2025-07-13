@@ -34,20 +34,3 @@ export const registerUser = async (
 
   return baseUser;
 };
-
-export const getRoleByUid = async (uid: string) => {
-  const account = await AccountRepo.findUserByUid(uid);
-  if (!account) throw new Error("User not found");
-
-  const user = account.userId as any;
-  let roleName: string | undefined;
-
-  if (user && typeof user === "object" && "roleId" in user) {
-    // Nếu roleId đã populate
-    const role = user.roleId as IRole;
-    roleName =
-      typeof role === "object" && role !== null ? role.name : undefined;
-  }
-
-  return roleName;
-};

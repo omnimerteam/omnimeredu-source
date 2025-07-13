@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/blocs/auth/login/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/blocs/auth/login/login_event.dart';
 import 'package:flutter_ios_android_platforms/blocs/auth/login/login_state.dart';
+import 'package:flutter_ios_android_platforms/controller/auth.controller.dart';
 import 'package:flutter_ios_android_platforms/repositories/auth_repository.dart';
 import 'package:flutter_ios_android_platforms/widgets/button/primary_button.dart';
 import 'package:flutter_ios_android_platforms/widgets/input/primary_text_field.dart.dart';
@@ -39,9 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: BlocConsumer<LoginBloc, LoginState>(
               listener: (context, state) {
                 if (state is LoginSuccess) {
+                  // Hiển thị SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Welcome ${state.role}!')),
                   );
+                  // 👉 Điều hướng theo role
+                  AuthController.navigateToHomeByRole(context, state.role);
                 } else if (state is LoginFailure) {
                   ScaffoldMessenger.of(
                     context,
