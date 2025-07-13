@@ -11,26 +11,18 @@ import 'package:flutter_ios_android_platforms/api/auth_api.dart';
 /// Việc tách riêng logic này giúp code dễ kiểm thử và dễ mở rộng
 /// (ví dụ: thay thế Firebase Auth hoặc thay đổi backend).
 class AuthRepository {
-  /// Instance Firebase Auth dùng để thao tác xác thực.
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-
-  /// Client gọi các API backend liên quan đến thông tin người dùng.
   final AuthApi _apiClient = AuthApi();
 
-  /// Đăng ký tài khoản mới.
-  ///
-  /// Bước 1: Tạo tài khoản trên Firebase Authentication.
-  /// Bước 2: Gửi thông tin người dùng lên backend server để lưu trữ bổ sung.
-  ///
-  /// Các tham số bắt buộc:
-  /// [email] - Địa chỉ email của người dùng.
-  /// [password] - Mật khẩu đăng nhập.
-  /// [fullName] - Họ tên đầy đủ.
-  /// [gender] - Giới tính.
-  /// [phone] - Số điện thoại.
-  /// [role] - Vai trò (admin, student, teacher, ...).
-  ///
-  /// Nếu bất kỳ bước nào thất bại, exception sẽ được ném ra.
+  /// ✅ Stream để theo dõi trạng thái đăng nhập / đăng xuất
+  Stream<User?> get user => _firebaseAuth.authStateChanges();
+
+  /// ✅ Lấy user hiện tại nếu cần (nullable)
+  User? get currentUser => _firebaseAuth.currentUser;
+
+  /// Đăng ký tài khoản mới:
+  /// - Tạo user trên Firebase
+  /// - Gửi info về backend để lưu thêm metadata
   Future<void> register({
     required String email,
     required String password,
@@ -43,6 +35,7 @@ class AuthRepository {
       email: email,
       password: password,
     );
+
     final uid = userCredential.user!.uid;
 
     await _apiClient.registerUser(
@@ -56,11 +49,7 @@ class AuthRepository {
     );
   }
 
-  /// Đăng nhập bằng email và mật khẩu.
-  ///
-  /// Trả về [String] là vai trò của người dùng để sử dụng cho phân quyền trong app.
-  ///
-  /// Nếu đăng nhập thất bại hoặc không tìm thấy role, sẽ ném ra exception.
+  /// Đăng nhập và lấy role từ backend
   Future<String> login({
     required String email,
     required String password,
@@ -73,17 +62,16 @@ class AuthRepository {
     final user = userCredential.user;
     if (user == null) throw Exception('No user returned');
 
-    final idToken = await user.getIdToken(true); // force refresh
-
+    final idToken = await user.getIdToken(true);
     final role = await _apiClient.getUserRole(idToken);
 
     return role;
   }
 
-  /// Đăng xuất người dùng hiện tại khỏi Firebase Authentication.
-  ///
-  /// Việc đăng xuất này không ảnh hưởng đến backend server.
-  /// Các state liên quan đến người dùng cần được xử lý bên ngoài
-  /// (ví dụ: clear local storage, reset BLoC).
+  Future<String> getUserRole(String? idToken) async {
+    return await _apiClient.getUserRole(idToken);
+  }
+
+  /// Đăng xuất người dùng hiện tại
   Future<void> signOut() async => await _firebaseAuth.signOut();
 }
