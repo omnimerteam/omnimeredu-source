@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Mount routes
 app.use("/", indexRoutes); // Root: /
-app.use("/api/user", authRoutes); // API Auth: /api/users/...
+app.use("/api/auth", authRoutes); // API Auth: /api/users/...
 
 // Kết nối DB + Firebase
 connectMongoDB();

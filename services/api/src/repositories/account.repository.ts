@@ -12,9 +12,18 @@ export const createAccount = async (
 
 /**
  * Tìm account theo Firebase UID
+ * @param uid - Firebase UID
+ * @return Promise<IAccount | null>
+ * Trả về toàn bộ thông tin gồm Account, Profile, Role nếu tìm thấy, ngược lại trả về null
  */
-export const findAccountByUid = async (
-  uid: string
-): Promise<IAccount | null> => {
-  return await Account.findOne({ uid }).populate("userId").exec();
+export const findUserByUid = async (uid: string) => {
+  return await Account.findOne({ uid })
+    .populate({
+      path: "userId",
+      populate: {
+        path: "roleId",
+        select: "name",
+      },
+    })
+    .exec();
 };

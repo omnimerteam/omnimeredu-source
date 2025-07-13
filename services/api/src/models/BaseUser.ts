@@ -1,9 +1,10 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { IRole } from "./Role";
 
 export interface IBaseUser extends Document {
   _id: Types.ObjectId;
   fullName: string;
-  roleId: Types.ObjectId;
+  roleId: Types.ObjectId | IRole;
   gender?: "Male" | "Female" | "Other";
   birthday?: Date;
   phone?: string;

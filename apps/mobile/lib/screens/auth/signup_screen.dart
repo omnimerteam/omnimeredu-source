@@ -112,7 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     CustomDropdownField(
                       label: 'Giới tính',
                       value: gender,
-                      items: {'male': 'Nam', 'female': 'Nữ', 'other': 'Khác'},
+                      items: genderLabels,
                       onChanged: (value) {
                         setState(() {
                           gender = value!;

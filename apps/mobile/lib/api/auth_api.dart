@@ -31,7 +31,7 @@ class AuthApi {
     required String password,
   }) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/user/register'),
+      Uri.parse('$baseUrl/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'uid': uid,
@@ -56,9 +56,9 @@ class AuthApi {
   ///
   /// Trả về [String] vai trò của người dùng (ví dụ: admin, student).
   /// Nếu không tìm thấy người dùng, sẽ ném ra một [Exception].
-  Future<String> getUserRoleByUid(String uid, String? idToken) async {
+  Future<String> getUserRole(String? idToken) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/user/$uid'),
+      Uri.parse('$baseUrl/auth/role'),
       headers: {
         'Authorization': 'Bearer $idToken',
         'Content-Type': 'application/json',
@@ -67,10 +67,11 @@ class AuthApi {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['role'];
+      final role = data['role'] as String? ?? "No role";
+      print("✅ Role từ server: $role");
+      return role;
     } else {
-      // TODO: Có thể bổ sung logging hoặc xử lý lỗi chi tiết hơn.
-      throw Exception('User not found');
+      throw Exception('Lấy role thất bại: ${response.body}');
     }
   }
 }

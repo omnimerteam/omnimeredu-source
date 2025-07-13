@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as AuthController from "../controllers/auth.controller";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyRole } from "../middlewares/verifyRole";
 
 const router = Router();
 
@@ -16,6 +17,10 @@ router.post("/register", AuthController.register);
  * Lấy thông tin user + role theo Firebase UID.
  * Yêu cầu xác thực Firebase token.
  */
-router.get("/:uid", verifyFirebaseToken, AuthController.getUserByUid);
-
+router.get(
+  "/role",
+  verifyFirebaseToken,
+  verifyRole(),
+  AuthController.getUserRole
+);
 export default router;

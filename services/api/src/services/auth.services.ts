@@ -1,6 +1,7 @@
 import * as RoleRepo from "../repositories/role.repository";
 import * as BaseUserRepo from "../repositories/basedUser.repository";
 import * as AccountRepo from "../repositories/account.repository";
+import { IRole } from "../models/Role";
 
 export const registerUser = async (
   uid: string,
@@ -34,14 +35,19 @@ export const registerUser = async (
   return baseUser;
 };
 
-export const getUserByUid = async (uid: string) => {
-  const account = await AccountRepo.findAccountByUid(uid);
-  if (!account) throw new Error("❌ User not found");
+export const getRoleByUid = async (uid: string) => {
+  const account = await AccountRepo.findUserByUid(uid);
+  if (!account) throw new Error("User not found");
 
-  // Populate userId kèm roleId
-  return {
-    uid: account.uid,
-    email: account.email,
-    userId: account.userId, // populated User
-  };
+  const user = account.userId as any;
+  let roleName: string | undefined;
+
+  if (user && typeof user === "object" && "roleId" in user) {
+    // Nếu roleId đã populate
+    const role = user.roleId as IRole;
+    roleName =
+      typeof role === "object" && role !== null ? role.name : undefined;
+  }
+
+  return roleName;
 };

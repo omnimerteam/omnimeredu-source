@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import admin from "../configs/firebaseAdminConfig";
 
 /**
- * Middleware xác minh Firebase ID Token từ client gửi lên.
+ * Middleware: Xác thực Firebase ID Token.
+ * Gán req.user nếu token hợp lệ.
  */
 export const verifyFirebaseToken = async (
   req: Request,
@@ -11,22 +12,20 @@ export const verifyFirebaseToken = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!authHeader?.startsWith("Bearer ")) {
       res.status(401).json({ message: "No token provided" });
-      return;
+      return; // ✅
     }
 
     const idToken = authHeader.split("Bearer ")[1];
     const decodedToken = await admin.auth().verifyIdToken(idToken);
 
-    // Lưu thông tin user cho downstream
     req.user = decodedToken;
-
-    console.log("✅ Firebase token verified:", decodedToken.uid);
+    console.log("✅ Firebase Token OK:", decodedToken.uid);
     next();
-  } catch (error: any) {
-    console.error("❌ Invalid token:", error.message);
+  } catch (err: any) {
+    console.error("❌ verifyFirebaseToken error:", err.message);
     res.status(401).json({ message: "Invalid token" });
+    return; // ✅
   }
 };
