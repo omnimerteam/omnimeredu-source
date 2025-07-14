@@ -8,15 +8,6 @@ import 'package:flutter_ios_android_platforms/repositories/auth_repository.dart'
 import 'package:flutter_ios_android_platforms/widgets/button/primary_button.dart';
 import 'package:flutter_ios_android_platforms/widgets/input/primary_text_field.dart.dart';
 
-/// [LoginScreen] là màn hình đăng nhập chính.
-///
-/// Màn hình này sử dụng:
-/// - BLoC pattern ([LoginBloc]) để xử lý logic đăng nhập.
-/// - BlocConsumer để listen & build UI theo [LoginState].
-///
-/// Điều hướng:
-/// - Nếu chưa có tài khoản, cho phép chuyển sang màn hình đăng ký (/signup).
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -36,16 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
         authenticationBloc: context.read<AuthenticationBloc>(),
       ),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF5F7FA),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: BlocConsumer<LoginBloc, LoginState>(
               listener: (context, state) {
                 if (state is LoginSuccess) {
-                  // Hiển thị SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Welcome ${state.role}!')),
+                    SnackBar(content: Text('Chào mừng ${state.role}!')),
                   );
                 } else if (state is LoginFailure) {
                   ScaffoldMessenger.of(
@@ -55,29 +45,51 @@ class _LoginScreenState extends State<LoginScreen> {
               },
               builder: (context, state) {
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 32),
-                    Text(
-                      'Welcome Back',
-                      style: TextStyle(
-                        color: Color(0xFF1E88E5),
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Column(
+                        children: [
+                          /// LOGO - Bạn có thể thay đổi link ảnh sau
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.asset(
+                              'assets/images/logo.jpg',
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'OmniMer EDU',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue.shade800,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 32),
+
                     CustomTextField(
                       label: 'Email',
                       controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
+
                     CustomTextField(
                       label: 'Mật khẩu',
                       controller: passwordController,
+                      keyboardType: TextInputType.visiblePassword,
                       isObscure: true,
                     ),
                     const SizedBox(height: 32),
+
                     if (state is LoginLoading)
                       const Center(child: CircularProgressIndicator())
                     else
@@ -93,11 +105,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                     const SizedBox(height: 16),
+
                     Center(
                       child: TextButton(
                         onPressed: () =>
                             Navigator.pushReplacementNamed(context, '/signup'),
-                        child: const Text('Chưa có tài khoản? Đăng ký'),
+                        child: const Text(
+                          'Chưa có tài khoản? Đăng ký',
+                          style: TextStyle(color: Colors.blueGrey),
+                        ),
                       ),
                     ),
                   ],

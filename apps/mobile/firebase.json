@@ -1,1 +1,22 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"omnimeredu-bb808","appId":"1:207104321189:android:c605c33bf6eb6b02640f4c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"omnimeredu-bb808","configurations":{"android":"1:207104321189:android:c605c33bf6eb6b02640f4c","ios":"1:207104321189:ios:752f44134b4e92a1640f4c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "omnimeredu-bb808",
+          "appId": "1:207104321189:android:c605c33bf6eb6b02640f4c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "omnimeredu-bb808",
+          "configurations": {
+            "android": "1:207104321189:android:c605c33bf6eb6b02640f4c",
+            "ios": "1:207104321189:ios:752f44134b4e92a1640f4c"
+          }
+        }
+      }
+    }
+  }
+}

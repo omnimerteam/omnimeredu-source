@@ -85,28 +85,33 @@ class _SignupScreenState extends State<SignupScreen> {
                     CustomTextField(
                       label: 'Họ và tên',
                       controller: fullNameController,
+                      keyboardType: TextInputType.name,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Email',
                       controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Số điện thoại',
                       controller: phoneController,
+                      keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Mật khẩu',
                       controller: passwordController,
                       isObscure: true,
+                      keyboardType: TextInputType.visiblePassword,
                     ),
                     const SizedBox(height: 16),
                     CustomTextField(
                       label: 'Xác nhận mật khẩu',
                       controller: rePasswordController,
                       isObscure: true,
+                      keyboardType: TextInputType.visiblePassword,
                     ),
                     const SizedBox(height: 16),
                     CustomDropdownField(

@@ -18,7 +18,10 @@ class AppView extends StatelessWidget {
       title: 'OmnimerEDU',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      routes: {'/signup': (_) => const SignupScreen()},
+      routes: {
+        '/signup': (_) => const SignupScreen(),
+        '/login': (_) => const LoginScreen(),
+      },
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         buildWhen: (previous, current) =>
             previous.status != current.status || previous.role != current.role,
