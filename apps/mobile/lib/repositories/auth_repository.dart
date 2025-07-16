@@ -36,10 +36,16 @@ class AuthRepository {
       password: password,
     );
 
-    final uid = userCredential.user!.uid;
+    final user = userCredential.user;
+    if (user == null) throw Exception('Tạo tài khoản thất bại');
 
+    await user.updateDisplayName(fullName);
+    await user.reload();
+    final updatedUser = _firebaseAuth.currentUser;
+
+    // Gửi thông tin đến backend để lưu metadata
     await _apiClient.registerUser(
-      uid: uid,
+      uid: updatedUser!.uid,
       email: email,
       fullName: fullName,
       gender: gender,
