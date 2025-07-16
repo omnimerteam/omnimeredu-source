@@ -8,8 +8,8 @@ export class ClassController {
     try {
       const result = await this.classService.createClass({
         ...req.body,
-        performedBy: req.user._id, // cần middleware gán user
-        roleSnapshot: req.user.role,
+        performedBy: req.user.userId, // cần middleware gán user
+        roleSnapshot: req.role,
       });
       res.status(201).json(result);
       return;
