@@ -9,7 +9,7 @@ const router = Router();
 router.get("/", (req: Request, res: Response) => {
   res.json({
     status: "success",
-    message: "🎉 OmniMerEDU API is running!",
+    message: "🎉 OmniMerEDU API is running! hello hello",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
   });

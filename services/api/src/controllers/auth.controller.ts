@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as AuthService from "../services/auth.service";
+import * as AuthService from "../services/auth.services";
 
 /**
  * Đăng ký người dùng mới
