@@ -1,26 +1,18 @@
-import { Model, Types } from "mongoose";
-import ClassModel, { IClass } from "../models/Class";
+import { Model } from "mongoose";
+import { IClass } from "../models/Class";
+import { BaseRepository } from "./base.repository";
 
-export class ClassRepository {
-  private readonly model: Model<IClass>;
-
-  constructor() {
-    this.model = ClassModel;
+class ClassRepository extends BaseRepository<IClass> {
+  constructor(ClassModel: Model<IClass>) {
+    super(ClassModel);
   }
 
-  async createClass(data: {
-    name: string;
-    code: string;
-    schoolId: Types.ObjectId;
-    teacherId?: Types.ObjectId;
-    students?: Types.ObjectId[];
-    baseFee: number;
-  }): Promise<IClass | { error: string }> {
-    try {
-      const newClass = new this.model(data);
-      return await newClass.save();
-    } catch (error: any) {
-      return { error: error.message };
-    }
+  /**
+   * Hàm mở rộng riêng của ClassRepository
+   */
+  async findByCode(code: string): Promise<IClass | null> {
+    return this.model.findOne({ code }).exec();
   }
 }
+
+export default ClassRepository;
