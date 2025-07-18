@@ -5,8 +5,7 @@ import dotenv from "dotenv";
 import { connectMongoDB } from "./configs/mongoDBConfig";
 import { initializeFirebaseAdmin } from "./configs/firebaseAdminConfig";
 
-import indexRoutes from "./routes/index";
-import authRoutes from "./routes/auth.route";
+import route from "./routes/site.route";
 
 dotenv.config();
 
@@ -17,8 +16,8 @@ app.use(cors());
 app.use(express.json());
 
 // Mount routes
-app.use("/", indexRoutes); // Root: /
-app.use("/api/auth", authRoutes); // API Auth: /api/users/...
+//Sẽ sử dụng site.route để quản lý tất cả các route của ứng dụng
+route(app);
 
 // Kết nối DB + Firebase
 connectMongoDB();
