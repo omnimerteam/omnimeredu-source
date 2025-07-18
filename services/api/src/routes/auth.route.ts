@@ -23,4 +23,5 @@ router.get(
   verifyRole(),
   AuthController.getUserRole
 );
+
 export default router;
