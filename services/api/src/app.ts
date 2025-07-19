@@ -7,6 +7,7 @@ import { connectMongoDB } from "./configs/mongoDBConfig";
 import { initializeFirebaseAdmin } from "./configs/firebaseAdminConfig";
 
 import route from "./routes/site.route";
+import errorHandler from "./middlewares/errorHandler.middleware";
 
 dotenv.config();
 
@@ -19,9 +20,14 @@ app.use(express.json());
 // Ghi log theo format 'dev' (dành cho môi trường dev)
 app.use(morgan("dev"));
 
+// Khi production thì  sẽ thêm một middleware giới hạn request tránh sập
+
 // Mount routes
 //Sẽ sử dụng site.route để quản lý tất cả các route của ứng dụng
+
 route(app);
+
+app.use(errorHandler);
 
 // Kết nối DB + Firebase
 connectMongoDB();

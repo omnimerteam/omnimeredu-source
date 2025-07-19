@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import chalk from "chalk";
 import ClassService from "../services/class.service";
+import { sendSuccess, sendCreated } from "../utils/ResponseHelper";
+import { CustomError } from "../middlewares/errorHandler.middleware";
 
 class ClassController {
   private classService: ClassService;
@@ -9,106 +11,133 @@ class ClassController {
     this.classService = classService;
   }
 
-  async getAllClasses(req: Request, res: Response): Promise<void> {
-    const userId = req.user?.id;
-
+  /**
+   * Lấy tất cả lớp học mà người dùng có quyền xem
+   */
+  async getAllClasses(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
+      const userId = req.user?.id;
       const result = await this.classService.getAllClasses(userId);
       console.log(chalk.green("[CLASS] ✅ Get all classes"));
-
-      res.status(200).json({ success: true, data: result });
+      sendSuccess(res, result, "Lấy danh sách lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Get all classes failed"), error);
-      res.status(500).json({ success: false, message: "Lỗi hệ thống" });
-      return;
+      return next(error);
     }
   }
 
-  async getByIdClass(req: Request, res: Response): Promise<void> {
-    const userId = req.user?.id;
-    const { id } = req.params;
-
+  /**
+   * Lấy lớp học theo ID
+   */
+  async getByIdClass(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
+      const userId = req.user?.id;
+      const { id } = req.params;
+
       const result = await this.classService.getClassById(userId, id);
       if (!result) {
-        console.log(chalk.yellow("[CLASS] ⚠️ Not found class by ID"), id);
-        res.status(404).json({ success: false, message: "Không tìm thấy lớp" });
-        return;
+        const error: CustomError = new Error("Không tìm thấy lớp");
+        error.status = 404;
+        return next(error);
       }
 
       console.log(chalk.green("[CLASS] ✅ Get class by ID"), id);
-      res.status(200).json({ success: true, data: result });
+      sendSuccess(res, result, "Lấy thông tin lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Get class by ID failed"), error);
-      res.status(500).json({ success: false, message: "Lỗi hệ thống" });
-      return;
+      return next(error);
     }
   }
 
-  async createClass(req: Request, res: Response): Promise<void> {
-    const userId = req.user?.id;
-    const body = req.body;
-
+  /**
+   * Tạo một lớp học mới
+   */
+  async createClass(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
+      const userId = req.user?.id;
+      const body = req.body;
+
       const result = await this.classService.createClass(userId, body);
       console.log(
         chalk.green("[CLASS] ✅ Create class"),
         result._id.toString()
       );
-
-      res.status(201).json({ success: true, data: result });
+      sendCreated(res, result, "Tạo lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Create class failed"), error);
-      res.status(400).json({ success: false, message: "Tạo lớp thất bại" });
-      return;
+      return next(error);
     }
   }
 
-  async updateClass(req: Request, res: Response): Promise<void> {
-    const userId = req.user?.id;
-    const { id } = req.params;
-    const body = req.body;
-
+  /**
+   * Cập nhật thông tin lớp học
+   */
+  async updateClass(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
+      const userId = req.user?.id;
+      const { id } = req.params;
+      const body = req.body;
+
       const result = await this.classService.updateClass(userId, id, body);
       if (!result) {
-        console.log(chalk.yellow("[CLASS] ⚠️ Class not found to update"), id);
-        res.status(404).json({ success: false, message: "Không tìm thấy lớp" });
-        return;
+        const error: CustomError = new Error("Không tìm thấy lớp để cập nhật");
+        error.status = 404;
+        return next(error);
       }
 
       console.log(chalk.green("[CLASS] ✅ Update class"), id);
-      res.status(200).json({ success: true, data: result });
+      sendSuccess(res, result, "Cập nhật lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Update class failed"), error);
-      res.status(400).json({ success: false, message: "Cập nhật thất bại" });
-      return;
+      return next(error);
     }
   }
 
-  async removeClass(req: Request, res: Response): Promise<void> {
-    const userId = req.user?.id;
-    const { id } = req.params;
-
+  /**
+   * Xóa lớp học
+   */
+  async removeClass(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
+      const userId = req.user?.id;
+      const { id } = req.params;
+
       const result = await this.classService.deleteClass(userId, id);
       if (!result) {
-        console.log(chalk.yellow("[CLASS] ⚠️ Class not found to delete"), id);
-        res.status(404).json({ success: false, message: "Không tìm thấy lớp" });
-        return;
+        const error: CustomError = new Error("Không tìm thấy lớp để xóa");
+        error.status = 404;
+        return next(error);
       }
 
       console.log(chalk.green("[CLASS] ✅ Delete class"), id);
-      res.status(200).json({ success: true, message: "Đã xóa lớp" });
+      sendSuccess(res, null, "Đã xóa lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Delete class failed"), error);
-      res.status(500).json({ success: false, message: "Xóa lớp thất bại" });
-      return;
+      return next(error);
     }
   }
 }

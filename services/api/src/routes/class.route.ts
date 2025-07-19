@@ -1,62 +1,70 @@
-import { Request, Response, Router } from "express";
-// Model <- Repo <- Ser <- Control
+import { Router } from "express";
+
+// Models → Repo → Service → Controller
 import Class from "../models/Class";
 import ClassRepository from "../repositories/class.repository";
 import ClassService from "../services/class.service";
 import ClassController from "../controllers/class.controller";
 
-// Import Các Instace cần thiết
+// Logger & Activity Log
 import { ActivityLogRepository } from "../repositories/activityLog.repository";
-import { DefaultLogger } from "../utils/activity.logger";
+import { DefaultLogger } from "../utils/DefaultLogger";
 
-// Import các Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken"; // Firebase Auth Token => checking đăng nhập
-import { verifyRole } from "../middlewares/verifyRole"; // Kiểm tra Vai trò => checking quyền hạn
+// Middleware
+import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyRole } from "../middlewares/verifyRole";
 
-// Khởi tạo các lớp phụ thuộc
+// Init Dependencies
 const classRepository = new ClassRepository(Class);
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classService = new ClassService(classRepository, logger);
 const classController = new ClassController(classService);
 
-// Khởi tạo router
+// Router
 const router = Router();
 
-// Routes
+/**
+ * ROUTE DEFINITIONS
+ */
+
+// Lấy tất cả lớp
 router.get(
-  "/",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  (req: Request, res: Response) => classController.getAllClasses(req, res)
+  "/classes",
+  // verifyFirebaseToken,
+  // verifyRole(["SuperAdmin"]),
+  (req, res, next) => classController.getAllClasses(req, res, next)
 );
 
+// Lấy lớp theo ID
 router.get(
-  "/:id",
+  "/classes/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  (req: Request, res: Response) => classController.getByIdClass(req, res)
+  (req, res, next) => classController.getByIdClass(req, res, next)
 );
 
+// Tạo lớp mới
 router.post(
-  "/:id",
+  "/classes",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  (req: Request, res: Response) => classController.createClass(req, res)
+  //verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req, res, next) => classController.createClass(req, res, next)
 );
 
+// Cập nhật lớp
 router.put(
-  "/:id",
+  "/classes/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  (req: Request, res: Response) => classController.updateClass(req, res)
+  (req, res, next) => classController.updateClass(req, res, next)
 );
 
+// Xóa lớp
 router.delete(
-  "/:id",
+  "/classes/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  (req: Request, res: Response) => classController.removeClass(req, res)
+  (req, res, next) => classController.removeClass(req, res, next)
 );
 
-// ✅ Export để dùng ở index.ts
 export default router;
