@@ -30,8 +30,8 @@ const router = Router();
 // Lấy tất cả lớp
 router.get(
   "/classes",
-  // verifyFirebaseToken,
-  // verifyRole(["SuperAdmin"]),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
   (req, res, next) => classController.getAllClasses(req, res, next)
 );
 
@@ -47,7 +47,7 @@ router.get(
 router.post(
   "/classes",
   verifyFirebaseToken,
-  //verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.createClass(req, res, next)
 );
 

@@ -2,10 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import admin from "../configs/firebaseAdminConfig";
 import { findUserByUid } from "../repositories/account.repository";
 import { IRole } from "../models/Role";
+import {
+  sendError,
+  sendForbidden,
+  sendUnauthorized,
+} from "../utils/ResponseHelper";
 
 /**
  * Middleware: Xác thực Firebase ID Token.
- * Gán req.user nếu token hợp lệ.
+ * Gán req.user và req.role nếu hợp lệ.
  */
 export const verifyFirebaseToken = async (
   req: Request,
@@ -14,54 +19,54 @@ export const verifyFirebaseToken = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
+
     if (!authHeader?.startsWith("Bearer ")) {
-      res.status(401).json({ message: "No token provided" });
-      return; // ✅
-    }
-
-    const idToken = authHeader.split("Bearer ")[1];
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-    // Kiểm tra thằng token đăng nhập có đúng của firebase không
-    if (!decodedToken) {
-      res.status(401).json({ message: "idToken Không chính xác!!!" });
+      sendUnauthorized(res, "Token không hợp lệ hoặc không được cung cấp");
       return;
     }
+
+    const idToken = authHeader.split("Bearer ")[1].trim();
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    if (!decodedToken || !decodedToken.uid) {
+      sendUnauthorized(res, "ID Token không hợp lệ");
+      return;
+    }
+
     console.log("✅ Firebase Token OK:", decodedToken.uid);
 
-    // Đăng ký các thông tin user và role cho các bước tiếp  theo
+    // Tìm user trong hệ thống backend
     const profile = await findUserByUid(decodedToken.uid);
-    // Kiểm tra tài khoản có hợp lệ trong tài khoản không
     if (!profile) {
-      res.status(404).json({ message: "Không tìm thấy thông tin người dùng" });
+      sendError(res, "Không tìm thấy thông tin người dùng", 404);
       return;
     }
-
-    req.user = profile;
 
     const user = profile.userId as any;
 
+    // Lấy role từ user.userId.roleId
     let roleName: string | undefined;
-
     if (user && typeof user === "object" && "roleId" in user) {
       const role = user.roleId as IRole;
-      roleName =
-        typeof role === "object" && role !== null ? role.name : undefined;
+      if (role && typeof role === "object" && "name" in role) {
+        roleName = role.name;
+      }
     }
 
     if (!roleName) {
-      res.status(403).json({ message: "No role assigned" });
+      sendForbidden(res, "Tài khoản chưa được gán quyền truy cập");
       return;
     }
 
-    (req as any).role = roleName;
+    // Gán lại vào req
+    req.user = profile;
+    req.role = roleName;
 
-    console.log(`Profile: ${profile} \n Role: ${roleName} `);
-
-    next();
+    console.log(`[AUTH ✅] User: ${profile.email} | Role: ${roleName}`);
+    return next();
   } catch (err: any) {
     console.error("❌ verifyFirebaseToken error:", err.message);
-    res.status(401).json({ message: "Invalid token" });
-    return; // ✅
+    sendUnauthorized(res, "Token không hợp lệ hoặc hết hạn");
+    return;
   }
 };
