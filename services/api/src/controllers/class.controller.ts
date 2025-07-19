@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import chalk from "chalk";
 import ClassService from "../services/class.service";
-import { sendSuccess, sendCreated } from "../utils/ResponseHelper";
+import {
+  sendSuccess,
+  sendCreated,
+  sendUnauthorized,
+  sendForbidden,
+} from "../utils/ResponseHelper";
 import { CustomError } from "../middlewares/errorHandler.middleware";
 
 class ClassController {
@@ -21,7 +26,13 @@ class ClassController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
-      const result = await this.classService.getAllClasses(userId);
+      const userRole = req.role;
+      if (!userRole || !userId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const result = await this.classService.getAllClasses(userId, userRole);
       console.log(chalk.green("[CLASS] ✅ Get all classes"));
       sendSuccess(res, result, "Lấy danh sách lớp thành công");
       return;
@@ -41,9 +52,15 @@ class ClassController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
+      const userRole = req.role;
+      if (!userRole || !userId) {
+        sendUnauthorized(res);
+        return;
+      }
+
       const { id } = req.params;
 
-      const result = await this.classService.getClassById(userId, id);
+      const result = await this.classService.getClassById(userId, userRole, id);
       if (!result) {
         const error: CustomError = new Error("Không tìm thấy lớp");
         error.status = 404;
@@ -69,9 +86,19 @@ class ClassController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
+      const userRole = req.role;
+      if (!userRole || !userId) {
+        sendUnauthorized(res);
+        return;
+      }
+
       const body = req.body;
 
-      const result = await this.classService.createClass(userId, body);
+      const result = await this.classService.createClass(
+        userId,
+        userRole,
+        body
+      );
       console.log(
         chalk.green("[CLASS] ✅ Create class"),
         result._id.toString()
@@ -94,10 +121,22 @@ class ClassController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
+      const userRole = req.role;
+      if (!userRole || !userId) {
+        sendUnauthorized(res);
+        return;
+      }
+
       const { id } = req.params;
       const body = req.body;
 
-      const result = await this.classService.updateClass(userId, id, body);
+      const result = await this.classService.updateClass(
+        userId,
+        userRole,
+        id,
+        body
+      );
+
       if (!result) {
         const error: CustomError = new Error("Không tìm thấy lớp để cập nhật");
         error.status = 404;
@@ -123,9 +162,15 @@ class ClassController {
   ): Promise<void> {
     try {
       const userId = req.user?.id;
+      const userRole = req.role;
+      if (!userRole || !userId) {
+        sendUnauthorized(res);
+        return;
+      }
+
       const { id } = req.params;
 
-      const result = await this.classService.deleteClass(userId, id);
+      const result = await this.classService.deleteClass(userId, userRole, id);
       if (!result) {
         const error: CustomError = new Error("Không tìm thấy lớp để xóa");
         error.status = 404;

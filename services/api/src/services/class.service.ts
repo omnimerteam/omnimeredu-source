@@ -11,14 +11,14 @@ class ClassService {
     this.logger = logger;
   }
 
-  async getAllClasses(userId: string) {
+  async getAllClasses(userId: string, userRole: string) {
     try {
       const classes = await this.classRepository.findAll();
 
       await this.logger.log({
         userId,
         action: "GET_ALL_CLASSES",
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { count: classes.length },
       });
 
@@ -27,14 +27,14 @@ class ClassService {
       await this.logger.log({
         userId,
         action: "GET_ALL_CLASSES_FAILED",
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
       throw error;
     }
   }
 
-  async getClassById(userId: string, id: string) {
+  async getClassById(userId: string, userRole: string, id: string) {
     try {
       const classData = await this.classRepository.findById(id);
 
@@ -42,7 +42,7 @@ class ClassService {
         userId,
         action: "GET_CLASS_BY_ID",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { found: !!classData },
       });
 
@@ -52,14 +52,14 @@ class ClassService {
         userId,
         action: "GET_CLASS_BY_ID_FAILED",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
       throw error;
     }
   }
 
-  async createClass(userId: string, data: Partial<IClass>) {
+  async createClass(userId: string, userRole: string, data: Partial<IClass>) {
     try {
       const created = await this.classRepository.create(data);
 
@@ -67,7 +67,7 @@ class ClassService {
         userId,
         action: "CREATE_CLASS",
         targetId: created._id.toString(),
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { name: created.name, code: created.code },
       });
 
@@ -76,7 +76,7 @@ class ClassService {
       await this.logger.log({
         userId,
         action: "CREATE_CLASS_FAILED",
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: {
           input: data,
           error: (error as Error).message,
@@ -86,7 +86,12 @@ class ClassService {
     }
   }
 
-  async updateClass(userId: string, id: string, data: Partial<IClass>) {
+  async updateClass(
+    userId: string,
+    userRole: string,
+    id: string,
+    data: Partial<IClass>
+  ) {
     try {
       const updated = await this.classRepository.update(id, data);
 
@@ -94,7 +99,7 @@ class ClassService {
         userId,
         action: "UPDATE_CLASS",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { updated },
       });
 
@@ -104,7 +109,7 @@ class ClassService {
         userId,
         action: "UPDATE_CLASS_FAILED",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: {
           input: data,
           error: (error as Error).message,
@@ -114,7 +119,7 @@ class ClassService {
     }
   }
 
-  async deleteClass(userId: string, id: string) {
+  async deleteClass(userId: string, userRole: string, id: string) {
     try {
       const deleted = await this.classRepository.delete(id);
 
@@ -122,7 +127,7 @@ class ClassService {
         userId,
         action: "DELETE_CLASS",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { success: deleted },
       });
 
@@ -132,7 +137,7 @@ class ClassService {
         userId,
         action: "DELETE_CLASS_FAILED",
         targetId: id,
-        roleSnapshot: "admin",
+        roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
       throw error;

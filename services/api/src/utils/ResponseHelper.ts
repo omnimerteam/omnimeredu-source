@@ -65,3 +65,17 @@ export const sendNotFound = (
 ) => {
   return sendError(res, message, 404);
 };
+
+export const sendUnauthorized = (
+  res: Response,
+  message: string = "Người dùng chưa đăng nhập"
+) => {
+  return sendError(res, message, 401);
+};
+
+export const sendForbidden = (
+  res: Response,
+  message: string = "Người dùng không có quyền truy cập"
+) => {
+  return sendError(res, message, 403);
+};
