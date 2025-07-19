@@ -1,66 +1,143 @@
-import { Types } from "mongoose";
-import { ClassRepository } from "../repositories/class.repository";
-import { logActivity } from "../utils/logger";
+import { IClass } from "../models/Class";
+import ClassRepository from "../repositories/class.repository";
+import { ILogger } from "../interfaces/logger.interface";
 
-export class ClassService {
-  private readonly classRepo = new ClassRepository();
+class ClassService {
+  private readonly classRepository: ClassRepository;
+  private readonly logger: ILogger;
 
-  async createClass(input: {
-    name: string;
-    code: string;
-    schoolId: string;
-    teacherId?: string;
-    students?: string[];
-    baseFee: number;
-    performedBy: string; // userId thực hiện
-    roleSnapshot: string; // vai trò người tạo
-  }) {
-    const {
-      name,
-      code,
-      schoolId,
-      teacherId,
-      students,
-      baseFee,
-      performedBy,
-      roleSnapshot,
-    } = input;
+  constructor(classRepository: ClassRepository, logger: ILogger) {
+    this.classRepository = classRepository;
+    this.logger = logger;
+  }
 
-    const result = await this.classRepo.createClass({
-      name,
-      code,
-      schoolId: new Types.ObjectId(schoolId),
-      teacherId: teacherId ? new Types.ObjectId(teacherId) : undefined,
-      students: students?.map((id) => new Types.ObjectId(id)),
-      baseFee,
-    });
+  async getAllClasses(userId: string) {
+    try {
+      const classes = await this.classRepository.findAll();
 
-    if ("_id" in result) {
-      // Ghi log thành công
-      await logActivity({
-        userId: performedBy,
-        action: "createClass",
-        targetId: result._id,
-        roleSnapshot,
+      await this.logger.log({
+        userId,
+        action: "GET_ALL_CLASSES",
+        roleSnapshot: "admin",
+        metadata: { count: classes.length },
+      });
+
+      return classes;
+    } catch (error) {
+      await this.logger.log({
+        userId,
+        action: "GET_ALL_CLASSES_FAILED",
+        roleSnapshot: "admin",
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getClassById(userId: string, id: string) {
+    try {
+      const classData = await this.classRepository.findById(id);
+
+      await this.logger.log({
+        userId,
+        action: "GET_CLASS_BY_ID",
+        targetId: id,
+        roleSnapshot: "admin",
+        metadata: { found: !!classData },
+      });
+
+      return classData;
+    } catch (error) {
+      await this.logger.log({
+        userId,
+        action: "GET_CLASS_BY_ID_FAILED",
+        targetId: id,
+        roleSnapshot: "admin",
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async createClass(userId: string, data: Partial<IClass>) {
+    try {
+      const created = await this.classRepository.create(data);
+
+      await this.logger.log({
+        userId,
+        action: "CREATE_CLASS",
+        targetId: created._id.toString(),
+        roleSnapshot: "admin",
+        metadata: { name: created.name, code: created.code },
+      });
+
+      return created;
+    } catch (error) {
+      await this.logger.log({
+        userId,
+        action: "CREATE_CLASS_FAILED",
+        roleSnapshot: "admin",
         metadata: {
-          className: name,
-          schoolId,
+          input: data,
+          error: (error as Error).message,
         },
       });
-      return result;
-    } else {
-      // Ghi log thất bại
-      await logActivity({
-        userId: performedBy,
-        action: "createClassFailed",
-        roleSnapshot,
+      throw error;
+    }
+  }
+
+  async updateClass(userId: string, id: string, data: Partial<IClass>) {
+    try {
+      const updated = await this.classRepository.update(id, data);
+
+      await this.logger.log({
+        userId,
+        action: "UPDATE_CLASS",
+        targetId: id,
+        roleSnapshot: "admin",
+        metadata: { updated },
+      });
+
+      return updated;
+    } catch (error) {
+      await this.logger.log({
+        userId,
+        action: "UPDATE_CLASS_FAILED",
+        targetId: id,
+        roleSnapshot: "admin",
         metadata: {
-          reason: result.error,
-          className: name,
-          code,
+          input: data,
+          error: (error as Error).message,
         },
       });
-      throw new Error(result.error);
+      throw error;
+    }
+  }
+
+  async deleteClass(userId: string, id: string) {
+    try {
+      const deleted = await this.classRepository.delete(id);
+
+      await this.logger.log({
+        userId,
+        action: "DELETE_CLASS",
+        targetId: id,
+        roleSnapshot: "admin",
+        metadata: { success: deleted },
+      });
+
+      return deleted;
+    } catch (error) {
+      await this.logger.log({
+        userId,
+        action: "DELETE_CLASS_FAILED",
+        targetId: id,
+        roleSnapshot: "admin",
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
     }
   }
 }
+
+export default ClassService;
