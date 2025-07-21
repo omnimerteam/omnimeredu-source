@@ -25,5 +25,5 @@ export const findUserByUid = async (uid: string) => {
         select: "name",
       },
     })
-    .exec();
+    // bỏ .exec(); Không nên dùng await và .exec() cùng lúc dư thừa vì đã cấu hình type trong model
 };
