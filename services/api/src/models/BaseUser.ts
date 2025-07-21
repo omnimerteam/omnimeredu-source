@@ -15,13 +15,13 @@ export interface IBaseUser extends Document {
 const BaseUserSchema = new Schema<IBaseUser>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    fullName: { type: String, required: true },
-    roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true },
+    fullName: { type: String, required: true, index: true }, //thêm index
+    roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true, index: true }, //thêm index
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     birthday: Date,
-    phone: String,
+    phone: { type: String, index: true },
     address: String,
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: false, index: true }, //thêm index
   },
   {
     discriminatorKey: "roleKey",

@@ -1,4 +1,5 @@
 import { BaseUser, IBaseUser } from "../models/BaseUser";
+import { FilterQuery } from "mongoose";
 
 /**
  * Tạo mới BaseUser
@@ -29,6 +30,17 @@ export const findById = async (id: string): Promise<IBaseUser | null> => {
 /**
  * Lấy tất cả user (tuỳ mục đích)
  */
-export const findAll = async (): Promise<IBaseUser[]> => {
-  return await BaseUser.find().exec();
+// export const findAll = async (): Promise<IBaseUser[]> => {
+//   return await BaseUser.find().exec();
+// };
+
+export const findAll = async (
+  filter: FilterQuery<IBaseUser> = {},
+  skip = 0,
+  limit = 20
+): Promise<IBaseUser[]> => {
+  return await BaseUser.find(filter)
+  .skip(skip)
+  .limit(limit)
+  .exec();
 };

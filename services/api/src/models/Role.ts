@@ -24,6 +24,7 @@ const RoleSchema = new Schema<IRole>(
       ],
       required: true,
       unique: true,
+      index: true, //thêm index
     },
     description: { type: String },
     permissions: [{ type: String }],
