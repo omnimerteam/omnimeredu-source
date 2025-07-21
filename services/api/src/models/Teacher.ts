@@ -1,7 +1,11 @@
-import { Schema } from 'mongoose';
-import { BaseUser } from './BaseUser';
+import { Schema } from "mongoose";
+import { BaseUser } from "./BaseUser";
 
-export const Teacher = BaseUser.discriminator('Teacher', new Schema({
-  literacy: String,
-  subjects: [String]
-}));
+export const Teacher = BaseUser.discriminator(
+  "Teacher",
+  new Schema({
+    literacy: String,
+    subjects: [String],
+    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
+  })
+);
