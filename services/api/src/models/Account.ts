@@ -12,11 +12,11 @@ export interface IAccount extends Document {
 const AccountSchema = new Schema<IAccount>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, index: true }, //thêm index
     password: { type: String, required: true },
-    uid: { type: String, required: true, unique: true },
+    uid: { type: String, required: true, unique: true,  index: true }, //thêm index
     token: { type: String },
-    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true}, //thêm index
   },
   { timestamps: true }
 );
