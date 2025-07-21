@@ -11,7 +11,7 @@ const run = async () => {
     });
     console.log("✅ Connected to MongoDB");
 
-    const roleIdToCheck = "686f95a2e588b615f7aca67f"; // 👈 thay bằng _id của role cần test
+    const roleIdToCheck = "XXXXXXXXXXXXXX"; // 👈 thay bằng _id của role cần test
 
     const result = await BaseUser.find({ roleId: roleIdToCheck })
       .limit(1)
