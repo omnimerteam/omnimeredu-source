@@ -79,3 +79,10 @@ export const sendForbidden = (
 ) => {
   return sendError(res, message, 403);
 };
+
+export const sendEmpty = (
+  res: Response,
+  message: string = "Không có dữ liệu"
+) => {
+  return sendError(res, message, 404);
+}

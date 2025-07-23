@@ -1,24 +1,14 @@
 import { ISchool } from "../models/School";
 import { Types, Model } from "mongoose";
+import { BaseRepository } from "./base.repository";
 
-class SchoolRepository {
-    // Bắt buộc phải khai báo Model<ISchool> để sử dụng các phương thức của mongoose
-    private SchoolModel: Model<ISchool>;
+class SchoolRepository extends BaseRepository<ISchool> {
 
     constructor(SchoolModel: Model<ISchool>) {
-        this.SchoolModel = SchoolModel;
+        super(SchoolModel);
 
-    }
-    async findAll(): Promise<ISchool[]> {
-        return this.SchoolModel.find().exec();
-    }
-
-    async findById(id: string): Promise<ISchool | null> {
-        if (!Types.ObjectId.isValid(id)) return null;
-        return this.SchoolModel.findById(id).exec();
     }
     // hàm này sẽ tìm kiếm theo tên hoặc mã trường học, nếu cả hai đều không có thì sẽ báo lỗi
-
     async findByNameOrCode(name: string, code: string): Promise<ISchool | null> {
         //khởi tạo 1 object rỗng
         const query: any = {};
@@ -38,25 +28,7 @@ class SchoolRepository {
             query.code = new RegExp(`^${code}$`, 'i');
         }
 
-        return this.SchoolModel.findOne(query);
-    }
-
-
-    async create(schoolData: Partial<ISchool>): Promise<ISchool> {
-        return this.SchoolModel.create(schoolData);
-    }
-
-    async update(id: string, schoolData: Partial<ISchool>): Promise<ISchool | null> {
-        if (!Types.ObjectId.isValid(id)) return null;
-
-        return this.SchoolModel.findByIdAndUpdate(id, schoolData, { new: true }).exec();
-    }
-
-    async delete(id: string): Promise<boolean> {
-        if (!Types.ObjectId.isValid(id)) return false;
-
-        const result = await this.SchoolModel.findByIdAndDelete(id).exec();
-        return result !== null;
+        return this.model.findOne(query);
     }
 }
 
