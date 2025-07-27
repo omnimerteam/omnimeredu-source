@@ -2,9 +2,11 @@ import { Router } from "express";
 
 // Models → Repo → Service → Controller
 import Class from "../models/Class";
+import { Student } from "../models/Student";
 import ClassRepository from "../repositories/class.repository";
-import ClassService from "../services/class.service";
+import ClassService from "../services/class.services";
 import ClassController from "../controllers/class.controller";
+import StudentRepository from "../repositories/student.repository";
 
 // Logger & Activity Log
 import { ActivityLogRepository } from "../repositories/activityLog.repository";
@@ -16,8 +18,13 @@ import { verifyRole } from "../middlewares/verifyRole";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);
+const studentRepository = new StudentRepository(Student);
 const logger = new DefaultLogger(new ActivityLogRepository());
-const classService = new ClassService(classRepository, logger);
+const classService = new ClassService(
+  classRepository,
+  logger,
+  studentRepository
+);
 const classController = new ClassController(classService);
 
 // Router
@@ -29,23 +36,23 @@ const router = Router();
 
 // Lấy tất cả lớp
 router.get(
-  "/classes",
+  "/",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClasses(req, res, next)
 );
 
 // Lấy lớp theo ID
 router.get(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  (req, res, next) => classController.getByIdClass(req, res, next)
+  (req, res, next) => classController.getClassById(req, res, next)
 );
 
 // Tạo lớp mới
 router.post(
-  "/classes",
+  "/",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.createClass(req, res, next)
@@ -53,7 +60,7 @@ router.post(
 
 // Cập nhật lớp
 router.put(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.updateClass(req, res, next)
@@ -61,10 +68,34 @@ router.put(
 
 // Xóa lớp
 router.delete(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  (req, res, next) => classController.removeClass(req, res, next)
+  (req, res, next) => classController.deleteClass(req, res, next)
+);
+
+// Thêm học sinh vào lớp
+router.post(
+  "/:id/students",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.addStudentToClass(req, res, next)
+);
+
+// Xóa học sinh khỏi lớp
+router.post(
+  "/:id/students",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.removeStudentFromClass(req, res, next)
+);
+
+// Trao đổi học sinh giữa các lớp
+router.put(
+  "/:id/transfer",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.transferClass(req, res, next)
 );
 
 export default router;

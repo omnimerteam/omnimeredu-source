@@ -24,7 +24,6 @@ app.use(morgan("dev"));
 
 // Mount routes
 //Sẽ sử dụng site.route để quản lý tất cả các route của ứng dụng
-
 route(app);
 
 app.use(errorHandler);
