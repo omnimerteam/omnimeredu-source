@@ -15,7 +15,7 @@ export interface IBaseUser extends Document {
 const BaseUserSchema = new Schema<IBaseUser>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    fullName: { type: String, required: true, index: true }, //thêm index
+    fullName: { type: String, required: true, index: true },
     roleId: { type: Schema.Types.ObjectId, ref: "Role", required: true, index: true }, //thêm index
     gender: { type: String, enum: ["Male", "Female", "Other"] },
     birthday: Date,

@@ -27,13 +27,13 @@ class SchoolController {
       }
       const schools = await this.schoolService.getAllSchools(userId, userRole);
       if (!schools || schools.length === 0) {
-        sendNotFound(res);
+        sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[SCHOOL] Get all schools"));
-      sendSuccess(res, schools, "Get all schools successfully");
+      console.log(chalk.green("[SCHOOL] Get all schools successfully"));
+      sendSuccess(res, schools, "Lấy danh sách trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error getting all schools"));
+      console.log(chalk.red("[SCHOOL] Erorr getting all schools"));
       return next(error);
     }
   }
@@ -49,13 +49,13 @@ class SchoolController {
       const schoolId = req.params.id;
       const school = await this.schoolService.getSchoolById(schoolId, userId, userRole);
       if (!school) {
-        sendNotFound(res);
+        sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[SCHOOL] Get School by ID successfully"));
-      sendSuccess(res, school, "Get school by ID successfully");
+      console.log(chalk.green("[SCHOOL] Get school by ID successfully"));
+      sendSuccess(res, school, "Lấy thông tin trường học theo ID thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error getting schoold by ID"));
+      console.log(chalk.red("[SCHOOL] Error getting school by ID"));
       return next(error);
     }
   }
@@ -70,13 +70,6 @@ class SchoolController {
         return;
       }
       const { name, code } = req.query;
-      if (!name && !code) {
-        sendEmpty(res, "Name or code query parameter is required");
-        res
-          .status(400)
-          .json({ message: "Name or code query parameter is required" });
-        return;
-      }
       const school = await this.schoolService.getSchoolByNameOrCode(
         name as string,
         code as string,
@@ -84,11 +77,11 @@ class SchoolController {
         userRole
       );
       if (!school) {
-        sendNotFound(res);
+        sendEmpty(res);
         return;
       }
       console.log(chalk.green("[SCHOOL] Get school by name or code successfully"));
-      sendSuccess(res, school, "Get school by name or code successfully");
+      sendSuccess(res, school, "Lấy trường học theo tên hoặc mã thành công");
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error getting school by name or code"));
       return next(error);
@@ -104,15 +97,11 @@ class SchoolController {
         return;
       }
       const schoolData: Partial<ISchool> = req.body;
-      if (!schoolData) {
-        sendEmpty(res, "School data is required");
-        return;
-      }
       const newSchool = await this.schoolService.createSchool(schoolData, userId, userRole);
-      console.log(chalk.green("[SCHOOL] Create school successfully"));
-      sendCreated(res, newSchool, "School created successfully");
+      console.log(chalk.green("[SCHOOL] Create new school successfully"));
+      sendCreated(res, newSchool, "Thêm mới trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error creating school"));
+      console.log(chalk.red("[SCHOOL] Error creating new school"));
       return next(error);
     }
   }
@@ -134,11 +123,11 @@ class SchoolController {
         userRole
       );
       if (!updatedSchool) {
-        sendNotFound(res);
+        sendEmpty(res);
         return;
       }
       console.log(chalk.green("[SCHOOL] Update school successfully"));
-      sendSuccess(res, updatedSchool, "School updated successfully");
+      sendSuccess(res, updatedSchool, "Cập nhật thông tin trường học thành công");
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error updating school"));
       return next(error);
@@ -156,11 +145,11 @@ class SchoolController {
       const schoolId = req.params.id;
       const deleted = await this.schoolService.deleteSchool(schoolId, userId, userRole);
       if (!deleted) {
-        sendNotFound(res);
+        sendEmpty(res);
         return;
       }
       console.log(chalk.green("[SCHOOL] Delete school successfully"));
-      sendSuccess(res, null, "School deleted successfully");
+      sendSuccess(res, null, "Xóa thông tin trường học thành công");
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error deleting school"));
       return next(error);

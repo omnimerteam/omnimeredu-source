@@ -1,17 +1,18 @@
-import { Schema } from "mongoose";
-import { BaseUser } from "./BaseUser";
+import mongoose, { Schema, Types } from "mongoose";
+import { BaseUser, IBaseUser } from "./BaseUser";
 
-export interface ITeacher {
+export interface ITeacher extends IBaseUser {
   literacy: string;
   subjects: string[];
-  schoolId: Schema.Types.ObjectId;
+  schoolId: Types.ObjectId;
 }
 
-export const Teacher = BaseUser.discriminator(
-  "Teacher",
-  new Schema({
-    literacy: String,
-    subjects: [String],
-    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
-  })
-);
+// Define schema for the discriminator
+const TeacherSchema = new Schema<ITeacher>({
+  literacy: { type: String },
+  subjects: [{ type: String }],
+  schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
+});
+
+export default BaseUser.discriminator<ITeacher>("Teacher", TeacherSchema);
+
