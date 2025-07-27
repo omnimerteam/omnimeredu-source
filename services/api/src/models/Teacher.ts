@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
-import { BaseUser } from "./BaseUser";
+import mongoose, { Schema, Types } from "mongoose";
+import { BaseUser, IBaseUser } from "./BaseUser";
 
-export interface ITeacher {
+export interface ITeacher extends IBaseUser {
   literacy: string;
   subjects: string[];
   schoolId?: Schema.Types.ObjectId;
