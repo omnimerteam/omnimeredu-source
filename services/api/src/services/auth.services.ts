@@ -1,7 +1,6 @@
 import * as RoleRepo from "../repositories/role.repository";
 import * as BaseUserRepo from "../repositories/basedUser.repository";
 import * as AccountRepo from "../repositories/account.repository";
-import { IRole } from "../models/Role";
 
 export const registerUser = async (
   uid: string,

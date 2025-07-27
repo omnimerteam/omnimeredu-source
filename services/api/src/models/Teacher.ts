@@ -4,15 +4,14 @@ import { BaseUser, IBaseUser } from "./BaseUser";
 export interface ITeacher extends IBaseUser {
   literacy: string;
   subjects: string[];
-  schoolId: Types.ObjectId;
+  schoolId?: Schema.Types.ObjectId;
 }
 
-// Define schema for the discriminator
-const TeacherSchema = new Schema<ITeacher>({
-  literacy: { type: String },
-  subjects: [{ type: String }],
-  schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
-});
-
-export default BaseUser.discriminator<ITeacher>("Teacher", TeacherSchema);
-
+export const Teacher = BaseUser.discriminator(
+  "Teacher",
+  new Schema({
+    literacy: String,
+    subjects: [String],
+    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: false },
+  })
+);

@@ -37,6 +37,9 @@ export const verifyFirebaseToken = async (
 
     // Tìm user trong hệ thống backend
     const profile = await findUserByUid(decodedToken.uid);
+
+    console.log("Profile found:", profile?.userId);
+
     if (!profile) {
       sendError(res, "Không tìm thấy thông tin người dùng", 404);
       return;
@@ -59,10 +62,10 @@ export const verifyFirebaseToken = async (
     }
 
     // Gán lại vào req
-    req.user = profile;
+    req.user = profile.userId;
     req.role = roleName;
 
-    console.log(`[AUTH ✅] User: ${profile.email} | Role: ${roleName}`);
+    console.log(`[AUTH ✅] User: ${req.user.id}, Role: ${req.role}`);
     return next();
   } catch (err: any) {
     console.error("❌ verifyFirebaseToken error:", err.message);
