@@ -9,6 +9,6 @@ function setupRoutes(app: Express) {
   app.use("/", indexRoutes); // Root:/
   app.use("/api", schoolRouter); // School API: /api/schools
   app.use("/api", authRoutes); // Auth API: /api/auth
-  app.use("/api/v1", classRoutes); // Class API Version 1: /api/v1/classes
+  app.use("/api/v1/classes", classRoutes); // Class API Version 1: /api/v1/classes
 }
 export default setupRoutes;

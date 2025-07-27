@@ -21,7 +21,7 @@ export class BaseRepository<T> {
     options?: { page?: number; limit?: number; sort?: any }
   ): Promise<T[]> {
     const page = options?.page || 1;
-    const limit = options?.limit || 10;
+    const limit = options?.limit || 20;
     const skip = (page - 1) * limit;
     const sort = options?.sort || { _id: -1 };
 

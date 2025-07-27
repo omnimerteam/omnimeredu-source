@@ -39,8 +39,5 @@ export const findAll = async (
   skip = 0,
   limit = 20
 ): Promise<IBaseUser[]> => {
-  return await BaseUser.find(filter)
-  .skip(skip)
-  .limit(limit)
-  .exec();
+  return await BaseUser.find(filter).skip(skip).limit(limit).exec();
 };

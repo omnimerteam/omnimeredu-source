@@ -4,7 +4,7 @@ import { BaseUser } from "./BaseUser";
 export interface ITeacher {
   literacy: string;
   subjects: string[];
-  schoolId: Schema.Types.ObjectId;
+  schoolId?: Schema.Types.ObjectId;
 }
 
 export const Teacher = BaseUser.discriminator(
@@ -12,6 +12,6 @@ export const Teacher = BaseUser.discriminator(
   new Schema({
     literacy: String,
     subjects: [String],
-    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
+    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: false },
   })
 );
