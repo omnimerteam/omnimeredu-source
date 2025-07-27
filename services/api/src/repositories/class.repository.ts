@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { FilterQuery, Model } from "mongoose";
 import { IClass } from "../models/Class";
 import { BaseRepository } from "./base.repository";
 

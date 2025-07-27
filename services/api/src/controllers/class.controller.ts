@@ -32,6 +32,8 @@ class ClassController {
         return;
       }
 
+      const schoolId = req.user?.schoolId;
+
       const options = {
         page: parseInt(req.query.page as string) || 1,
         limit: parseInt(req.query.limit as string) || 10,
@@ -43,6 +45,7 @@ class ClassController {
       const result = await this.classService.getAllClasses(
         userId,
         userRole,
+        schoolId,
         options
       );
 

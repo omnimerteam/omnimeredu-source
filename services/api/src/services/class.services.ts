@@ -23,16 +23,29 @@ class ClassService {
   async getAllClasses(
     userId: string,
     userRole: string,
+    schoolId?: string,
     options?: { page?: number; limit?: number; sort?: any }
   ) {
     try {
-      const classes = await this.classRepository.findAll({}, options);
+      let filter: any = {};
+
+      if (userRole === "SuperAdmin") {
+        filter = {}; // không giới hạn
+      } else if (userRole === "SchoolAdmin") {
+        if (!schoolId) throw new Error("Thiếu schoolId");
+        filter = { schoolId };
+      } else {
+        throw new Error("Bạn không có quyền xem danh sách lớp");
+      }
+
+      const classes = await this.classRepository.findAll(filter, options);
 
       await this.logger.log({
         userId,
         action: "GET_ALL_CLASSES",
         roleSnapshot: userRole,
         metadata: {
+          filter,
           options,
           count: classes.length,
         },
