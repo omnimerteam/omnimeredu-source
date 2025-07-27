@@ -35,7 +35,7 @@ class TeacherController {
             return;
         } catch (error) {
             console.error(chalk.red('[TEACHER] Error getting all teachers:', error));
-            throw next(error);
+            return next(error);
         }
     }
     async getTeacherById(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -57,7 +57,7 @@ class TeacherController {
             return;
         } catch (error) {
             console.error(chalk.red('[TEACHER] Error getting teacher by ID', error));
-            throw error;
+            return next(error);
         }
 
     }
@@ -76,7 +76,7 @@ class TeacherController {
             return;
         } catch (error) {
             console.log(chalk.red('[TEACHER] Error creatting new teacher:', error));
-            throw next(error);
+            return next(error);
         }
     }
 
@@ -101,7 +101,7 @@ class TeacherController {
             return;
         } catch (error) {
             console.log(chalk.red('[TEACHER] Error updatting teacher:', error));
-            throw next(error);
+            return next(error);
         }
     }
 
@@ -126,7 +126,7 @@ class TeacherController {
             return;
         } catch (error) {
             console.log(chalk.red('[TEACHER] Error delete teacher:', error));
-            throw next(error);
+            return next(error);
         }
     }
 

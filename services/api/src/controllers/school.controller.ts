@@ -33,7 +33,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Get all schools successfully"));
       sendSuccess(res, schools, "Lấy danh sách trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Erorr getting all schools"));
+      console.log(chalk.red("[SCHOOL] Erorr getting all schools"), error);
       return next(error);
     }
   }
@@ -55,7 +55,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Get school by ID successfully"));
       sendSuccess(res, school, "Lấy thông tin trường học theo ID thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error getting school by ID"));
+      console.log(chalk.red("[SCHOOL] Error getting school by ID"), error);
       return next(error);
     }
   }
@@ -83,7 +83,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Get school by name or code successfully"));
       sendSuccess(res, school, "Lấy trường học theo tên hoặc mã thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error getting school by name or code"));
+      console.log(chalk.red("[SCHOOL] Error getting school by name or code", error));
       return next(error);
     }
   }
@@ -101,7 +101,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Create new school successfully"));
       sendCreated(res, newSchool, "Thêm mới trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error creating new school"));
+      console.log(chalk.red("[SCHOOL] Error creating new school", error));
       return next(error);
     }
   }
@@ -129,7 +129,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Update school successfully"));
       sendSuccess(res, updatedSchool, "Cập nhật thông tin trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error updating school"));
+      console.log(chalk.red("[SCHOOL] Error updating school", error));
       return next(error);
     }
   }
@@ -151,7 +151,7 @@ class SchoolController {
       console.log(chalk.green("[SCHOOL] Delete school successfully"));
       sendSuccess(res, null, "Xóa thông tin trường học thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error deleting school"));
+      console.log(chalk.red("[SCHOOL] Error deleting school", error));
       return next(error);
     }
   }
