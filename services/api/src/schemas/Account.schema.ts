@@ -25,14 +25,18 @@ export const AccountSchema = z.object({
   uid: z
     .string()
     .min(1, { message: "UID is required" })
-    .regex(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i, {
-      message: "Invalid UUID v4 format",
-    }), // Bắt buộc, thông báo lỗi nếu thiếu
+    .regex(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      {
+        message: "Invalid UUID v4 format",
+      }
+    ), // Bắt buộc, thông báo lỗi nếu thiếu
   token: z
     .string()
     .optional()
     .refine(
-      (val) => !val || /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(val),
+      (val) =>
+        !val || /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(val),
       { message: "Invalid JWT format" }
     ),
   refreshToken: z.string().optional(),
