@@ -1,8 +1,8 @@
-import { SuperAdmin } from "../models/SuperAdmin";
-import { SchoolAdmin } from "../models/SchoolAdmin";
-import { Teacher } from "../models/Teacher";
-import { Student } from "../models/Student";
-import { BaseUser } from "../models/BaseUser";
+import BaseUser from "../models/BaseUser";
+import SchoolAdmin from "../models/SchoolAdmin";
+import Student from "../models/Student";
+import SuperAdmin from "../models/SuperAdmin";
+import Teacher from "../models/Teacher";
 
 // Những role có model riêng (có discriminator)
 const specialRoleModels: Record<string, typeof BaseUser> = {

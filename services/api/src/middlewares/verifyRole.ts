@@ -1,7 +1,5 @@
 import { Response, NextFunction } from "express";
 import { Request } from "express";
-import { findUserByUid } from "../repositories/account.repository";
-import { IRole } from "../models/Role";
 
 /**
  * Middleware: Phân quyền

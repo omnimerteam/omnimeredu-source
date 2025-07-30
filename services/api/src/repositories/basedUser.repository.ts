@@ -1,4 +1,5 @@
-import { BaseUser, IBaseUser } from "../models/BaseUser";
+import { IBaseUser } from "../models/BaseUser";
+import BaseUser from "../models/BaseUser";
 import { FilterQuery } from "mongoose";
 
 /**

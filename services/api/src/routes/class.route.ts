@@ -2,7 +2,7 @@ import { Router } from "express";
 
 // Models → Repo → Service → Controller
 import Class from "../models/Class";
-import { Student } from "../models/Student";
+import Student from "../models/Student";
 import ClassRepository from "../repositories/class.repository";
 import ClassService from "../services/class.services";
 import ClassController from "../controllers/class.controller";

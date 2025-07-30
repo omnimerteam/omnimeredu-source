@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { Teacher } from "../models/Teacher";
+import Teacher from "../models/Teacher";
 
 // Import các model, repository, service và controller cần thiết
 import TeacherRepository from "../repositories/teacher.repository";

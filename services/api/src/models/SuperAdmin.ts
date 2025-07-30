@@ -1,8 +1,11 @@
 import { Schema } from "mongoose";
-import { BaseUser, IBaseUser } from "./BaseUser";
+import { IBaseUser } from "./BaseUser";
+import BaseUser from "./BaseUser";
 export interface ISuperAdmin extends IBaseUser {}
 
-export const SuperAdmin = BaseUser.discriminator<ISuperAdmin>(
+const SuperAdmin = BaseUser.discriminator<ISuperAdmin>(
   "SuperAdmin",
   new Schema<ISuperAdmin>({})
 );
+
+export default SuperAdmin;

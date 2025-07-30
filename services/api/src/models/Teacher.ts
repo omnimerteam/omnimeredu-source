@@ -1,13 +1,13 @@
 import mongoose, { Schema, Types } from "mongoose";
-import { BaseUser, IBaseUser } from "./BaseUser";
-
+import { IBaseUser } from "./BaseUser";
+import BaseUser from "./BaseUser";
 export interface ITeacher extends IBaseUser {
   literacy?: string;
   subjects?: string[];
   schoolId?: Schema.Types.ObjectId;
 }
 
-export const Teacher = BaseUser.discriminator<ITeacher>(
+const Teacher = BaseUser.discriminator<ITeacher>(
   "Teacher",
   new Schema<ITeacher>({
     literacy: { type: String, required: false },
@@ -15,3 +15,5 @@ export const Teacher = BaseUser.discriminator<ITeacher>(
     schoolId: { type: Schema.Types.ObjectId, ref: "School", required: false },
   })
 );
+
+export default Teacher;
