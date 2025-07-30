@@ -1,13 +1,13 @@
-import { Schema } from 'mongoose';
-import { BaseUser } from './BaseUser';
+import { Schema, Types } from "mongoose";
+import { BaseUser, IBaseUser } from "./BaseUser";
 
-export interface ISchoolAdmin {
-  schoolId: Schema.Types.ObjectId;
+export interface ISchoolAdmin extends IBaseUser {
+  schoolId?: Types.ObjectId;
 }
 
-const SchoolAdminSchema = new Schema<ISchoolAdmin>({
-  schoolId: { type: Schema.Types.ObjectId, ref: 'School', required: true }
-},
+export const SchoolAdmin = BaseUser.discriminator<ISchoolAdmin>(
+  "SchoolAdmin",
+  new Schema<ISchoolAdmin>({
+    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: false },
+  })
 );
-
-export default BaseUser.discriminator<ISchoolAdmin>("SchoolAdmin", SchoolAdminSchema);

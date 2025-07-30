@@ -1,3 +1,4 @@
+
 import { Model } from 'mongoose';
 import { ISchoolAdmin } from '../models/SchoolAdmin';
 import { BaseRepository } from './base.repository';
