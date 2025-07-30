@@ -38,8 +38,6 @@ export const verifyFirebaseToken = async (
     // Tìm user trong hệ thống backend
     const profile = await findUserByUid(decodedToken.uid);
 
-    console.log("Profile found:", profile?.userId);
-
     if (!profile) {
       sendError(res, "Không tìm thấy thông tin người dùng", 404);
       return;

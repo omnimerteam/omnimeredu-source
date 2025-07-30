@@ -17,11 +17,6 @@ router.post("/register", AuthController.register);
  * Lấy thông tin user + role theo Firebase UID.
  * Yêu cầu xác thực Firebase token.
  */
-router.get(
-  "/role",
-  verifyFirebaseToken,
-  verifyRole(),
-  AuthController.getUserRole
-);
+router.get("/login", verifyFirebaseToken, verifyRole(), AuthController.login);
 
 export default router;

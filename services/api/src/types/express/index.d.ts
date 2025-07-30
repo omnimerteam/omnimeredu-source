@@ -12,25 +12,26 @@ declare module "express" {
 
 /**
  * 
-account: {
-  _id: new ObjectId('687358d941df16e2a42eed17'), (accountId)
-  email: 'huynhtri@gmail.com',
-  password: 'Tri@1109',
-  uid: '9Wb94ETAdsYKTSlZzNvFTskp47H2',
-  userId: {
-    _id: new ObjectId('687358d941df16e2a42eed15'),
-    fullName: 'Tri@1109',
-    roleId: { _id: new ObjectId('686f95a2e588b615f7aca67f'), name: 'Student' },
-    gender: 'Male',
-    phone: '121212',
-    isVerified: false,
-    createdAt: 2025-07-13T06:57:29.479Z,
-    updatedAt: 2025-07-13T06:57:29.479Z,
-    __v: 0
-  },
-  createdAt: 2025-07-13T06:57:29.529Z,
-  updatedAt: 2025-07-13T06:57:29.529Z,
-  __v: 0
-}
+          "user": {
+            "_id": "6889e705cf2912e821efd171", // Cái này là id của user
+            "fullName": "Tri",
+            "roleId": {
+                "_id": "686f95a2e588b615f7aca67e", // ID của Role
+                "name": "Teacher"
+            },
+            "gender": "Male",
+            "phone": "454353453",
+            "isVerified": false,
+            "roleKey": "Teacher",
+            "literacy": "Đại học Sư phạm TP.HCM",
+            "subjects": [
+                "Toán",
+                "Lý"
+            ],
+            "schoolId": "6878ae00072ff5aee0099cc2",
+            "createdAt": "2025-07-30T09:33:57.311Z",
+            "updatedAt": "2025-07-30T09:33:57.311Z",
+            "__v": 0
+        }
 
  */

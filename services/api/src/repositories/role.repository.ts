@@ -1,8 +1,11 @@
-import Role, { IRole } from "../models/Role";
+import { Model } from "mongoose";
+import { BaseRepository } from "./base.repository";
+import { IRole } from "../models/Role";
 
-/**
- * Tìm role theo tên (SuperAdmin, Teacher, ...)
- */
-export const findRoleByName = async (name: string): Promise<IRole | null> => {
-  return await Role.findOne({ name }).exec();
-};
+class RoleRepository extends BaseRepository<IRole> {
+  constructor(roleModel: Model<IRole>) {
+    super(roleModel);
+  }
+}
+
+export default RoleRepository;

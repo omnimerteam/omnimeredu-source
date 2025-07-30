@@ -10,7 +10,7 @@ import { Express } from "express";
 
 function setupRoutes(app: Express) {
   app.use("/", indexRoutes); // Root:/
-  app.use("/api/v1", authRoutes); // Auth API: /api/auth
+  app.use("/api/v1/auth", authRoutes); // Auth API: /api/auth
   app.use("/api/v1/schools", schoolRouter); // School API: /api/schools
   app.use("/api/v1/teachers", teacherRoutes); // Teacher API: /api/teachers
   app.use("/api/v1/teachingassignment", teachingAssignment); // Teaching Assignment API: /api/teachingassignments

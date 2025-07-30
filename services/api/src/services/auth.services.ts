@@ -1,62 +1,70 @@
-import * as RoleRepo from "../repositories/role.repository";
-import * as BaseUserRepo from "../repositories/basedUser.repository";
+import Role from "../models/Role";
+import RoleRepository from "../repositories/role.repository";
 import * as AccountRepo from "../repositories/account.repository";
+import { getModelByRoleName } from "../utils/roleToModelMap";
+import { DefaultLogger } from "../utils/DefaultLogger";
+import { ILogger } from "../interfaces/logger.interface";
 
+const roleRepository = new RoleRepository(Role);
+
+// Nếu bạn chưa có logger sẵn thì tạo instance
+const logger: ILogger = new DefaultLogger();
+
+/**
+ * Tạo user mới theo role, nhận đầy đủ thông tin BaseUser + các field riêng
+ */
 export const registerUser = async (
   uid: string,
   email: string,
-  fullName: string,
-  gender: "Male" | "Female" | "Other",
-  phone: string,
-  role: string,
-  password: string
+  password: string,
+  roleId: string,
+  userInfo: any,
+  performedBy?: string // ID của admin đang tạo tài khoản, hoặc undefined nếu self-register
 ) => {
-  // 1) Tìm role
-  const roleDoc = await RoleRepo.findRoleByName(role);
-  if (!roleDoc) throw new Error("❌ Role không tồn tại");
+  try {
+    const role = await roleRepository.findById(roleId);
+    if (!role) throw new Error("❌ Vai trò không tồn tại");
 
-  // 2) Tạo BaseUser
-  const baseUser = await BaseUserRepo.createBaseUser({
-    fullName,
-    gender,
-    phone,
-    roleId: roleDoc._id, // đã là ObjectId rồi!
-  });
+    const UserModel = getModelByRoleName(role.name);
 
-  // 3) Tạo Account gắn userId
-  await AccountRepo.createAccount({
-    uid,
-    email,
-    password,
-    userId: baseUser._id, // đã là ObjectId rồi!
-  });
+    const user = await UserModel.create({
+      ...userInfo,
+      roleId: role._id,
+    });
 
-  return baseUser;
+    const account = await AccountRepo.createAccount({
+      uid,
+      email,
+      password,
+      userId: user._id,
+    });
+
+    await logger.log({
+      userId: performedBy ?? user._id.toString(), // Nếu là self-register thì ghi nhận chính nó
+      action: "REGISTER_USER",
+      targetId: user._id.toString(),
+      roleSnapshot: role.name,
+      metadata: {
+        email,
+        roleId,
+        userInfo,
+      },
+    });
+
+    return { account, user };
+  } catch (error) {
+    await logger.log({
+      userId: performedBy ?? "System",
+      action: "REGISTER_USER_FAILED",
+      roleSnapshot: roleId,
+      metadata: {
+        email,
+        roleId,
+        userInfo,
+        error: (error as Error).message,
+      },
+    });
+
+    throw error;
+  }
 };
-
-async function createAccountAndUser(data: {
-  email: string;
-  password: string;
-  roleName: string; // vd: 'Teacher'
-  userInfo: any; // data riêng cho BaseUser
-}) {
-  const role = await RoleRepo.findRoleByName(data.roleName);
-  if (!role) throw new Error("Role không hợp lệ");
-
-  // 1. Tạo BaseUser hoặc subclass
-  const UserModel = roleToModelMap[data.roleName];
-  if (!UserModel) throw new Error("Không tìm được model tương ứng với role");
-
-  const user = await UserModel.create(data.userInfo);
-
-  // 2. Tạo Account
-  const account = await AccountRepo.create({
-    email: data.email,
-    password: hashPassword(data.password),
-    uid: "", // nếu dùng Firebase thì lưu uid ở đây
-    roleId: role._id,
-    userRef: user._id,
-  });
-
-  return account;
-}

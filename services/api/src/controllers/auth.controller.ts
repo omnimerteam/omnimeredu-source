@@ -1,29 +1,58 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as AuthService from "../services/auth.services";
+import {
+  sendCreated,
+  sendNotFound,
+  sendSuccess,
+} from "../utils/ResponseHelper";
 
 /**
  * Đăng ký người dùng mới
  */
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const { uid, email, fullName, gender, phone, role, password } = req.body;
+    const {
+      uid,
+      email,
+      password,
+      roleId,
+      fullName,
+      gender,
+      phone,
+      schoolId,
+      classId,
+      literacy,
+      subjects,
+    } = req.body;
+
+    // Gom tất cả field vào userInfo (dùng cho BaseUser hoặc subclass)
+    const userInfo = {
+      fullName,
+      gender,
+      phone,
+      schoolId,
+      classId,
+      literacy,
+      subjects,
+    };
 
     const user = await AuthService.registerUser(
       uid,
       email,
-      fullName,
-      gender,
-      phone,
-      role,
-      password
+      password,
+      roleId,
+      userInfo
     );
 
-    res.status(200).json({ message: "Register success", user });
+    sendCreated(res, user, "Đăng ký thành công");
     return;
   } catch (error: any) {
     console.error("❌ register error:", error.message);
-    res.status(500).json({ message: "Error", error: error.message });
-    return;
+    return next(error);
   }
 };
 
@@ -31,23 +60,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  * Lấy role hiện tại của user đã verify
  * -> Role đã được gán ở middleware verifyRole()
  */
-export const getUserRole = async (
+export const login = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const roleUser = (req as any).role;
+    const user = req.user;
 
-    if (!roleUser) {
-      res.status(404).json({ message: "No role assigned" });
+    if (!user) {
+      sendNotFound(res, "Không tìm thấy thông tin người dùng");
       return;
     }
 
-    res.status(200).json({ role: roleUser });
+    sendSuccess(res, { user: user });
     return;
   } catch (error: any) {
     console.error("❌ getUserRole error:", error.message);
-    res.status(500).json({ message: "Internal server error" });
-    return;
+    return next(error);
   }
 };

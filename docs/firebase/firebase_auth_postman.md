@@ -6,7 +6,9 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
 - [x] Đăng nhập tài khoản (Sign In)
 - [x] Đăng xuất (Client tự xử lý token)
 
-## 1️⃣ Đăng ký tài khoản (Sign Up)
+## Đăng ký tài khoản (Sign Up)
+
+# Đăng ký tài khoản trên FB_Auth
 
 - **Endpoint:**  
   `POST https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD6uR1sBS9Kz3Q8hKMDWqk2EXs8Auz9tfQ`
@@ -34,6 +36,32 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
   "refreshToken": "AMf-vByfZVEJN4I8oHdnK1-_-2xaCbZMu-HP1TsHP1Ts...",
   "expiresIn": "3600",
   "localId": "zF6OQUHjCRNAPx5ozqEAYT4TI6g1"
+}
+```
+
+# Đăng ký tài khoản trên backend
+
+- **Endpoint:**  
+  `POST http://localhost:8888/api/v1/auth/register`
+
+- **Headers:**  
+  `Content-Type: application/json`
+
+- **Body (raw - JSON):**
+
+```json
+{
+  "uid": "3TPHvGXcfEWUb921ppDdQ5uPqpK2",
+  "email": "tritesting123@example.com",
+  "password": "123456",
+  "roleId": "686f95a2e588b615f7aca67e", // RoleId của Teacher
+  "fullName": "Tri",
+  "gender": "Male",
+  "phone": "454353453",
+  // Cái này là thêm các trường phù hợp với role
+  "schoolId": "6878ae00072ff5aee0099cc2",
+  "literacy": "Đại học Sư phạm TP.HCM",
+  "subjects": ["Toán", "Lý"]
 }
 ```
 
@@ -77,7 +105,7 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
 ## 3️⃣ Refresh Token (Làm mới token)
 
 - **Endpoint:**  
-  `POST https://securetoken.googleapis.com/v1/token?key=<YOUR_FIREBASE_API_KEY>`
+  `POST https://securetoken.googleapis.com/v1/token?key=AIzaSyD6uR1sBS9Kz3Q8hKMDWqk2EXs8Auz9tfQ`
 
 - **Headers:**  
   `Content-Type: application/x-www-form-urlencoded`
