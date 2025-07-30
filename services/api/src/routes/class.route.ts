@@ -29,7 +29,7 @@ const router = Router();
 
 // Lấy tất cả lớp
 router.get(
-  "/classes",
+  "/",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   (req, res, next) => classController.getAllClasses(req, res, next)
@@ -37,7 +37,7 @@ router.get(
 
 // Lấy lớp theo ID
 router.get(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getByIdClass(req, res, next)
@@ -45,7 +45,7 @@ router.get(
 
 // Tạo lớp mới
 router.post(
-  "/classes",
+  "/",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.createClass(req, res, next)
@@ -53,7 +53,7 @@ router.post(
 
 // Cập nhật lớp
 router.put(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.updateClass(req, res, next)
@@ -61,7 +61,7 @@ router.put(
 
 // Xóa lớp
 router.delete(
-  "/classes/:id",
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.removeClass(req, res, next)
