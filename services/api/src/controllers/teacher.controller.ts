@@ -49,7 +49,7 @@ class TeacherController {
             const teacherId = req.params.id;
             const teacher = await this.teacherService.getTeacherById(teacherId, userId, userRole);
             if (!teacher) {
-                sendEmpty(res);
+                sendNotFound(res);
                 return;
             }
             console.log(chalk.green(`[TEACHER] Get teacher by ${teacherId} successfully`));
@@ -90,7 +90,7 @@ class TeacherController {
             }
             const teacherId = req.params.id;
             if (!teacherId) {
-                sendEmpty(res);
+                sendNotFound(res);
                 return;
             }
             const teacherData: Partial<ITeacher> = req.body;
@@ -115,7 +115,7 @@ class TeacherController {
             }
             const teacherId = req.params.id;
             if (!teacherId) {
-                sendEmpty(res);
+                sendNotFound(res);
                 return;
             }
 

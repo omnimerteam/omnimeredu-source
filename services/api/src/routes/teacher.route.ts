@@ -29,9 +29,23 @@ router.get(
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.getAllTeachers(req, res, next)
 );
+router.get(
+  "/",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    teacherController.getAllTeachers(req, res, next)
+);
 
 router.get(
   "/teachers/:id",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    teacherController.getTeacherById(req, res, next)
+);
+router.get(
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
@@ -45,9 +59,23 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.createTeacher(req, res, next)
 );
+router.post(
+  "/",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    teacherController.createTeacher(req, res, next)
+);
 
 router.put(
   "/teachers/:id",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    teacherController.updateTeacher(req, res, next)
+);
+router.put(
+  "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
@@ -62,4 +90,27 @@ router.delete(
     teacherController.deleteTeacher(req, res, next)
 );
 
+router.delete(
+  "/:id",
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    teacherController.deleteTeacher(req, res, next)
+);
+
 export default router;
+
+/** example request body for creating a teacher
+ * {
+        "fullName": "Nguyễn Văn DADA",
+        "roleId": "6885e31812e74de500041b53",  
+        "gender": "Male",
+        "birthday": "2000-10-13",
+        "phone": "0909032",
+        "address": "Long An",
+        "isVerified": true,
+        "literacy": "abcbca",
+        "subjects": ["Math"],   
+        "schoolId": "6885e31812e74de500041b51"
+      }
+ */
