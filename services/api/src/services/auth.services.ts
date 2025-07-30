@@ -33,3 +33,30 @@ export const registerUser = async (
 
   return baseUser;
 };
+
+async function createAccountAndUser(data: {
+  email: string;
+  password: string;
+  roleName: string; // vd: 'Teacher'
+  userInfo: any; // data riêng cho BaseUser
+}) {
+  const role = await RoleRepo.findRoleByName(data.roleName);
+  if (!role) throw new Error("Role không hợp lệ");
+
+  // 1. Tạo BaseUser hoặc subclass
+  const UserModel = roleToModelMap[data.roleName];
+  if (!UserModel) throw new Error("Không tìm được model tương ứng với role");
+
+  const user = await UserModel.create(data.userInfo);
+
+  // 2. Tạo Account
+  const account = await AccountRepo.create({
+    email: data.email,
+    password: hashPassword(data.password),
+    uid: "", // nếu dùng Firebase thì lưu uid ở đây
+    roleId: role._id,
+    userRef: user._id,
+  });
+
+  return account;
+}

@@ -12,7 +12,7 @@ declare module "express" {
 
 /**
  * 
-user: {
+account: {
   _id: new ObjectId('687358d941df16e2a42eed17'), (accountId)
   email: 'huynhtri@gmail.com',
   password: 'Tri@1109',
