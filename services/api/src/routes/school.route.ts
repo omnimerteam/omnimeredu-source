@@ -25,32 +25,32 @@ const schoolService = new SchoolService(schoolRepository, logger);
 const schoolController = new SchoolController(schoolService);
 
 //Cần chắc chắn để router search đầu tiên để không bị các route khác chặn
-router.get('/schools/search',
+router.get('/search',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.getSchoolByNameOrCode(req, res, next));
 
-router.get('/schools/:id',
+router.get('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.getSchoolById(req, res, next));
 
-router.get('/schools',
+router.get('/',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.getAllSchools(req, res, next));
 
-router.post('/schools',
+router.post('/',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.createSchool(req, res, next));
 
-router.put('/schools/:id',
+router.put('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.updateSchool(req, res, next));
 
-router.delete('/schools/:id',
+router.delete('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin", "SchoolAdmin"]),
     (req: Request, res: Response, next: NextFunction) => schoolController.deleteSchool(req, res, next));

@@ -1,11 +1,10 @@
-import { Request, Response, NextFunction, Router } from 'express';
-import Teacher from '../models/Teacher';
+import { Request, Response, NextFunction, Router } from "express";
+import SchoolAdminModel from "../models/SchoolAdmin";
 
 // Import các model, repository, service và controller cần thiết
-import TeacherRepository from '../repositories/teacher.repository';
-import TeacherService from '../services/teacher.service';
-import TeacherController from '../controllers/teacher.controller';
-
+import SchoolAdminRepository from "../repositories/schoolAdmin.repository";
+import SchoolAdminService from "../services/schoolAdmin.service";
+import SchooAdminController from "../controllers/schoolAdmin.controller";
 
 // Logger & Activity Log    
 import { ActivityLogRepository } from '../repositories/activityLog.repository';
@@ -17,37 +16,36 @@ import { verifyRole } from "../middlewares/verifyRole";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
-const teacherRepository = new TeacherRepository(Teacher);
-const teacherService = new TeacherService(teacherRepository, logger);
-const teacherController = new TeacherController(teacherService);
+const schoolAdminRepository = new SchoolAdminRepository(SchoolAdminModel);
+const schoolAdminService = new SchoolAdminService(logger, schoolAdminRepository);
+const schoolAdminController = new SchooAdminController(schoolAdminService);
 
 const router = Router();
-
 router.get('/',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin"]),
-    async (req: Request, res: Response, next: NextFunction) => teacherController.getAllTeachers(req, res, next));
+    async (req: Request, res: Response, next: NextFunction) => schoolAdminController.getAllSchoolAdmins(req, res, next));
 
 router.get('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin"]),
-    async (req: Request, res: Response, next: NextFunction) => teacherController.getTeacherById(req, res, next));
+    async (req: Request, res: Response, next: NextFunction) => schoolAdminController.getSchoolAdminById(req, res, next));
+
 
 router.post('/',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin"]),
-    async (req: Request, res: Response, next: NextFunction) => teacherController.createTeacher(req, res, next));
+    async (req: Request, res: Response, next: NextFunction) => schoolAdminController.createSchoolAdmin(req, res, next));
 
 router.put('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin"]),
-    async (req: Request, res: Response, next: NextFunction) => teacherController.updateTeacher(req, res, next));
-
+    async (req: Request, res: Response, next: NextFunction) => schoolAdminController.updateSchoolAdmin(req, res, next));
 
 router.delete('/:id',
     verifyFirebaseToken,
     verifyRole(["SuperAdmin"]),
-    async (req: Request, res: Response, next: NextFunction) => teacherController.deleteTeacher(req, res, next));
+    async (req: Request, res: Response, next: NextFunction) => schoolAdminController.deleteSchoolAdmin(req, res, next));
 
 export default router;
 
