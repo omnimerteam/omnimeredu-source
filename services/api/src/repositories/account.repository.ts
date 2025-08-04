@@ -25,3 +25,13 @@ export const findUserByUid = async (uid: string) => {
     },
   });
 };
+
+export const findUserByUserId = async (userId: string) => {
+  return await Account.findOne({ userId }).populate({
+    path: "userId",
+    populate: {
+      path: "roleId",
+      select: "name",
+    }
+  });
+};

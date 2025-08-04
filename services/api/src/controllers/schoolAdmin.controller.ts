@@ -50,7 +50,7 @@ class SchoolAdminController {
                 return;
             }
             console.log(chalk.green("[School Admins] Get school admins by ID successfully"));
-            sendSuccess(res, schoolAdmin, "Lấy  school Admins theo ID thành công");
+            sendSuccess(res, schoolAdmin, "Lấy school Admins theo ID thành công");
         } catch (error) {
             console.log(chalk.red("[School Admins] Error getting school admins by ID:", error))
             return next(error);
@@ -59,6 +59,7 @@ class SchoolAdminController {
 
     async createSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+
             const userId = req.user.id;
             const userRole = req.role;
             if (!userId || !userRole) {
