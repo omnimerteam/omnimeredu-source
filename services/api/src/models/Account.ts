@@ -16,7 +16,12 @@ const AccountSchema = new Schema<IAccount>(
     password: { type: String, required: true },
     uid: { type: String, required: true, unique: true, index: true }, //thêm index
     token: { type: String },
-    userId: { type: Schema.Types.ObjectId, ref: "BaseUser", required: true, index: true }, //thêm index
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "BaseUser",
+      required: true,
+      index: true,
+    }, //thêm index
   },
   { timestamps: true }
 );
