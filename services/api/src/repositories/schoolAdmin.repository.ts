@@ -1,5 +1,5 @@
 
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { ISchoolAdmin } from '../models/SchoolAdmin';
 import { BaseRepository } from './base.repository';
 
@@ -17,6 +17,12 @@ class SchoolAdminRepository extends BaseRepository<ISchoolAdmin> {
 
         return admin.schoolId.toString() === teacherSchoolId;
     }
+
+    async findByUserId(userId: string): Promise<ISchoolAdmin | null> {
+        return this.model.findOne({ userId }).exec();
+    }
+
+
 }
 
 export default SchoolAdminRepository;

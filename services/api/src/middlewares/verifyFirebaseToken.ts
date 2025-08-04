@@ -63,6 +63,8 @@ export const verifyFirebaseToken = async (
     req.user = profile.userId;
     req.role = roleName;
 
+
+
     console.log(`[AUTH ✅] User: ${req.user.id}, Role: ${req.role}`);
     return next();
   } catch (err: any) {

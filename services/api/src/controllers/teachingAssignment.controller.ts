@@ -17,7 +17,6 @@ class TeachingAssignmentController {
     async getAllTeachingAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const userId = req.user?.id;
-            console.log("userid School", req.user);
             const userRole = req.role;
             if (!userId || !userRole) {
                 sendUnauthorized(res);

@@ -15,6 +15,10 @@ class TeacherRepository extends BaseRepository<ITeacher> {
     async findBySubject(subject: string) {
         return this.model.find({ subjects: subject }).exec();
     }
+
+    async findByUserId(userId: string) {
+        return this.model.find({ userId }).exec();
+    }
 }
 
 export default TeacherRepository;

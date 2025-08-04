@@ -2,6 +2,7 @@ import TeachingAssignmentRepository from "../repositories/teachingAssignment.rep
 import ClassRepository from "../repositories/class.repository";
 import TeacherRepository from "../repositories/teacher.repository";
 import SchoolAdmin from "../repositories/schoolAdmin.repository";
+import { findUserByUserId } from "../repositories/account.repository";
 import { DefaultLogger } from "../utils/DefaultLogger";
 import { ITeachingAssignment } from "../models/TeachingAssignment";
 
@@ -127,20 +128,16 @@ class TeachingAssignmentService {
     userRole: string
   ) {
     try {
-      // if (!assignmentData || Object.keys(assignmentData).length === 0) {
-      //     throw new Error("Teaching assignment data is required");
-      // }
+      if (!assignmentData || Object.keys(assignmentData).length === 0) {
+        throw new Error("Teaching assignment data is required");
+      }
 
-      // const teacher = await this.teacherRepository.findById(assignmentData.teacherId?.toString() || '');
-      // console.log("userRole", userRole);
-      // console.log("UserId", userId);
-      // if (!teacher) {
-      //     throw new Error("Teacher or user no found");
-      // }
+      const teacher = await this.teacherRepository.findById(assignmentData.teacherId?.toString() || '');
+      const user = await findUserByUserId(userId);
 
-      // if (userRole !== "SuperAdmin") {
-      //     throw new Error("SchoolAdmin can only update their own teaching assignments");
-      // }
+      if (!teacher || !user) {
+        throw new Error("Teacher or user not found");
+      }
 
       const assignment = await this.teachingAssignmentRepository.update(
         id,
