@@ -1,12 +1,20 @@
+// Thư viện
 import { Request, Response, NextFunction } from "express";
+import chalk from "chalk";
+
+// Config
 import admin from "../configs/firebaseAdminConfig";
+
+// Repositories
 import { findUserByUid } from "../repositories/account.repository";
-import { IRole } from "../models/Role";
+
+// Helper function
 import {
-  sendError,
   sendForbidden,
+  sendNotFound,
   sendUnauthorized,
 } from "../utils/ResponseHelper";
+import { extractRoleName } from "../utils/RoleHelper";
 
 /**
  * Middleware: Xác thực Firebase ID Token.
@@ -33,39 +41,30 @@ export const verifyFirebaseToken = async (
       return;
     }
 
-    console.log("✅ Firebase Token OK:", decodedToken.uid);
-
     // Tìm user trong hệ thống backend
     const profile = await findUserByUid(decodedToken.uid);
 
     if (!profile) {
-      sendError(res, "Không tìm thấy thông tin người dùng", 404);
+      sendNotFound(res, "Người dùng chưa đăng ký tài khoản");
       return;
     }
 
     const user = profile.userId as any;
 
-    // Lấy role từ user.userId.roleId
-    let roleName: string | undefined;
-    if (user && typeof user === "object" && "roleId" in user) {
-      const role = user.roleId as IRole;
-      if (role && typeof role === "object" && "name" in role) {
-        roleName = role.name;
-      }
-    }
+    const roleName = extractRoleName(user);
 
     if (!roleName) {
-      sendForbidden(res, "Tài khoản chưa được gán quyền truy cập");
+      sendForbidden(res, "Tài khoản chưa được cấp quyền");
       return;
     }
 
     // Gán lại vào req
-    req.user = profile.userId;
+    req.user = user;
     req.role = roleName;
 
-
-
-    console.log(`[AUTH ✅] User: ${req.user.id}, Role: ${req.role}`);
+    console.log(
+      chalk.greenBright(`[AUTH ✅] User: ${req.user.id}, Role: ${req.role}`)
+    );
     return next();
   } catch (err: any) {
     console.error("❌ verifyFirebaseToken error:", err.message);

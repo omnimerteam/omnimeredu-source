@@ -35,7 +35,7 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
   "email": "testuser@example.com",
   "refreshToken": "AMf-vByfZVEJN4I8oHdnK1-_-2xaCbZMu-HP1TsHP1Ts...",
   "expiresIn": "3600",
-  "localId": "zF6OQUHjCRNAPx5ozqEAYT4TI6g1"
+  "localId": "zF6OQUHjCRNAPx5ozqEAYT4TI6g1" //uid
 }
 ```
 
