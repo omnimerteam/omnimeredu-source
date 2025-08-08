@@ -6,6 +6,7 @@ import {
   sendNotFound,
   sendEmpty,
   sendUnauthorized,
+  sendError,
 } from "../utils/ResponseHelper";
 
 class AttendanceController {
@@ -85,14 +86,22 @@ class AttendanceController {
   ): Promise<void> {
     try {
       const actorId = req.user?.id;
+      const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
+
       if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
+
+      if (!actorSchoolId) {
+        sendError(res, "Người dùng chưa tham gia trường nào", 400);
+      }
+
       const schoolId = req.params.schoolId;
       const attendances = await this.attendanceService.getAttendancesBySchoolId(
         schoolId,
+        actorSchoolId,
         actorId,
         userRole
       );
@@ -162,13 +171,21 @@ class AttendanceController {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
+      const actorSchoolId = req.user?.schoolId?.toString();
+
       if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
+
+      if (!actorSchoolId) {
+        sendError(res, "Người dùng chưa tham gia trường nào", 400);
+      }
+
       const attendanceData = req.body;
       const attendance = await this.attendanceService.createAttendance(
         attendanceData,
+        actorSchoolId,
         actorId,
         userRole
       );

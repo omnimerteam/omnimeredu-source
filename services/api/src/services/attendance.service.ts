@@ -73,23 +73,13 @@ class AttendanceService {
 
   async getAttendancesBySchoolId(
     schoolId: string,
+    actorSchoolId: string,
     actorId: string,
     userRole: string
   ) {
     try {
-      // Tìm user theo userId (SchoolAdmin)
-      const userAdmin = await this.schoolAdminRepository.findById(actorId);
-
-      if (!userAdmin) {
-        throw new Error("User not found");
-      }
-      // So sánh schoolId sau khi normalize
-      const userSchoolId = userAdmin.schoolId?.toString();
-
-      if (userSchoolId !== schoolId) {
-        throw new Error(
-          "You do not have permission to get all attendances of this school"
-        );
+      if (actorSchoolId !== schoolId) {
+        throw new Error("Tài khoản không có quyền truy cập");
       }
 
       const attendances = await this.attendanceRepository.findBySchoolId(
@@ -175,6 +165,7 @@ class AttendanceService {
 
   async createAttendance(
     AttendanceData: Partial<IAttendance>,
+    actorSchoolId: string,
     actorId: string,
     userRole: string
   ) {
@@ -184,29 +175,19 @@ class AttendanceService {
         throw new Error("Class ID is required");
       }
 
-      // Tìm user theo userId (SchoolAdmin)
-      const userAdmin = await this.schoolAdminRepository.findById(actorId);
-
-      if (!userAdmin) {
-        throw new Error("User not found");
-      }
-
       // Tìm class và populate schoolId (nếu cần)
       const currentClass = await this.classRepository.findById(
         classId.toString()
       );
+
       if (!currentClass) {
         throw new Error("Class not found");
       }
 
-      // So sánh schoolId sau khi normalize
-      const userSchoolId = NormalizeObjectId(userAdmin.schoolId);
-      const classSchoolId = NormalizeObjectId(currentClass.schoolId);
+      const classSchoolId = currentClass.schoolId?.toString();
 
-      if (userSchoolId !== classSchoolId) {
-        throw new Error(
-          "You do not have permission to create attendance for this class"
-        );
+      if (actorSchoolId !== classSchoolId) {
+        throw new Error("Bạn không có quyền tạo bảng điểm danh cho trường");
       }
 
       const attendance = await this.attendanceRepository.create(AttendanceData);

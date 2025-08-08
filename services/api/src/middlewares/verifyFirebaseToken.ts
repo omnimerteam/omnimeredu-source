@@ -63,7 +63,7 @@ export const verifyFirebaseToken = async (
     req.role = roleName;
 
     console.log(
-      chalk.greenBright(`[AUTH ✅] User: ${req.user.id}, Role: ${req.role}`)
+      chalk.greenBright(`[AUTH ✅] User: ${req.user}, Role: ${req.role}`)
     );
     return next();
   } catch (err: any) {
