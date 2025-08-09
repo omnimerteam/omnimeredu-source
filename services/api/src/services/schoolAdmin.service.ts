@@ -13,12 +13,14 @@ class SchoolAdminService {
     async getAllSchoolAdmins(userId: string, userRole: string) {
         try {
             const schoolAdmins = await this.schoolAdminRepository.findAll();
+
             await this.logger.log({
                 userId,
                 action: "GET_ALL_SCHOOL_ADMINS",
                 roleSnapshot: userRole,
                 metadata: { SchoolAdmins: schoolAdmins.length }
-            })
+            });
+
             return schoolAdmins;
         } catch (error) {
             await this.logger.log({

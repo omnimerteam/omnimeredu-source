@@ -68,7 +68,6 @@ router.post(
         attendanceController.createAttendance(req, res, next)
 );
 
-
 router.put(
     "/:id",
     verifyFirebaseToken,

@@ -21,8 +21,6 @@ class SchoolAdminRepository extends BaseRepository<ISchoolAdmin> {
     async findByUserId(userId: string): Promise<ISchoolAdmin | null> {
         return this.model.findOne({ userId }).exec();
     }
-
-
 }
 
 export default SchoolAdminRepository;

@@ -73,6 +73,7 @@ class AttendanceService {
             if (!userAdmin) {
                 throw new Error("User not found");
             }
+
             // So sánh schoolId sau khi normalize
             const userSchoolId = NormalizeObjectId(userAdmin.schoolId);
 
@@ -105,7 +106,6 @@ class AttendanceService {
 
     async getAttendancesByClassId(classId: string, userId: string, userRole: string) {
         try {
-
             // Tìm user theo userId (SchoolAdmin)
             const userAdmin = await this.schoolAdminRepository.findByUserId(userId.toString());
             const currentClass = await this.classRepository.findById(classId.toString());
@@ -135,6 +135,7 @@ class AttendanceService {
                 targetId: classId,
                 metadata: { count: attendances.length }
             });
+
             return attendances;
         } catch (error) {
             await this.logger.log({
