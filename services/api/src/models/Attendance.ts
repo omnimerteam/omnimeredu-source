@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document, Types, now } from "mongoose";
 
 export interface IAttendance extends Document {
   _id: Types.ObjectId;

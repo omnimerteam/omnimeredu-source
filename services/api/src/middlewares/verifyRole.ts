@@ -1,5 +1,6 @@
 import { Response, NextFunction } from "express";
 import { Request } from "express";
+import { sendError, sendForbidden } from "../utils/ResponseHelper";
 
 /**
  * Middleware: Phân quyền
@@ -16,19 +17,21 @@ export const verifyRole = (requiredRoles: string[] = []) => {
       const roleName = req.role;
 
       if (!roleName) {
-        res.status(404).json({ message: "Người dùng chưa được cấp vai trò" });
+        sendForbidden(
+          res,
+          "Vai trò tài khoản không hợp lệ. Vui lòng liên hệ quản trị viên."
+        );
         return;
       }
 
       if (requiredRoles.length > 0 && !requiredRoles.includes(roleName)) {
-        res.status(403).json({ message: "Access denied" });
+        sendForbidden(res);
         return;
       }
 
       next();
     } catch (error) {
-      console.error("❌ verifyRole error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res);
       return;
     }
   };

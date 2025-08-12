@@ -10,6 +10,7 @@ export interface IBaseUser extends Document {
   phone?: string;
   address?: string;
   isVerified?: boolean;
+  schoolId?: Types.ObjectId;
 }
 
 const BaseUserSchema = new Schema<IBaseUser>(
@@ -30,7 +31,14 @@ const BaseUserSchema = new Schema<IBaseUser>(
     birthday: Date,
     phone: { type: String, index: true },
     address: String,
-    isVerified: { type: Boolean, default: false, index: true }, //thêm index
+    isVerified: { type: Boolean, default: false, index: true },
+    schoolId: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      default: null,
+      required: false,
+      index: true,
+    },
   },
   {
     discriminatorKey: "roleKey",

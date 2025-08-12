@@ -19,13 +19,13 @@ class TeacherController {
 
     async getAllTeachers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userRole || !userId) {
+            if (!userRole || !actorId) {
                 sendUnauthorized(res);
                 return;
             }
-            const teachers = await this.teacherService.getAllTeachers(userId, userRole);
+            const teachers = await this.teacherService.getAllTeachers(actorId, userRole);
             if (!teachers || teachers.length === 0) {
                 sendEmpty(res);
                 return;
@@ -40,14 +40,14 @@ class TeacherController {
     }
     async getTeacherById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userRole || !userId) {
+            if (!userRole || !actorId) {
                 sendUnauthorized(res);
                 return;
             }
             const teacherId = req.params.id;
-            const teacher = await this.teacherService.getTeacherById(teacherId, userId, userRole);
+            const teacher = await this.teacherService.getTeacherById(teacherId, actorId, userRole);
             if (!teacher) {
                 sendNotFound(res);
                 return;
@@ -63,14 +63,14 @@ class TeacherController {
     }
     async createTeacher(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userRole || !userId) {
+            if (!userRole || !actorId) {
                 sendUnauthorized(res);
                 return;
             }
             const teacherData = req.body;
-            const createdTeacher = await this.teacherService.createTeacher(teacherData, userId, userRole);
+            const createdTeacher = await this.teacherService.createTeacher(teacherData, actorId, userRole);
             console.log(chalk.green('[TEACHER] Create new teacher successfully'));
             sendSuccess(res, createdTeacher, 'Thêm mới giáo viên thành công');
             return;
@@ -82,9 +82,9 @@ class TeacherController {
 
     async updateTeacher(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userRole || !userId) {
+            if (!userRole || !actorId) {
                 sendUnauthorized(res);
                 return;
             }
@@ -94,7 +94,7 @@ class TeacherController {
                 return;
             }
             const teacherData: Partial<ITeacher> = req.body;
-            const updateTeacher = await this.teacherService.updateTeacher(teacherId, teacherData, userId, userRole);
+            const updateTeacher = await this.teacherService.updateTeacher(teacherId, teacherData, actorId, userRole);
 
             console.log(chalk.green('[TEACHER] Update teacher successfully'));
             sendSuccess(res, updateTeacher, 'Cập nhật thông tin giáo viên thành công');
@@ -107,9 +107,9 @@ class TeacherController {
 
     async deleteTeacher(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userRole || !userId) {
+            if (!userRole || !actorId) {
                 sendUnauthorized(res);
                 return;
             }
@@ -119,7 +119,7 @@ class TeacherController {
                 return;
             }
 
-            const deleteTeacher = await this.teacherService.deleteTeacher(teacherId, userId, userRole);
+            const deleteTeacher = await this.teacherService.deleteTeacher(teacherId, actorId, userRole);
 
             console.log(chalk.green('[TEACHER] Delete teacher successfully'));
             sendSuccess(res, deleteTeacher, 'Xóa giáo viên thành công');

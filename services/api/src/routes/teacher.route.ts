@@ -23,16 +23,9 @@ const teacherController = new TeacherController(teacherService);
 const router = Router();
 
 router.get(
-  "/teachers",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.getAllTeachers(req, res, next)
-);
-router.get(
   "/",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.getAllTeachers(req, res, next)
 );

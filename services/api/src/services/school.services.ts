@@ -10,11 +10,11 @@ class SchoolService {
     this.schoolRepository = SchoolRepository;
     this.logger = logger;
   }
-  async getAllSchools(userId: string, userRole: string) {
+  async getAllSchools(actorId: string, userRole: string) {
     try {
       const schools = await this.schoolRepository.findAll();
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_SCHOOLS",
         roleSnapshot: userRole,
         metadata: { count: schools.length },
@@ -23,7 +23,7 @@ class SchoolService {
       return schools;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_SCHOOLS_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -32,11 +32,11 @@ class SchoolService {
     }
   }
 
-  async getSchoolById(id: string, userId: string, userRole: string) {
+  async getSchoolById(id: string, actorId: string, userRole: string) {
     try {
       const schoolData = await this.schoolRepository.findById(id);
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_SCHOOL_BY_ID",
         targetId: id,
         roleSnapshot: userRole,
@@ -46,7 +46,7 @@ class SchoolService {
       return schoolData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_SCHOOL_BY_ID_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -59,7 +59,7 @@ class SchoolService {
   async getSchoolByNameOrCode(
     name: string,
     code: string,
-    userId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
@@ -71,7 +71,7 @@ class SchoolService {
         throw new Error("Either name or code must be provided");
       }
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_SCHOOL_BY_NAME_OR_CODE",
         targetId: name || code,
         roleSnapshot: userRole,
@@ -81,7 +81,7 @@ class SchoolService {
       return schoolData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_SCHOOL_BY_NAME_OR_CODE_FAILED",
         targetId: name || code,
         roleSnapshot: userRole,
@@ -93,13 +93,13 @@ class SchoolService {
 
   async createSchool(
     SchoolData: Partial<ISchool>,
-    userId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
       const schoolData = await this.schoolRepository.create(SchoolData);
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "POST_SCHOOL",
         roleSnapshot: userRole,
         metadata: { found: !!schoolData },
@@ -108,7 +108,7 @@ class SchoolService {
       return schoolData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "POST_SCHOOL_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -120,13 +120,13 @@ class SchoolService {
   async updateSchool(
     id: string,
     SchoolData: Partial<ISchool>,
-    userId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
       const schoolData = await this.schoolRepository.update(id, SchoolData);
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_SCHOOL",
         targetId: id,
         roleSnapshot: userRole,
@@ -136,7 +136,7 @@ class SchoolService {
       return schoolData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_SCHOOL_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -146,11 +146,11 @@ class SchoolService {
     }
   }
 
-  async deleteSchool(id: string, userId: string, userRole: string) {
+  async deleteSchool(id: string, actorId: string, userRole: string) {
     try {
       const schoolData = await this.schoolRepository.delete(id);
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_SCHOOL",
         targetId: id,
         roleSnapshot: userRole,
@@ -160,7 +160,7 @@ class SchoolService {
       return schoolData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_SCHOOL_FAILED",
         targetId: id,
         roleSnapshot: userRole,

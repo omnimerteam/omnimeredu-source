@@ -14,13 +14,13 @@ class DetailsRecordController {
 
     async getAllDetailsRecords(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
-            const records = await this.detailsRecordService.getAllDetailsRecords(userId, userRole);
+            const records = await this.detailsRecordService.getAllDetailsRecords(actorId, userRole);
             if (records.length === 0) {
                 sendEmpty(res);
                 return;
@@ -34,14 +34,14 @@ class DetailsRecordController {
     }
     async getDetailsRecordById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const recordId = req.params.id;
-            const record = await this.detailsRecordService.getDetailsRecordById(recordId, userId, userRole);
+            const record = await this.detailsRecordService.getDetailsRecordById(recordId, actorId, userRole);
             if (!record) {
                 sendNotFound(res);
                 return;
@@ -56,14 +56,14 @@ class DetailsRecordController {
 
     async createDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const recordData = req.body;
-            const record = await this.detailsRecordService.createDetailsRecord(recordData, userId, userRole);
+            const record = await this.detailsRecordService.createDetailsRecord(recordData, actorId, userRole);
             console.log(chalk.green("[Details Record] Create detail record successfully"));
             sendSuccess(res, record, "Thêm mới bản ghi thành công");
         } catch (error) {
@@ -74,15 +74,16 @@ class DetailsRecordController {
 
     async updateDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
+            const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const recordId = req.params.id;
             const recordData = req.body;
-            const record = await this.detailsRecordService.updateDetailsRecord(recordId, recordData, userId, userRole);
+            const record = await this.detailsRecordService.updateDetailsRecord(recordId, recordData, schoolId, actorId, userRole);
             console.log(chalk.green("[Details Record] Update detail record successfully"));
             sendSuccess(res, record, "Chỉnh sủa bản ghi thành công");
         } catch (error) {
@@ -93,14 +94,15 @@ class DetailsRecordController {
 
     async deleteDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user?.id;
+            const actorId = req.user?.id?.toString();
+            const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const recordId = req.params.id;
-            await this.detailsRecordService.deleteDetailsRecord(recordId, userId, userRole);
+            await this.detailsRecordService.deleteDetailsRecord(recordId, schoolId, actorId, userRole);
             console.log(chalk.green("[Details Record] Delete detail record successfully"));
             sendSuccess(res, {}, "Xoá bản ghi thành công");
         } catch (error) {

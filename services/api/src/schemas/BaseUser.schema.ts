@@ -1,58 +1,51 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
-// Định nghĩa enum cho gender
 const GenderEnum = ["Male", "Female", "Other"] as const;
 
 export const BaseUserSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
     .optional(), // MongoDB tự sinh
+
   fullName: z
     .string()
-    .min(2, { message: "Full name must be at least 2 characters" })
-    .max(100, { message: "Full name cannot exceed 100 characters" })
-    .regex(/^[a-zA-Z\s\u00C0-\u1EF9]*$/, {
-      message: "Full name can only contain letters and spaces",
-    }), // Bắt buộc, validate độ dài và ký tự
-  roleId: z
-    .string()
-    .min(1, { message: "roleId is required" })
-    .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for roleId",
-    }), // Bắt buộc, kiểm tra format ObjectId
-  gender: z.enum(GenderEnum).optional(), // Không bắt buộc, giới hạn trong enum
+    .min(2, { message: "Họ tên phải có ít nhất 2 ký tự" })
+    .max(100, { message: "Họ tên không vượt quá 100 ký tự" })
+    .regex(/^[a-zA-ZÀ-ỹ\s.-]+$/, {
+      message:
+        "Họ tên chỉ được chứa chữ cái, khoảng trắng, dấu gạch ngang hoặc dấu chấm",
+    }),
+
+  roleId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Định dạng ObjectId không hợp lệ cho roleId",
+  }),
+
+  gender: z
+    .enum(GenderEnum, { message: "Giới tính phải là Male, Female hoặc Other" })
+    .optional(),
+
   birthday: z
     .string()
-    .datetime({ message: "Invalid date format for birthday" })
-    .refine((val) => !val || new Date(val) <= new Date(), {
-      message: "Birthday cannot be in the future",
-    })
-    .optional(), // Không bắt buộc, không tương lai
+    .datetime({ message: "Ngày sinh phải đúng định dạng ISO" })
+    .optional(),
+
   phone: z
     .string()
-    .regex(/^(?:\+84|0)(?:\d{9,10})$/, {
-      message: "Invalid phone number format (e.g., +84987654321 or 0987654321)",
+    .regex(/^(?:\+84|0)\d{9,10}$/, {
+      message: "Số điện thoại không hợp lệ (VD: +84987654321 hoặc 0987654321)",
     })
-    .optional(), // Không bắt buộc, validate format
+    .optional(),
+
   address: z
     .string()
-    .max(500, { message: "Address cannot exceed 500 characters" })
-    .optional(), // Không bắt buộc, validate độ dài
-  isVerified: z.boolean().optional(), // Không bắt buộc, boolean
+    .max(500, { message: "Địa chỉ không vượt quá 500 ký tự" })
+    .optional(),
+
+  isVerified: z.boolean().optional(),
 });
 
 export type BaseUser = z.infer<typeof BaseUserSchema>;
-export const CreateBaseUserSchema = BaseUserSchema.omit({ _id: true });
-export const UpdateBaseUserSchema = BaseUserSchema.partial({
-  fullName: true,
-  roleId: true,
-  gender: true,
-  birthday: true,
-  phone: true,
-  address: true,
-  isVerified: true,
-});

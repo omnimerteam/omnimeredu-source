@@ -11,28 +11,25 @@ class TeachingAssignmentService {
   private readonly teachingAssignmentRepository: TeachingAssignmentRepository;
   private readonly classRepository: ClassRepository;
   private readonly teacherRepository: TeacherRepository;
-  private readonly schoolAdminRepository: SchoolAdmin;
   constructor(
     logger: DefaultLogger,
     TeachingAssignmentModel: TeachingAssignmentRepository,
-    TeacherRepository: TeacherRepository,
     ClassModel: ClassRepository,
-    SchoolAdmin: SchoolAdmin
+    TeacherModel: TeacherRepository
   ) {
     this.logger = logger;
     this.teachingAssignmentRepository = TeachingAssignmentModel;
-    this.teacherRepository = TeacherRepository;
     this.classRepository = ClassModel;
-    this.schoolAdminRepository = SchoolAdmin;
+    this.teacherRepository = TeacherModel;
   }
-  async getAllTeachingAssignments(userId: string, userRole: string) {
+  async getAllTeachingAssignments(actorId: string, userRole: string) {
     try {
       const assignments = await this.teachingAssignmentRepository.findAll();
       if (!assignments || assignments.length === 0) {
-        throw new Error("No teaching assignments found");
+        throw new Error("Không tìm thấy ban phân chia giảng dạy nào");
       }
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_TEACHING_ASSIGNMENTS",
         roleSnapshot: userRole,
         metadata: {
@@ -42,7 +39,7 @@ class TeachingAssignmentService {
       return assignments;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_TEACHING_ASSIGNMENTS",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -52,18 +49,18 @@ class TeachingAssignmentService {
   }
   async getTeachingAssignmentById(
     id: string,
-    userId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
       const assignments = await this.teachingAssignmentRepository.findById(id);
 
       if (!assignments) {
-        throw new Error("No teaching assignments found");
+        throw new Error("Không tìm thấy lịch giảng dạy theo ID này");
       }
       await this.logger.log({
-        userId,
-        action: "GET_TEACHING_ASSIGNMENTS_BY_TEACHER_ID",
+        userId: actorId,
+        action: "GET_TEACHING_ASSIGNMENTS_BY_ID",
         roleSnapshot: userRole,
         targetId: id,
         metadata: { found: !!assignments },
@@ -71,8 +68,8 @@ class TeachingAssignmentService {
       return assignments;
     } catch (error) {
       await this.logger.log({
-        userId,
-        action: "GET_TEACHING_ASSIGNMENTS_BY_TEACHER_ID_FAILED",
+        userId: actorId,
+        action: "GET_TEACHING_ASSIGNMENTS_BY_ID_FAILED",
         roleSnapshot: userRole,
         targetId: id,
         metadata: { error: (error as Error).message },
@@ -82,7 +79,8 @@ class TeachingAssignmentService {
   }
   async createTeachingAssignment(
     assignmentData: Partial<ITeachingAssignment>,
-    userId: string,
+    schoolId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
@@ -92,19 +90,16 @@ class TeachingAssignmentService {
       const classId = await this.classRepository.findById(
         assignment.classId.toString()
       );
-      const teacherId = await this.teacherRepository.findById(
-        assignment.teacherId.toString()
-      );
-      if (!classId || !teacherId) {
-        throw new Error("Class or Teacher not found");
+      if (!classId) {
+        throw new Error("Không tìm thấy lớp học theo ID này");
       }
 
-      if (teacherId.schoolId?.toString() !== classId.schoolId.toString()) {
-        throw new Error("Teacher and class must belong to the same school");
+      if (schoolId !== classId.schoolId.toString()) {
+        throw new Error("Bạn không có quyền truy cập vào lớp học này");
       }
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "CREATE_TEACHING_ASSIGNMENTS",
         roleSnapshot: userRole,
         metadata: { found: !!assignment },
@@ -112,7 +107,7 @@ class TeachingAssignmentService {
       return assignment;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "CREATE_TEACHING_ASSIGNMENTS_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -124,19 +119,30 @@ class TeachingAssignmentService {
   async updateTeachingAssignment(
     id: string,
     assignmentData: Partial<ITeachingAssignment>,
-    userId: string,
+    schoolId: string,
+    actorId: string,
     userRole: string
   ) {
     try {
+
       if (!assignmentData || Object.keys(assignmentData).length === 0) {
-        throw new Error("Teaching assignment data is required");
+        throw new Error("Dữ liệu bảng phân chia giảng dạy không được để trống");
       }
+      if (userRole !== "SuperAdmin") {
+        const existingAssignment = await this.teachingAssignmentRepository.findById(id);
 
-      const teacher = await this.teacherRepository.findById(assignmentData.teacherId?.toString() || '');
-      const user = await findUserByUserId(userId);
+        if (!existingAssignment) {
+          throw new Error("Không tìm thấy bảng phân chia giảng dạy theo ID ");
+        }
 
-      if (!teacher || !user) {
-        throw new Error("Teacher or user not found");
+        //lấy ra teacherId từ class 
+        const assignmentTeacherId = existingAssignment.teacherId?.toString();
+
+
+        //So sánh teacherId từ class 
+        if (assignmentTeacherId !== actorId) {
+          throw new Error("Bạn không có quyền chỉnh sửa bảng phân chia giảng dạy này");
+        }
       }
 
       const assignment = await this.teachingAssignmentRepository.update(
@@ -145,7 +151,7 @@ class TeachingAssignmentService {
       );
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_TEACHING_ASSIGNMENTS",
         roleSnapshot: userRole,
         targetId: id,
@@ -155,7 +161,7 @@ class TeachingAssignmentService {
       return assignment;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_TEACHING_ASSIGNMENTS_FAILED",
         roleSnapshot: userRole,
         targetId: id,
@@ -165,21 +171,40 @@ class TeachingAssignmentService {
     }
   }
 
-  async deleteTeachingAssignment(id: string, userId: string, userRole: string) {
+  async deleteTeachingAssignment(id: string, schoolId: string, actorId: string, userRole: string) {
     try {
+
+      if (userRole !== "SuperAdmin") {
+
+        const existingAssignment = await this.teachingAssignmentRepository.findById(id);
+
+        if (!existingAssignment) {
+          throw new Error("Không tìm thấy bảng phân chia giảng dạy theo ID ");
+        }
+
+        //lấy ra teacherId từ class 
+        const assignmentTeacherId = existingAssignment.teacherId?.toString();
+
+        //So sánh teacherId từ class 
+        if (assignmentTeacherId !== actorId) {
+          throw new Error("Bạn không có quyền xóa bảng phân chia giảng dạy này");
+        }
+      }
+
       const assignment = await this.teachingAssignmentRepository.delete(id);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_TEACHING_ASSIGNMENTS",
         roleSnapshot: userRole,
         targetId: id,
         metadata: { found: !!assignment },
       });
+
       return assignment;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_TEACHING_ASSIGNMENTS_FAILED",
         roleSnapshot: userRole,
         targetId: id,
