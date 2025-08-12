@@ -9,6 +9,7 @@ import {
 /**
  * Đăng ký người dùng mới
  */
+
 export const register = async (
   req: Request,
   res: Response,
@@ -16,7 +17,6 @@ export const register = async (
 ): Promise<void> => {
   try {
     const {
-      uid,
       email,
       password,
       roleId,
@@ -24,35 +24,34 @@ export const register = async (
       gender,
       phone,
       schoolId,
-      classId,
-      literacy,
-      subjects,
+      specificInfo, // object chứa các field riêng của role
     } = req.body;
 
-    // Gom tất cả field vào userInfo (dùng cho BaseUser hoặc subclass)
-    const userInfo = {
-      fullName,
-      gender,
-      phone,
-      schoolId,
-      classId,
-      literacy,
-      subjects,
+    if (!email || !password || !roleId) {
+      throw new Error("Thiếu thông tin bắt buộc: email, password hoặc roleId");
+    }
+
+    // Thông tin chung
+    const baseUserInfo = {
+      fullName: fullName?.trim() || "",
+      gender: gender ?? null,
+      phone: phone ?? null,
+      schoolId: schoolId ?? null,
     };
 
+    // Gọi service
     const user = await AuthService.registerUser(
-      uid,
-      email,
+      email.trim(),
       password,
       roleId,
-      userInfo
+      baseUserInfo,
+      specificInfo || {}
     );
 
     sendCreated(res, user, "Đăng ký thành công");
-    return;
   } catch (error: any) {
-    console.error("❌ register error:", error.message);
-    return next(error);
+    console.error("❌ [register] Error:", error);
+    next(error);
   }
 };
 

@@ -1,7 +1,10 @@
 import { Router } from "express";
 import * as AuthController from "../controllers/auth.controller";
+
+// Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
 
 const router = Router();
 

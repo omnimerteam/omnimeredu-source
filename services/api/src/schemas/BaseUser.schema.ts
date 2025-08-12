@@ -46,6 +46,10 @@ export const BaseUserSchema = z.object({
     .optional(),
 
   isVerified: z.boolean().optional(),
+
+  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Định dạng ObjectId không hợp lệ cho schoolId",
+  }),
 });
 
 export type BaseUser = z.infer<typeof BaseUserSchema>;

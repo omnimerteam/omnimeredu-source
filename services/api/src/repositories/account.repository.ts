@@ -32,6 +32,10 @@ export const findUserByUserId = async (userId: string) => {
     populate: {
       path: "roleId",
       select: "name",
-    }
+    },
   });
+};
+
+export const changePassword = async (newPasswrod: string, uid: string) => {
+  return await Account.updateOne;
 };

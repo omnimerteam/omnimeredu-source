@@ -8,61 +8,61 @@ export const TuitionSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
   studentId: z
     .string()
-    .min(1, { message: "studentId is required" })
+    .min(1, { message: "studentId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for studentId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho studentId",
+    }),
   month: z
     .string()
     .regex(/^\d{4}-(0[1-9]|1[0-2])$/, {
-      message: "Month must be in format YYYY-MM (e.g., 2025-07)",
+      message: "Tháng phải có định dạng YYYY-MM (ví dụ: 2025-07)",
     })
-    .refine((val) => {
-      const [year, month] = val.split("-").map(Number);
-      const currentYear = new Date().getFullYear();
-      return year >= 2000 && year <= currentYear + 1 && month >= 1 && month <= 12;
-    }, {
-      message: "Month must be between 2000-01 and " + (new Date().getFullYear() + 1) + "-12",
-    }), // Bắt buộc, validate format và range
+    .refine(
+      (val) => {
+        const [year, month] = val.split("-").map(Number);
+        const currentYear = new Date().getFullYear();
+        return (
+          year >= 2000 && year <= currentYear + 1 && month >= 1 && month <= 12
+        );
+      },
+      {
+        message:
+          "Tháng phải trong khoảng từ 2000-01 đến " +
+          (new Date().getFullYear() + 1) +
+          "-12",
+      }
+    ),
   extraFeeIds: z
     .array(
       z.string().refine((val) => Types.ObjectId.isValid(val), {
-        message: "Invalid ObjectId format for extraFeeIds",
+        message: "Định dạng ObjectId không hợp lệ cho extraFeeIds",
       })
     )
-    .optional(), // Không bắt buộc, mảng ObjectId
+    .optional(),
   discountId: z
     .string()
     .refine((val) => !val || Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for discountId",
+      message: "Định dạng ObjectId không hợp lệ cho discountId",
     })
-    .optional(), // Không bắt buộc, kiểm tra format nếu có
+    .optional(),
   totalAmount: z
     .number()
-    .positive({ message: "Total amount must be positive" }), // Bắt buộc, số dương
+    .positive({ message: "Tổng số tiền phải là số dương" }),
   attendedDays: z
     .number()
-    .int({ message: "Attended days must be an integer" })
-    .nonnegative({ message: "Attended days cannot be negative" })
-    .optional(), // Không bắt buộc, số nguyên không âm
-  status: z.enum(StatusEnum, {
-    message: `Status must be one of: ${StatusEnum.join(", ")}`,
-  }).optional(), // Không bắt buộc, giới hạn trong enum
+    .int({ message: "Số ngày điểm danh phải là số nguyên" })
+    .nonnegative({ message: "Số ngày điểm danh không được âm" })
+    .optional(),
+  status: z
+    .enum(StatusEnum, {
+      message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
+    })
+    .optional(),
 });
 
 export type Tuition = z.infer<typeof TuitionSchema>;
-export const CreateTuitionSchema = TuitionSchema.omit({ _id: true });
-export const UpdateTuitionSchema = TuitionSchema.partial({
-  studentId: true,
-  month: true,
-  extraFeeIds: true,
-  discountId: true,
-  totalAmount: true,
-  attendedDays: true,
-  status: true,
-});

@@ -1,60 +1,48 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
-// Định nghĩa enum cho status
+// Định nghĩa enum cho trạng thái
 const StatusEnum = ["Success", "Failed"] as const;
 
 export const TuitionInvoiceSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
   studentId: z
     .string()
-    .min(1, { message: "studentId is required" })
+    .min(1, { message: "studentId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for studentId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho studentId",
+    }),
   tuitionId: z
     .string()
-    .min(1, { message: "tuitionId is required" })
+    .min(1, { message: "tuitionId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for tuitionId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho tuitionId",
+    }),
   paymentMethodId: z
     .string()
-    .min(1, { message: "paymentMethodId is required" })
+    .min(1, { message: "paymentMethodId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for paymentMethodId",
-    }), // Bắt buộc, kiểm tra format ObjectId
-  amount: z
-    .number()
-    .positive({ message: "Amount must be positive" }), // Bắt buộc, số dương
+      message: "Định dạng ObjectId không hợp lệ cho paymentMethodId",
+    }),
+  amount: z.number().positive({ message: "Số tiền phải là số dương" }),
   transactionId: z
     .string()
-    .min(1, { message: "transactionId is required" })
-    .max(100, { message: "Transaction ID cannot exceed 100 characters" }), // Bắt buộc, validate độ dài
+    .min(1, { message: "transactionId là bắt buộc" })
+    .max(100, { message: "Transaction ID không được vượt quá 100 ký tự" }),
   status: z.enum(StatusEnum, {
-    message: `Status must be one of: ${StatusEnum.join(", ")}`,
-  }), // Bắt buộc, giới hạn trong enum
+    message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
+  }),
   paidAt: z
     .string()
-    .datetime({ message: "Invalid date format for paidAt" })
+    .datetime({ message: "Định dạng ngày thanh toán không hợp lệ" })
     .refine((val) => new Date(val) <= new Date(), {
-      message: "Paid date cannot be in the future",
-    }), // Bắt buộc, không ở tương lai
+      message: "Ngày thanh toán không được ở tương lai",
+    }),
 });
 
 export type TuitionInvoice = z.infer<typeof TuitionInvoiceSchema>;
-export const CreateTuitionInvoiceSchema = TuitionInvoiceSchema.omit({ _id: true });
-export const UpdateTuitionInvoiceSchema = TuitionInvoiceSchema.partial({
-  studentId: true,
-  tuitionId: true,
-  paymentMethodId: true,
-  amount: true,
-  transactionId: true,
-  status: true,
-  paidAt: true,
-});

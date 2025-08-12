@@ -2,7 +2,7 @@ import { z } from "zod";
 import { Types } from "mongoose";
 
 // Định nghĩa enum cho name
-const NameEnum = [
+export const NameEnum = [
   "SuperAdmin",
   "SchoolAdmin",
   "Teacher",
@@ -16,25 +16,26 @@ export const RoleSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
     .optional(), // MongoDB tự sinh
+
   name: z.enum(NameEnum, {
-    message: `Name must be one of: ${NameEnum.join(", ")}`,
-  }), // Bắt buộc, giới hạn trong enum
+    message: `Tên vai trò phải là một trong: ${NameEnum.join(", ")}`,
+  }),
+
   description: z
     .string()
-    .max(500, { message: "Description cannot exceed 500 characters" })
-    .optional(), // Không bắt buộc, validate độ dài
+    .max(500, { message: "Mô tả không được vượt quá 500 ký tự" })
+    .optional(),
+
   permissions: z
-    .array(z.string().max(100, { message: "Each permission cannot exceed 100 characters" }))
-    .optional(), // Không bắt buộc, mảng chuỗi
+    .array(
+      z
+        .string()
+        .max(100, { message: "Mỗi quyền không được vượt quá 100 ký tự" })
+    )
+    .optional(),
 });
 
 export type Role = z.infer<typeof RoleSchema>;
-export const CreateRoleSchema = RoleSchema.omit({ _id: true });
-export const UpdateRoleSchema = RoleSchema.partial({
-  name: true,
-  description: true,
-  permissions: true,
-});
