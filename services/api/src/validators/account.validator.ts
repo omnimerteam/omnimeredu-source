@@ -27,21 +27,14 @@ export const createAccountBodySchema = AccountSchema.omit({
   specificInfo: z.record(z.string(), z.any()).optional(),
 });
 
-export const updateAccountBodySchema = AccountSchema.partial({
-  email: true,
-  password: true,
-  uid: true,
-  token: true,
-  userId: true,
-}).extend({
-  email: z.string().email({ message: "Email không hợp lệ" }).optional(),
-
-  password: z
+export const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1, { message: "Mật khẩu cũ là bắt buộc" }),
+  newPassword: z
     .string()
-    .min(8, { message: "Mật khẩu phải có ít nhất 8 ký tự" })
+    .min(1, { message: "Mật khẩu mới là bắt buộc" })
+    .min(8, { message: "Mật khẩu mới phải có ít nhất 8 ký tự" })
     .regex(strongPasswordRegex, {
       message:
         "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt",
-    })
-    .optional(),
+    }),
 });

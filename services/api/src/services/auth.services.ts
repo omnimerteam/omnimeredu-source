@@ -30,11 +30,11 @@ export const registerUser = async (
   let role: any = null;
 
   try {
-    // 1️⃣ Kiểm tra role tồn tại
+    // 1. Kiểm tra role tồn tại
     role = await roleRepository.findById(baseUserInfo.roleId);
     if (!role) throw new Error("Role không tồn tại");
 
-    // 2️⃣ Validate dữ liệu theo role
+    // 2️. Validate dữ liệu theo role
     const schema = getRoleValidator(role.name);
     try {
       schema.parse({ ...baseUserInfo, ...specificInfo });
@@ -47,10 +47,10 @@ export const registerUser = async (
       throw err;
     }
 
-    // 3️⃣ Tạo user trên Firebase
+    // 3️. Tạo user trên Firebase
     fbUser = await admin.auth().createUser({ email, password });
 
-    // 4️⃣ Tạo MongoDB User
+    // 4️. Tạo MongoDB User
     const UserModel = getModelByRoleName(role.name);
     user = await UserModel.create({
       ...baseUserInfo,
@@ -58,7 +58,7 @@ export const registerUser = async (
       roleId: role._id,
     });
 
-    // 5️⃣ Tạo account + hash password
+    // 5️. Tạo account + hash password
     const hashedPassword = await bcrypt.hash(password, 10);
     account = await AccountRepo.createAccount({
       uid: fbUser.uid,
@@ -67,7 +67,7 @@ export const registerUser = async (
       userId: user._id,
     });
 
-    // 6️⃣ Log thành công
+    // 6️. Log thành công
     await logger.log({
       userId: user._id.toString(),
       action: "REGISTER_USER",
@@ -80,7 +80,7 @@ export const registerUser = async (
   } catch (error: any) {
     console.error("❌ [registerUser] error:", error);
 
-    // 🔹 Rollback gọn: chỉ xóa nếu từng bước đã thành công
+    // Rollback gọn: chỉ xóa nếu từng bước đã thành công
     const rollbackTasks = [
       fbUser ? admin.auth().deleteUser(fbUser.uid) : null,
       user
@@ -109,5 +109,59 @@ export const registerUser = async (
     });
 
     throw error;
+  }
+};
+
+export const changePassword = async (
+  actorId: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const account = await AccountRepo.findAccountByUserId(actorId);
+  if (!account) throw new Error("Không tìm thấy tài khoản");
+
+  // Kiểm tra mật khẩu cũ
+  const isMatch = await bcrypt.compare(oldPassword, account.password);
+  if (!isMatch) throw new Error("Mật khẩu cũ không chính xác");
+
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  // Đồng bộ Firebase + backend
+  let firebaseUpdated = false;
+  let backendUpdated = false;
+
+  try {
+    // Cập nhật Firebase
+    await admin.auth().updateUser(account.uid, { password: newPassword });
+    firebaseUpdated = true;
+
+    // Cập nhật backend
+    await AccountRepo.updateAccountPassword(actorId, hashedNewPassword);
+    backendUpdated = true;
+
+    await logger.log({
+      userId: actorId,
+      action: "CHANGE_PASSWORD",
+      targetId: actorId,
+      metadata: { oldPassword, newPassword },
+    });
+  } catch (err) {
+    await logger.log({
+      userId: actorId,
+      action: "CHANGE_PASSWORD_FAILED",
+      targetId: actorId,
+      metadata: { oldPassword, newPassword },
+    });
+
+    // Rollback nếu 1 trong 2 bước lỗi
+    if (firebaseUpdated && !backendUpdated) {
+      // rollback Firebase về password cũ
+      await admin.auth().updateUser(account.uid, { password: oldPassword });
+    }
+    if (!firebaseUpdated && backendUpdated) {
+      // rollback backend về password cũ
+      await AccountRepo.updateAccountPassword(actorId, account.password);
+    }
+    throw err;
   }
 };

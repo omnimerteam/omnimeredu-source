@@ -46,6 +46,13 @@ export const findUserByUserId = async (userId: string) => {
   });
 };
 
-// export const changePassword = async (newPasswrod: string, uid: string) => {
-//   return await Account.updateOne;
-// };
+export const findAccountByUserId = async (userId: string) => {
+  return Account.findOne({ userId });
+};
+
+export const updateAccountPassword = async (
+  userId: string,
+  hashedPassword: string
+) => {
+  return Account.updateOne({ userId }, { password: hashedPassword });
+};

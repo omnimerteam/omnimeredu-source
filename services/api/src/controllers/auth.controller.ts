@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as AuthService from "../services/auth.services";
 import {
   sendCreated,
+  sendError,
   sendNotFound,
   sendSuccess,
 } from "../utils/ResponseHelper";
@@ -64,5 +65,28 @@ export const login = async (
   } catch (error: any) {
     console.error("❌ getUserRole error:", error.message);
     return next(error);
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const actorId = req.user?.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!actorId) {
+      sendError(res, "Không tìm thấy người dùng", 401);
+      return;
+    }
+
+    await AuthService.changePassword(actorId, oldPassword, newPassword);
+
+    sendSuccess(res, null, "Đổi mật khẩu thành công");
+    return;
+  } catch (err: any) {
+    return next(err);
   }
 };
