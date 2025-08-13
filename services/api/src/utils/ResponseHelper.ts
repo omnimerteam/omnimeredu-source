@@ -84,5 +84,5 @@ export const sendEmpty = (
   res: Response,
   message: string = "Không có dữ liệu"
 ) => {
-  return sendError(res, message, 404);
+  return sendError(res, message, 200);
 }

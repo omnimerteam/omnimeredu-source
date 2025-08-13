@@ -1,50 +1,46 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
-// Định nghĩa enum cho type
-const TypeEnum = ["percentage", "fixed"] as const;
+// Enum cho type
+export const TypeEnum = ["percentage", "fixed"] as const;
 
 export const DiscountPolicySchema = z
   .object({
     _id: z
       .string()
       .refine((val) => Types.ObjectId.isValid(val), {
-        message: "Invalid ObjectId format for _id",
+        message: "Định dạng ObjectId không hợp lệ cho _id",
       })
-      .optional(), // MongoDB tự sinh
+      .optional(),
+
     name: z
       .string()
-      .min(1, { message: "Name is required" })
-      .max(100, { message: "Name cannot exceed 100 characters" }), // Bắt buộc, validate độ dài
-    type: z.enum(TypeEnum), // Bắt buộc, giới hạn trong enum
-    value: z
-      .number()
-      .positive({ message: "Value must be a positive number" }), // Bắt buộc, số dương
+      .min(1, { message: "Tên là bắt buộc" })
+      .max(100, { message: "Tên không được vượt quá 100 ký tự" }),
+
+    type: z.enum(TypeEnum, {
+      message: `Loại phải là một trong: ${TypeEnum.join(", ")}`,
+    }),
+
+    value: z.number().positive({ message: "Giá trị phải là một số dương" }),
+
     applicableTo: z
       .array(
-        z
-          .string()
-          .refine((val) => Types.ObjectId.isValid(val), {
-            message: "Invalid ObjectId format for applicableTo user",
-          })
+        z.string().refine((val) => Types.ObjectId.isValid(val), {
+          message: "Định dạng ObjectId không hợp lệ cho applicableTo user",
+        })
       )
-      .optional(), // Không bắt buộc, mảng ObjectId
+      .optional(),
   })
   .superRefine(({ type, value }, ctx) => {
     if (type === "percentage" && (value < 0 || value > 100)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["value"],
-        message: "Value must be between 0 and 100 for percentage type",
+        message:
+          "Giá trị phải nằm trong khoảng từ 0 đến 100 nếu loại là percentage",
       });
     }
   });
 
 export type DiscountPolicy = z.infer<typeof DiscountPolicySchema>;
-export const CreateDiscountPolicySchema = DiscountPolicySchema.omit({ _id: true });
-export const UpdateDiscountPolicySchema = DiscountPolicySchema.partial({
-  name: true,
-  type: true,
-  value: true,
-  applicableTo: true,
-});

@@ -5,44 +5,46 @@ export const NewsSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
+
   title: z
     .string()
-    .min(1, { message: "Title is required" })
-    .max(200, { message: "Title cannot exceed 200 characters" }), // Bắt buộc, validate độ dài
+    .min(1, { message: "Tiêu đề là bắt buộc" })
+    .max(200, { message: "Tiêu đề không được vượt quá 200 ký tự" }),
+
   content: z
     .string()
-    .min(1, { message: "Content is required" })
-    .max(10000, { message: "Content cannot exceed 10,000 characters" }), // Bắt buộc, validate độ dài
+    .min(1, { message: "Nội dung là bắt buộc" })
+    .max(10000, { message: "Nội dung không được vượt quá 10.000 ký tự" }),
+
   imageUrl: z
     .string()
-    .url({ message: "Invalid URL format for imageUrl" })
-    .optional(), // Không bắt buộc, validate URL
+    .url({ message: "Định dạng URL không hợp lệ cho imageUrl" })
+    .optional(),
+
   schoolId: z
     .string()
     .refine((val) => !val || Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for schoolId",
+      message: "Định dạng ObjectId không hợp lệ cho schoolId",
     })
-    .optional(), // Không bắt buộc, kiểm tra format nếu có
+    .optional(),
+
   publishedAt: z
     .string()
-    .datetime({ message: "Invalid date format for publishedAt" })
-    .optional(), // MongoDB tự set
-  isPublic: z.boolean().optional(), // Không bắt buộc, boolean
+    .datetime({ message: "Định dạng ngày giờ không hợp lệ cho publishedAt" })
+    .optional(),
+
+  isPublic: z.boolean().optional(),
+
   tags: z
-    .array(z.string().max(50, { message: "Each tag cannot exceed 50 characters" }))
-    .optional(), // Không bắt buộc, mảng chuỗi
+    .array(
+      z
+        .string()
+        .max(50, { message: "Mỗi thẻ (tag) không được vượt quá 50 ký tự" })
+    )
+    .optional(),
 });
 
 export type News = z.infer<typeof NewsSchema>;
-export const CreateNewsSchema = NewsSchema.omit({ _id: true, publishedAt: true });
-export const UpdateNewsSchema = NewsSchema.partial({
-  title: true,
-  content: true,
-  imageUrl: true,
-  schoolId: true,
-  isPublic: true,
-  tags: true,
-});

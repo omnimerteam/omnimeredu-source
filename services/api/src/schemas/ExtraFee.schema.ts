@@ -5,31 +5,24 @@ export const ExtraFeeSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
     .optional(), // MongoDB tự sinh
+
   name: z
     .string()
-    .min(1, { message: "Name is required" })
-    .max(100, { message: "Name cannot exceed 100 characters" }), // Bắt buộc, validate độ dài
-  amount: z
-    .number()
-    .positive({ message: "Amount must be a positive number" }), // Bắt buộc, số dương
+    .min(1, { message: "Tên là bắt buộc" })
+    .max(100, { message: "Tên không được vượt quá 100 ký tự" }),
+
+  amount: z.number().positive({ message: "Số tiền phải là số dương" }),
+
   applicableTo: z
     .array(
-      z
-        .string()
-        .refine((val) => Types.ObjectId.isValid(val), {
-          message: "Invalid ObjectId format for applicableTo user",
-        })
+      z.string().refine((val) => Types.ObjectId.isValid(val), {
+        message: "Định dạng ObjectId không hợp lệ cho applicableTo",
+      })
     )
-    .optional(), // Không bắt buộc, mảng ObjectId
+    .optional(),
 });
 
 export type ExtraFee = z.infer<typeof ExtraFeeSchema>;
-export const CreateExtraFeeSchema = ExtraFeeSchema.omit({ _id: true });
-export const UpdateExtraFeeSchema = ExtraFeeSchema.partial({
-  name: true,
-  amount: true,
-  applicableTo: true,
-});

@@ -2,43 +2,38 @@ import { z } from "zod";
 import { Types } from "mongoose";
 
 // Định nghĩa enum cho status
-const StatusEnum = ["Present", "AbsentWithLeave", "Absent"] as const;
+export const StatusEnum = ["Present", "AbsentWithLeave", "Absent"] as const;
 
 export const DetailsRecordSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
+
   studentId: z
     .string()
-    .min(1, { message: "studentId is required" })
+    .min(1, { message: "studentId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for studentId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho studentId",
+    }),
+
   attendanceId: z
     .string()
-    .min(1, { message: "attendanceId is required" })
+    .min(1, { message: "attendanceId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for attendanceId",
-    }), // Bắt buộc, kiểm tra format ObjectId
-  status: z
-    .enum(StatusEnum)
-    .refine((val) => StatusEnum.includes(val), {
-      message: `Status must be one of: ${StatusEnum.join(", ")}`,
-    }), // Bắt buộc, giới hạn trong enum
+      message: "Định dạng ObjectId không hợp lệ cho attendanceId",
+    }),
+
+  status: z.enum(StatusEnum, {
+    message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
+  }),
+
   note: z
     .string()
-    .max(500, { message: "Note cannot exceed 500 characters" })
-    .optional(), // Không bắt buộc, validate độ dài
+    .max(500, { message: "Ghi chú không được vượt quá 500 ký tự" })
+    .optional(),
 });
 
 export type DetailsRecord = z.infer<typeof DetailsRecordSchema>;
-export const CreateDetailsRecordSchema = DetailsRecordSchema.omit({ _id: true });
-export const UpdateDetailsRecordSchema = DetailsRecordSchema.partial({
-  studentId: true,
-  attendanceId: true,
-  status: true,
-  note: true,
-});

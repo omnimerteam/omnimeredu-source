@@ -6,33 +6,26 @@ export const TeachingAssignmentSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
   teacherId: z
     .string()
-    .min(1, { message: "teacherId is required" })
+    .min(1, { message: "teacherId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for teacherId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho teacherId",
+    }),
   classId: z
     .string()
-    .min(1, { message: "classId is required" })
+    .min(1, { message: "classId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for classId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho classId",
+    }),
   subject: z
     .string()
-    .max(100, { message: "Subject cannot exceed 100 characters" })
-    .optional(), // Không bắt buộc, validate độ dài
-  isMain: z.boolean().optional(), // Không bắt buộc, boolean
+    .max(100, { message: "Môn học không được vượt quá 100 ký tự" })
+    .optional(),
+  isMain: z.boolean().optional(),
 });
 
 export type TeachingAssignment = z.infer<typeof TeachingAssignmentSchema>;
-export const CreateTeachingAssignmentSchema = TeachingAssignmentSchema.omit({ _id: true });
-export const UpdateTeachingAssignmentSchema = TeachingAssignmentSchema.partial({
-  teacherId: true,
-  classId: true,
-  subject: true,
-  isMain: true,
-});

@@ -1,29 +1,45 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as AuthService from "../services/auth.services";
+import {
+  sendCreated,
+  sendError,
+  sendNotFound,
+  sendSuccess,
+} from "../utils/ResponseHelper";
 
 /**
  * Đăng ký người dùng mới
  */
-export const register = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { uid, email, fullName, gender, phone, role, password } = req.body;
 
-    const user = await AuthService.registerUser(
-      uid,
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const {
       email,
-      fullName,
-      gender,
-      phone,
-      role,
-      password
+      password,
+      baseUserInfo,
+      specificInfo, // object chứa các field riêng của role
+    } = req.body;
+
+    if (!email || !password || !baseUserInfo?.roleId) {
+      throw new Error("Thiếu thông tin bắt buộc: email, password hoặc roleId");
+    }
+
+    // Gọi service
+    const user = await AuthService.registerUser(
+      email.trim(),
+      password,
+      baseUserInfo,
+      specificInfo || {}
     );
 
-    res.status(200).json({ message: "Register success", user });
-    return;
+    sendCreated(res, user, "Đăng ký thành công");
   } catch (error: any) {
-    console.error("❌ register error:", error.message);
-    res.status(500).json({ message: "Error", error: error.message });
-    return;
+    console.error("❌ [register] Error:", error);
+    next(error);
   }
 };
 
@@ -31,23 +47,46 @@ export const register = async (req: Request, res: Response): Promise<void> => {
  * Lấy role hiện tại của user đã verify
  * -> Role đã được gán ở middleware verifyRole()
  */
-export const getUserRole = async (
+export const login = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const roleUser = (req as any).role;
+    const user = req.user;
 
-    if (!roleUser) {
-      res.status(404).json({ message: "No role assigned" });
+    if (!user) {
+      sendNotFound(res, "Không tìm thấy thông tin người dùng");
       return;
     }
 
-    res.status(200).json({ role: roleUser });
+    sendSuccess(res, { user: user });
     return;
   } catch (error: any) {
     console.error("❌ getUserRole error:", error.message);
-    res.status(500).json({ message: "Internal server error" });
+    return next(error);
+  }
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const actorId = req.user?.id;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!actorId) {
+      sendError(res, "Không tìm thấy người dùng", 401);
+      return;
+    }
+
+    await AuthService.changePassword(actorId, oldPassword, newPassword);
+
+    sendSuccess(res, null, "Đổi mật khẩu thành công");
     return;
+  } catch (err: any) {
+    return next(err);
   }
 };

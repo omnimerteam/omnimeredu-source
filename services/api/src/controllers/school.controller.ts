@@ -19,13 +19,13 @@ class SchoolController {
 
   async getAllSchools(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
-      const schools = await this.schoolService.getAllSchools(userId, userRole);
+      const schools = await this.schoolService.getAllSchools(actorId, userRole);
       if (!schools || schools.length === 0) {
         sendEmpty(res);
         return;
@@ -40,14 +40,14 @@ class SchoolController {
 
   async getSchoolById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
       const schoolId = req.params.id;
-      const school = await this.schoolService.getSchoolById(schoolId, userId, userRole);
+      const school = await this.schoolService.getSchoolById(schoolId, actorId, userRole);
       if (!school) {
         sendEmpty(res);
         return;
@@ -63,9 +63,9 @@ class SchoolController {
   async getSchoolByNameOrCode(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Ở hàm này sẽ lấy giá trị từ query trực tiếp trên url
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
@@ -73,7 +73,7 @@ class SchoolController {
       const school = await this.schoolService.getSchoolByNameOrCode(
         name as string,
         code as string,
-        userId,
+        actorId,
         userRole
       );
       if (!school) {
@@ -90,14 +90,14 @@ class SchoolController {
 
   async createSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
       const schoolData: Partial<ISchool> = req.body;
-      const newSchool = await this.schoolService.createSchool(schoolData, userId, userRole);
+      const newSchool = await this.schoolService.createSchool(schoolData, actorId, userRole);
       console.log(chalk.green("[SCHOOL] Create new school successfully"));
       sendCreated(res, newSchool, "Thêm mới trường học thành công");
     } catch (error) {
@@ -108,9 +108,9 @@ class SchoolController {
 
   async updateSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
@@ -119,7 +119,7 @@ class SchoolController {
       const updatedSchool = await this.schoolService.updateSchool(
         schoolId,
         schoolData,
-        userId,
+        actorId,
         userRole
       );
       if (!updatedSchool) {
@@ -136,14 +136,14 @@ class SchoolController {
 
   async deleteSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
       const schoolId = req.params.id;
-      const deleted = await this.schoolService.deleteSchool(schoolId, userId, userRole);
+      const deleted = await this.schoolService.deleteSchool(schoolId, actorId, userRole);
       if (!deleted) {
         sendEmpty(res);
         return;

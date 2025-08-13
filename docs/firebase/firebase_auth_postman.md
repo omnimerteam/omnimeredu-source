@@ -6,10 +6,12 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
 - [x] Đăng nhập tài khoản (Sign In)
 - [x] Đăng xuất (Client tự xử lý token)
 
-## 1️⃣ Đăng ký tài khoản (Sign Up)
+## Đăng ký tài khoản (Sign Up)
+
+# Đăng ký tài khoản trên
 
 - **Endpoint:**  
-  `POST https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD6uR1sBS9Kz3Q8hKMDWqk2EXs8Auz9tfQ`
+  `POST http://localhost:8888/api/v1/auth/register`
 
 - **Headers:**  
   `Content-Type: application/json`
@@ -18,22 +20,20 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
 
 ```json
 {
-  "email": "testuser@example.com",
-  "password": "12345678",
-  "returnSecureToken": true
-}
-```
-
-- **Response mẫu:**
-
-```json
-{
-  "kind": "identitytoolkit#SignupNewUserResponse",
-  "idToken": "eyJhbGciOiJSUzbGciOiJSUz...",
-  "email": "testuser@example.com",
-  "refreshToken": "AMf-vByfZVEJN4I8oHdnK1-_-2xaCbZMu-HP1TsHP1Ts...",
-  "expiresIn": "3600",
-  "localId": "zF6OQUHjCRNAPx5ozqEAYT4TI6g1"
+  "email": "schooladmin3@gmail.com",
+  "password": "Tri@110911",
+  // Đây là các dữ liệu có trong BaseUser Models
+  "baseUserInfo": {
+    "roleId": "686f95a2e588b615f7aca67d",
+    "fullName": "Tri",
+    "gender": "Male",
+    "phone": "0982294937",
+    "schoolId": "6894c51a306dac6ceab89f3c"
+  },
+  // Đây là các biến có trong từng role models
+  "specificInfo": {
+    "position": "Hiệu trưởng"
+  }
 }
 ```
 
@@ -77,7 +77,7 @@ Tài liệu này hướng dẫn sử dụng Postman để test các API liên qu
 ## 3️⃣ Refresh Token (Làm mới token)
 
 - **Endpoint:**  
-  `POST https://securetoken.googleapis.com/v1/token?key=<YOUR_FIREBASE_API_KEY>`
+  `POST https://securetoken.googleapis.com/v1/token?key=AIzaSyD6uR1sBS9Kz3Q8hKMDWqk2EXs8Auz9tfQ`
 
 - **Headers:**  
   `Content-Type: application/x-www-form-urlencoded`

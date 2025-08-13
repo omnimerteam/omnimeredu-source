@@ -1,67 +1,54 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 
-// Định nghĩa enum cho status
+// Định nghĩa enum cho trạng thái
 const StatusEnum = ["Success", "Failed"] as const;
 
 export const VipInvoiceSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for _id",
+      message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
   schoolId: z
     .string()
-    .min(1, { message: "schoolId is required" })
+    .min(1, { message: "schoolId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for schoolId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho schoolId",
+    }),
   packageId: z
     .string()
-    .min(1, { message: "packageId is required" })
+    .min(1, { message: "packageId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for packageId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho packageId",
+    }),
   subscriptionId: z
     .string()
-    .min(1, { message: "subscriptionId is required" })
+    .min(1, { message: "subscriptionId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for subscriptionId",
-    }), // Bắt buộc, kiểm tra format ObjectId
+      message: "Định dạng ObjectId không hợp lệ cho subscriptionId",
+    }),
   paymentMethodId: z
     .string()
-    .min(1, { message: "paymentMethodId is required" })
+    .min(1, { message: "paymentMethodId là bắt buộc" })
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Invalid ObjectId format for paymentMethodId",
-    }), // Bắt buộc, kiểm tra format ObjectId
-  amount: z
-    .number()
-    .positive({ message: "Amount must be positive" }), // Bắt buộc, số dương
+      message: "Định dạng ObjectId không hợp lệ cho paymentMethodId",
+    }),
+  amount: z.number().positive({ message: "Số tiền phải là số dương" }),
   transactionId: z
     .string()
-    .min(1, { message: "transactionId is required" })
-    .max(100, { message: "Transaction ID cannot exceed 100 characters" }), // Bắt buộc, validate độ dài
+    .min(1, { message: "transactionId là bắt buộc" })
+    .max(100, { message: "Mã giao dịch không được vượt quá 100 ký tự" }),
   status: z.enum(StatusEnum, {
-    message: `Status must be one of: ${StatusEnum.join(", ")}`,
-  }), // Bắt buộc, giới hạn trong enum
+    message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
+  }),
   paidAt: z
     .string()
-    .datetime({ message: "Invalid date format for paidAt" })
+    .datetime({ message: "Định dạng ngày thanh toán không hợp lệ" })
     .refine((val) => new Date(val) <= new Date(), {
-      message: "Paid date cannot be in the future",
-    }), // Bắt buộc, không ở tương lai
+      message: "Ngày thanh toán không được ở tương lai",
+    }),
 });
 
 export type VipInvoice = z.infer<typeof VipInvoiceSchema>;
-export const CreateVipInvoiceSchema = VipInvoiceSchema.omit({ _id: true });
-export const UpdateVipInvoiceSchema = VipInvoiceSchema.partial({
-  schoolId: true,
-  packageId: true,
-  subscriptionId: true,
-  paymentMethodId: true,
-  amount: true,
-  transactionId: true,
-  status: true,
-  paidAt: true,
-});
