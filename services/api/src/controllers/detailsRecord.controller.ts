@@ -14,7 +14,7 @@ class DetailsRecordController {
 
     async getAllDetailsRecords(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -34,7 +34,7 @@ class DetailsRecordController {
     }
     async getDetailsRecordById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -56,7 +56,7 @@ class DetailsRecordController {
 
     async createDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -74,7 +74,7 @@ class DetailsRecordController {
 
     async updateDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
             if (!actorId || !userRole) {
@@ -94,7 +94,7 @@ class DetailsRecordController {
 
     async deleteDetailsRecord(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
             if (!actorId || !userRole) {

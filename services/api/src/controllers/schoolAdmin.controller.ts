@@ -16,7 +16,7 @@ class SchoolAdminController {
 
     async getAllSchoolAdmins(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -37,7 +37,7 @@ class SchoolAdminController {
 
     async getSchoolAdminById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -59,8 +59,7 @@ class SchoolAdminController {
 
     async createSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
-            const actorId = req.user?.id.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -78,7 +77,7 @@ class SchoolAdminController {
 
     async updateSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -97,7 +96,7 @@ class SchoolAdminController {
 
     async deleteSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);

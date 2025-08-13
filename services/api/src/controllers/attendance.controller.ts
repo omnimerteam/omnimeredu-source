@@ -20,13 +20,12 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
-      console.log("User", req.user);
       const attendances = await this.attendanceService.getAllAttendances(
         actorId,
         userRole
@@ -51,7 +50,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
 
@@ -89,7 +88,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
 
@@ -135,7 +134,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
       if (!actorId || !userRole) {
@@ -175,7 +174,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       const actorSchoolId = req.user?.schoolId?.toString();
 
@@ -214,7 +213,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
       if (!actorId || !userRole) {
@@ -249,7 +248,7 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
       if (!actorId || !userRole) {

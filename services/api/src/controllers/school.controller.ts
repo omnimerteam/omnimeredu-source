@@ -19,7 +19,7 @@ class SchoolController {
 
   async getAllSchools(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);
@@ -40,7 +40,7 @@ class SchoolController {
 
   async getSchoolById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);
@@ -63,7 +63,7 @@ class SchoolController {
   async getSchoolByNameOrCode(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // Ở hàm này sẽ lấy giá trị từ query trực tiếp trên url
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);
@@ -90,7 +90,7 @@ class SchoolController {
 
   async createSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);
@@ -108,7 +108,7 @@ class SchoolController {
 
   async updateSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);
@@ -136,7 +136,7 @@ class SchoolController {
 
   async deleteSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const actorId = req.user?.id?.toString();
+      const actorId = req.user?.id;
       const userRole = req.role;
       if (!userRole || !actorId) {
         sendUnauthorized(res);

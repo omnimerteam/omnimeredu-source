@@ -17,7 +17,7 @@ class TeachingAssignmentController {
 
     async getAllTeachingAssignments(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -39,7 +39,7 @@ class TeachingAssignmentController {
 
     async getTeachingAssignmentById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const userRole = req.role;
             if (!actorId || !userRole) {
                 sendUnauthorized(res);
@@ -62,7 +62,7 @@ class TeachingAssignmentController {
 
     async createTeachingAssignment(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
             if (!actorId || !userRole) {
@@ -84,7 +84,7 @@ class TeachingAssignmentController {
 
     async updateTeachingAssignment(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
             if (!actorId || !userRole) {
@@ -110,7 +110,7 @@ class TeachingAssignmentController {
 
     async deleteTeachingAssignment(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const actorId = req.user?.id?.toString();
+            const actorId = req.user?.id;
             const schoolId = req.user?.schoolId?.toString();
             const userRole = req.role;
             if (!actorId || !userRole) {
