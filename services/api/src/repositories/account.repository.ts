@@ -10,6 +10,16 @@ export const createAccount = async (
   return await newAccount.save();
 };
 
+export const deleteAccountByUserId = async (userId: string) => {
+  try {
+    const result = await Account.deleteOne({ userId }); // xóa account có userId
+    return result.deletedCount; // trả về số document bị xóa
+  } catch (error) {
+    console.error("❌ deleteAccountByUserId error:", error);
+    throw error;
+  }
+};
+
 /**
  * Tìm account theo Firebase UID
  * @param uid - Firebase UID
@@ -36,6 +46,6 @@ export const findUserByUserId = async (userId: string) => {
   });
 };
 
-export const changePassword = async (newPasswrod: string, uid: string) => {
-  return await Account.updateOne;
-};
+// export const changePassword = async (newPasswrod: string, uid: string) => {
+//   return await Account.updateOne;
+// };

@@ -20,7 +20,7 @@ const StudentSchema = new Schema<IStudent>({
   /**
    * Liên kết tới lớp mà học sinh đang học
    */
-  classId: { type: Schema.Types.ObjectId, ref: "Class", required: false },
+  classId: { type: Schema.Types.ObjectId, ref: "Class" },
 
   /**
    * Thông tin phụ huynh

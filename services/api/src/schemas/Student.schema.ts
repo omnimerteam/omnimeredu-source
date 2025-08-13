@@ -14,8 +14,8 @@ const EducationLevelEnum = [
 export const StudentSchema = BaseUserSchema.extend({
   classId: z
     .string()
-    .min(1, { message: "classId là bắt buộc" })
-    .refine((val) => Types.ObjectId.isValid(val), {
+    .optional()
+    .refine((val) => !val || Types.ObjectId.isValid(val), {
       message: "Định dạng ObjectId không hợp lệ cho classId",
     }),
 

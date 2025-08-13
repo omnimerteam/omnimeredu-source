@@ -23,8 +23,6 @@ export const register = async (
       specificInfo, // object chứa các field riêng của role
     } = req.body;
 
-    console.log(req.body);
-
     if (!email || !password || !baseUserInfo?.roleId) {
       throw new Error("Thiếu thông tin bắt buộc: email, password hoặc roleId");
     }
