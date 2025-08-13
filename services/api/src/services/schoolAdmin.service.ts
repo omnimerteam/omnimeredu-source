@@ -10,19 +10,21 @@ class SchoolAdminService {
         this.schoolAdminRepository = schoolAdminRepository;
     }
 
-    async getAllSchoolAdmins(userId: string, userRole: string) {
+    async getAllSchoolAdmins(actorId: string, userRole: string) {
         try {
             const schoolAdmins = await this.schoolAdminRepository.findAll();
+
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "GET_ALL_SCHOOL_ADMINS",
                 roleSnapshot: userRole,
                 metadata: { SchoolAdmins: schoolAdmins.length }
-            })
+            });
+
             return schoolAdmins;
         } catch (error) {
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "GET_ALL_SCHOOL_ADMINS_FAILED",
                 roleSnapshot: userRole,
                 metadata: { error: (error as Error).message }
@@ -31,11 +33,11 @@ class SchoolAdminService {
         }
     }
 
-    async getSchoolAdminById(schoolAdminId: string, userId: string, userRole: string) {
+    async getSchoolAdminById(schoolAdminId: string, actorId: string, userRole: string) {
         try {
             const schoolAdmin = await this.schoolAdminRepository.findById(schoolAdminId);
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "GET_ALL_SCHOOL_ADMIN_BY_ID",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,
@@ -44,7 +46,7 @@ class SchoolAdminService {
             return schoolAdmin;
         } catch (error) {
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "GET_ALL_SCHOOL_ADMIN_BY_ID_FAILED",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,
@@ -53,11 +55,11 @@ class SchoolAdminService {
             throw error;
         }
     }
-    async createSchoolAdmin(SchoolAdminData: Partial<ISchoolAdmin>, userId: string, userRole: string) {
+    async createSchoolAdmin(SchoolAdminData: Partial<ISchoolAdmin>, actorId: string, userRole: string) {
         try {
             const schoolAdmin = await this.schoolAdminRepository.create(SchoolAdminData)
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "CREATE_SCHOOL_ADMIN",
                 roleSnapshot: userRole,
                 metadata: { SchoolAdmins: !!schoolAdmin }
@@ -65,7 +67,7 @@ class SchoolAdminService {
             return schoolAdmin;
         } catch (error) {
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "CREATE_SCHOOL_ADMIN_FAILED",
                 roleSnapshot: userRole,
                 metadata: { error: (error as Error).message }
@@ -73,11 +75,11 @@ class SchoolAdminService {
             throw error;
         }
     }
-    async updateSchoolAdmin(schoolAdminId: string, SchoolAdminData: Partial<ISchoolAdmin>, userId: string, userRole: string) {
+    async updateSchoolAdmin(schoolAdminId: string, SchoolAdminData: Partial<ISchoolAdmin>, actorId: string, userRole: string) {
         try {
             const schoolAdmin = await this.schoolAdminRepository.update(schoolAdminId, SchoolAdminData);
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "UPDATE_SCHOOL_ADMIN",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,
@@ -86,7 +88,7 @@ class SchoolAdminService {
             return schoolAdmin;
         } catch (error) {
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "UPDATE_SCHOOL_ADMIN_FAILED",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,
@@ -95,11 +97,11 @@ class SchoolAdminService {
             throw error;
         }
     }
-    async deleteSchoolAdmin(schoolAdminId: string, userId: string, userRole: string) {
+    async deleteSchoolAdmin(schoolAdminId: string, actorId: string, userRole: string) {
         try {
             const schoolAdmin = await this.schoolAdminRepository.delete(schoolAdminId);
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "DELETE_SCHOOL_ADMIN",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,
@@ -108,7 +110,7 @@ class SchoolAdminService {
             return schoolAdmin;
         } catch (error) {
             await this.logger.log({
-                userId,
+                userId: actorId,
                 action: "DELETE_SCHOOL_ADMIN_FAILED",
                 roleSnapshot: userRole,
                 targetId: schoolAdminId,

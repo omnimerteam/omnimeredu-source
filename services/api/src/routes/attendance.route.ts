@@ -37,7 +37,7 @@ const router = Router();
 router.get(
   "/",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAllAttendances(req, res, next)
 );
@@ -61,7 +61,7 @@ router.get(
 router.get(
   "/class/:classId",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAttendancesByClassId(req, res, next)
 );
@@ -77,7 +77,7 @@ router.post(
 router.put(
   "/:id",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.updateAttendance(req, res, next)
 );
@@ -85,7 +85,7 @@ router.put(
 router.delete(
   "/:id",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.deleteAttendance(req, res, next)
 );

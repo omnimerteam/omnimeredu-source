@@ -1,6 +1,5 @@
 import { DefaultLogger } from "../utils/DefaultLogger";
 import { IAttendance } from "../models/Attendance";
-import { NormalizeObjectId } from "../utils/NormalizeObjectId";
 import AttendanceRepository from "../repositories/attendance.repository";
 import SchoolAdmin from "../repositories/schoolAdmin.repository";
 import ClassRepository from "../repositories/class.repository";
@@ -27,11 +26,11 @@ class AttendanceService {
     this.logger = logger;
   }
 
-  async getAllAttendances(userId: string, userRole: string) {
+  async getAllAttendances(actorId: string, userRole: string) {
     try {
       const attendances = await this.attendanceRepository.findAll();
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_ATTENDANCES",
         roleSnapshot: userRole,
         metadata: { count: attendances.length },
@@ -39,7 +38,7 @@ class AttendanceService {
       return attendances;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_ATTENDANCES_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -48,28 +47,46 @@ class AttendanceService {
     }
   }
 
-  async getAttendanceById(id: string, userId: string, userRole: string) {
+  async getAttendanceById(
+    id: string,
+    actorSchoolId: string,
+    actorId: string,
+    userRole: string
+  ) {
     try {
       const attendance = await this.attendanceRepository.findById(id);
+      if (!attendance) {
+        throw new Error("Không tìm thấy buổi điểm danh");
+      }
+
+      const attendanceSchoolId = attendance.schoolId?.toString();
+
+      // Chỉ kiểm tra khi không phải SuperAdmin
+      if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
+        throw new Error("Tài khoản không có quyền truy cập");
+      }
+
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ATTENDANCE_BY_ID",
         roleSnapshot: userRole,
         targetId: id,
-        metadata: { attendance: attendance },
+        metadata: { attendance }
       });
+
       return attendance;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ATTENDANCE_BY_ID_FAILED",
         roleSnapshot: userRole,
         targetId: id,
-        metadata: { error: (error as Error).message },
+        metadata: { error: (error as Error).message }
       });
       throw error;
     }
   }
+
 
   async getAttendancesBySchoolId(
     schoolId: string,
@@ -78,7 +95,8 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-      if (actorSchoolId !== schoolId) {
+
+      if (userRole === "SchoolAdmin" && actorSchoolId !== schoolId) {
         throw new Error("Tài khoản không có quyền truy cập");
       }
 
@@ -109,42 +127,39 @@ class AttendanceService {
 
   async getAttendancesByClassId(
     classId: string,
-    userId: string,
+    actorId: string,
+    actorSchoolId: string,
     userRole: string
   ) {
     try {
-      // Tìm user theo userId (SchoolAdmin)
-      const userAdmin = await this.schoolAdminRepository.findByUserId(
-        userId.toString()
-      );
-      const currentClass = await this.classRepository.findById(
-        classId.toString()
-      );
-
-      //Kiem tra 2 biến userAdmin và currentClass có tồn tại hay không
-      if (!userAdmin || !currentClass) {
-        throw new Error("User or class not found");
-      }
-
-      // Normalize schoolId from userAdmin and currentClass
-      const userSchoolId = NormalizeObjectId(userAdmin.schoolId);
-      const classSchoolId = NormalizeObjectId(currentClass.schoolId);
-      console.log("userSchoolId", userSchoolId, "classSchoolId", classSchoolId);
-      console.log("User Role", userRole);
-
-      // So sánh schoolId sau khi normalize
-      if (userSchoolId !== classSchoolId) {
-        throw new Error(
-          "You do not have permission to get attendances for this class"
+      if (userRole !== "SuperAdmin") {
+        const currentClass = await this.classRepository.findById(
+          classId.toString()
         );
+
+        //Kiem tra currentClass có tồn tại hay không
+        if (!currentClass) {
+          throw new Error("class not found");
+        }
+
+        //schoolId from currentClass
+        const classSchoolId = currentClass?.schoolId.toString();
+
+        // So sánh schoolId
+        if (userRole === "SchoolAdmin" && actorSchoolId !== classSchoolId) {
+          throw new Error(
+            "Bạn không có quyền truy cập bảng điểm danh của lớp này"
+          );
+        }
       }
+
 
       const attendances = await this.attendanceRepository.findByClassId(
         classId
       );
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ATTENDANCE_BY_CLASS_ID",
         roleSnapshot: userRole,
         targetId: classId,
@@ -153,7 +168,7 @@ class AttendanceService {
       return attendances;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ATTENDANCE_BY_CLASS_ID_FAILED",
         roleSnapshot: userRole,
         targetId: classId,
@@ -170,24 +185,27 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-      const classId = AttendanceData.classId;
-      if (!classId) {
-        throw new Error("Class ID is required");
-      }
 
-      // Tìm class và populate schoolId (nếu cần)
-      const currentClass = await this.classRepository.findById(
-        classId.toString()
-      );
+      if (userRole !== "SuperAdmin") {
+        const classId = AttendanceData.classId;
+        if (!classId) {
+          throw new Error("ID của lớp điểm danh không được cung cấp");
+        }
 
-      if (!currentClass) {
-        throw new Error("Class not found");
-      }
+        // Tìm class và populate schoolId (nếu cần)
+        const currentClass = await this.classRepository.findById(
+          classId.toString()
+        );
 
-      const classSchoolId = currentClass.schoolId?.toString();
+        if (!currentClass) {
+          throw new Error("Không tìm thấy thông tin của lớp điểm danh");
+        }
 
-      if (actorSchoolId !== classSchoolId) {
-        throw new Error("Bạn không có quyền tạo bảng điểm danh cho trường");
+        const classSchoolId = currentClass.schoolId?.toString();
+
+        if (userRole === "SchoolAdmin" && actorSchoolId !== classSchoolId) {
+          throw new Error("Bạn không có quyền tạo bảng điểm danh cho trường");
+        }
       }
 
       const attendance = await this.attendanceRepository.create(AttendanceData);
@@ -214,40 +232,52 @@ class AttendanceService {
   async updateAttendance(
     attendanceId: string,
     AttendanceData: Partial<IAttendance>,
-    userId: string,
+    actorId: string,
+    actorSchoolId: string,
     userRole: string
   ) {
     try {
-      // Tìm user theo userId (SchoolAdmin)
-      const userAdmin = await this.schoolAdminRepository.findByUserId(
-        userId.toString()
-      );
-      const currentAttendance = await this.attendanceRepository.findById(
-        attendanceId.toString()
-      );
 
-      //Kiem tra 2 biến userAdmin và currentClass có tồn tại hay không
-      if (!userAdmin || !currentAttendance) {
-        throw new Error("User or class not found");
-      }
-
-      // Normalize schoolId from userAdmin and currentClass
-      const userSchoolId = NormalizeObjectId(userAdmin.schoolId);
-      const attendanceSchoolId = NormalizeObjectId(currentAttendance.schoolId);
-
-      // So sánh schoolId sau khi normalize
-      if (userSchoolId !== attendanceSchoolId) {
-        throw new Error(
-          "You do not have permission to update attendance for this school"
+      if (userRole !== "SuperAdmin") {
+        const currentAttendance = await this.attendanceRepository.findById(
+          attendanceId.toString()
         );
+
+        //Kiem tra biến currentClass có tồn tại hay không
+        if (!currentAttendance) {
+          throw new Error("Không tìm thấy thông tin của lớp điểm danh");
+        }
+
+        //schoolId from currentClass
+        const attendanceSchoolId = currentAttendance?.schoolId.toString();
+
+        // So sánh schoolId
+        if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
+          throw new Error(
+            "Bạn không có quyền cập nhật bảng điểm danh cho trường này"
+          );
+        }
+
+        if (userRole === "Teacher") {
+          if (actorSchoolId !== attendanceSchoolId) {
+            throw new Error("Bạn không có quyền truy cập để chỉnh sửa bản ghi này");
+          }
+          const attendanceDate = new Date(currentAttendance.date);
+          const now = new Date();
+          const diffInDays = (now.getTime() - attendanceDate.getTime()) / (1000 * 60 * 60 * 24);
+          if (diffInDays > 2) {
+            throw new Error("Teacher chỉ được thay đổi bản ghi trong vòng 2 ngày kể từ ngày điểm danh");
+          }
+        }
       }
 
       const attendance = await this.attendanceRepository.update(
         attendanceId,
         AttendanceData
       );
+
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_ATTENDANCE",
         roleSnapshot: userRole,
         targetId: attendanceId,
@@ -256,7 +286,7 @@ class AttendanceService {
       return attendance;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_ATTENDANCE_FAILED",
         roleSnapshot: userRole,
         targetId: attendanceId,
@@ -268,37 +298,35 @@ class AttendanceService {
 
   async deleteAttendance(
     attendanceId: string,
-    userId: string,
+    actorId: string,
+    actorSchoolId: string,
     userRole: string
   ) {
     try {
-      // Tìm user theo userId (SchoolAdmin)
-      const userAdmin = await this.schoolAdminRepository.findByUserId(
-        userId.toString()
-      );
-      const currentAttendance = await this.attendanceRepository.findById(
-        attendanceId.toString()
-      );
 
-      //Kiem tra 2 biến userAdmin và currentClass có tồn tại hay không
-      if (!userAdmin || !currentAttendance) {
-        throw new Error("User or class not found");
-      }
-
-      // Normalize schoolId from userAdmin and currentClass
-      const userSchoolId = NormalizeObjectId(userAdmin.schoolId);
-      const attendanceSchoolId = NormalizeObjectId(currentAttendance.schoolId);
-
-      // So sánh schoolId sau khi normalize
-      if (userSchoolId !== attendanceSchoolId) {
-        throw new Error(
-          "You do not have permission to delete attendance for this school"
+      if (userRole !== "SuperAdmin") {
+        const currentAttendance = await this.attendanceRepository.findById(
+          attendanceId.toString()
         );
+
+        //Kiem tra currentAttendance có tồn tại hay không
+        if (!currentAttendance) {
+          throw new Error("Không tìm thấy thông tin của lớp điểm danh");
+        }
+
+        //schoolId from currentClass
+        const attendanceSchoolId = currentAttendance?.schoolId.toString();
+
+        // So sánh schoolId
+        if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
+          throw new Error("Bạn không có quyền xóa bảng điểm danh cho trường này");
+        }
       }
 
       const attendance = await this.attendanceRepository.delete(attendanceId);
+
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_ATTENDANCE",
         roleSnapshot: userRole,
         targetId: attendanceId,
@@ -307,7 +335,7 @@ class AttendanceService {
       return attendance;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_ATTENDANCE_FAILED",
         roleSnapshot: userRole,
         targetId: attendanceId,

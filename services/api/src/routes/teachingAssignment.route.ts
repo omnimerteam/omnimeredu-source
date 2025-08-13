@@ -1,16 +1,14 @@
 import { Request, Response, NextFunction, Router } from "express";
 import TeachingAssignmentModel from "../models/TeachingAssignment";
 import ClassModel from "../models/Class";
-import Teacher from "../models/Teacher";
-import SchoolAdmin from "../models/SchoolAdmin";
+import TeacherModel from "../models/Teacher";
 
 // Import các model, repository, service và controller cần thiết
 import ClassRepository from "../repositories/class.repository";
-import TeacherRepository from "../repositories/teacher.repository";
 import TeachingAssignmentRepository from "../repositories/teachingAssignment.repository";
 import TeachingAssignmentService from "../services/teachingAssignment.service";
 import TeachingAssignmentController from "../controllers/teachingAssignment.controller";
-import SchoolAdminRepository from "../repositories/schoolAdmin.repository";
+import TeacherRepository from "../repositories/teacher.repository";
 
 // Logger & Activity Log
 import { ActivityLogRepository } from "../repositories/activityLog.repository";
@@ -22,18 +20,15 @@ import { verifyRole } from "../middlewares/verifyRole";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classRepository = new ClassRepository(ClassModel);
-const teacherRepository = new TeacherRepository(Teacher);
-const schoolAdminRepository = new SchoolAdminRepository(SchoolAdmin);
+const teacherRepository = new TeacherRepository(TeacherModel);
 const teachingAssignmentRepository = new TeachingAssignmentRepository(
   TeachingAssignmentModel
 );
 const teachingAssignmentService = new TeachingAssignmentService(
   logger,
   teachingAssignmentRepository,
-  teacherRepository,
   classRepository,
-  schoolAdminRepository
-);
+  teacherRepository)
 const teachingAssignmentController = new TeachingAssignmentController(
   teachingAssignmentService
 );

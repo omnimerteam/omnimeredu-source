@@ -16,13 +16,13 @@ class SchoolAdminController {
 
     async getAllSchoolAdmins(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user.id;
+            const actorId = req.user?.id;
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
-            const schoolAdmins = await this.schoolAdminService.getAllSchoolAdmins(userId, userRole);
+            const schoolAdmins = await this.schoolAdminService.getAllSchoolAdmins(actorId, userRole);
             if (!schoolAdmins) {
                 sendEmpty(res);
                 return;
@@ -37,14 +37,14 @@ class SchoolAdminController {
 
     async getSchoolAdminById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user.id;
+            const actorId = req.user?.id;
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const schoolAdminId = req.params.id;
-            const schoolAdmin = await this.schoolAdminService.getSchoolAdminById(schoolAdminId, userId, userRole);
+            const schoolAdmin = await this.schoolAdminService.getSchoolAdminById(schoolAdminId, actorId, userRole);
             if (!schoolAdmin) {
                 sendNotFound(res);
                 return;
@@ -59,15 +59,14 @@ class SchoolAdminController {
 
     async createSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-
-            const userId = req.user.id;
+            const actorId = req.user?.id;
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const schoolAdminData = req.body;
-            const schoolAdmin = await this.schoolAdminService.createSchoolAdmin(schoolAdminData, userId, userRole);
+            const schoolAdmin = await this.schoolAdminService.createSchoolAdmin(schoolAdminData, actorId, userRole);
             console.log(chalk.green("[School Admins] Create school admin successfully"));
             sendSuccess(res, schoolAdmin, "Thêm mới school Admin thành công");
         } catch (error) {
@@ -78,15 +77,15 @@ class SchoolAdminController {
 
     async updateSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user.id;
+            const actorId = req.user?.id;
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const schoolAdminId = req.params.id;
             const schoolAdminData = req.body;
-            const schoolAdmin = await this.schoolAdminService.updateSchoolAdmin(schoolAdminId, schoolAdminData, userId, userRole);
+            const schoolAdmin = await this.schoolAdminService.updateSchoolAdmin(schoolAdminId, schoolAdminData, actorId, userRole);
             console.log(chalk.green("[School Admins] Update school admin successfully"));
             sendSuccess(res, schoolAdmin, "Cập nhật school Admin thành công");
         } catch (error) {
@@ -97,14 +96,14 @@ class SchoolAdminController {
 
     async deleteSchoolAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.user.id;
+            const actorId = req.user?.id;
             const userRole = req.role;
-            if (!userId || !userRole) {
+            if (!actorId || !userRole) {
                 sendUnauthorized(res);
                 return;
             }
             const schoolAdminId = req.params.id;
-            const schoolAdmin = await this.schoolAdminService.deleteSchoolAdmin(schoolAdminId, userId, userRole);
+            const schoolAdmin = await this.schoolAdminService.deleteSchoolAdmin(schoolAdminId, actorId, userRole);
             console.log(chalk.green("[School Admins] Delete school admin successfully"));
             sendSuccess(res, schoolAdmin, "Xóa school Admin thành công");
         } catch (error) {

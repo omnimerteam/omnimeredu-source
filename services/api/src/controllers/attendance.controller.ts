@@ -20,14 +20,14 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
       const attendances = await this.attendanceService.getAllAttendances(
-        userId,
+        actorId,
         userRole
       );
       if (!attendances || attendances.length === 0) {
@@ -50,16 +50,19 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?.id;
+      const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
-      if (!userId || !userRole) {
+
+      if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
       const attendanceId = req.params.id;
       const attendance = await this.attendanceService.getAttendanceById(
         attendanceId,
-        userId,
+        actorSchoolId,
+        actorId,
         userRole
       );
       if (!attendance) {
@@ -131,16 +134,18 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?.id;
+      const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
       const classId = req.params.classId;
       const attendances = await this.attendanceService.getAttendancesByClassId(
         classId,
-        userId,
+        actorId,
+        actorSchoolId,
         userRole
       );
       if (!attendances || attendances.length === 0) {
@@ -208,9 +213,10 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?.id;
+      const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
@@ -219,7 +225,8 @@ class AttendanceController {
       const attendance = await this.attendanceService.updateAttendance(
         attendanceId,
         attendanceData,
-        userId,
+        actorId,
+        actorSchoolId,
         userRole
       );
       if (!attendance) {
@@ -241,16 +248,18 @@ class AttendanceController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?.id;
+      const actorSchoolId = req.user?.schoolId?.toString();
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         sendUnauthorized(res);
         return;
       }
       const attendanceId = req.params.id;
       const attendance = await this.attendanceService.deleteAttendance(
         attendanceId,
-        userId,
+        actorId,
+        actorSchoolId,
         userRole
       );
       if (!attendance) {
