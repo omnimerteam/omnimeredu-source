@@ -90,3 +90,26 @@ export const changePassword = async (
     return next(err);
   }
 };
+
+export const forgetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const actorId = req.user?.id;
+    const { newPassword } = req.body;
+
+    if (!actorId) {
+      sendError(res, "Không tìm thấy người dùng", 401);
+      return;
+    }
+
+    await AuthService.forgetPassword(actorId, newPassword);
+
+    sendSuccess(res, null, "Đổi mật khẩu thành công");
+    return;
+  } catch (err: any) {
+    return next(err);
+  }
+};

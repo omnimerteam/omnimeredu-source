@@ -38,3 +38,7 @@ export const changePasswordSchema = z.object({
         "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt",
     }),
 });
+
+export const updatePasswordSchema = z.object({
+  newPassword: z.string().min(1, { message: "Mật khẩu mới là bắt buộc" }),
+});

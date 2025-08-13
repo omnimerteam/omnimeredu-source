@@ -8,6 +8,7 @@ import { validateData } from "../middlewares/validateData";
 import {
   changePasswordSchema,
   createAccountBodySchema,
+  updatePasswordSchema,
 } from "../validators/account.validator";
 
 const router = Router();
@@ -36,11 +37,18 @@ router.get("/login", verifyFirebaseToken, verifyRole(), AuthController.login);
  * Đổi mật khẩu người dùng khi còn nhớ mật khẩu
  * Yêu cầu xác thực Firebase token.
  */
-router.post(
+router.patch(
   "/change-password",
   verifyFirebaseToken,
   validateData({ body: changePasswordSchema }),
   AuthController.changePassword
+);
+
+router.patch(
+  "/forget-password",
+  verifyFirebaseToken,
+  validateData({ body: updatePasswordSchema }),
+  AuthController.forgetPassword
 );
 
 export default router;

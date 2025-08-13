@@ -165,3 +165,26 @@ export const changePassword = async (
     throw err;
   }
 };
+
+export const forgetPassword = async (actorId: string, newPassword: string) => {
+  try {
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await AccountRepo.updateAccountPassword(actorId, hashedNewPassword);
+
+    await logger.log({
+      userId: actorId,
+      action: "FORGET_PASSWORD",
+      targetId: actorId,
+      metadata: { newPassword },
+    });
+  } catch (err) {
+    await logger.log({
+      userId: actorId,
+      action: "FORGET_PASSWORD_FAILED",
+      targetId: actorId,
+      metadata: { newPassword },
+    });
+
+    throw err;
+  }
+};
