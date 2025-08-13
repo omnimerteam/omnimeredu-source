@@ -15,7 +15,6 @@ export const validateData = (schemas: ValidationSchemas) => {
       if (schemas.body) req.body = schemas.body.parse(req.body);
       if (schemas.query) req.query = schemas.query.parse(req.query);
       if (schemas.params) req.params = schemas.params.parse(req.params);
-
       next();
       return;
     } catch (error) {

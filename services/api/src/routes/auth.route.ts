@@ -5,6 +5,7 @@ import * as AuthController from "../controllers/auth.controller";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
+import { createAccountBodySchema } from "../validators/account.validator";
 
 const router = Router();
 
@@ -13,7 +14,11 @@ const router = Router();
  * Đăng ký tài khoản mới: tạo Account & BaseUser, gán Role.
  * Body: { uid, email, fullName, gender, phone, role }
  */
-router.post("/register", AuthController.register);
+router.post(
+  "/register",
+  validateData({ body: createAccountBodySchema }),
+  AuthController.register
+);
 
 /**
  * @route GET /api/users/:uid

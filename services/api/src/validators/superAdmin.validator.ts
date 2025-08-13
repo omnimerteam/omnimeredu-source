@@ -1,7 +1,7 @@
 import { SuperAdminSchema } from "../schemas/SuperAdmin.schema";
 
-export const CreateSuperAdminSchema = SuperAdminSchema.omit({ _id: true });
-export const UpdateSuperAdminSchema = SuperAdminSchema.partial({
+export const createSuperAdminSchema = SuperAdminSchema.omit({ _id: true });
+export const updateSuperAdminSchema = SuperAdminSchema.partial({
   fullName: true,
   roleId: true,
   gender: true,

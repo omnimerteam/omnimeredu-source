@@ -6,7 +6,7 @@ export const createTeacherBodySchema = TeacherSchema.omit({ _id: true });
 // Schema khi cập nhật Teacher (tất cả các trường optional)
 export const updateTeacherBodySchema = TeacherSchema.partial({
   fullName: true,
-  roleId: true,
+  // roleId: true,
   gender: true,
   birthday: true,
   phone: true,

@@ -19,31 +19,20 @@ export const register = async (
     const {
       email,
       password,
-      roleId,
-      fullName,
-      gender,
-      phone,
-      schoolId,
+      baseUserInfo,
       specificInfo, // object chứa các field riêng của role
     } = req.body;
 
-    if (!email || !password || !roleId) {
+    console.log(req.body);
+
+    if (!email || !password || !baseUserInfo?.roleId) {
       throw new Error("Thiếu thông tin bắt buộc: email, password hoặc roleId");
     }
-
-    // Thông tin chung
-    const baseUserInfo = {
-      fullName: fullName?.trim() || "",
-      gender: gender ?? null,
-      phone: phone ?? null,
-      schoolId: schoolId ?? null,
-    };
 
     // Gọi service
     const user = await AuthService.registerUser(
       email.trim(),
       password,
-      roleId,
       baseUserInfo,
       specificInfo || {}
     );
