@@ -26,7 +26,10 @@ import {
 } from "../validators/class/class.validator";
 import { objectIdParamSchema } from "../validators/params/params.validator";
 import { authHeaderSchema } from "../validators/header/header.validator";
-import { paginationQuerySchema } from "../validators/query/query.validator";
+import {
+  createPaginationSchemaWithSort,
+  paginationQuerySchema,
+} from "../validators/query/query.validator";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);
@@ -39,6 +42,14 @@ const classService = new ClassService(
 );
 const classController = new ClassController(classService);
 
+// Custom Validate
+const getAllClassPaginationSchema = createPaginationSchemaWithSort([
+  "name",
+  "code",
+  "schoolId",
+  "baseFee",
+]);
+
 // Router
 const router = Router();
 
@@ -49,7 +60,10 @@ const router = Router();
 // ✅ Lấy tất cả lớp (có filter query)
 router.get(
   "/",
-  validateData({ headers: authHeaderSchema, query: paginationQuerySchema }),
+  validateData({
+    headers: authHeaderSchema,
+    query: getAllClassPaginationSchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClasses(req, res, next)

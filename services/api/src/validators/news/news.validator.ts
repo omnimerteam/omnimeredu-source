@@ -2,7 +2,7 @@ import { NewsSchema } from "./News.schema";
 
 export const createNewsBodySchema = NewsSchema.omit({
   _id: true,
-  publishedAt: true, // thường MongoDB tự set
+  publishedAt: true,
 });
 
 export const updateNewsBodySchema = NewsSchema.partial({

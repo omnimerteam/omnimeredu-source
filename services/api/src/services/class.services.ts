@@ -21,7 +21,7 @@ class ClassService {
   }
 
   async getAllClasses(
-    userId: string,
+    actorId: string,
     userRole: string,
     schoolId?: string,
     options?: { page?: number; limit?: number; sort?: any }
@@ -41,7 +41,7 @@ class ClassService {
       const classes = await this.classRepository.findAll(filter, options);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_CLASSES",
         roleSnapshot: userRole,
         metadata: {
@@ -54,7 +54,7 @@ class ClassService {
       return classes;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_CLASSES_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -63,12 +63,12 @@ class ClassService {
     }
   }
 
-  async getClassById(userId: string, userRole: string, id: string) {
+  async getClassById(actorId: string, userRole: string, id: string) {
     try {
       const classData = await this.classRepository.findById(id);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_CLASS_BY_ID",
         targetId: id,
         roleSnapshot: userRole,
@@ -78,7 +78,7 @@ class ClassService {
       return classData;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_CLASS_BY_ID_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -88,12 +88,12 @@ class ClassService {
     }
   }
 
-  async createClass(userId: string, userRole: string, data: Partial<IClass>) {
+  async createClass(actorId: string, userRole: string, data: Partial<IClass>) {
     try {
       const created = await this.classRepository.create(data);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "CREATE_CLASS",
         targetId: created._id.toString(),
         roleSnapshot: userRole,
@@ -103,7 +103,7 @@ class ClassService {
       return created;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "CREATE_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {
@@ -116,7 +116,7 @@ class ClassService {
   }
 
   async updateClass(
-    userId: string,
+    actorId: string,
     userRole: string,
     id: string,
     data: Partial<IClass>
@@ -125,7 +125,7 @@ class ClassService {
       const updated = await this.classRepository.update(id, data);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_CLASS",
         targetId: id,
         roleSnapshot: userRole,
@@ -135,7 +135,7 @@ class ClassService {
       return updated;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_CLASS_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -148,12 +148,12 @@ class ClassService {
     }
   }
 
-  async deleteClass(userId: string, userRole: string, id: string) {
+  async deleteClass(actorId: string, userRole: string, id: string) {
     try {
       const deleted = await this.classRepository.delete(id);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_CLASS",
         targetId: id,
         roleSnapshot: userRole,
@@ -163,7 +163,7 @@ class ClassService {
       return deleted;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_CLASS_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -175,14 +175,14 @@ class ClassService {
 
   /**
    *
-   * @param userId
+   * @param actorId
    * @param userRole
    * @param filter
    * @param options
    * @returns danh sách phù hơp với filter
    */
   async searchClass(
-    userId: string,
+    actorId: string,
     userRole: string,
     filter: FilterQuery<IClass> = {},
     options?: { page?: number; limit?: number; sort?: any }
@@ -191,7 +191,7 @@ class ClassService {
       const result = await this.classRepository.findAll(filter, options);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "SEARCH_CLASS",
         roleSnapshot: userRole,
         metadata: {
@@ -204,7 +204,7 @@ class ClassService {
       return result;
     } catch (err) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "SEARCH_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {
@@ -220,7 +220,7 @@ class ClassService {
 
   /**
    * Thêm học sinh vào lớp học
-   * @param userId
+   * @param actorId
    * @param userRole
    * @param classId
    * @param studentIds
@@ -240,7 +240,7 @@ class ClassService {
    *}
    */
   async addStudentToClass(
-    userId: string,
+    actorId: string,
     userRole: string,
     classId: string,
     studentIds: string[]
@@ -293,7 +293,7 @@ class ClassService {
 
       // Ghi log thành công
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "ADD_STUDENT_TO_CLASS",
         roleSnapshot: userRole,
         metadata: {
@@ -312,7 +312,7 @@ class ClassService {
     } catch (err) {
       // Ghi log lỗi
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "ADD_STUDENT_TO_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {
@@ -328,7 +328,7 @@ class ClassService {
 
   /**
    * Xóa danh sách học sinh khỏi lớp học
-   * @param userId
+   * @param actorId
    * @param userRole
    * @param classId
    * @param studentIds
@@ -337,7 +337,7 @@ class ClassService {
    * }
    */
   async removeStudentFromClass(
-    userId: string,
+    actorId: string,
     userRole: string,
     classId: string,
     studentIds: string[]
@@ -369,7 +369,7 @@ class ClassService {
 
       // Ghi log thành công
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "REMOVE_STUDENT_FROM_CLASS",
         roleSnapshot: userRole,
         metadata: {
@@ -384,7 +384,7 @@ class ClassService {
     } catch (err) {
       // Ghi log thất bại
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "REMOVE_STUDENT_FROM_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {
@@ -400,7 +400,7 @@ class ClassService {
 
   /**
    * Chuyển học sinh sang lớp khác
-   * @param userId
+   * @param actorId
    * @param userRole
    * @param toClassId
    * @param studentIds
@@ -414,7 +414,7 @@ class ClassService {
    * }
    */
   async transferClass(
-    userId: string,
+    actorId: string,
     userRole: string,
     toClassId: string,
     studentIds: string[]
@@ -482,7 +482,7 @@ class ClassService {
       }
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "TRANSFER_CLASS",
         roleSnapshot: userRole,
         metadata: {
@@ -499,7 +499,7 @@ class ClassService {
       };
     } catch (err) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "TRANSFER_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {

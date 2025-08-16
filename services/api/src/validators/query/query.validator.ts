@@ -5,22 +5,42 @@ import { z } from "zod";
  * Example: /users?page=1&limit=10&sort=name
  */
 export const paginationQuerySchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 1))
-    .refine((val) => val > 0, { message: "Số trang phải lớn hơn 0" }),
+  page: z.coerce
+    .number()
+    .min(1, { message: "Số trang phải lớn hơn 0" })
+    .default(1),
 
-  limit: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 25))
-    .refine((val) => val > 0 && val <= 50, {
-      message: "Số lượng mỗi lần phản từ 1 - 50",
-    }),
-
-  sort: z.string().optional(),
+  limit: z.coerce
+    .number()
+    .min(1, { message: "Số lượng mỗi lần phải từ 1 - 50" })
+    .max(50, { message: "Số lượng mỗi lần phải từ 1 - 50" })
+    .default(25),
 });
+
+/**
+ * Hàm tạo schema pagination + sort theo whitelist field
+ * @param allowedFields Array các field được phép sort
+ */
+export function createPaginationSchemaWithSort(allowedFields: string[]) {
+  return paginationQuerySchema.extend({
+    sort: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true;
+          const fields = val.split(",");
+          return fields.every((f) => {
+            const [field] = f.split(":");
+            return allowedFields.includes(field);
+          });
+        },
+        {
+          message: `Sort chỉ được phép các field: ${allowedFields.join(", ")}`,
+        }
+      ),
+  });
+}
 
 /**
  * User search query schema

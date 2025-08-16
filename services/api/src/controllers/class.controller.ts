@@ -9,9 +9,10 @@ import {
   sendEmpty,
 } from "../utils/ResponseHelper";
 import { CustomError } from "../middlewares/errorHandler.middleware";
+import { buildQueryOptions } from "../utils/buildQueryOptions";
 
 class ClassController {
-  private classService: ClassService;
+  private readonly classService: ClassService;
 
   constructor(classService: ClassService) {
     this.classService = classService;
@@ -26,25 +27,19 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
 
       const schoolId = req.user?.schoolId;
 
-      const options = {
-        page: parseInt(req.query.page as string) || 1,
-        limit: parseInt(req.query.limit as string) || 10,
-        sort: req.query.sortBy
-          ? { [req.query.sortBy as string]: req.query.order === "asc" ? 1 : -1 }
-          : undefined,
-      };
+      const options = buildQueryOptions(req.query as any);
 
       const result = await this.classService.getAllClasses(
-        userId,
+        actorId,
         userRole,
         schoolId,
         options
@@ -74,16 +69,20 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
 
       const { id } = req.params;
 
-      const result = await this.classService.getClassById(userId, userRole, id);
+      const result = await this.classService.getClassById(
+        actorId,
+        userRole,
+        id
+      );
       if (!result) {
         const error: CustomError = new Error("Không tìm thấy lớp");
         error.status = 404;
@@ -108,9 +107,9 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
@@ -118,7 +117,7 @@ class ClassController {
       const body = req.body;
 
       const result = await this.classService.createClass(
-        userId,
+        actorId,
         userRole,
         body
       );
@@ -143,9 +142,9 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
@@ -154,7 +153,7 @@ class ClassController {
       const body = req.body;
 
       const result = await this.classService.updateClass(
-        userId,
+        actorId,
         userRole,
         id,
         body
@@ -184,16 +183,16 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userRole || !userId) {
+      if (!userRole || !actorId) {
         sendUnauthorized(res);
         return;
       }
 
       const { id } = req.params;
 
-      const result = await this.classService.deleteClass(userId, userRole, id);
+      const result = await this.classService.deleteClass(actorId, userRole, id);
       if (!result) {
         const error: CustomError = new Error("Không tìm thấy lớp để xóa");
         error.status = 404;
@@ -215,9 +214,9 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         console.log(
           chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
         );
@@ -229,7 +228,7 @@ class ClassController {
       const { studentIds } = req.body;
 
       const result = await this.classService.addStudentToClass(
-        userId,
+        actorId,
         userRole,
         classId,
         studentIds
@@ -249,9 +248,9 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?.id;
+      const actorId = req.user?.id;
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         console.log(
           chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
         );
@@ -263,7 +262,7 @@ class ClassController {
       const { studentIds } = req.body;
 
       const result = await this.classService.removeStudentFromClass(
-        userId,
+        actorId,
         userRole,
         classId,
         studentIds
@@ -286,9 +285,9 @@ class ClassController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const userId = req.user?._id;
+      const actorId = req.user?._id;
       const userRole = req.role;
-      if (!userId || !userRole) {
+      if (!actorId || !userRole) {
         console.log(
           chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
         );
@@ -299,7 +298,7 @@ class ClassController {
       const { toClassId, studentIds } = req.body;
 
       const result = await this.classService.transferClass(
-        userId,
+        actorId,
         userRole,
         toClassId,
         studentIds

@@ -39,3 +39,5 @@ class NewsService {
     }
   }
 }
+
+export default NewsService;
