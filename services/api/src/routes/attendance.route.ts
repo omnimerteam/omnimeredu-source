@@ -8,7 +8,7 @@ import AttendanceRepository from "../repositories/attendance.repository";
 import AttendanceService from "../services/attendance.service";
 import AttendanceController from "../controllers/attendance.controller";
 import SchoolAdminRepository from "../repositories/schoolAdmin.repository";
-import ClassRepostory from "../repositories/class.repository";
+import ClassRepository from "../repositories/class.repository";
 import TeacherRepository from "../repositories/teacher.repository";
 
 import { ActivityLogRepository } from "../repositories/activityLog.repository";
@@ -20,7 +20,7 @@ import { verifyRole } from "../middlewares/verifyRole";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const schoolAdminRepository = new SchoolAdminRepository(SchoolAdminModel);
-const classRepository = new ClassRepostory(ClassModel);
+const classRepository = new ClassRepository(ClassModel);
 const teacherRepository = new TeacherRepository(TeacherModel);
 const attendanceRepository = new AttendanceRepository(AttendanceModel);
 const attendanceService = new AttendanceService(

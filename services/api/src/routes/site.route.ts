@@ -7,6 +7,7 @@ import teachingAssignment from "./teachingAssignment.route";
 import schoolAdmin from "./schoolAdmin.route";
 import attendance from "./attendance.route";
 import detailsRecord from "./detailsRecord.route";
+import newsRoute from "./news.route";
 
 import { Express } from "express";
 
@@ -20,5 +21,6 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/schooladmins", schoolAdmin); // School Admin API: /api/v1/schooladmins
   app.use("/api/v1/detailsrecords", detailsRecord); // Details Record API: /api/v1/detailsrecords
   app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendance
+  app.use("/api/v1/news", newsRoute); // News API: /api/v1/news
 }
 export default setupRoutes;

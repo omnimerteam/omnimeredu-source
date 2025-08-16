@@ -23,8 +23,8 @@ import {
   modifyStudentsBodySchema,
   transferClassBodySchema,
   updateClassBodySchema,
-} from "../validators/class.validator";
-import { objectIdParamSchema } from "../validators/params.validator";
+} from "../validators/class/class.validator";
+import { objectIdParamSchema } from "../validators/params/params.validator";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);
