@@ -13,10 +13,26 @@ interface ValidationSchemas {
 export const validateData = (schemas: ValidationSchemas) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      if (schemas.body) req.body = schemas.body.parse(req.body);
-      if (schemas.query) req.query = schemas.query.parse(req.query);
-      if (schemas.params) req.params = schemas.params.parse(req.params);
-      if (schemas.headers) req.headers = schemas.headers.parse(req.headers);
+      if (schemas.body) {
+        req.body = schemas.body.parse(req.body);
+      }
+
+      if (schemas.query) {
+        const parsedQuery = schemas.query.parse(req.query);
+        Object.assign(req.query, parsedQuery);
+      }
+
+      if (schemas.params) {
+        const parsedParams = schemas.params.parse(req.params);
+        Object.assign(req.params, parsedParams);
+      }
+
+      if (schemas.headers) {
+        const parsedHeaders = schemas.headers.parse({
+          authorization: req.headers["authorization"],
+        });
+        (req as any).authHeader = parsedHeaders.authorization;
+      }
 
       next();
       return;
@@ -31,7 +47,7 @@ export const validateData = (schemas: ValidationSchemas) => {
         return;
       }
 
-      sendError(res, "Lỗi hệ thống", 500, error);
+      sendError(res, `${error}`, 500, error);
       return;
     }
   };

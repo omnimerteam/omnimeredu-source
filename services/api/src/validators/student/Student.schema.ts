@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-import { BaseUserSchema } from "../validators/baseUser/BaseUser.schema";
+import { BaseUserSchema } from "../baseUser/BaseUser.schema";
 
 // Enum cấp học đúng như model mongoose
 const EducationLevelEnum = [

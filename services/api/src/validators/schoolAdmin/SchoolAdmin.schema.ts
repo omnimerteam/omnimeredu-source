@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseUserSchema } from "../validators/baseUser/BaseUser.schema";
+import { BaseUserSchema } from "../baseUser/BaseUser.schema";
 
 // Schema gốc cho SchoolAdmin (chỉ định nghĩa field & kiểu)
 export const SchoolAdminSchema = BaseUserSchema.extend({

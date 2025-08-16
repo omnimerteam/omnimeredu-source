@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BaseUserSchema } from "../validators/baseUser/BaseUser.schema";
+import { BaseUserSchema } from "../baseUser/BaseUser.schema";
 
 // Schema cho Teacher kế thừa từ BaseUserSchema
 export const TeacherSchema = BaseUserSchema.extend({

@@ -9,7 +9,7 @@ import {
   changePasswordSchema,
   createAccountBodySchema,
   updatePasswordSchema,
-} from "../validators/account.validator";
+} from "../validators/account/account.validator";
 
 const router = Router();
 

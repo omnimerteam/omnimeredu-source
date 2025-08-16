@@ -6,6 +6,7 @@ import {
   sendCreated,
   sendUnauthorized,
   sendForbidden,
+  sendEmpty,
 } from "../utils/ResponseHelper";
 import { CustomError } from "../middlewares/errorHandler.middleware";
 
@@ -51,7 +52,7 @@ class ClassController {
 
       if (!result || result.length === 0) {
         console.log(chalk.yellow("[CLASS] No classes found for user"));
-        sendSuccess(res, [], "Không có lớp học nào");
+        sendEmpty(res, "Không có lớp học phù hợp");
         return;
       }
 

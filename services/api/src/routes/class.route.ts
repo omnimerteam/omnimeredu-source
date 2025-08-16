@@ -25,6 +25,8 @@ import {
   updateClassBodySchema,
 } from "../validators/class/class.validator";
 import { objectIdParamSchema } from "../validators/params/params.validator";
+import { authHeaderSchema } from "../validators/header/header.validator";
+import { paginationQuerySchema } from "../validators/query/query.validator";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);
@@ -47,6 +49,7 @@ const router = Router();
 // ✅ Lấy tất cả lớp (có filter query)
 router.get(
   "/",
+  validateData({ headers: authHeaderSchema, query: paginationQuerySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClasses(req, res, next)
@@ -55,15 +58,16 @@ router.get(
 // ✅ Lấy lớp theo ID
 router.get(
   "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  validateData({ params: objectIdParamSchema }),
   (req, res, next) => classController.getClassById(req, res, next)
 );
 
 // ✅ Tạo lớp mới
 router.post(
   "/",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   validateData({ body: createClassBodySchema }),
@@ -73,45 +77,62 @@ router.post(
 // ✅ Cập nhật lớp
 router.put(
   "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: updateClassBodySchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  validateData({ params: objectIdParamSchema, body: updateClassBodySchema }),
   (req, res, next) => classController.updateClass(req, res, next)
 );
 
 // ✅ Xóa lớp
 router.delete(
   "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  validateData({ params: objectIdParamSchema }),
   (req, res, next) => classController.deleteClass(req, res, next)
 );
 
 // ✅ Thêm học sinh vào lớp
 router.post(
   "/:id/students/add",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: modifyStudentsBodySchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  validateData({ params: objectIdParamSchema, body: modifyStudentsBodySchema }),
+
   (req, res, next) => classController.addStudentToClass(req, res, next)
 );
 
 // ✅ Xóa học sinh khỏi lớp
 router.post(
   "/:id/students/remove",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: modifyStudentsBodySchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  validateData({ params: objectIdParamSchema, body: modifyStudentsBodySchema }),
   (req, res, next) => classController.removeStudentFromClass(req, res, next)
 );
 
 // ✅ Trao đổi học sinh giữa các lớp
 router.put(
   "/:id/transfer",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: transferClassBodySchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  validateData({ params: objectIdParamSchema, body: transferClassBodySchema }),
   (req, res, next) => classController.transferClass(req, res, next)
 );
 
