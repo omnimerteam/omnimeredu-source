@@ -14,15 +14,10 @@ export const NewsSchema = z.object({
     .min(1, { message: "Tiêu đề là bắt buộc" })
     .max(200, { message: "Tiêu đề không được vượt quá 200 ký tự" }),
 
-  content: z
-    .string()
-    .min(1, { message: "Nội dung là bắt buộc" })
-    .max(10000, { message: "Nội dung không được vượt quá 10.000 ký tự" }),
+  quillDelta: z.any().optional(),
 
-  imageUrl: z
-    .string()
-    .url({ message: "Định dạng URL không hợp lệ cho imageUrl" })
-    .optional(),
+  imagePath: z.string().optional(), // đường dẫn trong Firebase Storage bucket
+  imageUrl: z.string().url({ message: "Định dạng ảnh không đúng" }).optional(),
 
   schoolId: z
     .string()
@@ -33,7 +28,7 @@ export const NewsSchema = z.object({
 
   publishedAt: z
     .string()
-    .datetime({ message: "Định dạng ngày giờ không hợp lệ cho publishedAt" })
+    .datetime({ message: "Định dạng ngày giờ đăng không hợp lệ" })
     .optional(),
 
   isPublic: z.boolean().optional(),

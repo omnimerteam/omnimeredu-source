@@ -12,6 +12,16 @@ export const objectIdParamSchema = z.object({
 });
 
 /**
+ * School-specific params
+ * Example: /classes/:schoolId
+ */
+export const schoolIdParamSchema = z.object({
+  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Invalid SchoolId format",
+  }),
+});
+
+/**
  * Class-specific params
  * Example: /classes/:classId
  */

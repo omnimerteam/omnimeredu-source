@@ -35,6 +35,7 @@ const NewsSchema = new Schema<INews>(
 
     schoolId: { type: Schema.Types.ObjectId, ref: "School" },
     publishedAt: { type: Date, default: Date.now },
+    // Công khai cho ngoài trường coi
     isPublic: { type: Boolean, default: true },
     tags: [String],
   },
