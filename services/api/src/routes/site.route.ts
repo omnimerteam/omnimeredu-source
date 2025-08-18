@@ -16,10 +16,10 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/auth", authRoutes); // Auth API: /api/auth
   app.use("/api/v1/schools", schoolRouter); // School API: /api/schools
   app.use("/api/v1/teachers", teacherRoutes); // Teacher API: /api/teachers
-  app.use("/api/v1/teachingassignment", teachingAssignment); // Teaching Assignment API: /api/teachingassignments
+  app.use("/api/v1/teaching-assignment", teachingAssignment); // Teaching Assignment API: /api/teachingassignments
   app.use("/api/v1/classes", classRoutes); // Class API Version 1: /api/v1/classes
-  app.use("/api/v1/schooladmins", schoolAdmin); // School Admin API: /api/v1/schooladmins
-  app.use("/api/v1/detailsrecords", detailsRecord); // Details Record API: /api/v1/detailsrecords
+  app.use("/api/v1/school-admins", schoolAdmin); // School Admin API: /api/v1/schooladmins
+  app.use("/api/v1/details-records", detailsRecord); // Details Record API: /api/v1/detailsrecords
   app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendance
   app.use("/api/v1/news", newsRoute); // News API: /api/v1/news
 }
