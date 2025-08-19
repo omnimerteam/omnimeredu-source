@@ -1,5 +1,5 @@
 import SchoolRepository from "../repositories/school.repository";
-import { ISchool } from "../models/School";
+import { ISchool } from "../models";
 import { ILogger } from "../interfaces/logger.interface";
 
 class SchoolService {

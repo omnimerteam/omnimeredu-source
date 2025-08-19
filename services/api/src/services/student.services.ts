@@ -1,6 +1,6 @@
 import { DefaultLogger } from "../utils/DefaultLogger.js";
 import StudentRepository from "../repositories/student.repository.js";
-import { IStudent } from "../models/Student.js";
+import { IStudent } from "../models";
 class StudentService {
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;

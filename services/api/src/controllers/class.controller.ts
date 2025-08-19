@@ -5,7 +5,6 @@ import {
   sendSuccess,
   sendCreated,
   sendUnauthorized,
-  sendForbidden,
   sendEmpty,
 } from "../utils/ResponseHelper";
 import { CustomError } from "../middlewares/errorHandler.middleware";

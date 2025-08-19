@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from "express";
-import SchoolAdmin from "../models/SchoolAdmin";
+import { SchoolAdmin } from "../models";
 
 // Import các model, repository, service và controller cần thiết
 import SchoolAdminRepository from "../repositories/schoolAdmin.repository";

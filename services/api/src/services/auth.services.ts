@@ -1,4 +1,4 @@
-import Role from "../models/Role";
+import { Role } from "../models";
 import RoleRepository from "../repositories/role.repository";
 import * as AccountRepo from "../repositories/account.repository";
 import { getModelByRoleName } from "../utils/roleToModelMap";

@@ -1,9 +1,8 @@
-import { IClass } from "../models/Class";
+import { IClass } from "../models";
 import ClassRepository from "../repositories/class.repository";
 import { ILogger } from "../interfaces/logger.interface";
 import { FilterQuery, Types } from "mongoose";
 import StudentRepository from "../repositories/student.repository";
-import { fail } from "assert";
 
 class ClassService {
   private readonly classRepository: ClassRepository;

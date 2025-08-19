@@ -1,10 +1,8 @@
 import TeachingAssignmentRepository from "../repositories/teachingAssignment.repository";
 import ClassRepository from "../repositories/class.repository";
 import TeacherRepository from "../repositories/teacher.repository";
-import SchoolAdmin from "../repositories/schoolAdmin.repository";
-import { findUserByUserId } from "../repositories/account.repository";
 import { DefaultLogger } from "../utils/DefaultLogger";
-import { ITeachingAssignment } from "../models/TeachingAssignment";
+import { ITeachingAssignment } from "../models";
 
 class TeachingAssignmentService {
   private readonly logger: DefaultLogger;
@@ -124,24 +122,25 @@ class TeachingAssignmentService {
     userRole: string
   ) {
     try {
-
       if (!assignmentData || Object.keys(assignmentData).length === 0) {
         throw new Error("Dữ liệu bảng phân chia giảng dạy không được để trống");
       }
       if (userRole !== "SuperAdmin") {
-        const existingAssignment = await this.teachingAssignmentRepository.findById(id);
+        const existingAssignment =
+          await this.teachingAssignmentRepository.findById(id);
 
         if (!existingAssignment) {
           throw new Error("Không tìm thấy bảng phân chia giảng dạy theo ID ");
         }
 
-        //lấy ra teacherId từ class 
+        //lấy ra teacherId từ class
         const assignmentTeacherId = existingAssignment.teacherId?.toString();
 
-
-        //So sánh teacherId từ class 
+        //So sánh teacherId từ class
         if (assignmentTeacherId !== actorId) {
-          throw new Error("Bạn không có quyền chỉnh sửa bảng phân chia giảng dạy này");
+          throw new Error(
+            "Bạn không có quyền chỉnh sửa bảng phân chia giảng dạy này"
+          );
         }
       }
 
@@ -171,23 +170,29 @@ class TeachingAssignmentService {
     }
   }
 
-  async deleteTeachingAssignment(id: string, schoolId: string, actorId: string, userRole: string) {
+  async deleteTeachingAssignment(
+    id: string,
+    schoolId: string,
+    actorId: string,
+    userRole: string
+  ) {
     try {
-
       if (userRole !== "SuperAdmin") {
-
-        const existingAssignment = await this.teachingAssignmentRepository.findById(id);
+        const existingAssignment =
+          await this.teachingAssignmentRepository.findById(id);
 
         if (!existingAssignment) {
           throw new Error("Không tìm thấy bảng phân chia giảng dạy theo ID ");
         }
 
-        //lấy ra teacherId từ class 
+        //lấy ra teacherId từ class
         const assignmentTeacherId = existingAssignment.teacherId?.toString();
 
-        //So sánh teacherId từ class 
+        //So sánh teacherId từ class
         if (assignmentTeacherId !== actorId) {
-          throw new Error("Bạn không có quyền xóa bảng phân chia giảng dạy này");
+          throw new Error(
+            "Bạn không có quyền xóa bảng phân chia giảng dạy này"
+          );
         }
       }
 

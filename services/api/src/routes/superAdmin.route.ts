@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { Teacher } from "../models";
+import { SuperAdmin } from "../models";
 
 // Import các model, repository, service và controller cần thiết
-import TeacherRepository from "../repositories/teacher.repository";
-import TeacherService from "../services/teacher.service";
-import TeacherController from "../controllers/teacher.controller";
+import SuperAdminRepository from "../repositories/superAdmin.repository";
+import SuperAdminService from "../services/superAdmin.service";
+import SuperAdminController from "../controllers/superAdmin.controller";
 
 // Logger & Activity Log
 import { ActivityLogRepository } from "../repositories/activityLog.repository";
@@ -16,9 +16,9 @@ import { verifyRole } from "../middlewares/verifyRole";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
-const teacherRepository = new TeacherRepository(Teacher);
-const teacherService = new TeacherService(teacherRepository, logger);
-const teacherController = new TeacherController(teacherService);
+const teacherRepository = new SuperAdminRepository(SuperAdmin);
+const teacherService = new SuperAdminService(teacherRepository, logger);
+const teacherController = new SuperAdminController(teacherService);
 
 const router = Router();
 
@@ -27,7 +27,7 @@ router.get(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.getAllTeachers(req, res, next)
+    teacherController.getAllSuperAdmins(req, res, next)
 );
 
 router.get(
@@ -35,14 +35,14 @@ router.get(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.getTeacherById(req, res, next)
+    teacherController.getSuperAdminById(req, res, next)
 );
 router.get(
   "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.getTeacherById(req, res, next)
+    teacherController.getSuperAdminById(req, res, next)
 );
 
 router.post(
@@ -50,14 +50,14 @@ router.post(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.createTeacher(req, res, next)
+    teacherController.createSuperAdmin(req, res, next)
 );
 router.post(
   "/",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.createTeacher(req, res, next)
+    teacherController.createSuperAdmin(req, res, next)
 );
 
 router.put(
@@ -65,14 +65,14 @@ router.put(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.updateTeacher(req, res, next)
+    teacherController.updateSuperAdmin(req, res, next)
 );
 router.put(
   "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.updateTeacher(req, res, next)
+    teacherController.updateSuperAdmin(req, res, next)
 );
 
 router.delete(
@@ -80,7 +80,7 @@ router.delete(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.deleteTeacher(req, res, next)
+    teacherController.deleteSuperAdmin(req, res, next)
 );
 
 router.delete(
@@ -88,22 +88,7 @@ router.delete(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.deleteTeacher(req, res, next)
+    teacherController.deleteSuperAdmin(req, res, next)
 );
 
 export default router;
-
-/** example request body for creating a teacher
- * {
-        "fullName": "Nguyễn Văn DADA",
-        "roleId": "6885e31812e74de500041b53",  
-        "gender": "Male",
-        "birthday": "2000-10-13",
-        "phone": "0909032",
-        "address": "Long An",
-        "isVerified": true,
-        "literacy": "abcbca",
-        "subjects": ["Math"],   
-        "schoolId": "6885e31812e74de500041b51"
-      }
- */

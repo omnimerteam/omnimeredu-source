@@ -1,6 +1,6 @@
 // types/express/index.d.ts
 import "express";
-import { IAccount } from "../../models/Account";
+import { IAccount } from "../../models";
 
 declare module "express" {
   export interface Request {

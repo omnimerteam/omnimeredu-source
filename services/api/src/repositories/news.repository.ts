@@ -1,5 +1,5 @@
 import { Model, Types } from "mongoose";
-import { INews } from "../models/News";
+import { INews } from "../models/school/News";
 import { BaseRepository } from "./base.repository";
 
 class NewsRepository extends BaseRepository<INews> {

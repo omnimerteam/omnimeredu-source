@@ -1,5 +1,5 @@
 import { BaseRepository } from "./base.repository";
-import { IAttendance } from "../models/Attendance";
+import { IAttendance } from "../models/school/attendance/Attendance";
 import { Model } from "mongoose";
 
 class AttendanceRepository extends BaseRepository<IAttendance> {

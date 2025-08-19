@@ -1,5 +1,5 @@
 import { DefaultLogger } from "../utils/DefaultLogger";
-import { IAttendance } from "../models/Attendance";
+import { IAttendance } from "../models";
 import AttendanceRepository from "../repositories/attendance.repository";
 import SchoolAdmin from "../repositories/schoolAdmin.repository";
 import ClassRepository from "../repositories/class.repository";
@@ -71,7 +71,7 @@ class AttendanceService {
         action: "GET_ATTENDANCE_BY_ID",
         roleSnapshot: userRole,
         targetId: id,
-        metadata: { attendance }
+        metadata: { attendance },
       });
 
       return attendance;
@@ -81,12 +81,11 @@ class AttendanceService {
         action: "GET_ATTENDANCE_BY_ID_FAILED",
         roleSnapshot: userRole,
         targetId: id,
-        metadata: { error: (error as Error).message }
+        metadata: { error: (error as Error).message },
       });
       throw error;
     }
   }
-
 
   async getAttendancesBySchoolId(
     schoolId: string,
@@ -95,7 +94,6 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-
       if (userRole === "SchoolAdmin" && actorSchoolId !== schoolId) {
         throw new Error("Tài khoản không có quyền truy cập");
       }
@@ -153,7 +151,6 @@ class AttendanceService {
         }
       }
 
-
       const attendances = await this.attendanceRepository.findByClassId(
         classId
       );
@@ -185,7 +182,6 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-
       if (userRole !== "SuperAdmin") {
         const classId = AttendanceData.classId;
         if (!classId) {
@@ -237,7 +233,6 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-
       if (userRole !== "SuperAdmin") {
         const currentAttendance = await this.attendanceRepository.findById(
           attendanceId.toString()
@@ -252,7 +247,10 @@ class AttendanceService {
         const attendanceSchoolId = currentAttendance?.schoolId.toString();
 
         // So sánh schoolId
-        if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
+        if (
+          userRole === "SchoolAdmin" &&
+          actorSchoolId !== attendanceSchoolId
+        ) {
           throw new Error(
             "Bạn không có quyền cập nhật bảng điểm danh cho trường này"
           );
@@ -260,13 +258,18 @@ class AttendanceService {
 
         if (userRole === "Teacher") {
           if (actorSchoolId !== attendanceSchoolId) {
-            throw new Error("Bạn không có quyền truy cập để chỉnh sửa bản ghi này");
+            throw new Error(
+              "Bạn không có quyền truy cập để chỉnh sửa bản ghi này"
+            );
           }
           const attendanceDate = new Date(currentAttendance.date);
           const now = new Date();
-          const diffInDays = (now.getTime() - attendanceDate.getTime()) / (1000 * 60 * 60 * 24);
+          const diffInDays =
+            (now.getTime() - attendanceDate.getTime()) / (1000 * 60 * 60 * 24);
           if (diffInDays > 2) {
-            throw new Error("Teacher chỉ được thay đổi bản ghi trong vòng 2 ngày kể từ ngày điểm danh");
+            throw new Error(
+              "Teacher chỉ được thay đổi bản ghi trong vòng 2 ngày kể từ ngày điểm danh"
+            );
           }
         }
       }
@@ -303,7 +306,6 @@ class AttendanceService {
     userRole: string
   ) {
     try {
-
       if (userRole !== "SuperAdmin") {
         const currentAttendance = await this.attendanceRepository.findById(
           attendanceId.toString()
@@ -318,8 +320,13 @@ class AttendanceService {
         const attendanceSchoolId = currentAttendance?.schoolId.toString();
 
         // So sánh schoolId
-        if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
-          throw new Error("Bạn không có quyền xóa bảng điểm danh cho trường này");
+        if (
+          userRole === "SchoolAdmin" &&
+          actorSchoolId !== attendanceSchoolId
+        ) {
+          throw new Error(
+            "Bạn không có quyền xóa bảng điểm danh cho trường này"
+          );
         }
       }
 

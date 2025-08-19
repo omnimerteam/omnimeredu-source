@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { BaseUser } from "../models/BaseUser"; // chỉnh path nếu cần
+import { BaseUser } from "../models"; // chỉnh path nếu cần
 import dotenv from "dotenv";
 
 dotenv.config();

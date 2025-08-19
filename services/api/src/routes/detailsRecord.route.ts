@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
-import DetailsRecord from "../models/DetailsRecord";
-import AttendanceModel from "../models/Attendance";
+import { Attendance, DetailsRecord } from "../models";
 
 import DetailsRecordRepository from "../repositories/detailsRecord.repository";
 import DetailsRecordService from "../services/detailsRecord.service";
@@ -18,7 +17,7 @@ import { verifyRole } from "../middlewares/verifyRole";
 // Initialize and pass values to constructors
 const logger = new DefaultLogger(new ActivityLogRepository());
 const detailsRecordRepository = new DetailsRecordRepository(DetailsRecord);
-const attendanceRepository = new AttendanceRepository(AttendanceModel);
+const attendanceRepository = new AttendanceRepository(Attendance);
 const detailsRecordService = new DetailsRecordService(
   detailsRecordRepository,
   attendanceRepository,

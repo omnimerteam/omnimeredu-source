@@ -1,5 +1,5 @@
 import { ILogger } from "../interfaces/logger.interface";
-import { INews } from "../models/News";
+import { INews } from "../models";
 import NewsRepository from "../repositories/news.repository";
 
 class NewsService {

@@ -1,6 +1,6 @@
 import { Model } from "mongoose";
 import { BaseRepository } from "./base.repository";
-import { IStudent } from "../models/Student";
+import { IStudent } from "../models/user/Student";
 
 class StudentRepository extends BaseRepository<IStudent> {
   constructor(studentModel: Model<IStudent>) {

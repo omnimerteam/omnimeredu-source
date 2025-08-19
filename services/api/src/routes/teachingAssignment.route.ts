@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction, Router } from "express";
-import TeachingAssignmentModel from "../models/TeachingAssignment";
-import ClassModel from "../models/Class";
-import TeacherModel from "../models/Teacher";
+import { TeachingAssignment, Class, Teacher } from "../models";
 
 // Import các model, repository, service và controller cần thiết
 import ClassRepository from "../repositories/class.repository";
@@ -19,16 +17,17 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
-const classRepository = new ClassRepository(ClassModel);
-const teacherRepository = new TeacherRepository(TeacherModel);
+const classRepository = new ClassRepository(Class);
+const teacherRepository = new TeacherRepository(Teacher);
 const teachingAssignmentRepository = new TeachingAssignmentRepository(
-  TeachingAssignmentModel
+  TeachingAssignment
 );
 const teachingAssignmentService = new TeachingAssignmentService(
   logger,
   teachingAssignmentRepository,
   classRepository,
-  teacherRepository)
+  teacherRepository
+);
 const teachingAssignmentController = new TeachingAssignmentController(
   teachingAssignmentService
 );

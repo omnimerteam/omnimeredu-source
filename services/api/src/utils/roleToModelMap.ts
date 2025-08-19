@@ -1,8 +1,4 @@
-import BaseUser from "../models/BaseUser";
-import SchoolAdmin from "../models/SchoolAdmin";
-import Student from "../models/Student";
-import SuperAdmin from "../models/SuperAdmin";
-import Teacher from "../models/Teacher";
+import { BaseUser, SchoolAdmin, Student, SuperAdmin, Teacher } from "../models";
 import { Model } from "mongoose";
 
 // Những role có model riêng (có discriminator)

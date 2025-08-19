@@ -1,5 +1,5 @@
 import { FilterQuery, Model } from "mongoose";
-import { IClass } from "../models/Class";
+import { IClass } from "../models/school/class/Class";
 import { BaseRepository } from "./base.repository";
 
 class ClassRepository extends BaseRepository<IClass> {

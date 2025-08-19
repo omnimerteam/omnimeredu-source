@@ -2,11 +2,10 @@ import { NextFunction, Request, Response, Router } from "express";
 const router = Router();
 
 // Models → Repo → Service → Controller
-import News from "../models/News";
+import { News } from "../models";
 import NewsRepository from "../repositories/news.repository";
 import NewsService from "../services/news.services";
 import NewsController from "../controllers/news.controller";
-import StudentRepository from "../repositories/student.repository";
 
 // Logger & Activity Log
 import { ActivityLogRepository } from "../repositories/activityLog.repository";

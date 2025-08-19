@@ -1,4 +1,4 @@
-import { IRole } from "../models/Role";
+import { IRole } from "../models";
 
 /**
  * Trích xuất tên role từ object user bất kỳ.

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
-export interface IBillPackage extends Document {
+export interface ISchoolSubscription extends Document {
   _id: Types.ObjectId;
   schoolId: Types.ObjectId;
   packageId: Types.ObjectId;
@@ -9,7 +9,7 @@ export interface IBillPackage extends Document {
   isActive: boolean;
 }
 
-const BillPackageSchema = new Schema<IBillPackage>(
+const SchoolSubscriptionSchema = new Schema<ISchoolSubscription>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
     schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
@@ -25,4 +25,7 @@ const BillPackageSchema = new Schema<IBillPackage>(
   { timestamps: true }
 );
 
-export default mongoose.model<IBillPackage>("BillPackage", BillPackageSchema);
+export default mongoose.model<ISchoolSubscription>(
+  "SchoolSubscription",
+  SchoolSubscriptionSchema
+);

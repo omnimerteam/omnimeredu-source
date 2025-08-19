@@ -1,4 +1,4 @@
-import Account, { IAccount } from "../models/Account";
+import { IAccount, Account } from "../models";
 
 /**
  * Tạo mới Account

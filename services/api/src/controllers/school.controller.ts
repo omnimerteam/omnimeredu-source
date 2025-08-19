@@ -1,13 +1,13 @@
 import SchoolService from "../services/school.services";
 import { NextFunction, Request, Response } from "express";
-import { ISchool } from "../models/School";
+import { ISchool } from "../models/school/School";
 import chalk from "chalk";
 import {
   sendSuccess,
   sendCreated,
   sendNotFound,
   sendEmpty,
-  sendUnauthorized
+  sendUnauthorized,
 } from "../utils/ResponseHelper";
 
 class SchoolController {
@@ -17,7 +17,11 @@ class SchoolController {
     this.schoolService = SchoolService;
   }
 
-  async getAllSchools(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAllSchools(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
@@ -38,7 +42,11 @@ class SchoolController {
     }
   }
 
-  async getSchoolById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getSchoolById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
@@ -47,7 +55,11 @@ class SchoolController {
         return;
       }
       const schoolId = req.params.id;
-      const school = await this.schoolService.getSchoolById(schoolId, actorId, userRole);
+      const school = await this.schoolService.getSchoolById(
+        schoolId,
+        actorId,
+        userRole
+      );
       if (!school) {
         sendEmpty(res);
         return;
@@ -60,7 +72,11 @@ class SchoolController {
     }
   }
 
-  async getSchoolByNameOrCode(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getSchoolByNameOrCode(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       // Ở hàm này sẽ lấy giá trị từ query trực tiếp trên url
       const actorId = req.user?.id;
@@ -80,15 +96,23 @@ class SchoolController {
         sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[SCHOOL] Get school by name or code successfully"));
+      console.log(
+        chalk.green("[SCHOOL] Get school by name or code successfully")
+      );
       sendSuccess(res, school, "Lấy trường học theo tên hoặc mã thành công");
     } catch (error) {
-      console.log(chalk.red("[SCHOOL] Error getting school by name or code", error));
+      console.log(
+        chalk.red("[SCHOOL] Error getting school by name or code", error)
+      );
       return next(error);
     }
   }
 
-  async createSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createSchool(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
@@ -97,7 +121,11 @@ class SchoolController {
         return;
       }
       const schoolData: Partial<ISchool> = req.body;
-      const newSchool = await this.schoolService.createSchool(schoolData, actorId, userRole);
+      const newSchool = await this.schoolService.createSchool(
+        schoolData,
+        actorId,
+        userRole
+      );
       console.log(chalk.green("[SCHOOL] Create new school successfully"));
       sendCreated(res, newSchool, "Thêm mới trường học thành công");
     } catch (error) {
@@ -106,7 +134,11 @@ class SchoolController {
     }
   }
 
-  async updateSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateSchool(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
@@ -127,14 +159,22 @@ class SchoolController {
         return;
       }
       console.log(chalk.green("[SCHOOL] Update school successfully"));
-      sendSuccess(res, updatedSchool, "Cập nhật thông tin trường học thành công");
+      sendSuccess(
+        res,
+        updatedSchool,
+        "Cập nhật thông tin trường học thành công"
+      );
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error updating school", error));
       return next(error);
     }
   }
 
-  async deleteSchool(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteSchool(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const actorId = req.user?.id;
       const userRole = req.role;
@@ -143,7 +183,11 @@ class SchoolController {
         return;
       }
       const schoolId = req.params.id;
-      const deleted = await this.schoolService.deleteSchool(schoolId, actorId, userRole);
+      const deleted = await this.schoolService.deleteSchool(
+        schoolId,
+        actorId,
+        userRole
+      );
       if (!deleted) {
         sendEmpty(res);
         return;

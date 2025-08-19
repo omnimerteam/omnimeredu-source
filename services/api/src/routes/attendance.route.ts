@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction, Router } from "express";
-import AttendanceModel from "../models/Attendance";
-import SchoolAdminModel from "../models/SchoolAdmin";
-import ClassModel from "../models/Class";
-import TeacherModel from "../models/Teacher";
+
+import { Attendance, SchoolAdmin, Class, Teacher } from "../models";
 
 import AttendanceRepository from "../repositories/attendance.repository";
 import AttendanceService from "../services/attendance.service";
@@ -19,10 +17,10 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
-const schoolAdminRepository = new SchoolAdminRepository(SchoolAdminModel);
-const classRepository = new ClassRepository(ClassModel);
-const teacherRepository = new TeacherRepository(TeacherModel);
-const attendanceRepository = new AttendanceRepository(AttendanceModel);
+const schoolAdminRepository = new SchoolAdminRepository(SchoolAdmin);
+const classRepository = new ClassRepository(Class);
+const teacherRepository = new TeacherRepository(Teacher);
+const attendanceRepository = new AttendanceRepository(Attendance);
 const attendanceService = new AttendanceService(
   attendanceRepository,
   schoolAdminRepository,

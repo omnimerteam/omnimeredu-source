@@ -1,6 +1,6 @@
 import { Model, Types } from "mongoose";
-import { IActivityLog } from "../models/ActivityLog";
-import ActivityLogModel from "../models/ActivityLog";
+import { IActivityLog } from "../models/system/ActivityLog";
+import ActivityLogModel from "../models/system/ActivityLog";
 
 export class ActivityLogRepository {
   private readonly model: Model<IActivityLog>;
