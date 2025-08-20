@@ -3,11 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 
-import { connectMongoDB } from "./configs/mongoDBConfig";
-import { initializeFirebaseAdmin } from "./configs/firebaseAdminConfig";
+import { connectMongoDB } from "./common/configs/mongoDBConfig";
+import { initializeFirebaseAdmin } from "./common/configs/firebaseAdminConfig";
 
-import route from "./routes/site.route";
-import errorHandler from "./middlewares/errorHandler.middleware";
+import route from "./common/api/routes/site.route";
+import errorHandler from "./common/api/middlewares/errorHandler.middleware";
 
 dotenv.config();
 
