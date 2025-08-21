@@ -1,7 +1,7 @@
 // ======================
 // User Module
 // ======================
-export * as AuthService from "./user/auth.service";
+export { default as AuthService } from "./user/auth.service";
 export { default as SchoolAdminService } from "./user/schoolAdmin.service";
 export { default as SuperAdminService } from "./user/superAdmin.service";
 export { default as TeacherService } from "./user/teacher.service";

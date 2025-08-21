@@ -1,12 +1,12 @@
 import { SchoolRepository } from "../../repositories";
 import { ISchool } from "../../models";
-import { ILogger } from "../../../common/interfaces/logger.interface";
+import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 
 class SchoolService {
   private readonly schoolRepository: SchoolRepository;
-  private readonly logger: ILogger;
+  private readonly logger: DefaultLogger;
 
-  constructor(SchoolRepository: SchoolRepository, logger: ILogger) {
+  constructor(SchoolRepository: SchoolRepository, logger: DefaultLogger) {
     this.schoolRepository = SchoolRepository;
     this.logger = logger;
   }

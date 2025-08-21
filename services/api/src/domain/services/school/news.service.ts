@@ -1,12 +1,12 @@
-import { ILogger } from "../../../common/interfaces/logger.interface";
+import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { INews } from "../../models";
 import { NewsRepository } from "../../repositories";
 
 class NewsService {
   private readonly newsRepository: NewsRepository;
-  private readonly logger: ILogger;
+  private readonly logger: DefaultLogger;
 
-  constructor(newsRepository: NewsRepository, logger: ILogger) {
+  constructor(newsRepository: NewsRepository, logger: DefaultLogger) {
     this.newsRepository = newsRepository;
     this.logger = logger;
   }

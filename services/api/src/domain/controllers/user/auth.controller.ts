@@ -8,108 +8,120 @@ import {
 } from "../../../common/utils/ResponseHelper";
 
 /**
- * Đăng ký người dùng mới
+ * Controller: Authentication
+ * Xử lý các request liên quan đến Auth (register, login, đổi mật khẩu...)
  */
+class AuthController {
+  private readonly authService: AuthService;
 
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const {
-      email,
-      password,
-      baseUserInfo,
-      specificInfo, // object chứa các field riêng của role
-    } = req.body;
-
-    if (!email || !password || !baseUserInfo?.roleId) {
-      throw new Error("Thiếu thông tin bắt buộc: email, password hoặc roleId");
-    }
-
-    // Gọi service
-    const user = await AuthService.registerUser(
-      email.trim(),
-      password,
-      baseUserInfo,
-      specificInfo || {}
-    );
-
-    sendCreated(res, user, "Đăng ký thành công");
-  } catch (error: any) {
-    console.error("❌ [register] Error:", error);
-    next(error);
+  constructor(authService: AuthService) {
+    this.authService = authService;
   }
-};
+  /**
+   * Đăng ký người dùng mới
+   */
+  async register(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { email, password, baseUserInfo, specificInfo } = req.body;
 
-/**
- * Lấy role hiện tại của user đã verify
- * -> Role đã được gán ở middleware verifyRole()
- */
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const user = req.user;
+      if (!email || !password || !baseUserInfo?.roleId) {
+        sendError(
+          res,
+          "Thiếu thông tin bắt buộc: email, password hoặc roleId",
+          400
+        );
+        return;
+      }
 
-    if (!user) {
-      sendNotFound(res, "Không tìm thấy thông tin người dùng");
+      const user = await this.authService.registerUser(
+        email.trim(),
+        password,
+        baseUserInfo,
+        specificInfo || {}
+      );
+
+      sendCreated(res, null, `Đăng ký email ${user.account?.email} thành công`);
       return;
+    } catch (error) {
+      console.error("❌ [AuthController.register] Error:", error);
+      return next(error);
     }
-
-    sendSuccess(res, { user: user });
-    return;
-  } catch (error: any) {
-    console.error("❌ getUserRole error:", error.message);
-    return next(error);
   }
-};
 
-export const changePassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const actorId = req.user?.id;
-    const { oldPassword, newPassword } = req.body;
+  /**
+   * Lấy thông tin user đã đăng nhập
+   */
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const user = req.user;
+      if (!user) {
+        sendNotFound(res, "Không tìm thấy thông tin người dùng");
+        return;
+      }
 
-    if (!actorId) {
-      sendError(res, "Không tìm thấy người dùng", 401);
+      sendSuccess(res, { user }, "Đăng nhập thành công");
       return;
+    } catch (error: any) {
+      console.error("❌ [AuthController.login] Error:", error.message);
+      return next(error);
     }
-
-    await AuthService.changePassword(actorId, oldPassword, newPassword);
-
-    sendSuccess(res, null, "Đổi mật khẩu thành công");
-    return;
-  } catch (err: any) {
-    return next(err);
   }
-};
 
-export const forgetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const actorId = req.user?.id;
-    const { newPassword } = req.body;
+  /**
+   * Đổi mật khẩu khi biết mật khẩu cũ
+   */
+  async changePassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      const { oldPassword, newPassword } = req.body;
 
-    if (!actorId) {
-      sendError(res, "Không tìm thấy người dùng", 401);
+      if (!actorId) {
+        sendError(res, "Không tìm thấy người dùng", 401);
+        return;
+      }
+
+      await this.authService.changePassword(actorId, oldPassword, newPassword);
+      sendSuccess(res, null, "Đổi mật khẩu thành công");
       return;
+    } catch (error) {
+      console.error("❌ [AuthController.changePassword] Error:", error);
+      return next(error);
     }
-
-    await AuthService.forgetPassword(actorId, newPassword);
-
-    sendSuccess(res, null, "Đổi mật khẩu thành công");
-    return;
-  } catch (err: any) {
-    return next(err);
   }
-};
+
+  /**
+   * Đặt lại mật khẩu khi quên
+   */
+  async forgetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      const { newPassword } = req.body;
+
+      if (!actorId) {
+        sendError(res, "Không tìm thấy người dùng", 401);
+        return;
+      }
+
+      await this.authService.forgetPassword(actorId, newPassword);
+      sendSuccess(res, null, "Đặt lại mật khẩu thành công");
+      return;
+    } catch (error) {
+      console.error("❌ [AuthController.forgetPassword] Error:", error);
+      return next(error);
+    }
+  }
+}
+
+export default AuthController;

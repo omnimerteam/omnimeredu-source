@@ -1,18 +1,35 @@
 import { Router } from "express";
+const router = Router();
+
+// Models → Repo → Service → Controller
+import { Account, Role } from "../../../domain/models";
 import { AuthController } from "../../../domain/controllers";
+import { AuthService } from "../../../domain/services";
+import {
+  RoleRepository,
+  AccountRepository,
+  ActivityLogRepository,
+} from "../../../domain/repositories";
 
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
+
+// Validator
 import {
   changePasswordSchema,
   createAccountBodySchema,
   updatePasswordSchema,
 } from "../../validators/account/account.validator";
 import { authHeaderSchema } from "../../validators/header/header.validator";
+import { DefaultLogger } from "../../utils/DefaultLogger";
 
-const router = Router();
+const accountRepository = new AccountRepository(Account);
+const roleRepository = new RoleRepository(Role);
+const logger = new DefaultLogger(new ActivityLogRepository());
+const authService = new AuthService(roleRepository, accountRepository, logger);
+const authController = new AuthController(authService);
 
 /**
  * @route POST /api/users/register
@@ -22,7 +39,7 @@ const router = Router();
 router.post(
   "/register",
   validateData({ body: createAccountBodySchema }),
-  AuthController.register
+  (req, res, next) => authController.register(req, res, next)
 );
 
 /**
@@ -31,7 +48,7 @@ router.post(
  * Lấy thông tin user + role theo Firebase UID.
  * Yêu cầu xác thực Firebase token.
  */
-router.get("/login", verifyFirebaseToken, verifyRole(), AuthController.login);
+router.get("/login", verifyFirebaseToken, verifyRole(), authController.login);
 
 /**
  * @route GET /api/users/change-password
@@ -42,14 +59,14 @@ router.patch(
   "/change-password",
   validateData({ headers: authHeaderSchema, body: changePasswordSchema }),
   verifyFirebaseToken,
-  AuthController.changePassword
+  (req, res, next) => authController.changePassword(req, res, next)
 );
 
 router.patch(
   "/forget-password",
   validateData({ headers: authHeaderSchema, body: updatePasswordSchema }),
   verifyFirebaseToken,
-  AuthController.forgetPassword
+  (req, res, next) => authController.forgetPassword(req, res, next)
 );
 
 export default router;

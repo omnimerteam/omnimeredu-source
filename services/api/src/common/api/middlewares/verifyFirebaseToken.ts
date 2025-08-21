@@ -6,7 +6,9 @@ import chalk from "chalk";
 import admin from "../../configs/firebaseAdminConfig";
 
 // Repositories
+import { Account } from "../../../domain/models";
 import { AccountRepository } from "../../../domain/repositories";
+const accountRepository = new AccountRepository(Account);
 
 // Helper function
 import {
@@ -14,7 +16,6 @@ import {
   sendNotFound,
   sendUnauthorized,
 } from "../../utils/ResponseHelper";
-import { extractRoleName } from "../../utils/RoleHelper";
 
 /**
  * Middleware: Xác thực Firebase ID Token.
@@ -42,7 +43,7 @@ export const verifyFirebaseToken = async (
     }
 
     // Tìm user trong hệ thống backend
-    const profile = await AccountRepository.findUserByUid(decodedToken.uid);
+    const profile = await accountRepository.findUserByUid(decodedToken.uid);
 
     if (!profile) {
       sendNotFound(res, "Người dùng chưa đăng ký tài khoản");
@@ -50,10 +51,9 @@ export const verifyFirebaseToken = async (
     }
 
     const user = profile.userId as any;
+    const roleName = user?.roleId.name;
 
-    const roleName = extractRoleName(user);
-
-    if (!roleName) {
+    if (!roleName || !user) {
       sendForbidden(res, "Tài khoản chưa được cấp quyền");
       return;
     }

@@ -1,58 +1,81 @@
+import { Model, Types } from "mongoose";
 import { IAccount, Account } from "../../models";
 
 /**
- * Tạo mới Account
+ * Repository quản lý Account
+ * Chịu trách nhiệm tương tác trực tiếp với MongoDB
  */
-export const createAccount = async (
-  data: Partial<IAccount>
-): Promise<IAccount> => {
-  const newAccount = new Account(data);
-  return await newAccount.save();
-};
+class AccountRepository {
+  private readonly model: Model<IAccount>;
 
-export const deleteAccountByUserId = async (userId: string) => {
-  try {
-    const result = await Account.deleteOne({ userId }); // xóa account có userId
-    return result.deletedCount; // trả về số document bị xóa
-  } catch (error) {
-    console.error("❌ deleteAccountByUserId error:", error);
-    throw error;
+  constructor(model: Model<IAccount>) {
+    this.model = model;
   }
-};
 
-/**
- * Tìm account theo Firebase UID
- * @param uid - Firebase UID
- * @return Promise<IAccount | null>
- * Trả về toàn bộ thông tin gồm Account, Profile, Role nếu tìm thấy, ngược lại trả về null
- */
-export const findUserByUid = async (uid: string) => {
-  return await Account.findOne({ uid }).populate({
-    path: "userId",
-    populate: {
-      path: "roleId",
-      select: "name",
-    },
-  });
-};
+  /**
+   * Tạo mới Account
+   */
+  async createAccount(data: Partial<IAccount>): Promise<IAccount> {
+    return this.model.create(data);
+  }
 
-export const findUserByUserId = async (userId: string) => {
-  return await Account.findOne({ userId }).populate({
-    path: "userId",
-    populate: {
-      path: "roleId",
-      select: "name",
-    },
-  });
-};
+  /**
+   * Xóa account theo userId
+   * @param userId
+   * @returns số lượng document bị xóa
+   */
+  async deleteAccountByUserId(userId: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(userId)) return false;
+    const result = await this.model.findByIdAndDelete(userId).exec();
+    return result !== null;
+  }
 
-export const findAccountByUserId = async (userId: string) => {
-  return Account.findOne({ userId });
-};
+  /**
+   * Tìm account theo Firebase UID
+   * Trả về Account kèm User + Role
+   */
+  async findUserByUid(uid: string) {
+    return await this.model
+      .findOne({ uid })
+      .select("email uid userId") // chỉ lấy các field cần
+      .populate({
+        path: "userId",
+        select:
+          "-__v -createdAt -updatedAt -registeredDiscounts -registeredExtraFees", // bỏ các field chung không cần
+        populate: {
+          path: "roleId",
+          select: "name",
+        },
+      });
+  }
 
-export const updateAccountPassword = async (
-  userId: string,
-  hashedPassword: string
-) => {
-  return Account.updateOne({ userId }, { password: hashedPassword });
-};
+  /**
+   * Tìm account theo userId
+   * Trả về Account kèm User + Role
+   */
+  async findUserByUserId(userId: string) {
+    return this.model.findOne({ userId }).populate({
+      path: "userId",
+      populate: {
+        path: "roleId",
+        select: "name",
+      },
+    });
+  }
+
+  /**
+   * Tìm account thô theo userId (không populate)
+   */
+  async findAccountByUserId(userId: string) {
+    return this.model.findOne({ userId });
+  }
+
+  /**
+   * Update mật khẩu (đã hash) cho account
+   */
+  async updateAccountPassword(userId: string, hashedPassword: string) {
+    return this.model.updateOne({ userId }, { password: hashedPassword });
+  }
+}
+
+export default AccountRepository;

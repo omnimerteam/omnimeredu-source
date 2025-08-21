@@ -1,18 +1,18 @@
 import { FilterQuery, Types } from "mongoose";
 
 import { IClass } from "../../../models";
-import { ILogger } from "../../../../common/interfaces/logger.interface";
 
 import { ClassRepository, StudentRepository } from "../../../repositories";
+import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
-  private readonly logger: ILogger;
+  private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
 
   constructor(
     classRepository: ClassRepository,
-    logger: ILogger,
+    logger: DefaultLogger,
     studentRepository: StudentRepository
   ) {
     this.classRepository = classRepository;

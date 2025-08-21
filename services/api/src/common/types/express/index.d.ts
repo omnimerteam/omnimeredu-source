@@ -28,9 +28,6 @@ declare module "express" {
                 "Lý"
             ],
             "schoolId": "6878ae00072ff5aee0099cc2",
-            "createdAt": "2025-07-30T09:33:57.311Z",
-            "updatedAt": "2025-07-30T09:33:57.311Z",
-            "__v": 0
         }
 
  */

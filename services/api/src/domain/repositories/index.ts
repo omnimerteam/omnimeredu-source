@@ -1,8 +1,8 @@
 // ======================
 // User Module
 // ======================
-export * as AccountRepository from "./user/account.repository";
-export * as BaseUserRepository from "./user/basedUser.repository";
+export { default as AccountRepository } from "./user/account.repository";
+export { default as BaseUserRepository } from "./user/basedUser.repository";
 export { default as SchoolAdminRepository } from "./user/schoolAdmin.repository";
 export { default as SuperAdminRepository } from "./user/superAdmin.repository";
 export { default as TeacherRepository } from "./user/teacher.repository";

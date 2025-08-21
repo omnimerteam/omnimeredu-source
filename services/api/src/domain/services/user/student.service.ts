@@ -13,19 +13,25 @@ class StudentService {
     this.studentRepository = studentRepository;
   }
 
-  async getAllStudents(userId: string, userRole: string) {
+  async getAllStudents(
+    actorId: string,
+    userRole: string,
+    options?: { page?: number; limit?: number; sort?: any }
+  ) {
     try {
-      const students = await this.studentRepository.findAll();
+      const students = await this.studentRepository.findAll({}, options);
+
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_STUDENTS",
         roleSnapshot: userRole,
         metadata: { count: students.length },
       });
+
       return students;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_ALL_STUDENTS_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -34,24 +40,24 @@ class StudentService {
     }
   }
 
-  async getStudentById(id: string, userId: string, userRole: string) {
+  async getStudentById(id: string, actorId: string, userRole: string) {
     try {
-      const Student = await this.studentRepository.findById(id);
-      if (!Student) {
+      const student = await this.studentRepository.findById(id);
+      if (!student) {
         throw new Error(`Student with ID ${id} not found`);
       }
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "GET_Student_BY_ID",
         targetId: id,
         roleSnapshot: userRole,
-        metadata: { found: !!Student },
+        metadata: { found: !!student },
       });
-      return Student;
+      return student;
     } catch (error) {
       await this.logger.log({
-        userId,
-        action: "GET_Student_BY_ID_FAILED",
+        userId: actorId,
+        action: "GET_STUDENT_BY_ID_FAILED",
         targetId: id,
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -61,24 +67,24 @@ class StudentService {
   }
 
   async createStudent(
-    StudentData: Partial<IStudent>,
-    userId: string,
+    studentData: Partial<IStudent>,
+    actorId: string,
     userRole: string
   ) {
     try {
-      const studentData = await this.studentRepository.create(StudentData);
+      const newStudent = await this.studentRepository.create(studentData);
 
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "POST_STUDENT",
         roleSnapshot: userRole,
-        metadata: { found: !!studentData },
+        metadata: { found: !!newStudent },
       });
-      return studentData;
+      return newStudent;
     } catch (error) {
       await this.logger.log({
-        userId,
-        action: "POST_Student_FAILED",
+        userId: actorId,
+        action: "POST_STUDENT_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
@@ -88,26 +94,29 @@ class StudentService {
 
   async updateStudent(
     id: string,
-    StudentData: Partial<IStudent>,
-    userId: string,
+    studentData: Partial<IStudent>,
+    actorId: string,
     userRole: string
   ) {
     try {
-      const studentData = await this.studentRepository.update(id, StudentData);
-      if (!studentData) {
+      const updatedStudent = await this.studentRepository.update(
+        id,
+        studentData
+      );
+      if (!updatedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_STUDENT",
         targetId: id,
         roleSnapshot: userRole,
-        metadata: { found: !!studentData },
+        metadata: { found: !!updatedStudent },
       });
-      return studentData;
+      return updatedStudent;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "UPDATE_STUDENT_FAILED",
         targetId: id,
         roleSnapshot: userRole,
@@ -117,23 +126,23 @@ class StudentService {
     }
   }
 
-  async deleteStudent(id: string, userId: string, userRole: string) {
+  async deleteStudent(id: string, actorId: string, userRole: string) {
     try {
-      const studentData = await this.studentRepository.delete(id);
-      if (!studentData) {
+      const deletedStudent = await this.studentRepository.delete(id);
+      if (!deletedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_STUDENT",
         targetId: id,
         roleSnapshot: userRole,
-        metadata: { found: !!studentData },
+        metadata: { found: !!deletedStudent },
       });
-      return studentData;
+      return deletedStudent;
     } catch (error) {
       await this.logger.log({
-        userId,
+        userId: actorId,
         action: "DELETE_STUDENT_FAILED",
         targetId: id,
         roleSnapshot: userRole,

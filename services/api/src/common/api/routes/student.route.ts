@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { SuperAdmin } from "../../../domain/models";
+import { Student } from "../../../domain/models";
 
 // Import các model, repository, service và controller cần thiết
 import {
-  SuperAdminRepository,
+  StudentRepository,
   ActivityLogRepository,
 } from "../../../domain/repositories";
-import { SuperAdminService } from "../../../domain/services";
-import { SuperAdminController } from "../../../domain/controllers";
+import { StudentService } from "../../../domain/services";
+import { StudentController } from "../../../domain/controllers";
 
 // Logger & Activity Log
 import { DefaultLogger } from "../../utils/DefaultLogger";
@@ -16,15 +16,20 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
+
+// Validator
 import { authHeaderSchema } from "../../validators/header/header.validator";
 import { objectIdParamSchema } from "../../validators/params/params.validator";
-import { createSuperAdminSchema } from "../../validators/superAdmin/superAdmin.validator";
+import {
+  createStudentBodySchema,
+  updateStudentBodySchema,
+} from "../../validators/student/student.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
-const superAdminRepository = new SuperAdminRepository(SuperAdmin);
-const superAdminService = new SuperAdminService(superAdminRepository, logger);
-const superAdminController = new SuperAdminController(superAdminService);
+const studentRepository = new StudentRepository(Student);
+const studentService = new StudentService(studentRepository, logger);
+const studentController = new StudentController(studentService);
 
 const router = Router();
 
@@ -32,49 +37,49 @@ router.get(
   "/",
   validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["Teacher", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    superAdminController.getAllSuperAdmins(req, res, next)
+    studentController.getAllStudents(req, res, next)
 );
 
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["Teacher", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    superAdminController.getSuperAdminById(req, res, next)
+    studentController.getStudentById(req, res, next)
 );
 
 router.post(
   "/",
-  validateData({ headers: authHeaderSchema, body: createSuperAdminSchema }),
+  validateData({ headers: authHeaderSchema, body: createStudentBodySchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["Teacher", "SchoolAdmin", "Student"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    superAdminController.createSuperAdmin(req, res, next)
+    studentController.createStudent(req, res, next)
 );
 
 router.put(
   "/:id",
   validateData({
     headers: authHeaderSchema,
-    body: createSuperAdminSchema,
+    body: updateStudentBodySchema,
     params: objectIdParamSchema,
   }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["Teacher", "SchoolAdmin", "Student"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    superAdminController.updateSuperAdmin(req, res, next)
+    studentController.updateStudent(req, res, next)
 );
 
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["Student"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    superAdminController.deleteSuperAdmin(req, res, next)
+    studentController.deleteStudent(req, res, next)
 );
 
 export default router;

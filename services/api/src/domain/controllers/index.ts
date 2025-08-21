@@ -1,10 +1,11 @@
 // ======================
 // User Module
 // ======================
-export * as AuthController from "./user/auth.controller";
+export { default as AuthController } from "./user/auth.controller";
 export { default as SchoolAdminController } from "./user/schoolAdmin.controller";
 export { default as SuperAdminController } from "./user/superAdmin.controller";
 export { default as TeacherController } from "./user/teacher.controller";
+export { default as StudentController } from "./user/student.controller";
 
 // ======================
 // School Module
