@@ -8,6 +8,8 @@ import schoolAdmin from "./schoolAdmin.route";
 import attendance from "./attendance.route";
 import detailsRecord from "./detailsRecord.route";
 import newsRoute from "./news.route";
+import studentRoute from "./student.route";
+import vipPackageRoute from "./vipPackage.route";
 
 import { Express } from "express";
 
@@ -22,5 +24,7 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/details-records", detailsRecord); // Details Record API: /api/v1/detailsrecords
   app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendance
   app.use("/api/v1/news", newsRoute); // News API: /api/v1/news
+  app.use("/api/v1/students", studentRoute); // News API: /api/v1/news
+  app.use("/api/v1/vip-packages", vipPackageRoute); // News API: /api/v1/news
 }
 export default setupRoutes;

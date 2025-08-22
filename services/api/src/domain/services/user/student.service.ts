@@ -25,7 +25,7 @@ class StudentService {
         userId: actorId,
         action: "GET_ALL_STUDENTS",
         roleSnapshot: userRole,
-        metadata: { count: students.length },
+        metadata: { count: students.length, options: options },
       });
 
       return students;

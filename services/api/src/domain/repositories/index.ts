@@ -29,3 +29,4 @@ export { default as DetailsRecordRepository } from "./school/attendance/detailsR
 // System Module
 // ======================
 export { default as ActivityLogRepository } from "./system/activityLog.repository";
+export { default as VipPackageRepository } from "./system/vipPackage.repository";

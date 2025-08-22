@@ -25,3 +25,4 @@ export { default as DetailsRecordService } from "./school/attendance/detailsReco
 // ======================
 // System Module
 // ======================
+export { default as VipPackageService } from "./system/vipPackage.service";

@@ -170,5 +170,5 @@ class SchoolService {
     }
   }
 }
-//ở đây chỉ export ra 1 class duy nhất, không cần phải export từng hàm
+
 export default SchoolService;

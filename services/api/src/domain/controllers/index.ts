@@ -26,3 +26,4 @@ export { default as DetailsRecordController } from "./school/attendance/detailsR
 // ======================
 // System Module
 // ======================
+export { default as VipPackageController } from "./system/vipPackage.controller";
