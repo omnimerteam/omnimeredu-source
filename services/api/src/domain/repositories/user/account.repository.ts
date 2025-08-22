@@ -1,4 +1,4 @@
-import { Model, Types } from "mongoose";
+import mongoose, { Model, Types } from "mongoose";
 import { IAccount, Account } from "../../models";
 
 /**
@@ -15,8 +15,11 @@ class AccountRepository {
   /**
    * Tạo mới Account
    */
-  async createAccount(data: Partial<IAccount>): Promise<IAccount> {
-    return this.model.create(data);
+  async createAccount(
+    data: Partial<IAccount>,
+    options: { session?: mongoose.ClientSession } = {}
+  ): Promise<IAccount> {
+    return this.model.create([data], options).then((res) => res[0]);
   }
 
   /**
@@ -73,8 +76,16 @@ class AccountRepository {
   /**
    * Update mật khẩu (đã hash) cho account
    */
-  async updateAccountPassword(userId: string, hashedPassword: string) {
-    return this.model.updateOne({ userId }, { password: hashedPassword });
+  async updateAccountPassword(
+    userId: string,
+    hashedPassword: string,
+    options: { session?: mongoose.ClientSession } = {}
+  ) {
+    return this.model.updateOne(
+      { userId },
+      { password: hashedPassword },
+      options
+    );
   }
 }
 

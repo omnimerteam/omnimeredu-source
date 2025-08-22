@@ -8,6 +8,9 @@ import { RoleRepository, AccountRepository } from "../../repositories";
 import { getModelByRoleName } from "../../../common/utils/roleToModelMap";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { getRoleValidator } from "../../../common/utils/roleValidatorMap";
+import mongoose from "mongoose";
+import chalk from "chalk";
+import { getFirebaseAuthErrorMessage } from "../../../common/utils/firebaseHelper";
 
 class AuthService {
   private readonly roleRepository: RoleRepository;
@@ -38,6 +41,9 @@ class AuthService {
     let account: any = null;
     let role: any = null;
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
       // 1. Check role tồn tại
       role = await this.roleRepository.findById(baseUserInfo.roleId);
@@ -61,22 +67,34 @@ class AuthService {
 
       // 4. MongoDB User
       const UserModel = getModelByRoleName(role.name);
-      user = await UserModel.create({
-        ...baseUserInfo,
-        ...specificInfo,
-        roleId: role._id,
-      });
+      user = await UserModel.create(
+        [
+          {
+            ...baseUserInfo,
+            ...specificInfo,
+            roleId: role._id,
+          },
+        ],
+        { session }
+      );
+      user = user[0];
 
       // 5. Account (hash password)
       const hashedPassword = await bcrypt.hash(password, 10);
-      account = await this.accountRepository.createAccount({
-        uid: fbUser.uid,
-        email,
-        password: hashedPassword,
-        userId: user._id,
-      });
+      account = await this.accountRepository.createAccount(
+        {
+          uid: fbUser.uid,
+          email,
+          password: hashedPassword,
+          userId: user._id,
+        },
+        { session }
+      );
 
-      // 6. Log
+      // 6. Commit transaction
+      await session.commitTransaction();
+
+      // 7. Log
       await this.logger.log({
         userId: user._id.toString(),
         action: "REGISTER_USER",
@@ -87,22 +105,25 @@ class AuthService {
 
       return { account };
     } catch (error: any) {
-      console.error("❌ [registerUser] error:", error);
+      console.error(
+        chalk.red.bold("❌ [registerUser] error:"),
+        chalk.yellow(error instanceof Error ? error.message : String(error))
+      );
 
-      // Rollback
-      const rollbackTasks = [
-        fbUser ? admin.auth().deleteUser(fbUser.uid) : null,
-        user
-          ? getModelByRoleName(role?.name || "").deleteOne({ _id: user._id })
-          : null,
-        account
-          ? this.accountRepository.deleteAccountByUserId(user?._id)
-          : null,
-      ].filter(Boolean) as Promise<any>[];
+      // Rollback MongoDB
+      await session.abortTransaction();
 
-      if (rollbackTasks.length) {
-        await Promise.allSettled(rollbackTasks);
-        console.log("Rollback completed");
+      // Rollback Firebase nếu đã tạo user
+      if (fbUser) {
+        try {
+          await admin.auth().deleteUser(fbUser.uid);
+          console.log("Delete user tren fb");
+        } catch (fbErr) {
+          console.error(
+            chalk.red.bold("❌ Rollback Firebase failed:"),
+            chalk.yellow(fbErr)
+          );
+        }
       }
 
       await this.logger.log({
@@ -112,10 +133,15 @@ class AuthService {
         metadata: { email, baseUserInfo, specificInfo, error: error.message },
       });
 
+      if (error.code) {
+        throw new Error(getFirebaseAuthErrorMessage(error.code));
+      }
+
       throw error;
+    } finally {
+      session.endSession();
     }
   }
-
   /**
    * Đổi mật khẩu
    */
@@ -132,44 +158,51 @@ class AuthService {
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     let firebaseUpdated = false;
-    let backendUpdated = false;
 
     try {
+      // B1: update Firebase
       await admin.auth().updateUser(account.uid, { password: newPassword });
       firebaseUpdated = true;
 
+      // B2: update Mongo (có session)
       await this.accountRepository.updateAccountPassword(
         actorId,
-        hashedNewPassword
+        hashedNewPassword,
+        { session }
       );
-      backendUpdated = true;
 
+      // Commit DB
+      await session.commitTransaction();
+
+      // Log
       await this.logger.log({
         userId: actorId,
         action: "CHANGE_PASSWORD",
         targetId: actorId,
-        metadata: { oldPassword, newPassword },
+        metadata: { changed: true },
       });
     } catch (err) {
+      await session.abortTransaction();
+
+      // rollback Firebase nếu DB fail
+      if (firebaseUpdated) {
+        await admin.auth().updateUser(account.uid, { password: oldPassword });
+      }
+
       await this.logger.log({
         userId: actorId,
         action: "CHANGE_PASSWORD_FAILED",
         targetId: actorId,
-        metadata: { oldPassword, newPassword },
+        metadata: { error: err },
       });
 
-      // rollback
-      if (firebaseUpdated && !backendUpdated) {
-        await admin.auth().updateUser(account.uid, { password: oldPassword });
-      }
-      if (!firebaseUpdated && backendUpdated) {
-        await this.accountRepository.updateAccountPassword(
-          actorId,
-          account.password
-        );
-      }
       throw err;
+    } finally {
+      session.endSession();
     }
   }
 
@@ -177,28 +210,39 @@ class AuthService {
    * Quên mật khẩu
    */
   async forgetPassword(actorId: string, newPassword: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
       await this.accountRepository.updateAccountPassword(
         actorId,
-        hashedNewPassword
+        hashedNewPassword,
+        { session }
       );
+
+      await session.commitTransaction();
 
       await this.logger.log({
         userId: actorId,
         action: "FORGET_PASSWORD",
         targetId: actorId,
-        metadata: { newPassword },
+        metadata: { changed: true },
       });
     } catch (err) {
+      await session.abortTransaction();
+
       await this.logger.log({
         userId: actorId,
         action: "FORGET_PASSWORD_FAILED",
         targetId: actorId,
-        metadata: { newPassword },
+        metadata: { error: err },
       });
 
       throw err;
+    } finally {
+      session.endSession();
     }
   }
 }
