@@ -48,7 +48,7 @@ const DiscountDetailSchema = new Schema<IDiscountDetail>(
 const TuitionSchema = new Schema<ITuition>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    studentId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    studentId: { type: Schema.Types.ObjectId, ref: "BaseUser", required: true },
     month: { type: String, required: true },
     extraFeeDetails: [ExtraFeeDetailSchema],
     discountDetails: [DiscountDetailSchema],

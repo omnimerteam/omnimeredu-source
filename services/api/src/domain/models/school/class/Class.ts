@@ -5,6 +5,7 @@ export interface IClass extends Document {
   name: string;
   code: string;
   schoolId: Types.ObjectId;
+  maxStudents: number;
   students: Types.ObjectId[];
   baseFee: number;
 }
@@ -15,7 +16,8 @@ const ClassSchema = new Schema<IClass>(
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
     schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
-    students: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    maxStudents: { type: Number, default: 10, required: true },
+    students: [{ type: Schema.Types.ObjectId, ref: "BaseUser" }],
     baseFee: { type: Number, required: true },
   },
   { timestamps: true }

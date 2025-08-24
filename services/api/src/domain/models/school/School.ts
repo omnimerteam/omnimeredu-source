@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ISchool extends Document {
   _id: Types.ObjectId;
+  // Thông tin cơ bản của trường
   name: string;
   code: string;
   address: string;
@@ -10,12 +11,15 @@ export interface ISchool extends Document {
   level: "Preschool" | "Primary" | "Secondary" | "HighSchool" | "University";
   adminId?: Types.ObjectId;
   logoUrl?: string;
+  // Thông tin systems
+  studentCount: number;
   customTheme?: object;
 }
 
 const SchoolSchema = new Schema<ISchool>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
+    // Thông tin cơ bản của trường
     name: { type: String, required: true },
     code: { type: String, required: true, unique: true },
     address: { type: String, required: true },
@@ -28,6 +32,8 @@ const SchoolSchema = new Schema<ISchool>(
     },
     adminId: { type: Schema.Types.ObjectId, ref: "BaseUser" },
     logoUrl: String,
+    // Thông tin systems
+    studentCount: { type: Number, default: 0 },
     customTheme: Object,
   },
   { timestamps: true }

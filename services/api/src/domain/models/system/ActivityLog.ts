@@ -12,7 +12,7 @@ export interface IActivityLog extends Document {
 
 const ActivityLogSchema = new Schema<IActivityLog>({
   _id: { type: Schema.Types.ObjectId, auto: true },
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: Schema.Types.ObjectId, ref: "BaseUser", required: true },
   action: { type: String, required: true },
   targetId: Schema.Types.ObjectId,
   roleSnapshot: String,
