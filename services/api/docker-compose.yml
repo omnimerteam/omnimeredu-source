@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: ${IMAGE_NAME}-container
+    image: ${IMAGE_NAME}:latest
+    ports:
+      - "${HOST_PORT}:${PORT}"   # Map host:container
+    environment:
+      - PORT=${PORT}             # Truyền env cho Node.js
+    restart: always
+    volumes:
+      - .:/usr/src/app           # Optional: để dev có hot reload (không dùng cho production)
