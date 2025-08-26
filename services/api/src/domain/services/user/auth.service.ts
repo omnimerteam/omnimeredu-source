@@ -1,30 +1,57 @@
 import admin from "firebase-admin";
 import { ZodError } from "zod";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
+import chalk from "chalk";
 
-import { Role } from "../../models";
-import { RoleRepository, AccountRepository } from "../../repositories";
+import {
+  RoleRepository,
+  AccountRepository,
+  MembershipRequestRepository,
+  SchoolRepository,
+} from "../../repositories";
 
 import { getModelByRoleName } from "../../../common/utils/roleToModelMap";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { getRoleValidator } from "../../../common/utils/roleValidatorMap";
-import mongoose from "mongoose";
-import chalk from "chalk";
+
 import { getFirebaseAuthErrorMessage } from "../../../common/utils/firebaseHelper";
+import { StudentRegisterHandler } from "./handlers/StudentRegisterHandler";
+import { TeacherRegisterHandler } from "./handlers/TeacherRegisterHandler";
+import { SchoolAdminRegisterHandler } from "./handlers/SchoolAdminRegisterHandler";
+import { IRegisterHandler } from "./handlers/IRegisterHandler";
+import { ISchool } from "../../models";
 
 class AuthService {
   private readonly roleRepository: RoleRepository;
   private readonly accountRepository: AccountRepository;
   private readonly logger: DefaultLogger;
+  private readonly membershipRepository: MembershipRequestRepository;
+  private readonly schoolRepository: SchoolRepository;
+
+  private readonly handlers: Record<string, IRegisterHandler>;
 
   constructor(
     roleRepository: RoleRepository,
     accountRepository: AccountRepository,
-    logger: DefaultLogger
+    logger: DefaultLogger,
+    membershipRepository: MembershipRequestRepository,
+    schoolRepository: SchoolRepository
   ) {
     this.roleRepository = roleRepository;
     this.accountRepository = accountRepository;
     this.logger = logger;
+    this.membershipRepository = membershipRepository;
+    this.schoolRepository = schoolRepository;
+
+    this.handlers = {
+      Student: new StudentRegisterHandler(this.membershipRepository),
+      Teacher: new TeacherRegisterHandler(this.membershipRepository),
+      SchoolAdmin: new SchoolAdminRegisterHandler(
+        this.schoolRepository,
+        this.membershipRepository
+      ),
+    };
   }
 
   /**
@@ -33,8 +60,11 @@ class AuthService {
   async registerUser(
     email: string,
     password: string,
+    schoolId: string,
+    classId: string,
     baseUserInfo: any,
-    specificInfo: any
+    specificInfo: any,
+    schoolData?: Partial<ISchool>
   ) {
     let fbUser: admin.auth.UserRecord | null = null;
     let user: any = null;
@@ -52,7 +82,7 @@ class AuthService {
       // 2. Validate theo schema của role
       const schema = getRoleValidator(role.name);
       try {
-        schema.parse({ ...baseUserInfo, ...specificInfo });
+        schema.parse({ ...baseUserInfo, ...(specificInfo || {}) });
       } catch (err) {
         if (err instanceof ZodError) {
           throw new Error(
@@ -91,12 +121,27 @@ class AuthService {
         { session }
       );
 
-      // 6. Commit transaction
+      // 6. Business logic theo role (Student/Teacher/SchoolAdmin)
+      const handler = this.handlers[role.name] ?? this.handlers["Teacher"];
+      if (handler) {
+        console.log(chalk.green("Test"));
+        await handler.handle(
+          user,
+          {
+            schoolData: schoolData,
+            schoolId: schoolId,
+            classId: classId, // optional
+          },
+          session
+        );
+      }
+
+      // 7. Commit transaction
       await session.commitTransaction();
 
-      // 7. Log
+      // 8. Log
       await this.logger.log({
-        userId: user._id.toString(),
+        userId: user._id?.toString(),
         action: "REGISTER_USER",
         targetId: user._id.toString(),
         roleSnapshot: role.name,

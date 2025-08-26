@@ -1,4 +1,10 @@
-import { Model, Types, FilterQuery, UpdateQuery } from "mongoose";
+import {
+  Model,
+  Types,
+  FilterQuery,
+  UpdateQuery,
+  ClientSession,
+} from "mongoose";
 
 /**
  * BaseRepository là class cơ sở để thao tác CRUD với Mongoose.
@@ -48,6 +54,15 @@ export class BaseRepository<T> {
    */
   async create(data: Partial<T>): Promise<T> {
     return this.model.create(data);
+  }
+
+  async createWithSession(
+    data: Partial<T>,
+    session: ClientSession
+  ): Promise<T> {
+    const doc = new this.model(data);
+    await doc.save({ session });
+    return doc;
   }
 
   /**

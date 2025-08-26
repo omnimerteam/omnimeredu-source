@@ -2,7 +2,11 @@ import { z } from "zod";
 import { StudentSchema } from "./Student.schema";
 
 // Validator khi tạo mới Student (bỏ _id)
-export const createStudentBodySchema = StudentSchema.omit({ _id: true });
+export const createStudentBodySchema = StudentSchema.omit({
+  _id: true,
+  schoolId: true,
+  classId: true,
+});
 
 // Validator khi cập nhật Student (các trường đều optional)
 export const updateStudentBodySchema = StudentSchema.partial({

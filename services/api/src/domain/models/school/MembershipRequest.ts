@@ -7,7 +7,7 @@ export interface IMembershipRequest extends Document {
   schoolId: Types.ObjectId; // Trường muốn tham gia
   classId?: Types.ObjectId; // Nếu xin vào lớp cụ thể
 
-  role: "Student" | "Teacher" | "Staff";
+  role: "Student" | "Teacher" | "Staff" | "SchoolAdmin";
   action: "Enroll" | "Transfer" | "Assign" | "Resign";
   // Enroll = nhập học / nhận công tác
   // Transfer = chuyển trường
@@ -30,7 +30,7 @@ const MembershipRequestSchema = new Schema<IMembershipRequest>(
 
     role: {
       type: String,
-      enum: ["Student", "Teacher", "Staff"],
+      enum: ["Student", "Teacher", "Staff", "SchoolAdmin"],
       required: true,
     },
     action: {

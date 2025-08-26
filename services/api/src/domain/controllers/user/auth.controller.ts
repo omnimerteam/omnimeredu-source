@@ -26,7 +26,17 @@ class AuthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const { email, password, baseUserInfo, specificInfo } = req.body;
+      const {
+        email,
+        password,
+        schoolId,
+        classId,
+        baseUserInfo,
+        specificInfo,
+        schoolData,
+      } = req.body;
+
+      console.log(req.body);
 
       if (!email || !password || !baseUserInfo?.roleId) {
         sendError(
@@ -40,8 +50,11 @@ class AuthController {
       const user = await this.authService.registerUser(
         email.trim(),
         password,
+        schoolId,
+        classId,
         baseUserInfo,
-        specificInfo || {}
+        specificInfo,
+        schoolData
       );
 
       sendCreated(res, null, `Đăng ký email ${user.account?.email} thành công`);

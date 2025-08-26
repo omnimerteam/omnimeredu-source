@@ -64,6 +64,8 @@ export const SchoolSchema = z.object({
     .url({ message: "Đường dẫn logo không hợp lệ" })
     .optional(),
 
+  studentCount: z.number().default(0),
+
   customTheme: z.record(z.string(), z.any()).optional(),
 });
 
