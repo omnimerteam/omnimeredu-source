@@ -12,5 +12,5 @@ services:
     restart: always
     env_file:
       - .env                     # Tự load file .env ngoài host, không cần trong image
-    volumes:
-      - .:/usr/src/app           # Optional: để dev có hot reload (không dùng cho production)
+    # volumes:
+    #   - .:/usr/src/app           # Optional: để dev có hot reload (không dùng cho production)
