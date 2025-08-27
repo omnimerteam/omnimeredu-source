@@ -14,7 +14,7 @@ RUN npm install --only=production
 COPY . .
 
 # App sẽ đọc PORT từ env. Chỉ là tài liệu.
-EXPOSE ${PORT}
+EXPOSE 3000
 
 # Command để chạy app khi container start
 CMD ["npm", "start"]
