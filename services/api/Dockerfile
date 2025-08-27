@@ -5,10 +5,10 @@ FROM node:24-slim
 WORKDIR /usr/src/app
 
 # Copy file package.json và package-lock.json (nếu có)
-COPY services/api/package*.json ./
+COPY /services/api/package*.json ./
 
 # Cài đặt dependencies (chỉ cài cho production, bỏ devDependencies)
-RUN npm install --omit=dev
+RUN npm install --only=production
 
 # Copy toàn bộ source code vào container
 COPY . .
