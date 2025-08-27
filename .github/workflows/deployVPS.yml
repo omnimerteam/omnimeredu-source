@@ -66,5 +66,5 @@ jobs:
 
             echo "🚀 Restart bằng docker compose"
             cd /var/www/omnimeredu-app
-            docker compose pull
+            docker compose down
             docker compose up -d 
