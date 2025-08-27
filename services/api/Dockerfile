@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 
 # Copy file package.json và package-lock.json (nếu có)
 COPY package.json ./
-COPY package-lock.json ./
 
 # Cài đặt dependencies (chỉ cài cho production, bỏ devDependencies)
 RUN npm install --omit=dev
