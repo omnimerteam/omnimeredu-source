@@ -1,14 +1,15 @@
-# Dùng Node.js bản chính thức (có thể chọn 20 hoặc 22 nếu code support)
+# Dùng Node.js bản chính thức
 FROM node:24-slim
 
 # Set thư mục làm việc trong container
 WORKDIR /usr/src/app
 
 # Copy file package.json và package-lock.json (nếu có)
-COPY package*.json ./
+COPY package.json ./
+COPY package-lock.json ./
 
 # Cài đặt dependencies (chỉ cài cho production, bỏ devDependencies)
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # Copy toàn bộ source code vào container
 COPY . .
