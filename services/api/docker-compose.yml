@@ -1,16 +1,18 @@
 services:
   app:
-    build:
-      context: ./services/api
-      dockerfile: Dockerfile
     container_name: ${CONTAINER_NAME}-container
+
     image: ${IMAGE_NAME}:latest
+
     ports:
       - "${HOST_PORT}:${PORT}"   # Map host:container
+    
     environment:
       - PORT=${PORT}             # Truyền env cho Node.js
+    
     env_file:
       - .env                     # Tự load file .env ngoài host, không cần trong image
+    
     restart: always
     # volumes:
     #   - .:/usr/src/app           # Optional: để dev có hot reload (không dùng cho production)
