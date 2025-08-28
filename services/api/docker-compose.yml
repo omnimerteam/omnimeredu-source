@@ -3,7 +3,7 @@ services:
     container_name: ${CONTAINER_NAME}-container
     image: ${IMAGE_NAME}:latest
     volumes:
-      - /var/www/omnimeredu-app/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json:/usr/src/app/firebase-key.json
+      - /var/www/omnimeredu-app/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json:/usr/src/app/dist/common/configs/firebase-key.json
     ports:
       - "${HOST_PORT}:${PORT}"   # Map host:container
   
