@@ -44,27 +44,32 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
+  needs: build
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+    packages: read
 
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            echo "🔑 Login vào GHCR"
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+  steps:
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          echo "🔑 Login vào GHCR"
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            echo "⬇️ Pull image mới"
-            docker pull ghcr.io/${{ github.repository }}:latest
+          echo "⬇️ Pull image mới"
+          docker pull ghcr.io/${{ github.repository }}:latest
 
-            echo "🚀 Restart bằng docker compose"
-            cd /var/www/omnimeredu-app
-            docker compose down 
-            docker compose up -d 
+          echo "📝 Viết Firebase key"
+          echo "${{ secrets.FIREBASE_KEY }}" | base64 -d > /var/www/omnimeredu-app/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
+
+          echo "🚀 Restart bằng docker compose"
+          cd /var/www/omnimeredu-app
+          docker compose down 
+          docker compose up -d
+
+ 
