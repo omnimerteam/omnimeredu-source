@@ -1,26 +1,22 @@
-# Dùng Node.js bản chính thức
-FROM node:24-slim
+# Stage 1: build
+FROM node:24-slim AS builder
 
-# Set thư mục làm việc trong container
 WORKDIR /usr/src/app
 
-#Debug
-RUN ls -la /usr/src/app
- 
-# Copy file package.json (nếu có)
-COPY package.json ./
-
-# Cài đặt dependencies (chỉ cài cho production, bỏ devDependencies)
-RUN npm install --omit=dev
-
-# Copy toàn bộ source code vào container
+COPY package*.json ./
+RUN npm install 
 COPY . .
-
-#Build source 
 RUN npm run build
 
-# App sẽ đọc PORT từ env. Chỉ là tài liệu.
-EXPOSE 3000
+# Stage 2: run (production)
+FROM node:24-slim
 
-# Command để chạy app khi container start
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install --omit=dev
+
+COPY --from=builder /usr/src/app/dist ./dist
+
+EXPOSE 3000
 CMD ["npm", "start"]
