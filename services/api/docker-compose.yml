@@ -9,7 +9,7 @@ services:
   
     environment:
       - PORT=${PORT}             # Truyền env cho Node.js
-      - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/firebase-key.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/dist/common/configs/firebase-key.json
     env_file: #Chỉ được load các file .env
       - .env  # Tự load file .env ngoài host, không cần trong image
     restart: always
