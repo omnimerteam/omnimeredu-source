@@ -12,7 +12,7 @@ services:
     
     env_file:
       - .env                     # Tự load file .env ngoài host, không cần trong image
-    
+      - ./common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
     restart: always
     # volumes:
     #   - .:/usr/src/app           # Optional: để dev có hot reload (không dùng cho production)
