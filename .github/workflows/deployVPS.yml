@@ -64,7 +64,7 @@ jobs:
             echo "⬇️ Pull image mới"
             docker pull ghcr.io/${{ github.repository }}:latest
 
-            echo "🚀 Restart bằng docker compose"
+            echo "🚀 Restart bằng docker Compose"
             cd /var/www/omnimeredu-app
             docker compose down 
             docker compose up -d 

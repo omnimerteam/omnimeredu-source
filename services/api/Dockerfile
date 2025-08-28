@@ -13,11 +13,11 @@ COPY package.json ./
 # Cài đặt dependencies (chỉ cài cho production, bỏ devDependencies)
 RUN npm install --omit=dev
 
-#Build source 
-RUN npm run build
-
 # Copy toàn bộ source code vào container
 COPY . .
+
+#Build source 
+RUN npm run build
 
 # App sẽ đọc PORT từ env. Chỉ là tài liệu.
 EXPOSE 3000
