@@ -1,7 +1,7 @@
 services:
   app:
     build: .
-    container_name: ${IMAGE_NAME}-container
+    container_name: ${CONTAINER_NAME}-container
     image: ${IMAGE_NAME}:latest
     ports:
       - "${HOST_PORT}:${PORT}"   # Map host:container
