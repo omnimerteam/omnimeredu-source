@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { VipInvoiceSchema } from "../schemas/VipInvoice.schema";
+import { VipInvoiceSchema } from "./VipInvoice.schema";
 
 export const createVipInvoiceBodySchema = VipInvoiceSchema.omit({ _id: true });
 

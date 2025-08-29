@@ -10,7 +10,7 @@ export interface IMembershipRequest extends Document {
   role: "Student" | "Teacher" | "Staff" | "SchoolAdmin";
   action: "Enroll" | "Transfer" | "Assign" | "Resign";
   // Enroll = nhập học / nhận công tác
-  // Transfer = chuyển trường
+  // Transfer = chuyển lớp
   // Assign = phân công giảng dạy/làm việc
   // Resign = nghỉ học / thôi công tác
   status: "Pending" | "Approved" | "Rejected";
