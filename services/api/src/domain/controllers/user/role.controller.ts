@@ -19,12 +19,6 @@ class RoleController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
       const roles = await this.roleService.getAllRoles();
       if (!roles) {
         sendEmpty(res);
