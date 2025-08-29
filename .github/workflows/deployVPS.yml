@@ -2,7 +2,7 @@ name: CI/CD with GHCR and VPS
 
 on:
   push:
-    branches: [ "ci/cd" ]   # mỗi lần push ci/cd thì build + deploy
+    branches: [ "ci/cd" ]   # mỗi lần push main thì build + deploy
 
 env:
   REGISTRY: ghcr.io
