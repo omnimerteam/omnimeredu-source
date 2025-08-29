@@ -98,3 +98,5 @@ class RegistrationPickSchoolLogo extends RegistrationEvent {
 }
 
 class RegistrationSubmitted extends RegistrationEvent {}
+
+class RegistrationLoadRoles extends RegistrationEvent {}

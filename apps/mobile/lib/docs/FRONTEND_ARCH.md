@@ -7,7 +7,7 @@
 tiêu là đảm bảo: - Code dễ bảo trì, dễ mở rộng - Tách biệt rõ ràng các
 tầng - Hỗ trợ đa nền tảng (Android, iOS, Web, Desktop)
 
-------------------------------------------------------------------------
+---
 
 ## 2. Cấu trúc thư mục
 
@@ -28,14 +28,21 @@ tầng - Hỗ trợ đa nền tảng (Android, iOS, Web, Desktop)
      │    └── datasources/         # Nguồn dữ liệu
      │         └── remote/         # Gọi API qua Dio
      │
+     ├── service/
+     │    ├── firebase_storage_uploader.dart
+     │
      ├── presentation/             # UI + State Management
-     │    ├── blocs/               # Bloc / Cubit quản lý state
      │    ├── screens/             # Màn hình (UI)
-     │    └── widgets/             # Thành phần tái sử dụng
+     │    │     ├── auth/          # chia theo module
+     │    │     │   ├── login/     # Chức năng
+     │    │     │   │     ├── bloc/      # Bloc của chức năng
+     │    │     │   │     ├── widgets/   # Widget riêng của chức năng
+     │    │     │   │     └── login_screen.dart   # Screen chính của ứng dụng
+     │    └── widgets/             # Thành phần tái sử dụng chung
      │
      └── main.dart                 # Điểm khởi chạy ứng dụng
 
-------------------------------------------------------------------------
+---
 
 ## 3. Workflow xử lý dữ liệu
 
@@ -48,26 +55,26 @@ tầng - Hỗ trợ đa nền tảng (Android, iOS, Web, Desktop)
 6.  Kết quả trả về theo chiều ngược lại: API → Datasource → Repository →
     UseCase → Bloc → UI
 
-------------------------------------------------------------------------
+---
 
 ## 4. Quy trình Authentication (Ví dụ)
 
--   Người dùng nhập tài khoản → **UI**
--   Bloc bắn event `LoginRequested`
--   UseCase `LoginUser` gọi `AuthRepository`
--   `AuthRepositoryImpl` dùng `AuthRemoteDataSource` để gọi
-    `auth_api.dart`
--   `ApiClient` gửi request tới Backend Node.js
--   Trả về `UserModel` → convert sang `UserEntity`
--   Bloc emit state `Authenticated(user)`
--   UI hiển thị màn hình Home
+- Người dùng nhập tài khoản → **UI**
+- Bloc bắn event `LoginRequested`
+- UseCase `LoginUser` gọi `AuthRepository`
+- `AuthRepositoryImpl` dùng `AuthRemoteDataSource` để gọi
+  `auth_api.dart`
+- `ApiClient` gửi request tới Backend Node.js
+- Trả về `UserModel` → convert sang `UserEntity`
+- Bloc emit state `Authenticated(user)`
+- UI hiển thị màn hình Home
 
-------------------------------------------------------------------------
+---
 
 ## 5. Ưu điểm của kiến trúc này
 
--   **Tách biệt rõ ràng** giữa UI, Logic và Data
--   **Dễ test** từng phần độc lập
--   **Dễ mở rộng**: thêm nguồn dữ liệu mới (ví dụ Local DB) mà không ảnh
-    hưởng UI
--   **Đồng bộ** với backend qua `Endpoints` và `ApiClient`
+- **Tách biệt rõ ràng** giữa UI, Logic và Data
+- **Dễ test** từng phần độc lập
+- **Dễ mở rộng**: thêm nguồn dữ liệu mới (ví dụ Local DB) mà không ảnh
+  hưởng UI
+- **Đồng bộ** với backend qua `Endpoints` và `ApiClient`

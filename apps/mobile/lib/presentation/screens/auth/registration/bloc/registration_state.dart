@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/role.dart';
 
 class RegistrationState extends Equatable {
   final String email;
@@ -21,6 +22,8 @@ class RegistrationState extends Equatable {
   final String? error;
   final bool success;
 
+  final List<RoleEntity> roles;
+
   const RegistrationState({
     this.email = '',
     this.password = '',
@@ -38,6 +41,7 @@ class RegistrationState extends Equatable {
     this.loading = false,
     this.error,
     this.success = false,
+    this.roles = const [],
   });
 
   RegistrationState copyWith({
@@ -57,6 +61,7 @@ class RegistrationState extends Equatable {
     bool? loading,
     String? error,
     bool? success,
+    List<RoleEntity>? roles,
     bool clearError = false,
   }) => RegistrationState(
     email: email ?? this.email,
@@ -95,5 +100,6 @@ class RegistrationState extends Equatable {
     loading,
     error,
     success,
+    roles,
   ];
 }

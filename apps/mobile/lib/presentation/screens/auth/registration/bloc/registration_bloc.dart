@@ -4,6 +4,7 @@ import 'package:flutter_ios_android_platforms/domain/entities/base_user.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/role_specific.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school_data.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/auth_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/get_roles.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/register_user.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_storage_uploader.dart';
 import 'registration_event.dart';
@@ -12,9 +13,13 @@ import 'registration_state.dart';
 class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   final RegisterUserUseCase registerUser;
   final FirebaseStorageUploader uploader;
+  final GetAllRolesUseCase getAllRolesUseCase;
 
-  RegistrationBloc({required this.registerUser, required this.uploader})
-    : super(const RegistrationState()) {
+  RegistrationBloc({
+    required this.registerUser,
+    required this.uploader,
+    required this.getAllRolesUseCase,
+  }) : super(const RegistrationState()) {
     on<RegistrationEmailChanged>(
       (e, emit) => emit(state.copyWith(email: e.value, clearError: true)),
     );
@@ -57,6 +62,26 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     );
 
     on<RegistrationSubmitted>(_onSubmitted);
+
+    on<RegistrationLoadRoles>(_onLoadRoles);
+  }
+
+  Future<void> _onLoadRoles(
+    RegistrationLoadRoles event,
+    Emitter<RegistrationState> emit,
+  ) async {
+    emit(state.copyWith(loading: true, error: null));
+    try {
+      final roles = await getAllRolesUseCase();
+      emit(state.copyWith(roles: roles, loading: false));
+    } catch (e) {
+      emit(
+        state.copyWith(
+          loading: false,
+          error: 'Không thể tải danh sách vai trò',
+        ),
+      );
+    }
   }
 
   Future<void> _onSubmitted(
