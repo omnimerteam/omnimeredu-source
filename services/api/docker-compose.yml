@@ -5,11 +5,11 @@ services:
     volumes:
       - /var/www/omnimeredu-app/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json:/usr/src/app/dist/common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
     ports:
-      - "${HOST_PORT}:${PORT}"   # Map host:container
-  
+      - "5619:3000"
+
     environment:
-      - PORT=${PORT}             # Truyền env cho Node.js
+      - PORT=${PORT} # Truyền env cho Node.js
       - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/dist/common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
     env_file: #Chỉ được load các file .env
-      - .env  # Tự load file .env ngoài host, không cần trong image
+      - .env # Tự load file .env ngoài host, không cần trong image
     restart: always
