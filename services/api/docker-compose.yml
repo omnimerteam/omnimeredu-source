@@ -1,0 +1,15 @@
+services:
+  app:
+    container_name: ${CONTAINER_NAME}-container
+    image: ${IMAGE_NAME}:latest
+    volumes:
+      - /var/www/omnimeredu-app/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json:/usr/src/app/dist/common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
+    ports:
+      - "${HOST_PORT}:${PORT}"   # Map host:container
+  
+    environment:
+      - PORT=${PORT}             # Truyền env cho Node.js
+      - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/app/dist/common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
+    env_file: #Chỉ được load các file .env
+      - .env  # Tự load file .env ngoài host, không cần trong image
+    restart: always
