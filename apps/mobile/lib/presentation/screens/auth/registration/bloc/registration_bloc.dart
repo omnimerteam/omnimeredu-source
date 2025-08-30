@@ -1,22 +1,23 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/base_user.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/role_specific.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school_data.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/auth_repository.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/get_roles.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/register_user.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/get_all_roles_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/register_user_usecase.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_storage_uploader.dart';
 import 'registration_event.dart';
 import 'registration_state.dart';
 
 class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
-  final RegisterUserUseCase registerUser;
+  final RegisterUserUseCase registerUserUseCase;
   final FirebaseStorageUploader uploader;
   final GetAllRolesUseCase getAllRolesUseCase;
 
   RegistrationBloc({
-    required this.registerUser,
+    required this.registerUserUseCase,
     required this.uploader,
     required this.getAllRolesUseCase,
   }) : super(const RegistrationState()) {
@@ -73,6 +74,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     emit(state.copyWith(loading: true, error: null));
     try {
       final roles = await getAllRolesUseCase();
+      logger.i("Roles nhận được: $roles");
       emit(state.copyWith(roles: roles, loading: false));
     } catch (e) {
       emit(
@@ -153,7 +155,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
       }
 
       // 4) Call UseCase → Repository → Remote API
-      await registerUser.call(
+      await registerUserUseCase.call(
         RegisterRequestEntity(
           email: state.email,
           password: state.password,

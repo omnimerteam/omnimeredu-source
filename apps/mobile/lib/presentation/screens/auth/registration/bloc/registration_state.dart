@@ -64,6 +64,7 @@ class RegistrationState extends Equatable {
     List<RoleEntity>? roles,
     bool clearError = false,
   }) => RegistrationState(
+    roles: roles ?? this.roles,
     email: email ?? this.email,
     password: password ?? this.password,
     roleId: roleId ?? this.roleId,

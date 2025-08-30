@@ -11,6 +11,7 @@ class PrimaryTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
+  final ValueChanged<String>? onChanged; // 👈 thêm mới
 
   const PrimaryTextField({
     super.key,
@@ -23,6 +24,7 @@ class PrimaryTextField extends StatelessWidget {
     this.suffixIcon,
     this.validator,
     this.keyboardType = TextInputType.text,
+    this.onChanged, // 👈 thêm mới
   });
 
   @override
@@ -35,6 +37,7 @@ class PrimaryTextField extends StatelessWidget {
         obscureText: obscureText,
         validator: validator,
         keyboardType: keyboardType,
+        onChanged: onChanged, // 👈 gắn vào đây
         style: const TextStyle(
           fontFamily: "Inter",
           fontSize: 16,

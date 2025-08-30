@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'api_exception.dart';
 import 'endpoints.dart';
 
@@ -18,18 +19,18 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print("👉 [${options.method}] ${options.uri}");
-          print("Headers: ${options.headers}");
-          print("Query: ${options.queryParameters}");
-          print("Data: ${options.data}");
+          logger.i("👉 [${options.method}] ${options.uri}");
+          logger.i("Headers: ${options.headers}");
+          logger.i("Query: ${options.queryParameters}");
+          logger.i("Data: ${options.data}");
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          print("✅ Response[${response.statusCode}]: ${response.data}");
+          logger.i("✅ Response[${response.statusCode}]: ${response.data}");
           return handler.next(response);
         },
         onError: (e, handler) {
-          print("❌ Error: ${e.message}");
+          logger.e("❌ Error: ${e.message}");
           return handler.next(e);
         },
       ),

@@ -4,6 +4,7 @@ import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
+
 import '../../../widgets/button/app_button.dart';
 import '../../../widgets/text_field/primary_text_field.dart';
 import 'widgets/school_admin_form.dart';
@@ -34,6 +35,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   String? selectedRoleId;
   String? selectedRoleName;
+
+  @override
+  void initState() {
+    super.initState();
+    // 👉 Khi mở màn hình, load roles từ API
+    context.read<RegistrationBloc>().add(RegistrationLoadRoles());
+  }
 
   @override
   void dispose() {
@@ -69,6 +77,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 backgroundColor: Colors.green,
               ),
             );
+            Navigator.pop(context); // Ví dụ: quay về màn login
           }
         },
         builder: (context, state) {
@@ -105,6 +114,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       prefixIcon: Icons.email,
                       isFocused: emailFocus.hasFocus,
                       keyboardType: TextInputType.emailAddress,
+                      onChanged: (val) => context.read<RegistrationBloc>().add(
+                        RegistrationEmailChanged(val),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     PrimaryTextField(
@@ -114,6 +126,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       prefixIcon: Icons.lock,
                       isFocused: passFocus.hasFocus,
                       obscureText: true,
+                      onChanged: (val) => context.read<RegistrationBloc>().add(
+                        RegistrationPasswordChanged(val),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     PrimaryTextField(
@@ -122,6 +137,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       hintText: "Họ và tên",
                       prefixIcon: Icons.person,
                       isFocused: nameFocus.hasFocus,
+                      onChanged: (val) => context.read<RegistrationBloc>().add(
+                        RegistrationFullNameChanged(val),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     PrimaryTextField(
@@ -131,26 +149,37 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       prefixIcon: Icons.phone,
                       isFocused: phoneFocus.hasFocus,
                       keyboardType: TextInputType.phone,
+                      onChanged: (val) => context.read<RegistrationBloc>().add(
+                        RegistrationPhoneChanged(val),
+                      ),
                     ),
                     const SizedBox(height: 12),
+
+                    // Dropdown hiển thị roles từ API
                     DropdownButtonFormField<String>(
-                      value: selectedRoleId,
-                      decoration: InputDecoration(
-                        labelText: "Chọn vai trò",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                      value: (selectedRoleId?.isNotEmpty ?? false)
+                          ? selectedRoleId
+                          : null,
+                      hint: const Text("Chọn vai trò"),
                       items: state.roles.map((role) {
-                        return DropdownMenuItem(
+                        return DropdownMenuItem<String>(
                           value: role.id,
-                          child: Text(role.description ?? role.name),
-                          onTap: () {
-                            selectedRoleName = role.name;
-                          },
+                          child: Text(
+                            role.description,
+                          ), // hoặc role.name nếu muốn
                         );
                       }).toList(),
-                      onChanged: (val) => setState(() => selectedRoleId = val),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedRoleId = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Vui lòng chọn vai trò';
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -168,7 +197,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: const Text("Xác nhận"),
                 isActive: _currentStep >= 2,
                 content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text("📧 Email: ${state.email}"),
+                    Text("👤 Họ tên: ${state.fullName}"),
+                    Text("📱 SĐT: ${state.phone ?? ''}"),
+                    Text("🎭 Vai trò: $selectedRoleName"),
+                    const SizedBox(height: 20),
                     Row(
                       children: [
                         Checkbox(

@@ -45,6 +45,8 @@ dependencies:
   dio: ^5.9.0
   firebase_storage: ^12.4.10
   image_picker: ^1.2.0
+  get_it: ^8.2.0
+  logger: ^2.6.1
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +75,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - .env
-    - assets/images/
+    - assets/images/logo/
+    - assets/images/default/
     # - assets/images/logo.jpg
     # - assets/images/Combination_Logo.jpeg
     # - assets/images/Pictorial_mark_logo.jpeg

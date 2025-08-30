@@ -76,9 +76,25 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.error != null) {
-          ScaffoldMessenger.of(
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
+          );
+        }
+
+        // Điều hướng đến home khi đăng nhập thành công
+        if (state.user != null && !state.loading) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Đăng nhập thành công!"),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 1),
+            ),
+          );
+
+          // Điều hướng đến home và xóa tất cả route trước đó
+          Navigator.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(state.error!)));
+          ).pushNamedAndRemoveUntil('/home', (route) => false);
         }
       },
       builder: (context, state) {

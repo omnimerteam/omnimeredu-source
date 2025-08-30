@@ -35,10 +35,15 @@ tầng - Hỗ trợ đa nền tảng (Android, iOS, Web, Desktop)
      │    ├── screens/             # Màn hình (UI)
      │    │     ├── auth/          # chia theo module
      │    │     │   ├── login/     # Chức năng
-     │    │     │   │     ├── bloc/      # Bloc của chức năng
-     │    │     │   │     ├── widgets/   # Widget riêng của chức năng
-     │    │     │   │     └── login_screen.dart   # Screen chính của ứng dụng
+     │    │     │         ├── bloc/      # Bloc của chức năng
+     │    │     │         ├── widgets/   # Widget riêng của chức năng
+     │    │     │         └── login_screen.dart   # Screen chính của ứng dụng
+     │    │     ├── app_view.dart
+     │    │     └── app.dart
+     │    │
      │    └── widgets/             # Thành phần tái sử dụng chung
+     │
+     ├── injection_container.dart
      │
      └── main.dart                 # Điểm khởi chạy ứng dụng
 

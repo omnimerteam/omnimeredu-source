@@ -7,6 +7,8 @@ class GetAllRolesUseCase {
   GetAllRolesUseCase(this.repository);
 
   Future<List<RoleEntity>> call() async {
-    return await repository.getAllRoles();
+    final result = await repository.getAllRoles();
+    print("UseCase roles: $result");
+    return result;
   }
 }

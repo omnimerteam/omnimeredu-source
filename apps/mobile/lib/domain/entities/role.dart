@@ -8,4 +8,9 @@ class RoleEntity {
     required this.name,
     required this.description,
   });
+
+  @override
+  String toString() {
+    return 'RoleEntity(id: $id, name: $name, description: $description)';
+  }
 }
