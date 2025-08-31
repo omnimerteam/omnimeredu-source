@@ -1,5 +1,6 @@
-import 'package:flutter_ios_android_platforms/domain/entities/user_entity.dart';
-
+import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/base_user_model.dart';
 import '../models/role_specific_model.dart';
@@ -8,7 +9,7 @@ import '../datasources/remote/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
-  UserEntity? _currentUser;
+  AuthUserModel? _currentUser;
 
   AuthRepositoryImpl(this.remote);
 
@@ -32,14 +33,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> login({
-    required String email,
-    required String password,
-    required bool rememberMe,
-  }) async {
-    final user = await remote.login(email, password);
-    _currentUser = user;
-    return user;
+  Future<AuthUserEntity> login({required LoginEntity loginInfo}) async {
+    // Gọi API
+    final response = await remote.login(loginInfo);
+
+    _currentUser = response;
+    return response;
   }
 
   @override
@@ -48,5 +47,5 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  UserEntity? getCurrentUser() => _currentUser;
+  AuthUserModel? getCurrentUser() => _currentUser;
 }

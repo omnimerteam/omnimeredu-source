@@ -124,7 +124,6 @@ class AuthService {
       // 6. Business logic theo role (Student/Teacher/SchoolAdmin)
       const handler = this.handlers[role.name] ?? this.handlers["Teacher"];
       if (handler) {
-        console.log(chalk.green("Test"));
         await handler.handle(
           user,
           {
@@ -288,6 +287,19 @@ class AuthService {
       throw err;
     } finally {
       session.endSession();
+    }
+  }
+
+  /**
+   * Đăng nhập
+   */
+  async login(uid: string) {
+    try {
+      const user = await this.accountRepository.findUserByUid(uid);
+
+      return user;
+    } catch (err) {
+      throw err;
     }
   }
 }

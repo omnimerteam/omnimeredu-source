@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
-import 'package:flutter_ios_android_platforms/data/models/user_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_auth_service.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/endpoints.dart';
@@ -39,11 +40,11 @@ class AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> login(String email, String password) async {
+  Future<AuthUserModel> login(LoginEntity payload) async {
     // 1. Lấy idToken từ FirebaseAuthService
     final idToken = await firebaseAuthService.signInAndGetToken(
-      email,
-      password,
+      payload.email,
+      payload.password,
     );
 
     // 2. Gọi API backend
@@ -52,12 +53,12 @@ class AuthRemoteDataSource {
       headers: {"Authorization": "Bearer $idToken"},
     );
 
-    logger.i("Login raw response: ${raw}");
+    logger.i("Login raw response: $raw");
 
     if (raw["success"] != true) {
       throw Exception(raw["message"] ?? "Đăng nhập thất bại");
     }
 
-    return UserModel.fromJson(raw["data"]);
+    return AuthUserModel.fromJson(raw["data"]["user"]);
   }
 }

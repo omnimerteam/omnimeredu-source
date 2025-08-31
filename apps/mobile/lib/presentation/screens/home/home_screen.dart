@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
 import '../auth/login/bloc/login_bloc.dart';
 import '../auth/login/bloc/login_state.dart';
 
@@ -30,7 +31,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(user.fullName, style: const TextStyle(fontSize: 20)),
-              Text("Vai trò: ${user.roleName}"),
+              Text("Vai trò: ${DisplayMapper.roleName(user.roleName)}"),
             ],
           );
         },

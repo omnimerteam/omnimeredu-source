@@ -1,4 +1,5 @@
-import 'package:flutter_ios_android_platforms/domain/entities/user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 
 import '../entities/base_user.dart';
 import '../entities/role_specific.dart';
@@ -27,12 +28,8 @@ class RegisterRequestEntity {
 abstract class AuthRepository {
   Future<void> register(RegisterRequestEntity req);
 
-  Future<UserEntity> login({
-    required String email,
-    required String password,
-    required bool rememberMe,
-  });
+  Future<AuthUserEntity> login({required LoginEntity loginInfo});
 
   Future<void> logout();
-  UserEntity? getCurrentUser();
+  AuthUserEntity? getCurrentUser();
 }

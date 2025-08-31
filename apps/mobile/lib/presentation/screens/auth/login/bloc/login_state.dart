@@ -1,14 +1,14 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 
 class LoginState extends Equatable {
   final bool loading;
   final String? error;
-  final UserEntity? user;
+  final AuthUserEntity? user;
 
   const LoginState({this.loading = false, this.error, this.user});
 
-  LoginState copyWith({bool? loading, String? error, UserEntity? user}) {
+  LoginState copyWith({bool? loading, String? error, AuthUserEntity? user}) {
     return LoginState(
       loading: loading ?? this.loading,
       error: error,
