@@ -42,6 +42,11 @@ dependencies:
   json_annotation: ^4.9.0
   flutter_dotenv: ^5.2.1
   getwidget: ^6.0.0
+  dio: ^5.9.0
+  firebase_storage: ^12.4.10
+  image_picker: ^1.2.0
+  get_it: ^8.2.0
+  logger: ^2.6.1
 
 dev_dependencies:
   flutter_test:
@@ -70,7 +75,12 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - .env
-    - assets/images/logo.jpg
+    - assets/images/logo/
+    - assets/images/default/
+    # - assets/images/logo.jpg
+    # - assets/images/Combination_Logo.jpeg
+    # - assets/images/Pictorial_mark_logo.jpeg
+    # - assets/images/Sub_mark_logo.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -94,6 +104,21 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Italic-VariableFont_wght.ttf
+        - asset: assets/fonts/Nunito-VariableFont_wght.ttf
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf
+        - asset: assets/fonts/PlayfairDisplay-VariableFont_wght.ttf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -25,7 +25,9 @@ export const BaseUserSchema = z.object({
   }),
 
   gender: z
-    .enum(GenderEnum, { message: "Giới tính phải là Male, Female hoặc Other" })
+    .enum(GenderEnum, {
+      message: "Giới tính phải phải là nam, nữ hoặc giới tính khác",
+    })
     .optional(),
 
   birthday: z
@@ -47,9 +49,12 @@ export const BaseUserSchema = z.object({
 
   isVerified: z.boolean().optional(),
 
-  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-    message: "Định dạng ObjectId không hợp lệ cho schoolId",
-  }),
+  schoolId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Định dạng ObjectId không hợp lệ cho schoolId",
+    })
+    .optional(),
 });
 
 export type BaseUser = z.infer<typeof BaseUserSchema>;

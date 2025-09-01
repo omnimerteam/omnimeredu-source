@@ -1,7 +1,11 @@
 import { SchoolSchema } from "./School.schema";
 
 // Schema tạo mới
-export const createSchoolBodySchema = SchoolSchema.omit({ _id: true });
+export const createSchoolBodySchema = SchoolSchema.omit({
+  _id: true,
+  studentCount: true,
+  code: true,
+});
 
 // Schema cập nhật
 export const updateSchoolBodySchema = SchoolSchema.partial({

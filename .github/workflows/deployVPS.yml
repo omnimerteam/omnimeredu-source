@@ -2,11 +2,11 @@ name: CI/CD with GHCR and VPS
 
 on:
   push:
-    branches: [ "ci/cd" ]   # mỗi lần push main thì build + deploy
+    branches: ["main"] # mỗi lần push main thì build + deploy
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}   # sẽ thành ghcr.io/<user>/<repo>:tag
+  IMAGE_NAME: ${{ github.repository }} # sẽ thành ghcr.io/<user>/<repo>:tag
 
 jobs:
   build:
@@ -14,7 +14,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: write   # cần quyền push lên GHCR
+      packages: write # cần quyền push lên GHCR
       id-token: write
 
     steps:
@@ -71,5 +71,3 @@ jobs:
             cd /var/www/omnimeredu-app
             docker compose down 
             docker compose up -d
-
- 

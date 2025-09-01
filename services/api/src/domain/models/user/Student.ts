@@ -37,7 +37,7 @@ const RegisteredExtraFeeSchema = new Schema(
  * Schema cho Student
  */
 const StudentSchema = new Schema<IStudent>({
-  classId: { type: Schema.Types.ObjectId, ref: "Class" },
+  classId: { type: Schema.Types.ObjectId, ref: "Class", default: null },
   guardianName: { type: String },
   guardianPhone: { type: String },
   educationLevel: {

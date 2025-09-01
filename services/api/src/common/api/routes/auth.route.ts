@@ -2,13 +2,20 @@ import { Router } from "express";
 const router = Router();
 
 // Models → Repo → Service → Controller
-import { Account, Role } from "../../../domain/models";
+import {
+  Account,
+  MembershipRequest,
+  Role,
+  School,
+} from "../../../domain/models";
 import { AuthController } from "../../../domain/controllers";
 import { AuthService } from "../../../domain/services";
 import {
   RoleRepository,
   AccountRepository,
   ActivityLogRepository,
+  MembershipRequestRepository,
+  SchoolRepository,
 } from "../../../domain/repositories";
 
 // Middleware
@@ -27,8 +34,16 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 
 const accountRepository = new AccountRepository(Account);
 const roleRepository = new RoleRepository(Role);
+const membershipRepository = new MembershipRequestRepository(MembershipRequest);
+const schoolRepository = new SchoolRepository(School);
 const logger = new DefaultLogger(new ActivityLogRepository());
-const authService = new AuthService(roleRepository, accountRepository, logger);
+const authService = new AuthService(
+  roleRepository,
+  accountRepository,
+  logger,
+  membershipRepository,
+  schoolRepository
+);
 const authController = new AuthController(authService);
 
 /**
@@ -48,7 +63,7 @@ router.post(
  * Lấy thông tin user + role theo Firebase UID.
  * Yêu cầu xác thực Firebase token.
  */
-router.get("/login", verifyFirebaseToken, verifyRole(), authController.login);
+router.get("/login", (req, res, next) => authController.login(req, res, next));
 
 /**
  * @route GET /api/users/change-password

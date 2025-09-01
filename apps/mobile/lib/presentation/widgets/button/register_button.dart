@@ -1,0 +1,69 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+
+class RegisterButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final bool isOutlined;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? width;
+  final double height;
+
+  const RegisterButton({
+    super.key,
+    required this.text,
+    this.onPressed,
+    this.isLoading = false,
+    this.isOutlined = false,
+    this.backgroundColor,
+    this.textColor,
+    this.width,
+    this.height = 48,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width ?? double.infinity,
+      height: height,
+      child: ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isOutlined
+              ? Colors.transparent
+              : (backgroundColor ?? AppColors.primary),
+          foregroundColor: isOutlined
+              ? AppColors.primary
+              : (textColor ?? AppColors.textLight),
+          side: isOutlined
+              ? const BorderSide(color: AppColors.primary, width: 2)
+              : null,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: isOutlined ? 0 : 2,
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.textLight,
+                  ),
+                ),
+              )
+            : Text(
+                text,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+      ),
+    );
+  }
+}

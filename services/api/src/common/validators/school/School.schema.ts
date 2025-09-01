@@ -25,10 +25,9 @@ export const SchoolSchema = z.object({
 
   code: z
     .string()
-    .min(1, { message: "Mã trường là bắt buộc" })
-    .regex(/^[A-Z0-9-]{3,10}$/, {
-      message:
-        "Mã trường phải từ 3-10 ký tự, chỉ chứa chữ in hoa, số hoặc dấu gạch ngang",
+    .length(8, { message: "Mã trường phải đúng 8 ký tự" }) // bắt buộc 8 ký tự
+    .regex(/^[A-Z0-9]{8}$/, {
+      message: "Mã trường chỉ được chứa chữ in hoa và số",
     }),
 
   address: z
@@ -63,6 +62,8 @@ export const SchoolSchema = z.object({
     .string()
     .url({ message: "Đường dẫn logo không hợp lệ" })
     .optional(),
+
+  studentCount: z.number().default(0),
 
   customTheme: z.record(z.string(), z.any()).optional(),
 });

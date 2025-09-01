@@ -43,7 +43,9 @@ export const verifyFirebaseToken = async (
     }
 
     // Tìm user trong hệ thống backend
-    const profile = await accountRepository.findUserByUid(decodedToken.uid);
+    const profile = await accountRepository.findUserByUidForSystem(
+      decodedToken.uid
+    );
 
     if (!profile) {
       sendNotFound(res, "Người dùng chưa đăng ký tài khoản");

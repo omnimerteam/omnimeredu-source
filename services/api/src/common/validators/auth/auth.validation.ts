@@ -24,6 +24,7 @@ const RegisterBaseUserSchema = BaseUserSchema.pick({
   phone: true,
   birthday: true,
   address: true,
+  schoolId: true,
 });
 
 // Schema cho từng loại role (ví dụ SchoolAdmin)

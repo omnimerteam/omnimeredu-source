@@ -14,6 +14,10 @@ export { default as Role, IRole } from "./user/Role";
 // ======================
 export { default as School, ISchool } from "./school/School";
 export { default as News, INews } from "./school/News";
+export {
+  default as MembershipRequest,
+  IMembershipRequest,
+} from "./school/MembershipRequest";
 
 // Class
 export { default as Class, IClass } from "./school/class/Class";

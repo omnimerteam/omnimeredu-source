@@ -37,19 +37,41 @@ class AccountRepository {
    * Tìm account theo Firebase UID
    * Trả về Account kèm User + Role
    */
-  async findUserByUid(uid: string) {
-    return await this.model
+  async findUserByUidForSystem(uid: string) {
+    return this.model
       .findOne({ uid })
-      .select("email uid userId") // chỉ lấy các field cần
+      .select("email uid userId")
       .populate({
         path: "userId",
-        select:
-          "-__v -createdAt -updatedAt -registeredDiscounts -registeredExtraFees", // bỏ các field chung không cần
-        populate: {
-          path: "roleId",
-          select: "name",
-        },
+        select: "roleId schoolId classId", // chỉ những field cần
+        populate: [{ path: "roleId", select: "name" }],
       });
+  }
+
+  async findUserByUid(uid: string) {
+    return this.model
+      .findOne({ uid })
+      .select("uid email") // parent fields
+      .populate({
+        path: "userId",
+        select: [
+          "fullName",
+          "isVerified",
+          "position",
+          "literacy",
+          "educationLevel",
+          "grade",
+          "roleId",
+          "schoolId",
+          "classId",
+          "avatarUrl",
+        ].join(" "),
+        populate: [
+          { path: "roleId", select: "name" },
+          { path: "schoolId", select: "name" },
+          { path: "classId", select: "name" },
+        ],
+      }); // nếu muốn return plain object
   }
 
   /**

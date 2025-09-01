@@ -1,7 +1,8 @@
 // src/middlewares/validateData.ts
 import { Request, Response, NextFunction } from "express";
 import { z, ZodError, ZodSchema } from "zod";
-import { sendError } from "../../utils/ResponseHelper";
+import { cleanErrorMessage, sendError } from "../../utils/ResponseHelper";
+import chalk from "chalk";
 
 interface ValidationSchemas {
   body?: ZodSchema<any>;
@@ -38,16 +39,20 @@ export const validateData = (schemas: ValidationSchemas) => {
       return;
     } catch (error) {
       if (error instanceof ZodError) {
-        const errorMessages = error.issues.map((issue) => ({
-          field: issue.path.join("."),
-          message: issue.message,
-        }));
+        const combinedMessage = error.issues
+          .map((issue) => issue.message)
+          .join("; ");
 
-        sendError(res, "Dữ liệu yêu cầu không hợp lệ", 400, errorMessages);
+        sendError(
+          res,
+          "Dữ liệu yêu cầu không hợp lệ",
+          400,
+          cleanErrorMessage(combinedMessage)
+        );
         return;
       }
 
-      sendError(res, `${error}`, 500, error);
+      sendError(res, "Lỗi hệ thống", 500, cleanErrorMessage(error));
       return;
     }
   };

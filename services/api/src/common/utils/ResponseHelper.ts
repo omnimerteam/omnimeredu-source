@@ -86,3 +86,18 @@ export const sendEmpty = (
 ) => {
   return sendError(res, message, 200);
 };
+
+export const cleanErrorMessage = (err: any): string => {
+  if (!err) return "Lỗi hệ thống";
+
+  if (err instanceof Error) {
+    // bỏ prefix "Validation failed:" nếu có
+    return err.message.replace(/^Validation failed:\s*/i, "");
+  }
+
+  if (typeof err === "string") {
+    return err.replace(/^Validation failed:\s*/i, "");
+  }
+
+  return "Lỗi hệ thống";
+};

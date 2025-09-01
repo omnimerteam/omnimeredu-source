@@ -5,7 +5,9 @@ import {
   sendError,
   sendNotFound,
   sendSuccess,
+  sendUnauthorized,
 } from "../../../common/utils/ResponseHelper";
+import admin from "../../../common/configs/firebaseAdminConfig";
 
 /**
  * Controller: Authentication
@@ -26,7 +28,17 @@ class AuthController {
     next: NextFunction
   ): Promise<void> {
     try {
-      const { email, password, baseUserInfo, specificInfo } = req.body;
+      const {
+        email,
+        password,
+        schoolId,
+        classId,
+        baseUserInfo,
+        specificInfo,
+        schoolData,
+      } = req.body;
+
+      console.log(req.body);
 
       if (!email || !password || !baseUserInfo?.roleId) {
         sendError(
@@ -40,8 +52,11 @@ class AuthController {
       const user = await this.authService.registerUser(
         email.trim(),
         password,
+        schoolId,
+        classId,
         baseUserInfo,
-        specificInfo || {}
+        specificInfo,
+        schoolData
       );
 
       sendCreated(res, null, `Đăng ký email ${user.account?.email} thành công`);
@@ -57,13 +72,25 @@ class AuthController {
    */
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const user = req.user;
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader?.startsWith("Bearer ")) {
+        sendUnauthorized(res, "Token không hợp lệ hoặc không được cung cấp");
+        return;
+      }
+
+      const idToken = authHeader.split("Bearer ")[1].trim();
+
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+      const user = await this.authService.login(decodedToken.uid);
+
       if (!user) {
         sendNotFound(res, "Không tìm thấy thông tin người dùng");
         return;
       }
 
-      sendSuccess(res, { user }, "Đăng nhập thành công");
+      sendSuccess(res, { user: user.userId }, "Đăng nhập thành công");
       return;
     } catch (error: any) {
       console.error("❌ [AuthController.login] Error:", error.message);

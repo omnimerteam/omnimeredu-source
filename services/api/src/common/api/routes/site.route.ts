@@ -12,6 +12,7 @@ import studentRoute from "./student.route";
 import vipPackageRoute from "./vipPackage.route";
 import discountPolicy from "./discountPolicy.route"
 import extraFee from "./extraFee.route"
+import roleRoute from "./role.route";
 
 import { Express } from "express";
 
@@ -26,9 +27,10 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/details-records", detailsRecord); // Details Record API: /api/v1/detailsrecords
   app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendance
   app.use("/api/v1/news", newsRoute); // News API: /api/v1/news
-  app.use("/api/v1/students", studentRoute); // Students API: /api/v1/students
-  app.use("/api/v1/vip-packages", vipPackageRoute); // Vip packages API: /api/v1/vippackages
-  app.use("/api/v1/discountpolicies", discountPolicy); //Discount Policy: /api/v1/discountpolicies
-  app.use("/api/v1/extrafees", extraFee); //Extra fee: /api/v1/extrafees
+  app.use("/api/v1/students", studentRoute); // Student API: /api/v1/students
+  app.use("/api/v1/vip-packages", vipPackageRoute); // VIP Package API: /api/v1/vip-packages
+  app.use("/api/v1/roles", roleRoute); // Roles API: /api/v1/roles
+  app.use("/api/v1/discount-policies", discountPolicy); //Discount Policy: /api/v1/discount-policies
+  app.use("/api/v1/extra-fees", extraFee); //Extra fee: /api/v1/extra-fees
 }
 export default setupRoutes;
