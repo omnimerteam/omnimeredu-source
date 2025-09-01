@@ -1,29 +1,51 @@
-import '../../domain/repositories/auth_repository.dart';
-import '../models/base_user_model.dart';
-import '../models/role_specific_model.dart';
-import '../models/school_data_model.dart';
-import '../datasources/remote/auth_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/auth_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/auth/registration_user_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/register_user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
+  AuthUserModel? _currentUser;
+
   AuthRepositoryImpl(this.remote);
 
   @override
-  Future<void> register(RegisterRequestEntity req) async {
-    final baseUser = BaseUserModel.fromEntity(req.baseUserInfo);
-    final specific = RoleSpecificModel.fromEntity(req.specificInfo);
-    final school = req.schoolData != null
-        ? SchoolDataModel.fromEntity(req.schoolData!)
-        : null;
+  Future<void> register(RegisterUserEntity req) async {
+    try {
+      final requestModel = RegisterUserModel(
+        email: req.email,
+        password: req.password,
+        baseUserInfo: req.baseUserInfo,
+        specificInfo: req.specificInfo,
+        schoolData: req.schoolData,
+      );
 
-    await remote.register(
-      email: req.email,
-      password: req.password,
-      schoolId: req.schoolId,
-      classId: req.classId,
-      baseUserInfo: baseUser,
-      specificInfo: specific,
-      schoolData: school,
-    );
+      await remote.register(requestModel);
+    } catch (e) {
+      throw ServerFailure("${e.toString()}");
+    }
   }
+
+  @override
+  Future<AuthUserEntity> login({required LoginEntity loginInfo}) async {
+    try {
+      final userModel = await remote.login(loginInfo);
+      _currentUser = userModel;
+      return userModel.toEntity();
+    } catch (e) {
+      throw ServerFailure("Đăng nhập thất bại: ${e.toString()}");
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    _currentUser = null;
+  }
+
+  @override
+  AuthUserEntity? getCurrentUser() => _currentUser?.toEntity();
 }

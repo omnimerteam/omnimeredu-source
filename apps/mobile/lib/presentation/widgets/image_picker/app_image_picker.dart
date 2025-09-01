@@ -1,66 +1,62 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:getwidget/getwidget.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
-class AppImagePicker extends StatefulWidget {
+class ImagePickerWidget extends StatelessWidget {
+  final File? imageFile;
+  final VoidCallback onTap;
   final String label;
-  final void Function(File? file) onPicked;
+  final double size;
+  final bool isCircular;
 
-  const AppImagePicker({
+  const ImagePickerWidget({
     super.key,
+    required this.imageFile,
+    required this.onTap,
     required this.label,
-    required this.onPicked,
+    this.size = 120,
+    this.isCircular = true,
   });
 
   @override
-  State<AppImagePicker> createState() => _AppImagePickerState();
-}
-
-class _AppImagePickerState extends State<AppImagePicker> {
-  File? _file;
-  final _picker = ImagePicker();
-
-  Future<void> _pick() async {
-    final x = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
-    setState(() => _file = x != null ? File(x.path) : null);
-    widget.onPicked(_file);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GFCard(
-      color: AppColors.lightBlue.withOpacity(0.2),
-      borderRadius: BorderRadius.circular(16),
-      content: InkWell(
-        onTap: _pick,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: AppColors.lightBlue,
-              backgroundImage: _file != null ? FileImage(_file!) : null,
-              child: _file == null
-                  ? const Icon(
-                      Icons.add_a_photo,
-                      color: AppColors.primary,
-                      size: 32,
-                    )
-                  : null,
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+              borderRadius: isCircular ? null : BorderRadius.circular(12),
+              border: Border.all(color: AppColors.primary, width: 2),
+              color: AppColors.extraLightBlue.withOpacity(0.3),
             ),
-            const SizedBox(height: 8),
-            Text(
-              widget.label,
-              style: const TextStyle(color: AppColors.primary),
-            ),
-          ],
+            child: imageFile != null
+                ? ClipRRect(
+                    borderRadius: isCircular
+                        ? BorderRadius.circular(size / 2)
+                        : BorderRadius.circular(10),
+                    child: Image.file(imageFile!, fit: BoxFit.cover),
+                  )
+                : Icon(
+                    isCircular ? Icons.add_a_photo : Icons.add_photo_alternate,
+                    size: size * 0.3,
+                    color: AppColors.primary,
+                  ),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.primary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

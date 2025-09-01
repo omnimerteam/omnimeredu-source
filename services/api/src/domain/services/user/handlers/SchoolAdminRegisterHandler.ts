@@ -6,6 +6,7 @@ import {
 } from "../../../repositories";
 import { createSchoolBodySchema } from "../../../../common/validators/school/school.validator";
 import chalk from "chalk";
+import { generateSchoolCode } from "../../../utils/generateSchoolCode";
 
 export class SchoolAdminRegisterHandler implements IRegisterHandler {
   private readonly schoolRepository: SchoolRepository;
@@ -19,10 +20,10 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
   }
 
   async handle(user: any, payload: any, session: ClientSession) {
-    console.log(payload);
-    console.log(user);
     if (payload.schoolData) {
       // Trường hợp tạo mới trường
+      const code = generateSchoolCode(payload.schoolData.name || "XXX YYY ZZZ"); // Generate code from name
+
       const schoolData = createSchoolBodySchema.parse({
         ...payload.schoolData,
         adminId: user.id,
@@ -32,6 +33,7 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
         {
           ...schoolData,
           adminId: new Types.ObjectId(schoolData.adminId),
+          code,
         },
         session
       );

@@ -1,10 +1,13 @@
-// login_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/login_usecase.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(const LoginState()) {
+  final LoginUseCase loginUseCase;
+
+  LoginBloc({required this.loginUseCase}) : super(const LoginState()) {
     on<LoginSubmitted>(_onLoginSubmitted);
   }
 
@@ -15,11 +18,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(state.copyWith(loading: true, error: null));
 
     try {
-      // TODO: gọi API đăng nhập tại đây
-      await Future.delayed(const Duration(seconds: 1));
+      final loginInfo = LoginEntity(
+        email: event.email,
+        password: event.password,
+        rememberMe: event.rememberMe,
+      );
 
-      // Nếu thành công: emit(state.copyWith(loading: false));
-      emit(state.copyWith(loading: false));
+      final user = await loginUseCase.call(loginInfo: loginInfo);
+
+      emit(state.copyWith(loading: false, user: user));
     } catch (e) {
       emit(state.copyWith(loading: false, error: e.toString()));
     }

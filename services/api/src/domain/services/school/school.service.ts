@@ -1,6 +1,7 @@
 import { SchoolRepository } from "../../repositories";
 import { ISchool } from "../../models";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
+import { generateSchoolCode } from "../../utils/generateSchoolCode";
 
 class SchoolService {
   private readonly schoolRepository: SchoolRepository;
@@ -97,7 +98,12 @@ class SchoolService {
     userRole: string
   ) {
     try {
-      const schoolData = await this.schoolRepository.create(SchoolData);
+      const code = generateSchoolCode(SchoolData.name || "XXX YYY ZZZ"); // Generate code from name
+
+      const schoolData = await this.schoolRepository.create({
+        ...SchoolData,
+        code,
+      });
       await this.logger.log({
         userId: actorId,
         action: "POST_SCHOOL",

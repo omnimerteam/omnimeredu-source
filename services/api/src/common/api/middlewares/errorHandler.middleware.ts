@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import chalk from "chalk";
-import { sendError } from "../../utils/ResponseHelper";
+import { cleanErrorMessage, sendError } from "../../utils/ResponseHelper";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -38,7 +38,7 @@ const errorHandler = (
 
   sendError(
     res,
-    message,
+    cleanErrorMessage(message),
     status,
     process.env.NODE_ENV === "development" ? err.stack : undefined
   );

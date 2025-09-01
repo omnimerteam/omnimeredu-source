@@ -63,7 +63,7 @@ router.post(
  * Lấy thông tin user + role theo Firebase UID.
  * Yêu cầu xác thực Firebase token.
  */
-router.get("/login", verifyFirebaseToken, verifyRole(), authController.login);
+router.get("/login", (req, res, next) => authController.login(req, res, next));
 
 /**
  * @route GET /api/users/change-password

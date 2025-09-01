@@ -20,4 +20,9 @@ class RoleModel extends RoleEntity {
     'name': name,
     'description': description,
   };
+
+  /// Chuyển RoleModel sang RoleEntity để dùng trong Domain layer / Bloc
+  RoleEntity toEntity() {
+    return RoleEntity(id: id, name: name, description: description);
+  }
 }

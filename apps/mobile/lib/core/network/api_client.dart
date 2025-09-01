@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'api_exception.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'endpoints.dart';
 
 class ApiClient {
@@ -18,26 +19,26 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print("👉 [${options.method}] ${options.uri}");
-          print("Headers: ${options.headers}");
-          print("Query: ${options.queryParameters}");
-          print("Data: ${options.data}");
+          logger.i("👉 [${options.method}] ${options.uri}");
+          logger.i("Headers: ${options.headers}");
+          logger.i("Query: ${options.queryParameters}");
+          logger.i("Data: ${options.data}");
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          print("✅ Response[${response.statusCode}]: ${response.data}");
+          logger.i("✅ Response[${response.statusCode}]: ${response.data}");
           return handler.next(response);
         },
         onError: (e, handler) {
-          print("❌ Error: ${e.message}");
+          logger.e("❌ Error: ${e.message}");
           return handler.next(e);
         },
       ),
     );
   }
 
-  /// GET request
-  Future<dynamic> get(
+  /// GET
+  Future<ApiResponse<T>> get<T>(
     String path, {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
@@ -48,14 +49,14 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return response.data;
+      return _handleResponse<T>(response);
     } on DioException catch (e) {
-      throw _handleError(e);
+      return _handleError<T>(e);
     }
   }
 
-  /// POST request
-  Future<dynamic> post(
+  /// POST
+  Future<ApiResponse<T>> post<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? query,
@@ -68,14 +69,14 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return response.data;
+      return _handleResponse<T>(response);
     } on DioException catch (e) {
-      throw _handleError(e);
+      return _handleError<T>(e);
     }
   }
 
-  /// PUT request
-  Future<dynamic> put(
+  /// PUT
+  Future<ApiResponse<T>> put<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? query,
@@ -88,14 +89,14 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return response.data;
+      return _handleResponse<T>(response);
     } on DioException catch (e) {
-      throw _handleError(e);
+      return _handleError<T>(e);
     }
   }
 
-  /// DELETE request
-  Future<dynamic> delete(
+  /// DELETE
+  Future<ApiResponse<T>> delete<T>(
     String path, {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
@@ -106,49 +107,64 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return response.data;
+      return _handleResponse<T>(response);
     } on DioException catch (e) {
-      throw _handleError(e);
+      return _handleError<T>(e);
     }
   }
 
-  /// Chuyển DioException thành ApiException
-  ApiException _handleError(DioException e) {
+  /// Xử lý response OK
+  ApiResponse<T> _handleResponse<T>(Response response) {
+    final data = response.data;
+
+    return ApiResponse.success(
+      data as T,
+      message: data is Map && data['message'] != null ? data['message'] : null,
+    );
+  }
+
+  /// Xử lý lỗi (return ApiResponse chứ không throw Exception)
+  ApiResponse<T> _handleError<T>(DioException e) {
+    final status = e.response?.statusCode ?? 500;
+
+    String message;
+
     // Timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return TimeoutException();
+      message = "Request timeout";
     }
     // Lỗi mạng
     else if (e.type == DioExceptionType.connectionError) {
-      return NetworkException();
+      message = "No internet connection";
     }
-    // Backend có trả response
+    // Backend trả lỗi
     else if (e.response != null) {
-      final status = e.response?.statusCode ?? 500;
+      final backendMessage = e.response?.data is Map
+          ? e.response?.data['message']?.toString()
+          : null;
 
-      // Ưu tiên lấy message do backend trả về (nếu có)
-      final backendMessage = e.response?.data?['message'];
-
-      if (backendMessage != null && backendMessage.toString().isNotEmpty) {
-        return ApiException(backendMessage.toString(), statusCode: status);
+      if (backendMessage != null && backendMessage.isNotEmpty) {
+        message = backendMessage;
+      } else {
+        switch (status) {
+          case 401:
+            message = "Unauthorized";
+            break;
+          case 404:
+            message = "Resource not found";
+            break;
+          case 500:
+            message = "Internal server error";
+            break;
+          default:
+            message = "Unexpected error";
+        }
       }
+    } else {
+      message = "Unknown error";
+    }
 
-      // Nếu backend không trả message, fallback theo status code
-      switch (status) {
-        case 401:
-          return UnauthorizedException();
-        case 404:
-          return NotFoundException();
-        case 500:
-          return ServerException();
-        default:
-          return ApiException("Unexpected error", statusCode: status);
-      }
-    }
-    // Không có response gì cả
-    else {
-      return ApiException("Unknown error");
-    }
+    return ApiResponse.error(message);
   }
 }

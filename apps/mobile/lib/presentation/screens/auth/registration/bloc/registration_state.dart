@@ -1,105 +1,65 @@
-import 'dart:io';
+// States
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/role.dart';
 
-class RegistrationState extends Equatable {
-  final String email;
-  final String password;
-  final String roleId;
-  final String fullName;
-  final String gender;
-  final String? phone;
-  final DateTime? birthday;
-  final String? address;
-  final String? schoolId;
-  final String? classId;
-  final Map<String, dynamic> specificInfo;
-
-  final File? avatarFile;
-  final File? schoolLogoFile;
-
-  final bool loading;
-  final String? error;
-  final bool success;
-
-  final List<RoleEntity> roles;
-
-  const RegistrationState({
-    this.email = '',
-    this.password = '',
-    this.roleId = '',
-    this.fullName = '',
-    this.gender = 'Male',
-    this.phone,
-    this.birthday,
-    this.address,
-    this.schoolId,
-    this.classId,
-    this.specificInfo = const {},
-    this.avatarFile,
-    this.schoolLogoFile,
-    this.loading = false,
-    this.error,
-    this.success = false,
-    this.roles = const [],
-  });
-
-  RegistrationState copyWith({
-    String? email,
-    String? password,
-    String? roleId,
-    String? fullName,
-    String? gender,
-    String? phone,
-    DateTime? birthday,
-    String? address,
-    String? schoolId,
-    String? classId,
-    Map<String, dynamic>? specificInfo,
-    File? avatarFile,
-    File? schoolLogoFile,
-    bool? loading,
-    String? error,
-    bool? success,
-    List<RoleEntity>? roles,
-    bool clearError = false,
-  }) => RegistrationState(
-    email: email ?? this.email,
-    password: password ?? this.password,
-    roleId: roleId ?? this.roleId,
-    fullName: fullName ?? this.fullName,
-    gender: gender ?? this.gender,
-    phone: phone ?? this.phone,
-    birthday: birthday ?? this.birthday,
-    address: address ?? this.address,
-    schoolId: schoolId ?? this.schoolId,
-    classId: classId ?? this.classId,
-    specificInfo: specificInfo ?? this.specificInfo,
-    avatarFile: avatarFile ?? this.avatarFile,
-    schoolLogoFile: schoolLogoFile ?? this.schoolLogoFile,
-    loading: loading ?? this.loading,
-    error: clearError ? null : (error ?? this.error),
-    success: success ?? this.success,
-  );
+abstract class RegistrationState extends Equatable {
+  const RegistrationState();
 
   @override
-  List<Object?> get props => [
-    email,
-    password,
-    roleId,
-    fullName,
-    gender,
-    phone,
-    birthday,
-    address,
-    schoolId,
-    classId,
-    specificInfo,
-    avatarFile?.path,
-    schoolLogoFile?.path,
-    loading,
-    error,
-    success,
-    roles,
-  ];
+  List<Object?> get props => [];
+}
+
+class RegistrationInitial extends RegistrationState {}
+
+class RegistrationLoading extends RegistrationState {}
+
+class RolesLoading extends RegistrationState {}
+
+class RolesLoaded extends RegistrationState {
+  final List<RoleEntity> roles;
+
+  const RolesLoaded(this.roles);
+
+  @override
+  List<Object?> get props => [roles];
+}
+
+class RolesLoadError extends RegistrationState {
+  final String message;
+
+  const RolesLoadError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class RegistrationSuccess extends RegistrationState {}
+
+class RegistrationError extends RegistrationState {
+  final String message;
+
+  const RegistrationError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class SchoolSearchLoading extends RegistrationState {}
+
+class SchoolSearchSuccess extends RegistrationState {
+  final Map<String, dynamic> schoolInfo;
+
+  const SchoolSearchSuccess(this.schoolInfo);
+
+  @override
+  List<Object?> get props => [schoolInfo];
+}
+
+class SchoolSearchError extends RegistrationState {
+  final String message;
+
+  const SchoolSearchError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

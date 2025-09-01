@@ -13,7 +13,7 @@ class RoleService {
   async getAllRoles() {
     try {
       const roles = await this.roleRepository.findAll({
-        name: { $ne: "SchoolAdmin" },
+        name: { $ne: "SuperAdmin" },
       });
       return roles;
     } catch (error) {

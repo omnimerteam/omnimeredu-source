@@ -4,6 +4,7 @@ import { SchoolSchema } from "./School.schema";
 export const createSchoolBodySchema = SchoolSchema.omit({
   _id: true,
   studentCount: true,
+  code: true,
 });
 
 // Schema cập nhật

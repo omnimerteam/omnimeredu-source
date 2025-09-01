@@ -91,7 +91,7 @@ class _LoginHeaderState extends State<LoginHeader>
                       ),
                       child: ClipOval(
                         child: Image.asset(
-                          'assets/images/Pictorial_mark_logo.jpeg',
+                          'assets/images/logo/Pictorial_mark_logo.jpeg',
                           fit: BoxFit.cover,
                         ),
                       ),
