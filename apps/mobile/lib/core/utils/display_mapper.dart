@@ -6,6 +6,9 @@ class DisplayMapper {
     'Teacher': 'Giáo viên',
     'Student': 'Học sinh',
     'Parent': 'Phụ huynh',
+    'Security': 'Bảo vệ',
+    'Nurse': 'Y tá',
+    'CanteenStaff': 'Nhân viên căng tin',
   };
 
   /// Map cho trạng thái chung (học phí, đăng ký, duyệt hồ sơ,...)

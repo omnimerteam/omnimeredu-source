@@ -1,4 +1,6 @@
-class RoleEntity {
+import 'package:equatable/equatable.dart';
+
+class RoleEntity extends Equatable {
   final String id;
   final String name;
   final String description;
@@ -10,7 +12,5 @@ class RoleEntity {
   });
 
   @override
-  String toString() {
-    return 'RoleEntity(id: $id, name: $name, description: $description)';
-  }
+  List<Object?> get props => [id, name, description];
 }

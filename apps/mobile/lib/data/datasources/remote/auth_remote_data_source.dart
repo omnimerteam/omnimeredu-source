@@ -1,47 +1,30 @@
-import 'package:dio/dio.dart';
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/auth/registration_user_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_auth_service.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/endpoints.dart';
-import '../../models/base_user_model.dart';
-import '../../models/role_specific_model.dart';
-import '../../models/school_data_model.dart';
 
 class AuthRemoteDataSource {
   final ApiClient client;
   final FirebaseAuthService firebaseAuthService;
+
   AuthRemoteDataSource(this.client, this.firebaseAuthService);
 
-  Future<void> register({
-    required String email,
-    required String password,
-    String? schoolId,
-    String? classId,
-    required BaseUserModel baseUserInfo,
-    required RoleSpecificModel specificInfo,
-    SchoolDataModel? schoolData,
-  }) async {
-    final payload = {
-      'email': email,
-      'password': password,
-      if (schoolId != null) 'schoolId': schoolId,
-      if (classId != null) 'classId': classId,
-      'baseUserInfo': baseUserInfo.toJson(),
-      'specificInfo': specificInfo.toJson(),
-      if (schoolData != null) 'schoolData': schoolData.toJson(),
-    };
+  /// Đăng ký user
+  Future<void> register(RegisterUserModel user) async {
+    final res = await client.post(Endpoints.register, data: user.toJson());
 
-    final Response res = await client.post(Endpoints.register, data: payload);
-    if (res.statusCode != 200 && res.statusCode != 201) {
-      throw Exception('Register failed: ${res.statusCode}');
+    if (res.success != true) {
+      throw Exception(res.message ?? 'Đăng ký thất bại');
     }
   }
 
-  @override
+  /// Đăng nhập user → trả về Model
   Future<AuthUserModel> login(LoginEntity payload) async {
-    // 1. Lấy idToken từ FirebaseAuthService
+    // 1. Lấy idToken từ Firebase
     final idToken = await firebaseAuthService.signInAndGetToken(
       payload.email,
       payload.password,
@@ -55,10 +38,10 @@ class AuthRemoteDataSource {
 
     logger.i("Login raw response: $raw");
 
-    if (raw["success"] != true) {
-      throw Exception(raw["message"] ?? "Đăng nhập thất bại");
+    if (raw.success != true || raw.data?["user"] == null) {
+      throw Failure(raw.message ?? "Đăng nhập thất bại");
     }
 
-    return AuthUserModel.fromJson(raw["data"]["user"]);
+    return AuthUserModel.fromJson(raw.data["user"]);
   }
 }

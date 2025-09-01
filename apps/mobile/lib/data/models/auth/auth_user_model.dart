@@ -20,7 +20,7 @@ class AuthUserModel extends AuthUserEntity {
     return AuthUserModel(
       id: json['_id'] ?? '',
       fullName: json['fullName'] ?? '',
-      roleName: json['roleId']['name'] ?? '',
+      roleName: json['roleId']?['name'] ?? '',
       isVerified: json['isVerified'],
       avatarUrl: json['avatarUrl'],
       schoolName: json['schoolId']?['name'],
@@ -47,5 +47,22 @@ class AuthUserModel extends AuthUserEntity {
       'educationLevel': educationLevel,
       'grade': grade,
     };
+  }
+
+  /// Chuyển Model về Entity (tách biệt domain)
+  AuthUserEntity toEntity() {
+    return AuthUserEntity(
+      id: id,
+      fullName: fullName,
+      roleName: roleName,
+      isVerified: isVerified,
+      avatarUrl: avatarUrl,
+      schoolName: schoolName,
+      position: position,
+      literacy: literacy,
+      className: className,
+      educationLevel: educationLevel,
+      grade: grade,
+    );
   }
 }

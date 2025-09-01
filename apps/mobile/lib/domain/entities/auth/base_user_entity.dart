@@ -1,4 +1,6 @@
-class BaseUserEntity {
+import 'package:equatable/equatable.dart';
+
+class BaseUserEntity extends Equatable {
   final String roleId;
   final String fullName;
   final String gender; // Male | Female | Other
@@ -7,7 +9,7 @@ class BaseUserEntity {
   final String? address;
   final String? avatarUrl;
 
-  BaseUserEntity({
+  const BaseUserEntity({
     required this.roleId,
     required this.fullName,
     required this.gender,
@@ -16,4 +18,15 @@ class BaseUserEntity {
     this.address,
     this.avatarUrl,
   });
+
+  @override
+  List<Object?> get props => [
+    roleId,
+    fullName,
+    gender,
+    phone,
+    birthday,
+    address,
+    avatarUrl,
+  ];
 }

@@ -116,6 +116,9 @@ flutter:
       fonts:
         - asset: assets/fonts/PlayfairDisplay-Italic-VariableFont_wght.ttf
         - asset: assets/fonts/PlayfairDisplay-VariableFont_wght.ttf
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-VariableFont_wght.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
