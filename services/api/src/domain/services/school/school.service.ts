@@ -57,37 +57,14 @@ class SchoolService {
     }
   }
   //hàm này sẽ tìm kiếm theo tên hoặc mã trường học, nếu cả hai đều không có thì sẽ báo lỗi
-  async getSchoolByNameOrCode(
-    name: string,
-    code: string,
-    actorId: string,
-    userRole: string
-  ) {
+  async searchSchoolByNameOrCode(query: string) {
     try {
-      const schoolData = await this.schoolRepository.findByNameOrCode(
-        name,
-        code
+      const schools = await this.schoolRepository.searchSchoolByNameOrCode(
+        query
       );
-      if (!name && !code) {
-        throw new Error("Either name or code must be provided");
-      }
-      await this.logger.log({
-        userId: actorId,
-        action: "GET_SCHOOL_BY_NAME_OR_CODE",
-        targetId: name || code,
-        roleSnapshot: userRole,
-        metadata: { found: !!schoolData },
-      });
 
-      return schoolData;
+      return schools;
     } catch (error) {
-      await this.logger.log({
-        userId: actorId,
-        action: "GET_SCHOOL_BY_NAME_OR_CODE_FAILED",
-        targetId: name || code,
-        roleSnapshot: userRole,
-        metadata: { error: (error as Error).message },
-      });
       throw error;
     }
   }

@@ -6,6 +6,9 @@ import {
   sendCreated,
   sendUnauthorized,
   sendEmpty,
+  sendNotFound,
+  sendBadRequest,
+  sendNoContent,
 } from "../../../../common/utils/ResponseHelper";
 import { CustomError } from "../../../../common/api/middlewares/errorHandler.middleware";
 import { buildQueryOptions } from "../../../../common/utils/buildQueryOptions";
@@ -25,18 +28,18 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolId = req.user?.schoolId;
+
+    const options = buildQueryOptions(req.query as any);
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
-
-      const schoolId = req.user?.schoolId;
-
-      const options = buildQueryOptions(req.query as any);
-
       const result = await this.classService.getAllClasses(
         actorId,
         userRole,
@@ -46,11 +49,10 @@ class ClassController {
 
       if (!result || result.length === 0) {
         console.log(chalk.yellow("[CLASS] No classes found for user"));
-        sendEmpty(res, "Không có lớp học phù hợp");
+        sendEmpty(res, "Không có lớp học trong hệ thống");
         return;
       }
 
-      console.log(chalk.green("[CLASS] ✅ Get all classes"));
       sendSuccess(res, result, "Lấy danh sách lớp thành công");
       return;
     } catch (error) {
@@ -67,28 +69,32 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      sendBadRequest(res, "Lớp học không hợp lệ");
+      return;
+    }
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
-
-      const { id } = req.params;
-
       const result = await this.classService.getClassById(
         actorId,
         userRole,
         id
       );
       if (!result) {
-        const error: CustomError = new Error("Không tìm thấy lớp");
-        error.status = 404;
-        return next(error);
+        sendNotFound(res, "Không tìm thấy lớp học");
+        return;
       }
 
-      console.log(chalk.green("[CLASS] ✅ Get class by ID"), id);
       sendSuccess(res, result, "Lấy thông tin lớp thành công");
       return;
     } catch (error) {
@@ -120,10 +126,7 @@ class ClassController {
         userRole,
         body
       );
-      console.log(
-        chalk.green("[CLASS] ✅ Create class"),
-        result._id.toString()
-      );
+
       sendCreated(res, result, "Tạo lớp thành công");
       return;
     } catch (error) {
@@ -164,7 +167,6 @@ class ClassController {
         return next(error);
       }
 
-      console.log(chalk.green("[CLASS] ✅ Update class"), id);
       sendSuccess(res, result, "Cập nhật lớp thành công");
       return;
     } catch (error) {
@@ -198,8 +200,7 @@ class ClassController {
         return next(error);
       }
 
-      console.log(chalk.green("[CLASS] ✅ Delete class"), id);
-      sendSuccess(res, null, "Đã xóa lớp thành công");
+      sendNoContent(res, "Đã xóa lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Delete class failed"), error);
@@ -233,7 +234,6 @@ class ClassController {
         studentIds
       );
 
-      console.log(chalk.green("[CLASS] ✅ Add students to class"), result);
       sendSuccess(res, result, "Thêm học sinh vào lớp thành công");
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Add students to class failed"), error);
@@ -246,20 +246,32 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+
+    if (!actorId || !userRole) {
+      console.log(
+        chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
+      );
+      sendUnauthorized(res);
+      return;
+    }
+
+    const classId = req.params.id;
+
+    if (classId?.trim() === "") {
+      sendBadRequest(res, "Thiếu thông tin lớp học");
+      return;
+    }
+
+    const { studentIds } = req.body;
+
+    if (!Array.isArray(studentIds) || studentIds.length === 0) {
+      sendBadRequest(res, "Thiếu thông tin học sinh");
+      return;
+    }
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        console.log(
-          chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
-        );
-        sendUnauthorized(res);
-        return;
-      }
-
-      const classId = req.params.id;
-      const { studentIds } = req.body;
-
       const result = await this.classService.removeStudentFromClass(
         actorId,
         userRole,
@@ -267,7 +279,6 @@ class ClassController {
         studentIds
       );
 
-      console.log(chalk.green("[CLASS] ✅ Remove students from class"), result);
       sendSuccess(res, result, "Xóa học sinh khỏi lớp thành công");
     } catch (error) {
       console.log(
@@ -283,19 +294,29 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?._id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      console.log(
+        chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
+      );
+      sendUnauthorized(res);
+      return;
+    }
+
+    const { toClassId, studentIds } = req.body;
+
+    if (!toClassId) {
+      sendBadRequest(res, "Thiếu thông tin lớp");
+      return;
+    }
+
+    if (!studentIds || !Array.isArray(studentIds)) {
+      sendBadRequest(res, "Thiếu thông tin học sinh");
+      return;
+    }
+
     try {
-      const actorId = req.user?._id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        console.log(
-          chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
-        );
-        sendUnauthorized(res);
-        return;
-      }
-
-      const { toClassId, studentIds } = req.body;
-
       const result = await this.classService.transferClass(
         actorId,
         userRole,
@@ -303,14 +324,38 @@ class ClassController {
         studentIds
       );
 
-      console.log(
-        chalk.green("[CLASS] ✅ Transfer students to new class"),
-        result
-      );
       sendSuccess(res, result, "Chuyển lớp cho học sinh thành công");
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Transfer class failed"), error);
       next(error);
+    }
+  }
+
+  async searchClassesInSchool(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const { schoolId, query } = req.query;
+
+    console.log("schoolId", schoolId);
+    console.log("query", query);
+
+    if (!schoolId) {
+      sendBadRequest(res, "Thiếu thông tin trường học");
+      return;
+    }
+    try {
+      const result = await this.classService.searchClassesInSchool(
+        schoolId.toString(),
+        query?.toString()
+      );
+
+      sendSuccess(res, result, "Lấy thông tin lớp thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[CLASS] ❌ Get class by ID failed"), error);
+      return next(error);
     }
   }
 }

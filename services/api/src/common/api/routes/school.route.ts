@@ -15,6 +15,8 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+import { searchSchoolsQuerySchema } from "../../validators/query/query.validator";
 
 const router = Router();
 
@@ -27,11 +29,10 @@ const schoolController = new SchoolController(schoolService);
 
 //Cần chắc chắn để router search đầu tiên để không bị các route khác chặn
 router.get(
-  "/search",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  "/search/query",
+  validateData({ query: searchSchoolsQuerySchema }),
   (req: Request, res: Response, next: NextFunction) =>
-    schoolController.getSchoolByNameOrCode(req, res, next)
+    schoolController.searchSchoolByNameOrCode(req, res, next)
 );
 
 router.get(

@@ -8,6 +8,7 @@ import {
   sendNotFound,
   sendEmpty,
   sendUnauthorized,
+  sendBadRequest,
 } from "../../../common/utils/ResponseHelper";
 
 class SchoolController {
@@ -72,34 +73,29 @@ class SchoolController {
     }
   }
 
-  async getSchoolByNameOrCode(
+  async searchSchoolByNameOrCode(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const { query } = req.query;
+
+    if (!query) {
+      sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
+      return;
+    }
+
     try {
-      // Ở hàm này sẽ lấy giá trị từ query trực tiếp trên url
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
-      const { name, code } = req.query;
-      const school = await this.schoolService.getSchoolByNameOrCode(
-        name as string,
-        code as string,
-        actorId,
-        userRole
+      const schools = await this.schoolService.searchSchoolByNameOrCode(
+        query.toString()
       );
-      if (!school) {
+
+      if (!schools || schools.length === 0) {
         sendEmpty(res);
         return;
       }
-      console.log(
-        chalk.green("[SCHOOL] Get school by name or code successfully")
-      );
-      sendSuccess(res, school, "Lấy trường học theo tên hoặc mã thành công");
+
+      sendSuccess(res, schools, "Lấy trường học theo tên hoặc mã thành công");
     } catch (error) {
       console.log(
         chalk.red("[SCHOOL] Error getting school by name or code: ", error)

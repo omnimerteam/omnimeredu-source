@@ -14,6 +14,9 @@ interface ValidationSchemas {
 export const validateData = (schemas: ValidationSchemas) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
+      // console.log(chalk.green("Request"), req);
+      // console.log(chalk.green("Schemas"), schemas);
+
       if (schemas.body) {
         req.body = schemas.body.parse(req.body);
       }
@@ -42,6 +45,8 @@ export const validateData = (schemas: ValidationSchemas) => {
         const combinedMessage = error.issues
           .map((issue) => issue.message)
           .join("; ");
+
+        console.log(chalk.red("[VALIDATION] ❌ Validation failed:"), error);
 
         sendError(
           res,

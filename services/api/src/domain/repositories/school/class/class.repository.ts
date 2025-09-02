@@ -1,4 +1,4 @@
-import { FilterQuery, Model } from "mongoose";
+import { FilterQuery, Model, Types } from "mongoose";
 import { IClass } from "../../../models";
 import { BaseRepository } from "../../base.repository";
 
@@ -34,6 +34,27 @@ class ClassRepository extends BaseRepository<IClass> {
       { $pull: { students: { $in: studentIds } } },
       { new: true }
     );
+  }
+
+  /**
+   * Tìm lớp học theo schoolId + query (code hoặc name)
+   * @param {String} schoolId
+   * @param {String} query
+   */
+  async searchClassesInSchool(
+    schoolId: string,
+    query?: string
+  ): Promise<IClass[]> {
+    const filter: any = { schoolId: new Types.ObjectId(schoolId) };
+
+    if (query?.trim()) {
+      filter.$or = [
+        { name: { $regex: query, $options: "i" } },
+        { code: { $regex: query, $options: "i" } },
+      ];
+    }
+
+    return this.model.find(filter).select("_id name code schoolId");
   }
 }
 

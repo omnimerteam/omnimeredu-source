@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { z } from "zod";
 
 /**
@@ -42,20 +43,20 @@ export function createPaginationSchemaWithSort(allowedFields: string[]) {
   });
 }
 
-/**
- * User search query schema
- * Example: /users?keyword=abc&role=admin&page=1
- */
-export const userSearchQuerySchema = paginationQuerySchema.extend({
-  keyword: z.string().optional(),
-  role: z.enum(["admin", "teacher", "student"]).optional(),
+export const searchClassesQuerySchema = z.object({
+  schoolId: z
+    .string({
+      message: "Thiếu thông tin trường học",
+    })
+    .trim() // loại bỏ khoảng trắng thừa ở đầu/cuối
+    .min(1, "schoolId không được để trống")
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Dữ liệu trường học không hợp lệ",
+    }),
+
+  query: z.string().trim().optional(),
 });
 
-/**
- * Class filter query schema
- * Example: /classes?schoolId=...&teacherId=...
- */
-export const classFilterQuerySchema = paginationQuerySchema.extend({
-  schoolId: z.string().optional(),
-  teacherId: z.string().optional(),
+export const searchSchoolsQuerySchema = z.object({
+  query: z.string().trim().min(2).max(100),
 });
