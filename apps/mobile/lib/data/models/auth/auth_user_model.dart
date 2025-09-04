@@ -21,14 +21,14 @@ class AuthUserModel extends AuthUserEntity {
       id: json['_id'] ?? '',
       fullName: json['fullName'] ?? '',
       roleName: json['roleId']?['name'] ?? '',
-      isVerified: json['isVerified'],
-      avatarUrl: json['avatarUrl'],
-      schoolName: json['schoolId']?['name'],
-      position: json['position'],
-      literacy: json['literacy'],
-      className: json['classId']?['name'],
-      educationLevel: json['educationLevel'],
-      grade: json['grade'],
+      isVerified: json['isVerified'] ?? false,
+      avatarUrl: json['avatarUrl'] ?? '',
+      schoolName: json['schoolId']?['name'] ?? '',
+      position: json['position']?.toString() ?? '',
+      literacy: json['literacy']?.toString() ?? '',
+      className: json['classId']?['name'] ?? '',
+      educationLevel: json['educationLevel']?.toString() ?? '',
+      grade: json['grade']?.toString() ?? '',
     );
   }
 

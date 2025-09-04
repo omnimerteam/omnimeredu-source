@@ -22,9 +22,33 @@ class DisplayMapper {
 
   /// Map cho loại/cấp học
   static const Map<String, String> educationLevels = {
-    'primary': 'Tiểu học',
-    'secondary': 'Trung học',
-    'kindergarten': 'Mầm non',
+    'Preschool': 'Mầm non',
+    'Primary': 'Tiểu học',
+    'Secondary': 'Trung học cơ sở',
+    'HighSchool': 'Trung học phổ thông',
+    'University': 'Đại học',
+  };
+
+  static const Map<String, String> subjects = {
+    'Math': 'Toán',
+    'Literature': 'Ngữ văn',
+    'History': 'Lịch sử',
+    'Geography': 'Địa lý',
+    'Biology': 'Sinh học',
+    'Chemistry': 'Hóa học',
+    'Physics': 'Vật lý',
+  };
+
+  static const Map<String, String> gender = {
+    'Male': 'Nam',
+    'Female': 'Nữ',
+    'Other': 'Khác',
+  };
+
+  static const Map<String, String> literacyLevels = {
+    'beginner': 'Sơ cấp',
+    'intermediate': 'Trung cấp',
+    'advanced': 'Cao cấp',
   };
 
   /// Hàm tiện ích chung: nhận key và map sang tên hiển thị
@@ -51,5 +75,9 @@ class DisplayMapper {
   /// Lấy tên cấp học / loại lớp
   static String educationLevelName(String? code) {
     return fromMapping(value: code ?? '', mapping: educationLevels);
+  }
+
+  static String genderName(String? code) {
+    return fromMapping(value: code ?? '', mapping: gender);
   }
 }

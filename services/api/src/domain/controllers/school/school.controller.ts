@@ -73,21 +73,23 @@ class SchoolController {
     }
   }
 
-  async searchSchoolByNameOrCode(
+  async searchSchoolByEducationLevel(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const { query } = req.query;
-
-    if (!query) {
+    const { query, educationLevel } = req.query;
+    console.log("Query", query);
+    console.log("Education Level", educationLevel);
+    if (!query?.toString().trim() && !educationLevel?.toString().trim()) {
       sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
       return;
     }
 
     try {
-      const schools = await this.schoolService.searchSchoolByNameOrCode(
-        query.toString()
+      const schools = await this.schoolService.searchSchoolByEducationLevel(
+        educationLevel?.toString(),
+        query?.toString()
       );
 
       if (!schools || schools.length === 0) {

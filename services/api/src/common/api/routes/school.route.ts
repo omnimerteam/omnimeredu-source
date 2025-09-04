@@ -32,7 +32,7 @@ router.get(
   "/search/query",
   validateData({ query: searchSchoolsQuerySchema }),
   (req: Request, res: Response, next: NextFunction) =>
-    schoolController.searchSchoolByNameOrCode(req, res, next)
+    schoolController.searchSchoolByEducationLevel(req, res, next)
 );
 
 router.get(

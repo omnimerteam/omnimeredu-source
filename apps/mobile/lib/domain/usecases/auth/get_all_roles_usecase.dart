@@ -1,5 +1,5 @@
-import '../entities/role.dart';
-import '../repositories/role_repository.dart';
+import '../../entities/auth/role.dart';
+import '../../repositories/auth/role_repository.dart';
 
 class GetAllRolesUseCase {
   final RoleRepository repository;

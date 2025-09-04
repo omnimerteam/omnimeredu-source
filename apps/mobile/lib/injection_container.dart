@@ -1,23 +1,32 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:flutter_ios_android_platforms/data/datasources/remote/class/class_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/school_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/class_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/class/class_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/school_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_classes_in_school_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/school/get_schools_by_level_usecase.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/network/api_client.dart';
 
 // DataSources
-import 'data/datasources/remote/auth_remote_data_source.dart';
-import 'data/datasources/remote/role_remote_datasource.dart';
+import 'data/datasources/remote/auth/auth_remote_data_source.dart';
+import 'data/datasources/remote/auth/role_remote_datasource.dart';
 
 // Repositories
 import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/role_repository_impl.dart';
-import 'domain/repositories/auth_repository.dart';
-import 'domain/repositories/role_repository.dart';
+import 'domain/repositories/auth/auth_repository.dart';
+import 'domain/repositories/auth/role_repository.dart';
 
 // UseCases
-import 'domain/usecases/register_user_usecase.dart';
-import 'domain/usecases/get_all_roles_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/login_usecase.dart';
+import 'domain/usecases/auth/register_user_usecase.dart';
+import 'domain/usecases/auth/get_all_roles_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/login_usecase.dart';
 
 // Services
 import 'services/firebase_storage_uploader.dart';
@@ -55,12 +64,20 @@ Future<void> init() async {
   sl.registerLazySingleton<RoleRemoteDataSource>(
     () => RoleRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<ClassRemoteDataSource>(
+    () => ClassRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<SchoolRemoteDataSource>(
+    () => SchoolRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
   // ======================
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton<RoleRepository>(() => RoleRepositoryImpl(sl()));
+  sl.registerLazySingleton<ClassRepository>(() => ClassRepositoryImpl(sl()));
+  sl.registerLazySingleton<SchoolRepository>(() => SchoolRepositoryImpl(sl()));
 
   // ======================
   // UseCases
@@ -77,6 +94,14 @@ Future<void> init() async {
     () => GetAllRolesUseCase(sl<RoleRepository>()),
   );
 
+  sl.registerLazySingleton<GetAllClassesInSchoolUseCase>(
+    () => GetAllClassesInSchoolUseCase(sl<ClassRepository>()),
+  );
+
+  sl.registerLazySingleton<GetSchoolsByLevelUseCase>(
+    () => GetSchoolsByLevelUseCase(sl<SchoolRepository>()),
+  );
+
   // ======================
   // Blocs
   // ======================
@@ -89,4 +114,8 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => LoginBloc(loginUseCase: sl()));
+
+  sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
+
+  sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
 }

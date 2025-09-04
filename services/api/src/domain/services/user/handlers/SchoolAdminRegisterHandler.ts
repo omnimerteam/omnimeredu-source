@@ -23,11 +23,13 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
     if (payload.schoolData) {
       // Trường hợp tạo mới trường
       const code = generateSchoolCode(payload.schoolData.name || "XXX YYY ZZZ"); // Generate code from name
-
+      console.log(payload.schoolData);
       const schoolData = createSchoolBodySchema.parse({
         ...payload.schoolData,
         adminId: user.id,
       });
+
+      console.log(schoolData);
 
       const school = await this.schoolRepository.createWithSession(
         {

@@ -1,69 +1,97 @@
-// lib/presentation/screens/auth/registration/step_basic_info.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/register_dropdown.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/register_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/image_picker/app_image_picker.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/register_text_field.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
 
 class StepBasicInfo extends StatefulWidget {
-  final TextEditingController emailController;
-  final TextEditingController passwordController;
-  final TextEditingController confirmPasswordController;
-  final TextEditingController fullNameController;
-  final TextEditingController phoneController;
-  final TextEditingController addressController;
+  final RegistrationState state;
 
-  final String selectedGender;
-  final ValueChanged<String> onGenderChanged;
-
-  final DateTime? selectedBirthday;
-  final ValueChanged<DateTime?> onBirthdayChanged;
-
-  final File? avatarFile;
-  final ValueChanged<File?> onPickAvatar;
-
-  final VoidCallback onNext;
-
-  const StepBasicInfo({
-    super.key,
-    required this.emailController,
-    required this.passwordController,
-    required this.confirmPasswordController,
-    required this.fullNameController,
-    required this.phoneController,
-    required this.addressController,
-    required this.selectedGender,
-    required this.onGenderChanged,
-    required this.selectedBirthday,
-    required this.onBirthdayChanged,
-    required this.avatarFile,
-    required this.onPickAvatar,
-    required this.onNext,
-  });
+  const StepBasicInfo({super.key, required this.state});
 
   @override
   State<StepBasicInfo> createState() => _StepBasicInfoState();
 }
 
 class _StepBasicInfoState extends State<StepBasicInfo> {
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
+  late final TextEditingController _fullNameController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController(text: widget.state.email);
+    _passwordController = TextEditingController(text: widget.state.password);
+    _confirmPasswordController = TextEditingController(
+      text: widget.state.confirmPassword,
+    );
+    _fullNameController = TextEditingController(text: widget.state.fullName);
+    _phoneController = TextEditingController(text: widget.state.phone);
+    _addressController = TextEditingController(text: widget.state.address);
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _fullNameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) widget.onPickAvatar(File(picked.path));
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      context.read<RegistrationBloc>().add(
+        UpdateBasicInfoEvent(avatarFile: File(picked.path)),
+      );
+    }
+  }
+
+  Future<void> _pickBirthday() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate:
+          widget.state.birthday ??
+          DateTime.now().subtract(const Duration(days: 365 * 18)),
+      firstDate: DateTime(1950),
+      lastDate: DateTime.now(),
+    );
+    if (date != null) {
+      context.read<RegistrationBloc>().add(
+        UpdateBasicInfoEvent(birthday: date),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final state = widget.state;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// Avatar
           Center(
             child: ImagePickerWidget(
-              imageFile: widget.avatarFile,
+              imageFile: state.avatarFile,
               onTap: _pickImage,
               label: 'Chọn ảnh đại diện',
               size: 120,
@@ -71,117 +99,123 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           ),
           const SizedBox(height: 24),
 
-          // Email
+          /// Email
           RegisterTextField(
-            controller: widget.emailController,
+            controller: _emailController,
             label: 'Email',
             hintText: 'Nhập email của bạn',
+            requiredInput: true,
             keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Vui lòng nhập email';
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value))
-                return 'Email không hợp lệ';
-              return null;
-            },
+            validator: Validators.email,
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(email: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Password
+          /// Password
           RegisterTextField(
-            controller: widget.passwordController,
+            controller: _passwordController,
             label: 'Mật khẩu',
             hintText: 'Nhập mật khẩu',
             isPassword: true,
-            validator: (value) {
-              if (value == null || value.isEmpty)
-                return 'Vui lòng nhập mật khẩu';
-              if (value.length < 6) return 'Mật khẩu ít nhất 6 ký tự';
-              return null;
-            },
+            requiredInput: true,
+            validator: Validators.password,
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(password: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Confirm password
+          /// Confirm password
           RegisterTextField(
-            controller: widget.confirmPasswordController,
+            controller: _confirmPasswordController,
             label: 'Xác nhận mật khẩu',
             hintText: 'Nhập lại mật khẩu',
             isPassword: true,
-            validator: (value) {
-              if (value != widget.passwordController.text)
-                return 'Mật khẩu không khớp';
-              return null;
-            },
+            requiredInput: true,
+            validator: (v) =>
+                Validators.confirmPassword(v, _passwordController.text),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(confirmPassword: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Full name
+          /// Full name
           RegisterTextField(
-            controller: widget.fullNameController,
+            controller: _fullNameController,
             label: 'Họ và tên',
             hintText: 'Nhập họ và tên',
-            validator: (value) => (value == null || value.isEmpty)
-                ? 'Vui lòng nhập họ tên'
-                : null,
+            requiredInput: true,
+            validator: (v) => Validators.requiredField(v, name: "Họ và tên"),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(fullName: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Gender
+          /// Gender
           RegisterDropdown<String>(
             label: 'Giới tính',
-            value: widget.selectedGender,
-            items: const [
-              DropdownMenuItem(value: 'Male', child: Text('Nam')),
-              DropdownMenuItem(value: 'Female', child: Text('Nữ')),
-              DropdownMenuItem(value: 'Other', child: Text('Khác')),
-            ],
-            onChanged: (v) => widget.onGenderChanged(v!),
+            value: state.gender,
+            items: DisplayMapper.gender.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key,
+                child: Text(entry.value),
+              );
+            }).toList(),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(gender: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Phone
+          /// Phone
           RegisterTextField(
-            controller: widget.phoneController,
+            controller: _phoneController,
             label: 'Số điện thoại',
             hintText: 'Nhập số điện thoại',
             keyboardType: TextInputType.phone,
+            validator: (v) =>
+                Validators.requiredField(v, name: "Số điện thoại"),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(phone: v),
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Birthday (read only)
-          RegisterTextField(
-            controller: TextEditingController(
-              text: widget.selectedBirthday != null
-                  ? '${widget.selectedBirthday!.day}/${widget.selectedBirthday!.month}/${widget.selectedBirthday!.year}'
-                  : '',
-            ),
-            label: 'Ngày sinh',
-            hintText: 'Chọn ngày sinh',
-            readOnly: true,
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now().subtract(
-                  const Duration(days: 365 * 18),
+          /// Birthday
+          GestureDetector(
+            onTap: _pickBirthday,
+            child: AbsorbPointer(
+              child: RegisterTextField(
+                controller: TextEditingController(
+                  text: state.birthday != null
+                      ? "${state.birthday!.day}/${state.birthday!.month}/${state.birthday!.year}"
+                      : '',
                 ),
-                firstDate: DateTime(1950),
-                lastDate: DateTime.now(),
-              );
-              widget.onBirthdayChanged(date);
-            },
-            suffixIcon: const Icon(
-              Icons.calendar_today,
-              color: AppColors.primary,
+                label: 'Ngày sinh',
+                hintText: 'Chọn ngày sinh',
+                readOnly: true,
+                suffixIcon: const Icon(
+                  Icons.calendar_today,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 16),
 
-          // Address
+          /// Address
           RegisterTextField(
-            controller: widget.addressController,
+            controller: _addressController,
             label: 'Địa chỉ',
             hintText: 'Nhập địa chỉ',
             maxLines: 2,
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateBasicInfoEvent(address: v),
+            ),
           ),
           const SizedBox(height: 24),
         ],

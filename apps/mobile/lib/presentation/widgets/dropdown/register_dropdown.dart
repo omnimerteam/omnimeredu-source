@@ -8,6 +8,7 @@ class RegisterDropdown<T> extends StatelessWidget {
   final ValueChanged<T?> onChanged;
   final String? Function(T?)? validator;
   final String? hintText;
+  final bool requiredInput;
 
   const RegisterDropdown({
     super.key,
@@ -17,6 +18,7 @@ class RegisterDropdown<T> extends StatelessWidget {
     required this.onChanged,
     this.validator,
     this.hintText,
+    this.requiredInput = false,
   });
 
   @override
@@ -24,13 +26,28 @@ class RegisterDropdown<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textDark,
-          ),
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textDark,
+              ),
+            ),
+            if (requiredInput) ...[
+              const SizedBox(width: 4),
+              const Text(
+                '*',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.red,
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(

@@ -18,10 +18,12 @@ class Endpoints {
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
   static String classDetail(String id) => "/v1/classes/$id";
+  static const String searchClassesInSchool = "/v1/classes/schools/search";
 
   // ================== SCHOOLS ==================
   static const String schools = "/v1/schools";
   static String schoolDetail(String id) => "/v1/schools/$id";
+  static const String searchSchoolByEducationLevel = "/v1/schools/search/query";
 
   // ================== ROLES ==================
   static const String roles = "/v1/roles";

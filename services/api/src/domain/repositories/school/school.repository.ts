@@ -7,7 +7,10 @@ class SchoolRepository extends BaseRepository<ISchool> {
     super(SchoolModel);
   }
   // hàm này sẽ tìm kiếm theo tên hoặc mã trường học, nếu cả hai đều không có thì sẽ báo lỗi
-  async searchSchoolByNameOrCode(query?: string): Promise<ISchool[]> {
+  async searchSchoolByEducationLevel(
+    eductionLevel?: string,
+    query?: string
+  ): Promise<ISchool[]> {
     //khởi tạo 1 object rỗng
     const filter: any = {};
 
@@ -16,6 +19,10 @@ class SchoolRepository extends BaseRepository<ISchool> {
         { name: { $regex: query, $options: "i" } },
         { code: { $regex: query, $options: "i" } },
       ];
+    }
+
+    if (eductionLevel?.trim()) {
+      filter.level = eductionLevel;
     }
 
     return this.model.find(filter).select("_id name code");

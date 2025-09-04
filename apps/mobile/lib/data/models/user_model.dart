@@ -1,4 +1,4 @@
-import 'package:flutter_ios_android_platforms/domain/entities/user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/user_entity.dart';
 
 class StudentModel extends Student {
   const StudentModel({

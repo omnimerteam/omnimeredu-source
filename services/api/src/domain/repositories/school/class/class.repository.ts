@@ -42,10 +42,14 @@ class ClassRepository extends BaseRepository<IClass> {
    * @param {String} query
    */
   async searchClassesInSchool(
-    schoolId: string,
+    schoolId?: string,
     query?: string
   ): Promise<IClass[]> {
-    const filter: any = { schoolId: new Types.ObjectId(schoolId) };
+    const filter: any = {};
+
+    if (schoolId?.trim()) {
+      filter.schoolId = new Types.ObjectId(schoolId);
+    }
 
     if (query?.trim()) {
       filter.$or = [

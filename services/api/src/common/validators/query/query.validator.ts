@@ -45,18 +45,20 @@ export function createPaginationSchemaWithSort(allowedFields: string[]) {
 
 export const searchClassesQuerySchema = z.object({
   schoolId: z
-    .string({
-      message: "Thiếu thông tin trường học",
-    })
-    .trim() // loại bỏ khoảng trắng thừa ở đầu/cuối
-    .min(1, "schoolId không được để trống")
+    .string()
     .refine((val) => Types.ObjectId.isValid(val), {
       message: "Dữ liệu trường học không hợp lệ",
-    }),
+    })
+    .nullable()
+    .optional(),
 
-  query: z.string().trim().optional(),
+  query: z.string().nullable().optional(),
 });
 
 export const searchSchoolsQuerySchema = z.object({
-  query: z.string().trim().min(2).max(100),
+  educationLevel: z
+    .enum(["Preschool", "Primary", "Secondary", "HighSchool", "University"])
+    .nullable()
+    .optional(),
+  query: z.string().nullable().optional(),
 });

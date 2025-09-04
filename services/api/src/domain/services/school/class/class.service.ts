@@ -519,7 +519,7 @@ class ClassService {
     }
   }
 
-  async searchClassesInSchool(schoolId: string, query?: string) {
+  async searchClassesInSchool(schoolId?: string, query?: string) {
     try {
       const classes = await this.classRepository.searchClassesInSchool(
         schoolId,

@@ -57,9 +57,10 @@ class SchoolService {
     }
   }
   //hàm này sẽ tìm kiếm theo tên hoặc mã trường học, nếu cả hai đều không có thì sẽ báo lỗi
-  async searchSchoolByNameOrCode(query: string) {
+  async searchSchoolByEducationLevel(educationLevel?: string, query?: string) {
     try {
-      const schools = await this.schoolRepository.searchSchoolByNameOrCode(
+      const schools = await this.schoolRepository.searchSchoolByEducationLevel(
+        educationLevel,
         query
       );
 

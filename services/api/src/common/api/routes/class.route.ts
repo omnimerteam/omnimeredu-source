@@ -154,10 +154,6 @@ router.put(
 // ✅ Tìm kiếm lớp học có trong trường theo name hoặc code của trường
 router.get(
   "/schools/search",
-  (req, res, next) => {
-    console.log("👉 Hit /search", req.query);
-    next();
-  },
   validateData({ query: searchClassesQuerySchema }),
   (req, res, next) => classController.searchClassesInSchool(req, res, next)
 );

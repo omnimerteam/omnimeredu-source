@@ -1,7 +1,7 @@
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
-import '../../domain/entities/role.dart';
-import '../../domain/repositories/role_repository.dart';
-import '../datasources/remote/role_remote_datasource.dart';
+import '../../domain/entities/auth/role.dart';
+import '../../domain/repositories/auth/role_repository.dart';
+import '../datasources/remote/auth/role_remote_datasource.dart';
 
 class RoleRepositoryImpl implements RoleRepository {
   final RoleRemoteDataSource remoteDataSource;

@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 class SchoolDataEntity extends Equatable {
   final String id;
   final String name;
-  final String code;
+  final String? code;
   final String address;
   final String? phone;
   final String? description;
@@ -16,7 +16,7 @@ class SchoolDataEntity extends Equatable {
   const SchoolDataEntity({
     required this.id,
     required this.name,
-    required this.code,
+    this.code,
     required this.address,
     this.phone,
     this.description,

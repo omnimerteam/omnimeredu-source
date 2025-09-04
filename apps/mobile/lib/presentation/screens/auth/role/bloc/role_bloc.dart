@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/role.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/get_all_roles_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_all_roles_usecase.dart';
 
 part 'role_event.dart';
 part 'role_state.dart';

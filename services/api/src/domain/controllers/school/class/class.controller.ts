@@ -341,17 +341,22 @@ class ClassController {
     console.log("schoolId", schoolId);
     console.log("query", query);
 
-    if (!schoolId) {
-      sendBadRequest(res, "Thiếu thông tin trường học");
+    if (!schoolId?.toString().trim() && !query?.toString().trim()) {
+      sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
       return;
     }
     try {
-      const result = await this.classService.searchClassesInSchool(
-        schoolId.toString(),
+      const classes = await this.classService.searchClassesInSchool(
+        schoolId?.toString(),
         query?.toString()
       );
 
-      sendSuccess(res, result, "Lấy thông tin lớp thành công");
+      if (!classes || classes.length === 0) {
+        sendEmpty(res);
+        return;
+      }
+
+      sendSuccess(res, classes, "Lấy thông tin lớp thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Get class by ID failed"), error);

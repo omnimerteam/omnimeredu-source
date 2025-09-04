@@ -16,11 +16,11 @@ class AppView extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       routes: {
-        '/': (context) => const LoginScreen(),
+        '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegistrationScreen(),
         '/home': (context) => const HomeScreen(),
       },
-      initialRoute: '/',
+      initialRoute: '/login',
     );
   }
 }

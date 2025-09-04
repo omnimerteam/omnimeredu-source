@@ -116,7 +116,7 @@ class ApiClient {
   /// Xử lý response OK
   ApiResponse<T> _handleResponse<T>(Response response) {
     final data = response.data;
-
+    logger.i("Api Reponse Data: ${data}");
     return ApiResponse.success(
       data as T,
       message: data is Map && data['message'] != null ? data['message'] : null,
