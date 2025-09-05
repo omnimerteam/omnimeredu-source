@@ -1,7 +1,7 @@
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
-import '../../models/role_model.dart';
-import '../../../core/network/endpoints.dart';
+import '../../../models/role_model.dart';
+import '../../../../core/network/endpoints.dart';
 
 class RoleRemoteDataSource {
   final ApiClient client;

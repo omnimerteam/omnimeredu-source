@@ -1,93 +1,77 @@
-// lib/presentation/screens/auth/registration/step_role.dart
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/school_selector.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/register_dropdown.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/image_picker/app_image_picker.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/register_text_field.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/role.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
+
+import 'class_selector.dart';
 
 class StepRole extends StatefulWidget {
-  final RoleEntity? selectedRole;
-  final ValueChanged<RoleEntity?> onRoleChanged;
+  final RegistrationState state;
 
-  final String? selectedEducationLevel;
-  final ValueChanged<String?> onEducationLevelChanged;
-
-  final TextEditingController schoolCodeController;
-  final TextEditingController guardianNameController;
-  final TextEditingController guardianPhoneController;
-  final TextEditingController gradeController;
-
-  final TextEditingController literacyController;
-  final TextEditingController subjectsController;
-
-  final bool isCreateNewSchool;
-  final ValueChanged<bool> onToggleCreateSchool;
-
-  final TextEditingController positionController;
-  final TextEditingController schoolNameController;
-  final TextEditingController schoolAddressController;
-  final TextEditingController schoolPhoneController;
-  final TextEditingController schoolDescriptionController;
-  final TextEditingController schoolEmailController;
-
-  final String? selectedSchoolLevel;
-  final ValueChanged<String?> onSchoolLevelChanged;
-
-  final ValueChanged<File?> onPickSchoolLogo;
-
-  final VoidCallback onNext;
-  final VoidCallback onPrevious;
-
-  const StepRole({
-    super.key,
-    required this.selectedRole,
-    required this.onRoleChanged,
-    required this.selectedEducationLevel,
-    required this.onEducationLevelChanged,
-    required this.schoolCodeController,
-    required this.guardianNameController,
-    required this.guardianPhoneController,
-    required this.gradeController,
-    required this.literacyController,
-    required this.subjectsController,
-    required this.isCreateNewSchool,
-    required this.onToggleCreateSchool,
-    required this.positionController,
-    required this.schoolNameController,
-    required this.schoolAddressController,
-    required this.schoolPhoneController,
-    required this.schoolDescriptionController,
-    required this.schoolEmailController,
-    required this.selectedSchoolLevel,
-    required this.onSchoolLevelChanged,
-    required this.onPickSchoolLogo,
-    required this.onNext,
-    required this.onPrevious,
-  });
+  const StepRole({super.key, required this.state});
 
   @override
   State<StepRole> createState() => _StepRoleState();
 }
 
 class _StepRoleState extends State<StepRole> {
-  File? _localSchoolLogo;
+  // Controllers for Student
+  late final TextEditingController _guardianNameController;
+  late final TextEditingController _guardianPhoneController;
+  late final TextEditingController _gradeController;
 
-  Future<void> _pickSchoolLogo() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final file = File(picked.path);
-      setState(() => _localSchoolLogo = file);
-      widget.onPickSchoolLogo(file);
-    }
+  // Controllers for SchoolAdmin
+  late final TextEditingController _positionController;
+  late final TextEditingController _newSchoolNameController;
+  late final TextEditingController _newSchoolAddressController;
+  late final TextEditingController _newSchoolPhoneController;
+  late final TextEditingController _newSchoolDescriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    _guardianNameController = TextEditingController(
+      text: widget.state.guardianName,
+    );
+    _guardianPhoneController = TextEditingController(
+      text: widget.state.guardianPhone,
+    );
+    _gradeController = TextEditingController(text: widget.state.grade);
+
+    _positionController = TextEditingController(text: widget.state.position);
+    _newSchoolNameController = TextEditingController(
+      text: widget.state.schoolName,
+    );
+    _newSchoolAddressController = TextEditingController(
+      text: widget.state.schoolAddress,
+    );
+    _newSchoolPhoneController = TextEditingController(
+      text: widget.state.schoolPhone,
+    );
+    _newSchoolDescriptionController = TextEditingController(
+      text: widget.state.schoolDescription,
+    );
+  }
+
+  @override
+  void dispose() {
+    _guardianNameController.dispose();
+    _guardianPhoneController.dispose();
+    _gradeController.dispose();
+
+    _positionController.dispose();
+    _newSchoolNameController.dispose();
+    _newSchoolAddressController.dispose();
+    _newSchoolPhoneController.dispose();
+    _newSchoolDescriptionController.dispose();
+    super.dispose();
   }
 
   @override
@@ -95,271 +79,407 @@ class _StepRoleState extends State<StepRole> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Thông tin vai trò',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: AppColors.textDark,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // roles from bloc
-          BlocBuilder<RegistrationBloc, RegistrationState>(
-            builder: (context, state) {
-              if (state is RolesLoaded) {
-                return RegisterDropdown<RoleEntity>(
-                  label: 'Bạn là ai',
-                  value: widget.selectedRole,
-                  hintText: 'Chọn vai trò của bạn',
-                  items: state.roles
-                      .map(
-                        (r) => DropdownMenuItem(
-                          value: r,
-                          child: Text(DisplayMapper.roleName(r.name)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (r) => widget.onRoleChanged(r),
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            },
-          ),
-          const SizedBox(height: 24),
-
-          if (widget.selectedRole != null) ...[
-            if (widget.selectedRole!.name.toLowerCase() == 'student')
-              _studentFields(),
-            if (widget.selectedRole!.name.toLowerCase() == 'teacher')
-              _teacherFields(),
-            if (widget.selectedRole!.name.toLowerCase() == 'schooladmin')
-              _schoolAdminFields(),
-          ],
+          _buildRoleSelector(context, widget.state),
+          const SizedBox(height: 20),
+          if (widget.state.selectedRoleId != null)
+            _buildRoleForm(context, widget.state),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget _studentFields() {
+  /// Selector vai trò
+  Widget _buildRoleSelector(BuildContext context, RegistrationState state) {
+    return RegisterDropdown<RoleEntity>(
+      label: "Bạn là",
+      requiredInput: true,
+      value: state.roles.isEmpty
+          ? null
+          : state.roles.firstWhere(
+              (r) => r.id == state.selectedRoleId,
+              orElse: () => state.roles.first,
+            ),
+      items: state.roles
+          .map(
+            (role) => DropdownMenuItem(
+              value: role,
+              child: Text(DisplayMapper.roleName(role.name)),
+            ),
+          )
+          .toList(),
+      onChanged: (role) {
+        if (role == null) return;
+
+        // Reset state theo role mới
+        context.read<RegistrationBloc>().add(
+          UpdateRoleEvent(role.id, role.name),
+        );
+
+        context.read<RegistrationBloc>().add(
+          UpdateSchoolIdEvent(schoolId: null, assignSchoolName: null),
+        );
+
+        context.read<RegistrationBloc>().add(
+          UpdateClassIdEvent(classId: null, assignClassName: null),
+        );
+
+        context.read<RegistrationBloc>().add(
+          UpdateStudentInfoEvent(
+            educationLevel: null,
+            classId: null,
+            guardianName: null,
+            guardianPhone: null,
+            grade: null,
+          ),
+        );
+
+        context.read<RegistrationBloc>().add(
+          UpdateTeacherInfoEvent(subjects: null, literacy: null),
+        );
+
+        context.read<RegistrationBloc>().add(
+          UpdateSchoolAdminInfoEvent(
+            isCreateNewSchool: false,
+            schoolLevel: null,
+            position: null,
+            schoolName: null,
+            schoolAddress: null,
+            schoolPhone: null,
+            schoolDescription: null,
+            schoolLogoFile: null,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Render form theo role
+  Widget _buildRoleForm(BuildContext context, RegistrationState state) {
+    switch (state.selectedRoleName) {
+      case "Student":
+        return _buildStudentForm(context, state);
+      case "Teacher":
+        return _buildTeacherForm(context, state);
+      case "SchoolAdmin":
+        return _buildSchoolAdminForm(context, state);
+      default:
+        return _buildOtherRoleForm(context, state);
+    }
+  }
+
+  /// Form cho học sinh
+  Widget _buildStudentForm(BuildContext context, RegistrationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RegisterDropdown<String>(
-          label: 'Cấp học',
-          value: widget.selectedEducationLevel,
-          items: const [
-            DropdownMenuItem(value: 'Preschool', child: Text('Mầm non')),
-            DropdownMenuItem(value: 'Primary', child: Text('Tiểu học')),
-            DropdownMenuItem(
-              value: 'Secondary',
-              child: Text('Trung học cơ sở'),
-            ),
-            DropdownMenuItem(
-              value: 'HighSchool',
-              child: Text('Trung học phổ thông'),
-            ),
-          ],
-          onChanged: (v) => widget.onEducationLevelChanged(v),
+        _buildLevelSelector(context, state),
+        const SizedBox(height: 16),
+
+        SchoolSelector(
+          key: ValueKey(state.selectedEducationLevel),
+          educationLevel: state.selectedEducationLevel ?? "",
+          onSchoolSelected: (school) {
+            print("📌 School selected: $school");
+            context.read<RegistrationBloc>().add(
+              UpdateSchoolIdEvent(
+                schoolId: school?.id,
+                assignSchoolName: school?.name,
+              ),
+            );
+          },
         ),
         const SizedBox(height: 16),
-        RegisterTextField(
-          controller: widget.schoolCodeController,
-          label: 'Mã trường học',
-          hintText: 'Nhập mã trường để tìm kiếm',
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.search, color: AppColors.primary),
-            onPressed: () {
-              if (widget.schoolCodeController.text.isNotEmpty) {
-                context.read<RegistrationBloc>().add(
-                  SearchSchoolByCodeEvent(widget.schoolCodeController.text),
-                );
-              }
+
+        if (state.schoolId != null)
+          ClassSelector(
+            key: ValueKey(state.schoolId),
+            schoolId: state.schoolId ?? "",
+            onClassSelected: (clazz) {
+              context.read<RegistrationBloc>().add(
+                UpdateClassIdEvent(
+                  classId: clazz?.id ?? "",
+                  assignClassName: clazz?.name,
+                ),
+              );
             },
+          ),
+        const SizedBox(height: 16),
+
+        /// Grade
+        RegisterTextField(
+          controller: _gradeController,
+          label: 'Khối lớp',
+          hintText: 'Nhập khối lớp (vd: 10, 11, 12)',
+          keyboardType: TextInputType.text,
+          validator: (v) => Validators.requiredField(v, name: "Khối lớp"),
+          onChanged: (v) => context.read<RegistrationBloc>().add(
+            UpdateStudentInfoEvent(grade: v),
           ),
         ),
         const SizedBox(height: 16),
+
+        /// Guardian Name
         RegisterTextField(
-          controller: widget.gradeController,
-          label: 'Lớp',
-          hintText: 'Ví dụ: 10A1',
+          controller: _guardianNameController,
+          label: 'Họ tên phụ huynh',
+          hintText: 'Nhập họ tên phụ huynh',
+          requiredInput: true,
+          validator: (v) =>
+              Validators.requiredField(v, name: "Họ tên phụ huynh"),
+          onChanged: (v) => context.read<RegistrationBloc>().add(
+            UpdateStudentInfoEvent(guardianName: v),
+          ),
         ),
         const SizedBox(height: 16),
+
+        /// Guardian Phone
         RegisterTextField(
-          controller: widget.guardianNameController,
-          label: 'Tên phụ huynh',
-          hintText: 'Nhập tên phụ huynh',
-        ),
-        const SizedBox(height: 16),
-        RegisterTextField(
-          controller: widget.guardianPhoneController,
-          label: 'SĐT phụ huynh',
+          controller: _guardianPhoneController,
+          label: 'Số điện thoại phụ huynh',
           hintText: 'Nhập số điện thoại phụ huynh',
           keyboardType: TextInputType.phone,
+          requiredInput: true,
+          validator: (v) =>
+              Validators.requiredField(v, name: "Số điện thoại phụ huynh"),
+          onChanged: (v) => context.read<RegistrationBloc>().add(
+            UpdateStudentInfoEvent(guardianPhone: v),
+          ),
         ),
       ],
     );
   }
 
-  Widget _teacherFields() {
+  /// Form cho giáo viên
+  Widget _buildTeacherForm(BuildContext context, RegistrationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RegisterTextField(
-          controller: widget.schoolCodeController,
-          label: 'Mã trường học',
-          hintText: 'Nhập mã trường để tìm kiếm',
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.search, color: AppColors.primary),
-            onPressed: () {
-              if (widget.schoolCodeController.text.isNotEmpty) {
-                context.read<RegistrationBloc>().add(
-                  SearchSchoolByCodeEvent(widget.schoolCodeController.text),
-                );
-              }
+        _buildLevelSelector(context, state),
+        const SizedBox(height: 16),
+
+        if (state.selectedEducationLevel != null)
+          SchoolSelector(
+            key: ValueKey(state.selectedEducationLevel),
+            educationLevel: state.selectedEducationLevel ?? "",
+            onSchoolSelected: (school) {
+              context.read<RegistrationBloc>().add(
+                UpdateSchoolIdEvent(
+                  schoolId: school?.id,
+                  assignSchoolName: school?.name,
+                ),
+              );
             },
           ),
+        const SizedBox(height: 16),
+
+        RegisterDropdown<String>(
+          label: "Chọn môn dạy",
+          requiredInput: true,
+          value: state.subjects?.isNotEmpty == true
+              ? state.subjects!.first
+              : null,
+          items: DisplayMapper.subjects.entries
+              .map(
+                (entry) => DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            context.read<RegistrationBloc>().add(
+              UpdateTeacherInfoEvent(subjects: value != null ? [value] : null),
+            );
+          },
         ),
         const SizedBox(height: 16),
-        RegisterTextField(
-          controller: widget.literacyController,
-          label: 'Trình độ học vấn',
-          hintText: 'Ví dụ: Cử nhân',
-        ),
-        const SizedBox(height: 16),
-        RegisterTextField(
-          controller: widget.subjectsController,
-          label: 'Môn giảng dạy',
-          hintText: 'Các môn, ngăn cách bởi dấu phẩy',
-          maxLines: 2,
+
+        /// Literacy Level
+        RegisterDropdown<String>(
+          label: "Trình độ học vấn",
+          requiredInput: true,
+          value: state.literacy,
+          items: DisplayMapper.literacyLevels.entries
+              .map(
+                (entry) => DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            context.read<RegistrationBloc>().add(
+              UpdateTeacherInfoEvent(literacy: value),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _schoolAdminFields() {
+  /// Form cho SchoolAdmin
+  Widget _buildSchoolAdminForm(BuildContext context, RegistrationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.extraLightBlue.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            children: [
-              RadioListTile<bool>(
-                title: const Text('Tham gia trường hiện có'),
-                value: false,
-                groupValue: widget.isCreateNewSchool,
-                onChanged: (v) => widget.onToggleCreateSchool(v ?? false),
-                activeColor: AppColors.primary,
-              ),
-              RadioListTile<bool>(
-                title: const Text('Tạo trường mới'),
-                value: true,
-                groupValue: widget.isCreateNewSchool,
-                onChanged: (v) => widget.onToggleCreateSchool(v ?? false),
-                activeColor: AppColors.primary,
-              ),
-            ],
-          ),
+        _buildLevelSelector(context, state),
+        const SizedBox(height: 16),
+
+        /// Create New School Option
+        CheckboxListTile(
+          title: const Text('Tạo trường học mới'),
+          value: state.isCreateNewSchool,
+          onChanged: (value) {
+            context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(isCreateNewSchool: value),
+            );
+          },
         ),
         const SizedBox(height: 16),
-        if (!widget.isCreateNewSchool) ...[
+
+        if (state.isCreateNewSchool == true) ...[
+          /// New School Form
           RegisterTextField(
-            controller: widget.schoolCodeController,
-            label: 'Mã trường học',
-            hintText: 'Nhập mã trường để tìm kiếm',
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.search, color: AppColors.primary),
-              onPressed: () {
-                if (widget.schoolCodeController.text.isNotEmpty) {
-                  context.read<RegistrationBloc>().add(
-                    SearchSchoolByCodeEvent(widget.schoolCodeController.text),
-                  );
-                }
-              },
+            controller: _newSchoolNameController,
+            label: 'Tên trường',
+            hintText: 'Nhập tên trường học',
+            requiredInput: true,
+            validator: (v) => Validators.requiredField(v, name: "Tên trường"),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(schoolName: v),
             ),
           ),
           const SizedBox(height: 16),
+
           RegisterTextField(
-            controller: widget.positionController,
-            label: 'Chức vụ',
-            hintText: 'Nhập chức vụ của bạn',
+            controller: _newSchoolAddressController,
+            label: 'Địa chỉ trường',
+            hintText: 'Nhập địa chỉ trường học',
+            requiredInput: true,
+            maxLines: 2,
+            validator: (v) =>
+                Validators.requiredField(v, name: "Địa chỉ trường"),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(schoolAddress: v),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          RegisterTextField(
+            controller: _newSchoolPhoneController,
+            label: 'Số điện thoại trường',
+            hintText: 'Nhập số điện thoại trường học',
+            keyboardType: TextInputType.phone,
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(schoolPhone: v),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          RegisterTextField(
+            controller: _newSchoolDescriptionController,
+            label: 'Mô tả trường',
+            hintText: 'Nhập mô tả về trường học',
+            maxLines: 3,
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(schoolDescription: v),
+            ),
           ),
         ] else ...[
-          Center(
-            child: ImagePickerWidget(
-              imageFile: _localSchoolLogo,
-              onTap: _pickSchoolLogo,
-              label: 'Logo trường (không bắt buộc)',
-              size: 100,
+          /// Existing School Selection
+          if (state.selectedEducationLevel != null) ...[
+            SchoolSelector(
+              key: ValueKey(state.selectedEducationLevel),
+              educationLevel: state.selectedEducationLevel ?? "",
+              onSchoolSelected: (school) {
+                context.read<RegistrationBloc>().add(
+                  UpdateSchoolIdEvent(
+                    schoolId: school?.id,
+                    assignSchoolName: school?.name,
+                  ),
+                );
+              },
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
+          ],
+
+          /// Position in School
           RegisterTextField(
-            controller: widget.schoolNameController,
-            label: 'Tên trường',
-            hintText: 'Nhập tên trường',
-          ),
-          const SizedBox(height: 16),
-          RegisterTextField(
-            controller: widget.schoolCodeController,
-            label: 'Mã trường',
-            hintText: 'Nhập mã trường (duy nhất)',
-          ),
-          const SizedBox(height: 16),
-          RegisterDropdown<String>(
-            label: 'Cấp trường',
-            value: widget.selectedSchoolLevel,
-            items: const [
-              DropdownMenuItem(value: 'Preschool', child: Text('Mầm non')),
-              DropdownMenuItem(value: 'Primary', child: Text('Tiểu học')),
-              DropdownMenuItem(
-                value: 'Secondary',
-                child: Text('Trung học cơ sở'),
-              ),
-              DropdownMenuItem(
-                value: 'HighSchool',
-                child: Text('Trung học phổ thông'),
-              ),
-            ],
-            onChanged: (v) => widget.onSchoolLevelChanged(v),
-          ),
-          const SizedBox(height: 16),
-          RegisterTextField(
-            controller: widget.schoolAddressController,
-            label: 'Địa chỉ trường',
-            hintText: 'Nhập địa chỉ',
-            maxLines: 2,
-          ),
-          const SizedBox(height: 16),
-          RegisterTextField(
-            controller: widget.schoolPhoneController,
-            label: 'SĐT trường',
-            hintText: 'Nhập số điện thoại',
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 16),
-          RegisterTextField(
-            controller: widget.schoolEmailController,
-            label: 'Email trường',
-            hintText: 'Nhập email trường',
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 16),
-          RegisterTextField(
-            controller: widget.schoolDescriptionController,
-            label: 'Mô tả trường',
-            hintText: 'Mô tả (không bắt buộc)',
-            maxLines: 3,
+            controller: _positionController,
+            label: 'Chức vụ tại trường',
+            hintText:
+                'Nhập chức vụ của bạn (vd: Hiệu trưởng, Phó hiệu trưởng, ...)',
+            requiredInput: true,
+            validator: (v) => Validators.requiredField(v, name: "Chức vụ"),
+            onChanged: (v) => context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(position: v),
+            ),
           ),
         ],
       ],
+    );
+  }
+
+  /// Form cho các vai trò còn lại
+  Widget _buildOtherRoleForm(BuildContext context, RegistrationState state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildLevelSelector(context, state),
+        const SizedBox(height: 16),
+
+        if (state.selectedEducationLevel != null)
+          SchoolSelector(
+            key: ValueKey(state.selectedEducationLevel),
+            educationLevel: state.selectedEducationLevel ?? "",
+            onSchoolSelected: (school) {
+              context.read<RegistrationBloc>().add(
+                UpdateSchoolIdEvent(
+                  schoolId: school?.id,
+                  assignSchoolName: school?.name,
+                ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  /// Selector cấp học
+  Widget _buildLevelSelector(BuildContext context, RegistrationState state) {
+    return RegisterDropdown<String>(
+      label: "Chọn cấp học",
+      value: state.educationLevel,
+      requiredInput: true,
+      items: DisplayMapper.educationLevels.entries
+          .map(
+            (entry) =>
+                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+          )
+          .toList(),
+      onChanged: (value) {
+        context.read<RegistrationBloc>().add(
+          UpdateSelectedEducationLevelEvent(selectedEducationLevel: value!),
+        );
+        // Update education level based on role
+        switch (state.selectedRoleName) {
+          case "Student":
+            context.read<RegistrationBloc>().add(
+              UpdateStudentInfoEvent(
+                educationLevel: value,
+                classId: null, // Reset class when level changes
+              ),
+            );
+            break;
+          case "SchoolAdmin":
+            context.read<RegistrationBloc>().add(
+              UpdateSchoolAdminInfoEvent(schoolLevel: value),
+            );
+            break;
+        }
+      },
     );
   }
 }

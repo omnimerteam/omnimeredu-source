@@ -15,4 +15,10 @@ class Validators {
     if (v == null || v.length < 8) return 'Mật khẩu tối thiểu 8 ký tự';
     return null;
   }
+
+  static String? confirmPassword(String? v, String original) {
+    if (v == null || v.isEmpty) return 'Vui lòng xác nhận mật khẩu';
+    if (v != original) return 'Mật khẩu không khớp';
+    return null;
+  }
 }

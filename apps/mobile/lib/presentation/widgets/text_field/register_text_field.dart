@@ -12,6 +12,8 @@ class RegisterTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final VoidCallback? onTap;
   final bool readOnly;
+  final void Function(String)? onChanged;
+  final bool requiredInput;
 
   const RegisterTextField({
     super.key,
@@ -25,6 +27,8 @@ class RegisterTextField extends StatefulWidget {
     this.suffixIcon,
     this.onTap,
     this.readOnly = false,
+    this.onChanged,
+    this.requiredInput = false,
   });
 
   @override
@@ -39,13 +43,28 @@ class _RegisterTextFieldState extends State<RegisterTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textDark,
-          ),
+        Row(
+          children: [
+            Text(
+              widget.label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textDark,
+              ),
+            ),
+            if (widget.requiredInput) ...[
+              const SizedBox(width: 4),
+              const Text(
+                '*',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.red,
+                ),
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -55,6 +74,7 @@ class _RegisterTextFieldState extends State<RegisterTextField> {
           maxLines: widget.isPassword ? 1 : widget.maxLines,
           validator: widget.validator,
           onTap: widget.onTap,
+          onChanged: widget.onChanged,
           readOnly: widget.readOnly,
           decoration: InputDecoration(
             hintText: widget.hintText,

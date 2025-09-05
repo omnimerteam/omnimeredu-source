@@ -4,6 +4,7 @@ import { IClass } from "../../../models";
 
 import { ClassRepository, StudentRepository } from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
+import { HttpError } from "../../../../common/utils/HttpError";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -32,10 +33,15 @@ class ClassService {
       if (userRole === "SuperAdmin") {
         filter = {}; // không giới hạn
       } else if (userRole === "SchoolAdmin") {
-        if (!schoolId) throw new Error("Thiếu schoolId");
+        if (!schoolId)
+          throw new HttpError(
+            400,
+            "Thiếu thông tin trường",
+            "MISSING_SCHOOL_ID"
+          );
         filter = { schoolId };
       } else {
-        throw new Error("Bạn không có quyền xem danh sách lớp");
+        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
       }
 
       const classes = await this.classRepository.findAll(filter, options);
@@ -509,6 +515,20 @@ class ClassService {
         },
       });
 
+      throw err;
+    }
+  }
+
+  async searchClassesInSchool(schoolId?: string, query?: string) {
+    try {
+      const classes = await this.classRepository.searchClassesInSchool(
+        schoolId,
+        query
+      );
+
+      return classes;
+    } catch (err) {
+      console.error("Error searching classes in school:", err);
       throw err;
     }
   }

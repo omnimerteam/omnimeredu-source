@@ -9,7 +9,12 @@ export interface IStudent extends IBaseUser {
   classId?: Types.ObjectId;
   guardianName?: string;
   guardianPhone?: string;
-  educationLevel: "Preschool" | "Primary" | "Secondary" | "HighSchool";
+  educationLevel:
+    | "Preschool"
+    | "Primary"
+    | "Secondary"
+    | "HighSchool"
+    | "University";
   grade?: string;
   registeredExtraFees?: {
     extraFeeId: Types.ObjectId;
@@ -42,7 +47,7 @@ const StudentSchema = new Schema<IStudent>({
   guardianPhone: { type: String },
   educationLevel: {
     type: String,
-    enum: ["Preschool", "Primary", "Secondary", "HighSchool"],
+    enum: ["Preschool", "Primary", "Secondary", "HighSchool", "University"],
     required: true,
   },
   grade: { type: String },

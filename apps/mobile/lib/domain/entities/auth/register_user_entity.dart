@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/base_user_entity.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/school_data.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 
 class RegisterUserEntity extends Equatable {
   final String email;

@@ -1,4 +1,4 @@
-import 'package:flutter_ios_android_platforms/domain/entities/school_data.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 
 class SchoolDataModel extends SchoolDataEntity {
   const SchoolDataModel({

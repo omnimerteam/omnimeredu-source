@@ -29,7 +29,7 @@ import { objectIdParamSchema } from "../../validators/params/params.validator";
 import { authHeaderSchema } from "../../validators/header/header.validator";
 import {
   createPaginationSchemaWithSort,
-  paginationQuerySchema,
+  searchClassesQuerySchema,
 } from "../../validators/query/query.validator";
 
 // Init Dependencies
@@ -149,6 +149,13 @@ router.put(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.transferClass(req, res, next)
+);
+
+// ✅ Tìm kiếm lớp học có trong trường theo name hoặc code của trường
+router.get(
+  "/schools/search",
+  validateData({ query: searchClassesQuerySchema }),
+  (req, res, next) => classController.searchClassesInSchool(req, res, next)
 );
 
 export default router;

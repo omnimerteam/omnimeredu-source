@@ -1,143 +1,234 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/base_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/register_user_entity.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/school_data.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/get_all_roles_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/register_user_usecase.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_all_roles_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/register_user_usecase.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_storage_uploader.dart';
 
+import 'registration_event.dart';
+import 'registration_state.dart';
+
 class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
+  final GetAllRolesUseCase getAllRolesUseCase;
   final RegisterUserUseCase registerUserUseCase;
   final FirebaseStorageUploader uploader;
-  final GetAllRolesUseCase getAllRolesUseCase;
 
   RegistrationBloc({
-    required this.registerUserUseCase,
-    required this.uploader,
     required this.getAllRolesUseCase,
-  }) : super(RegistrationInitial()) {
+    required this.uploader,
+    required this.registerUserUseCase,
+  }) : super(const RegistrationState()) {
     on<LoadRolesEvent>(_onLoadRoles);
-    on<RegisterUserEvent>(_onRegisterUser);
-    on<SearchSchoolByCodeEvent>(_onSearchSchoolByCode);
+    on<UpdateBasicInfoEvent>(_onUpdateBasicInfo);
+    on<UpdateRoleEvent>(_onUpdateRole);
+    on<UpdateStudentInfoEvent>(_onUpdateStudentInfo);
+    on<UpdateTeacherInfoEvent>(_onUpdateTeacherInfo);
+    on<UpdateSchoolAdminInfoEvent>(_onUpdateSchoolAdminInfo);
+    on<SubmitRegistrationEvent>(_onSubmitRegistration);
+    on<UpdateSchoolIdEvent>(_onUpdateSchoolId);
+    on<UpdateClassIdEvent>(_onUpdateClassId);
+    on<UpdateSelectedEducationLevelEvent>(_onSelectedEducationLevel);
   }
 
+  /// Load roles từ API
   Future<void> _onLoadRoles(
     LoadRolesEvent event,
     Emitter<RegistrationState> emit,
   ) async {
-    emit(RolesLoading());
-
+    emit(state.copyWith(loading: true, error: null));
     try {
       final roles = await getAllRolesUseCase.call();
-      emit(RolesLoaded(roles));
-    } catch (e) {
-      logger.e('Error loading roles: $e');
-      emit(RolesLoadError('Không thể tải danh sách vai trò: ${e.toString()}'));
+      emit(state.copyWith(roles: roles, loading: false));
+    } catch (error) {
+      logger.e("Lỗi load roles", error: error);
+      emit(state.copyWith(loading: false, error: error.toString()));
     }
   }
 
-  Future<void> _onRegisterUser(
-    RegisterUserEvent event,
+  void _onUpdateBasicInfo(
+    UpdateBasicInfoEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        email: event.email ?? state.email,
+        password: event.password ?? state.password,
+        fullName: event.fullName ?? state.fullName,
+        gender: event.gender ?? state.gender,
+        birthday: event.birthday ?? state.birthday,
+        phone: event.phone ?? state.phone,
+        address: event.address ?? state.address,
+        avatarFile: event.avatarFile ?? state.avatarFile,
+      ),
+    );
+  }
+
+  void _onUpdateRole(UpdateRoleEvent event, Emitter<RegistrationState> emit) {
+    emit(
+      state.copyWith(
+        selectedRoleId: event.roleId,
+        selectedRoleName: event.roleName ?? state.selectedRoleName,
+      ),
+    );
+  }
+
+  void _onSelectedEducationLevel(
+    UpdateSelectedEducationLevelEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        selectedEducationLevel:
+            event.selectedEducationLevel ?? state.selectedEducationLevel,
+      ),
+    );
+  }
+
+  void _onUpdateSchoolId(
+    UpdateSchoolIdEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        schoolId: event.schoolId ?? state.schoolId,
+        assignSchoolName: event.assignSchoolName ?? state.assignSchoolName,
+      ),
+    );
+  }
+
+  void _onUpdateClassId(
+    UpdateClassIdEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        classId: event.classId ?? state.classId,
+        assignClassName: event.assignClassName ?? state.assignClassName,
+      ),
+    );
+  }
+
+  void _onUpdateStudentInfo(
+    UpdateStudentInfoEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        guardianName: event.guardianName ?? state.guardianName,
+        guardianPhone: event.guardianPhone ?? state.guardianPhone,
+        educationLevel: event.educationLevel ?? state.educationLevel,
+        grade: event.grade ?? state.grade,
+      ),
+    );
+  }
+
+  void _onUpdateTeacherInfo(
+    UpdateTeacherInfoEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        literacy: event.literacy ?? state.literacy,
+        subjects: event.subjects ?? state.subjects,
+      ),
+    );
+  }
+
+  void _onUpdateSchoolAdminInfo(
+    UpdateSchoolAdminInfoEvent event,
+    Emitter<RegistrationState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        isCreateNewSchool: event.isCreateNewSchool,
+        position: event.position ?? state.position,
+        schoolName: event.schoolName ?? state.schoolName,
+        schoolAddress: event.schoolAddress ?? state.schoolAddress,
+        schoolPhone: event.schoolPhone ?? state.schoolPhone,
+        schoolDescription: event.schoolDescription ?? state.schoolDescription,
+        schoolLevel: event.schoolLevel ?? state.schoolLevel,
+        schoolLogoFile: event.schoolLogoFile ?? state.schoolLogoFile,
+      ),
+    );
+  }
+
+  Future<void> _onSubmitRegistration(
+    SubmitRegistrationEvent event,
     Emitter<RegistrationState> emit,
   ) async {
-    emit(RegistrationLoading());
-
     try {
-      RegisterUserEntity updatedEntity = event.userEntity;
+      emit(state.copyWith(loading: true, error: null));
 
-      // Upload avatar if provided
-      if (event.avatarFile != null) {
-        logger.i('Uploading avatar...');
-        final avatarUrl = await uploader.uploadUserAvatar(
-          event.avatarFile!,
-          uidOrRandom: DateTime.now().millisecondsSinceEpoch.toString(),
-        );
+      String? avatarUrl;
+      String? logoUrl;
 
-        // Update entity with avatar URL
-        updatedEntity = RegisterUserEntity(
-          email: event.userEntity.email,
-          password: event.userEntity.password,
-          baseUserInfo: BaseUserEntity(
-            roleId: event.userEntity.baseUserInfo.roleId,
-            fullName: event.userEntity.baseUserInfo.fullName,
-            gender: event.userEntity.baseUserInfo.gender,
-            phone: event.userEntity.baseUserInfo.phone,
-            birthday: event.userEntity.baseUserInfo.birthday,
-            address: event.userEntity.baseUserInfo.address,
-            avatarUrl: avatarUrl,
-          ),
-          schoolId: event.userEntity.schoolId,
-          specificInfo: event.userEntity.specificInfo,
-          schoolData: event.userEntity.schoolData,
+      // Upload avatar nếu có
+      if (state.avatarFile != null) {
+        avatarUrl = await uploader.uploadUserAvatar(
+          state.avatarFile!,
+          uidOrRandom:
+              state.email ?? DateTime.now().millisecondsSinceEpoch.toString(),
         );
       }
 
-      // Upload school logo if provided
-      if (event.schoolLogoFile != null && event.userEntity.schoolData != null) {
-        logger.i('Uploading school logo...');
-        final logoUrl = await uploader.uploadSchoolLogo(
-          event.schoolLogoFile!,
-          schoolKey: event.userEntity.schoolData!.code,
-        );
-
-        // Update school data with logo URL
-        updatedEntity = RegisterUserEntity(
-          email: updatedEntity.email,
-          password: updatedEntity.password,
-          baseUserInfo: updatedEntity.baseUserInfo,
-          schoolId: updatedEntity.schoolId,
-          specificInfo: updatedEntity.specificInfo,
-          schoolData: SchoolDataEntity(
-            id: updatedEntity.schoolData!.id,
-            name: updatedEntity.schoolData!.name,
-            code: updatedEntity.schoolData!.code,
-            address: updatedEntity.schoolData!.address,
-            phone: updatedEntity.schoolData!.phone,
-            description: updatedEntity.schoolData!.description,
-            level: updatedEntity.schoolData!.level,
-            logoUrl: logoUrl,
-          ),
+      // Upload logo nếu có
+      if (state.schoolLogoFile != null) {
+        logoUrl = await uploader.uploadSchoolLogo(
+          state.schoolLogoFile!,
+          schoolKey: state.schoolId ?? "default_school",
         );
       }
 
-      // Register user
-      await registerUserUseCase.call(updatedEntity);
-      emit(RegistrationSuccess());
-    } catch (e) {
-      logger.e('Registration error: $e');
-      emit(
-        RegistrationError('${e.toString().replaceFirst("Exception: ", "")}'),
+      // Build entity từ state
+      final user = RegisterUserEntity(
+        email: state.email ?? "",
+        password: state.password ?? "",
+        schoolId: state.schoolId,
+        classId: state.classId,
+        baseUserInfo: BaseUserEntity(
+          roleId: state.selectedRoleId ?? "",
+          fullName: state.fullName ?? "",
+          gender: state.gender ?? "Other",
+          phone: state.phone,
+          birthday: state.birthday,
+          address: state.address,
+          avatarUrl: avatarUrl,
+        ),
+        specificInfo: {
+          // Student
+          "guardianName": state.guardianName,
+          "guardianPhone": state.guardianPhone,
+          "educationLevel": state.educationLevel,
+          // Teacher
+          "literacy": state.literacy,
+          "subjects": state.subjects,
+          // School Admin
+          "position": state.position,
+        },
+        schoolData: state.isCreateNewSchool
+            ? SchoolDataEntity(
+                id: "", // để server tự sinh
+                name: state.schoolName ?? "",
+                address: state.schoolAddress ?? "",
+                phone: state.schoolPhone,
+                description: state.schoolDescription,
+                level: state.schoolLevel ?? "Preschool",
+                logoUrl: logoUrl, // nếu có upload thì để backend xử lý
+              )
+            : null,
       );
-    }
-  }
 
-  Future<void> _onSearchSchoolByCode(
-    SearchSchoolByCodeEvent event,
-    Emitter<RegistrationState> emit,
-  ) async {
-    emit(SchoolSearchLoading());
+      await registerUserUseCase.call(user);
 
-    try {
-      // TODO: Implement school search API call
-      // For now, return mock data
-      await Future.delayed(const Duration(seconds: 1));
+      logger.i("Đăng ký thành công cho user: ${user.email}");
 
-      // Mock school data
-      final schoolInfo = {
-        'id': 'school_${event.code}',
-        'name': 'Trường THPT ${event.code}',
-        'code': event.code,
-        'address': 'Địa chỉ trường ${event.code}',
-        'level': 'HighSchool',
-      };
-
-      emit(SchoolSearchSuccess(schoolInfo));
-    } catch (e) {
-      logger.e('School search error: $e');
-      emit(SchoolSearchError('Không tìm thấy trường với mã: ${event.code}'));
+      emit(state.copyWith(loading: false, success: true));
+    } catch (error) {
+      logger.e("Lỗi submit registration", error: error);
+      emit(state.copyWith(loading: false, error: error.toString()));
     }
   }
 }

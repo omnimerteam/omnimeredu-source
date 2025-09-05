@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/login_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/login_usecase.dart';
 import 'login_event.dart';
 import 'login_state.dart';
 

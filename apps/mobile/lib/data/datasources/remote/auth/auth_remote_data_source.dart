@@ -4,8 +4,8 @@ import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.d
 import 'package:flutter_ios_android_platforms/data/models/auth/registration_user_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_auth_service.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/endpoints.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/endpoints.dart';
 
 class AuthRemoteDataSource {
   final ApiClient client;
@@ -36,12 +36,15 @@ class AuthRemoteDataSource {
       headers: {"Authorization": "Bearer $idToken"},
     );
 
-    logger.i("Login raw response: $raw");
+    logger.i("raw: ${raw.data}");
 
-    if (raw.success != true || raw.data?["user"] == null) {
+    if (raw.success == false) {
       throw Failure(raw.message ?? "Đăng nhập thất bại");
     }
 
-    return AuthUserModel.fromJson(raw.data["user"]);
+    final userJson = raw.data["data"]["user"];
+    if (userJson == null) throw Failure("Người dùng ko tồn tại");
+
+    return AuthUserModel.fromJson(userJson);
   }
 }
