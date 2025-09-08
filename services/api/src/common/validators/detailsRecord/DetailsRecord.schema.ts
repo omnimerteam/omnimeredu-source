@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-
-// Định nghĩa enum cho status
-export const StatusEnum = ["Present", "AbsentWithLeave", "Absent"] as const;
+import { AttendanceStatusEnum } from "../../enum/attendanceStatus.enum";
 
 export const DetailsRecordSchema = z.object({
   _id: z
@@ -26,8 +24,8 @@ export const DetailsRecordSchema = z.object({
       message: "Định dạng ObjectId không hợp lệ cho attendanceId",
     }),
 
-  status: z.enum(StatusEnum, {
-    message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
+  status: z.enum(AttendanceStatusEnum, {
+    message: `Trạng thái phải là một trong: ${AttendanceStatusEnum.join(", ")}`,
   }),
 
   note: z

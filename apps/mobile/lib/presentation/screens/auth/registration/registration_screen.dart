@@ -95,6 +95,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
             );
 
+            context.read<RegistrationBloc>().add(ResetRegistration());
+
             // Điều hướng về màn hình login
             Navigator.pushReplacementNamed(context, '/login');
           }

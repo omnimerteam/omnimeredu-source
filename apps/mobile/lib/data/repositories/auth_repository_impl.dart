@@ -47,9 +47,48 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
-    _currentUser = null;
+    try {
+      await remote.logout();
+      _currentUser = null;
+      logger.i("User logout thành công");
+    } catch (e) {
+      throw ServerFailure("Đăng xuất thất bại: ${e.toString()}");
+    }
   }
 
   @override
-  AuthUserEntity? getCurrentUser() => _currentUser?.toEntity();
+  Future<AuthUserEntity?> getCurrentUser() async {
+    try {
+      // Nếu đã cache user → trả luôn
+      if (_currentUser != null) {
+        return _currentUser!.toEntity();
+      }
+
+      // Lấy user hiện tại từ Firebase
+      final firebaseUser = remote.firebaseAuthService.getCurrentUser();
+      if (firebaseUser == null) return null; // chưa đăng nhập
+
+      // Lấy idToken từ Firebase
+      final idToken = await firebaseUser.getIdToken();
+
+      if (idToken == null || idToken.isEmpty) {
+        throw Exception("Không lấy được idToken từ Firebase");
+      }
+
+      // Gọi backend
+      final userModel = await remote.getCurrentUserFromBackend(
+        idToken: idToken,
+      );
+
+      if (userModel != null) {
+        _currentUser = userModel; // cập nhật cache
+        return userModel.toEntity();
+      }
+
+      return null; // chưa đăng nhập
+    } catch (e) {
+      logger.e("getCurrentUser error: $e");
+      return null;
+    }
+  }
 }

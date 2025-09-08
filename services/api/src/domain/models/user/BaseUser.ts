@@ -12,6 +12,7 @@ export interface IBaseUser extends Document {
   isVerified?: boolean;
   schoolId?: Types.ObjectId;
   avatarUrl?: string;
+  roleKey?: String;
 }
 
 const BaseUserSchema = new Schema<IBaseUser>(
@@ -44,6 +45,8 @@ const BaseUserSchema = new Schema<IBaseUser>(
       type: String,
       default: null,
     },
+
+    roleKey: { type: String, default: null },
   },
   {
     discriminatorKey: "roleKey",

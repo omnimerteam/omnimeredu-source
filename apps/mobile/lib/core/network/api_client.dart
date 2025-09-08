@@ -116,7 +116,6 @@ class ApiClient {
   /// Xử lý response OK
   ApiResponse<T> _handleResponse<T>(Response response) {
     final data = response.data;
-    logger.i("Api Reponse Data: ${data}");
     return ApiResponse.success(
       data as T,
       message: data is Map && data['message'] != null ? data['message'] : null,
@@ -132,11 +131,11 @@ class ApiClient {
     // Timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      message = "Request timeout";
+      message = "Hệ thống quá tải";
     }
     // Lỗi mạng
     else if (e.type == DioExceptionType.connectionError) {
-      message = "No internet connection";
+      message = "Không có kết nối internet";
     }
     // Backend trả lỗi
     else if (e.response != null) {
@@ -149,20 +148,20 @@ class ApiClient {
       } else {
         switch (status) {
           case 401:
-            message = "Unauthorized";
+            message = "Không có quyền truy cập";
             break;
           case 404:
-            message = "Resource not found";
+            message = "Không tìm thấy thôgn tin";
             break;
           case 500:
-            message = "Internal server error";
+            message = "Lỗi hệ thống";
             break;
           default:
-            message = "Unexpected error";
+            message = "Lỗi Trí không ngờ tới :)))";
         }
       }
     } else {
-      message = "Unknown error";
+      message = "Lỗi mà Trí chưa biết";
     }
 
     return ApiResponse.error(message);

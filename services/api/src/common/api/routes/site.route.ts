@@ -10,8 +10,8 @@ import detailsRecord from "./detailsRecord.route";
 import newsRoute from "./news.route";
 import studentRoute from "./student.route";
 import vipPackageRoute from "./vipPackage.route";
-import discountPolicy from "./discountPolicy.route"
-import extraFee from "./extraFee.route"
+import discountPolicy from "./discountPolicy.route";
+import extraFee from "./extraFee.route";
 import roleRoute from "./role.route";
 
 import { Express } from "express";

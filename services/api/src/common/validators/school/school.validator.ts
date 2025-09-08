@@ -5,6 +5,7 @@ export const createSchoolBodySchema = SchoolSchema.omit({
   _id: true,
   studentCount: true,
   code: true,
+  customTheme: true,
 });
 
 // Schema cập nhật

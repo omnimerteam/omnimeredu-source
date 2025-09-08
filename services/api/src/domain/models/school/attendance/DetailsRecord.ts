@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { AttendanceStatus } from "../../../../common/enum/attendanceStatus.enum";
 
 export interface IDetailsRecord extends Document {
   _id: Types.ObjectId;
   studentId: Types.ObjectId;
   attendanceId: Types.ObjectId;
-  status: "Present" | "AbsentWithLeave" | "Absent";
+  status: AttendanceStatus;
   note?: string;
 }
 
@@ -19,7 +20,7 @@ const DetailsRecordSchema = new Schema<IDetailsRecord>(
     },
     status: {
       type: String,
-      enum: ["Present", "AbsentWithLeave", "Absent"],
+      enum: Object.values(AttendanceStatus),
       required: true,
     },
     note: String,

@@ -80,4 +80,12 @@ class DisplayMapper {
   static String genderName(String? code) {
     return fromMapping(value: code ?? '', mapping: gender);
   }
+
+  static String literacyLevelsName(String? code) {
+    return fromMapping(value: code ?? '', mapping: literacyLevels);
+  }
+
+  static String subjectsName(String? code) {
+    return fromMapping(value: code ?? '', mapping: subjects);
+  }
 }

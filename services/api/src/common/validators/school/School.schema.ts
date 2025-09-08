@@ -28,7 +28,8 @@ export const SchoolSchema = z.object({
     .length(8, { message: "Mã trường phải đúng 8 ký tự" }) // bắt buộc 8 ký tự
     .regex(/^[A-Z0-9]{8}$/, {
       message: "Mã trường chỉ được chứa chữ in hoa và số",
-    }),
+    })
+    .optional(),
 
   address: z
     .string()

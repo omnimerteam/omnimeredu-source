@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_state.dart';
@@ -94,7 +94,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
           // Điều hướng đến home và xóa tất cả route trước đó
           Navigator.of(
             context,
-          ).pushNamedAndRemoveUntil('/home', (route) => false);
+          ).pushNamedAndRemoveUntil('/main', (route) => false);
         }
       },
       builder: (context, state) {

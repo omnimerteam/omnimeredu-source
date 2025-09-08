@@ -12,20 +12,16 @@ class RoleRemoteDataSource {
     try {
       final raw = await client.get(Endpoints.roles);
 
-      logger.i("👉 Raw response: $raw");
-
       if (raw.success != true) {
         throw Exception(raw.message ?? "Không thể lấy roles");
       }
 
-      // API trả về: { success, message, data: [ {...}, {...} ] }
       final nested = raw.data;
       if (nested is Map<String, dynamic> && nested["data"] is List) {
         final list = (nested["data"] as List)
             .map((e) => RoleModel.fromJson(e as Map<String, dynamic>))
             .toList();
 
-        logger.i("👉 Danh sách roles mapped: $list");
         return list;
       }
 

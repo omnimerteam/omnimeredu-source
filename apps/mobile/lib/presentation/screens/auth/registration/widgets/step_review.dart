@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
 
 class StepReview extends StatelessWidget {
@@ -140,10 +140,18 @@ class StepReview extends StatelessWidget {
                     _reviewItem('SĐT phụ huynh', state.guardianPhone),
                   ],
                   if (state.selectedRoleName!.toLowerCase() == 'teacher') ...[
-                    _reviewItem('Trình độ', state.literacy),
+                    _reviewItem(
+                      'Trình độ',
+                      DisplayMapper.literacyLevelsName(state.literacy),
+                    ),
                     _reviewItem(
                       'Môn giảng dạy',
-                      state.subjects?.join(', ') ?? '',
+                      (state.subjects != null && state.subjects!.isNotEmpty)
+                          ? state.subjects!
+                                .map((s) => DisplayMapper.subjectsName(s) ?? '')
+                                .where((name) => name.isNotEmpty)
+                                .join(', ')
+                          : 'Chưa chọn',
                     ),
                   ],
                   if (state.selectedRoleName!.toLowerCase() ==

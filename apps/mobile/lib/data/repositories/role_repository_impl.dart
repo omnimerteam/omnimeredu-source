@@ -11,10 +11,8 @@ class RoleRepositoryImpl implements RoleRepository {
   @override
   Future<List<RoleEntity>> getAllRoles() async {
     final models = await remoteDataSource.fetchRoles();
-    logger.i("👉 Models nhận từ remote: $models");
 
     final entities = models.map((m) => m.toEntity()).toList();
-    logger.i("👉 Entities mapped: $entities");
 
     return entities;
   }

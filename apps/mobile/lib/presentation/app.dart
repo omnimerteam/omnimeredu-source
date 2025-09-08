@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/app_view.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
@@ -14,7 +16,15 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => sl<LoginBloc>()),
+        BlocProvider(
+          create: (_) => sl<AuthenticationBloc>()..add(AuthenticationStarted()),
+        ),
+        BlocProvider(
+          create: (ctx) => LoginBloc(
+            loginUseCase: sl(),
+            authenticationBloc: ctx.read<AuthenticationBloc>(),
+          ),
+        ),
         BlocProvider(create: (_) => sl<RegistrationBloc>()),
         BlocProvider(create: (_) => sl<SchoolBloc>()),
         BlocProvider(create: (_) => sl<ClassBloc>()),

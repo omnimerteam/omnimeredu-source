@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
-import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';

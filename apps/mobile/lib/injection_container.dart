@@ -5,8 +5,11 @@ import 'package:flutter_ios_android_platforms/data/repositories/class_repository
 import 'package:flutter_ios_android_platforms/data/repositories/school_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/class_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/school_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_current_user_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/logout_user_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_classes_in_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/get_schools_by_level_usecase.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -102,9 +105,23 @@ Future<void> init() async {
     () => GetSchoolsByLevelUseCase(sl<SchoolRepository>()),
   );
 
+  sl.registerLazySingleton<LogoutUserUseCase>(
+    () => LogoutUserUseCase(sl<AuthRepository>()),
+  );
+
+  sl.registerLazySingleton<GetCurrentUserUseCase>(
+    () => GetCurrentUserUseCase(sl<AuthRepository>()),
+  );
   // ======================
   // Blocs
   // ======================
+  sl.registerFactory(
+    () => AuthenticationBloc(
+      getCurrentUserUseCase: sl(),
+      logoutUserUseCase: sl(),
+    ),
+  );
+
   sl.registerFactory(
     () => RegistrationBloc(
       registerUserUseCase: sl(),
@@ -113,7 +130,9 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(() => LoginBloc(loginUseCase: sl()));
+  sl.registerFactory(
+    () => LoginBloc(loginUseCase: sl(), authenticationBloc: sl()),
+  );
 
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
 
