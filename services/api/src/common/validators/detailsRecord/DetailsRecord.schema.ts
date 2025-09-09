@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-import { AttendanceStatusEnum } from "../../enum/attendanceStatus.enum";
+import { AttendanceStatusTuple } from "../../enum/attendanceStatus.enum";
 
 export const DetailsRecordSchema = z.object({
   _id: z
@@ -24,8 +24,10 @@ export const DetailsRecordSchema = z.object({
       message: "Định dạng ObjectId không hợp lệ cho attendanceId",
     }),
 
-  status: z.enum(AttendanceStatusEnum, {
-    message: `Trạng thái phải là một trong: ${AttendanceStatusEnum.join(", ")}`,
+  status: z.enum(AttendanceStatusTuple, {
+    message: `Trạng thái phải là một trong: ${AttendanceStatusTuple.join(
+      ", "
+    )}`,
   }),
 
   note: z

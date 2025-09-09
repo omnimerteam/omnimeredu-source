@@ -1,14 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-
-// Định nghĩa enum cho cấp trường
-export const LevelEnum = [
-  "Preschool",
-  "Primary",
-  "Secondary",
-  "HighSchool",
-  "University",
-] as const;
+import { EducationSystemLevelsTuple } from "../../enum/educationSystemLevels.enum";
 
 export const SchoolSchema = z.object({
   _id: z
@@ -48,8 +40,10 @@ export const SchoolSchema = z.object({
     .max(1000, { message: "Mô tả không được vượt quá 1000 ký tự" })
     .optional(),
 
-  level: z.enum(LevelEnum, {
-    message: `Cấp trường phải là một trong: ${LevelEnum.join(", ")}`,
+  level: z.enum(EducationSystemLevelsTuple, {
+    message: `Cấp trường phải là một trong: ${EducationSystemLevelsTuple.join(
+      ", "
+    )}`,
   }),
 
   adminId: z

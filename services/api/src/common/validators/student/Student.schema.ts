@@ -1,14 +1,7 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 import { BaseUserSchema } from "../baseUser/BaseUser.schema";
-
-// Enum cấp học đúng như model mongoose
-const EducationLevelEnum = [
-  "Preschool",
-  "Primary",
-  "Secondary",
-  "HighSchool",
-] as const;
+import { EducationSystemLevelsTuple } from "../../enum/educationSystemLevels.enum";
 
 // Schema cho Student, kế thừa BaseUserSchema
 export const StudentSchema = BaseUserSchema.extend({
@@ -31,8 +24,8 @@ export const StudentSchema = BaseUserSchema.extend({
     })
     .optional(),
 
-  educationLevel: z.enum(EducationLevelEnum, {
-    message: `Cấp học phải thuộc một trong các giá trị: ${EducationLevelEnum.join(
+  educationLevel: z.enum(EducationSystemLevelsTuple, {
+    message: `Cấp học phải thuộc một trong các giá trị: ${EducationSystemLevelsTuple.join(
       ", "
     )}`,
   }),

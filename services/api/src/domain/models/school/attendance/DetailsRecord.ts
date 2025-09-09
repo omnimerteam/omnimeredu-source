@@ -1,11 +1,14 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { AttendanceStatus } from "../../../../common/enum/attendanceStatus.enum";
+import {
+  AttendanceStatusEnum,
+  AttendanceStatusTuple,
+} from "../../../../common/enum/attendanceStatus.enum";
 
 export interface IDetailsRecord extends Document {
   _id: Types.ObjectId;
   studentId: Types.ObjectId;
   attendanceId: Types.ObjectId;
-  status: AttendanceStatus;
+  status: AttendanceStatusEnum;
   note?: string;
 }
 
@@ -20,7 +23,7 @@ const DetailsRecordSchema = new Schema<IDetailsRecord>(
     },
     status: {
       type: String,
-      enum: Object.values(AttendanceStatus),
+      enum: AttendanceStatusTuple,
       required: true,
     },
     note: String,

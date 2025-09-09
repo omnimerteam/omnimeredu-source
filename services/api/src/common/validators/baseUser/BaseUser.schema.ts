@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-
-const GenderEnum = ["Male", "Female", "Other"] as const;
+import { GenderEnum } from "../../enum/gender.enum";
 
 export const BaseUserSchema = z.object({
   _id: z

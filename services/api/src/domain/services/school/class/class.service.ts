@@ -2,7 +2,11 @@ import { FilterQuery, Types } from "mongoose";
 
 import { IClass } from "../../../models";
 
-import { ClassRepository, StudentRepository } from "../../../repositories";
+import {
+  ClassDetailViewRepository,
+  ClassRepository,
+  StudentRepository,
+} from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
 
@@ -10,15 +14,18 @@ class ClassService {
   private readonly classRepository: ClassRepository;
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
+  private readonly classDetailViewRepository: ClassDetailViewRepository;
 
   constructor(
     classRepository: ClassRepository,
     logger: DefaultLogger,
-    studentRepository: StudentRepository
+    studentRepository: StudentRepository,
+    classDetailViewRepository: ClassDetailViewRepository
   ) {
     this.classRepository = classRepository;
     this.logger = logger;
     this.studentRepository = studentRepository;
+    this.classDetailViewRepository = classDetailViewRepository;
   }
 
   async getAllClasses(
@@ -45,6 +52,57 @@ class ClassService {
       }
 
       const classes = await this.classRepository.findAll(filter, options);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_CLASSES",
+        roleSnapshot: userRole,
+        metadata: {
+          filter,
+          options,
+          count: classes.length,
+        },
+      });
+
+      return classes;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_CLASSES_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getAllClassDetailView(
+    actorId: string,
+    userRole: string,
+    schoolId?: string,
+    options?: { page?: number; limit?: number; sort?: any }
+  ) {
+    try {
+      let filter: any = {};
+
+      if (userRole === "SuperAdmin") {
+        filter = {}; // không giới hạn
+      } else if (userRole === "SchoolAdmin") {
+        if (!schoolId)
+          throw new HttpError(
+            400,
+            "Thiếu thông tin trường",
+            "MISSING_SCHOOL_ID"
+          );
+        filter = { schoolId };
+      } else {
+        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
+      }
+
+      const classes = await this.classDetailViewRepository.findAll(
+        filter,
+        options
+      );
 
       await this.logger.log({
         userId: actorId,

@@ -18,6 +18,7 @@ export { default as MembershipRequestRepository } from "./school/membershipReque
 
 export { default as ClassRepository } from "./school/class/class.repository";
 export { default as TeachingAssignmentRepository } from "./school/class/teachingAssignment.repository";
+export { default as ClassDetailViewRepository } from "./school/class/classDetailView.repository";
 
 export { default as AttendanceRepository } from "./school/attendance/attendance.repository";
 export { default as DetailsRecordRepository } from "./school/attendance/detailsRecord.repository";

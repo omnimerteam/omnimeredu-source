@@ -1,22 +1,27 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { AttendanceStatus } from "../../../common/enum/attendanceStatus.enum";
+import {
+  AttendanceStatusEnum,
+  AttendanceStatusTuple,
+} from "../../../common/enum/attendanceStatus.enum";
 
 // Subdocument: từng học sinh trong attendance
 export interface IStudentAttendance {
-  id: Types.ObjectId; // chắc chắn ObjectId
+  _id: Types.ObjectId; // chắc chắn ObjectId
   name: string;
-  status: AttendanceStatus;
+  status: AttendanceStatusEnum;
   note?: string;
 }
 
 // Document AttendanceRecord (view)
 export interface IAttendanceRecordView extends Document {
   _id: Types.ObjectId; // _id của attendance gốc
-  classId: {
+  class: {
+    _id: Types.ObjectId;
     name: string;
     code: string;
   };
-  schoolId: {
+  school: {
+    _id: Types.ObjectId;
     name: string;
     code: string;
   };
@@ -26,11 +31,11 @@ export interface IAttendanceRecordView extends Document {
 
 const StudentAttendanceSchema = new Schema<IStudentAttendance>(
   {
-    id: { type: Schema.Types.ObjectId, required: true, ref: "BaseUser" }, // ObjectId của học sinh
+    _id: { type: Schema.Types.ObjectId, required: true, ref: "BaseUser" }, // ObjectId của học sinh
     name: { type: String, required: true },
     status: {
       type: String,
-      enum: Object.values(AttendanceStatus),
+      enum: AttendanceStatusTuple,
       required: true,
     },
     note: String,
@@ -40,11 +45,14 @@ const StudentAttendanceSchema = new Schema<IStudentAttendance>(
 
 const AttendanceRecordSchema = new Schema<IAttendanceRecordView>(
   {
-    classId: {
+    _id: Types.ObjectId,
+    class: {
+      _id: { type: Schema.Types.ObjectId, required: true, ref: "Class" },
       name: { type: String, required: true },
       code: { type: String, required: true },
     },
-    schoolId: {
+    school: {
+      _id: { type: Schema.Types.ObjectId, required: true, ref: "School" },
       name: { type: String, required: true },
       code: { type: String, required: true },
     },

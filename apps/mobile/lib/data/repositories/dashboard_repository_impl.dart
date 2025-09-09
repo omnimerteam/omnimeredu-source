@@ -7,6 +7,6 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   DashboardRepositoryImpl(this.remote);
 
-  @overide
+  @override
   Future<DashboardDataBaseEntity> getDashboardData(String role) async {}
 }

@@ -67,3 +67,11 @@ export {
 } from "./system/SchoolSubscription";
 export { default as VipPackage, IVipPackage } from "./system/VipPackage";
 export { default as Notification, INotification } from "./system/Notification";
+
+// ======================
+// View Model
+// ======================
+export {
+  default as ClassDetailView,
+  IClassDetailView,
+} from "./viewModel/ClassDetail";
