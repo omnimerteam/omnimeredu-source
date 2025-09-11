@@ -50,14 +50,8 @@ export const sendCreated = (
  * @param res - Đối tượng Response
  * @param message - Thông điệp tùy chọn (default: "Không có dữ liệu")
  */
-export const sendNoContent = (
-  res: Response,
-  message: string = "Không có dữ liệu"
-) => {
-  return res.status(204).json({
-    success: true,
-    message,
-  });
+export const sendNoContent = (res: Response) => {
+  return res.status(204);
 };
 
 /**
@@ -70,7 +64,7 @@ export const sendEmpty = (
   res: Response,
   message: string = "Danh sách trống"
 ) => {
-  return sendNoContent(res, message);
+  return sendSuccess(res, [], message);
 };
 
 /* ============================================================

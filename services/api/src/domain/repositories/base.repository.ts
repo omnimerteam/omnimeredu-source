@@ -53,7 +53,8 @@ export class BaseRepository<T> {
    * Tạo bản ghi mới
    */
   async create(data: Partial<T>): Promise<T> {
-    return this.model.create(data);
+    const created = await this.model.create(data);
+    return created.toObject(); // có _id chắc chắn
   }
 
   async createWithSession(

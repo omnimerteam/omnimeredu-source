@@ -1,15 +1,23 @@
-import { SchoolRepository } from "../../repositories";
+import { SchoolAdminRepository, SchoolRepository } from "../../repositories";
 import { ISchool } from "../../models";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { generateSchoolCode } from "../../utils/generateSchoolCode";
+import mongoose, { Types } from "mongoose";
+import { createSchoolBodySchema } from "../../../common/validators/school/school.validator";
 
 class SchoolService {
   private readonly schoolRepository: SchoolRepository;
   private readonly logger: DefaultLogger;
+  private readonly schoolAdminRepository: SchoolAdminRepository;
 
-  constructor(SchoolRepository: SchoolRepository, logger: DefaultLogger) {
+  constructor(
+    SchoolRepository: SchoolRepository,
+    logger: DefaultLogger,
+    schoolAdminRepository: SchoolAdminRepository
+  ) {
     this.schoolRepository = SchoolRepository;
     this.logger = logger;
+    this.schoolAdminRepository = schoolAdminRepository;
   }
   async getAllSchools(actorId: string, userRole: string) {
     try {
@@ -33,12 +41,16 @@ class SchoolService {
     }
   }
 
-  async getSchoolById(id: string, actorId: string, userRole: string) {
+  async getSchoolDetailForSchoolAdmin(
+    id: string,
+    actorId: string,
+    userRole: string
+  ) {
     try {
       const schoolData = await this.schoolRepository.findById(id);
       await this.logger.log({
         userId: actorId,
-        action: "GET_SCHOOL_BY_ID",
+        action: "GET_SCHOOL_BY_ID_SCHOOL_ADMIN",
         targetId: id,
         roleSnapshot: userRole,
         metadata: { found: !!schoolData },
@@ -48,7 +60,7 @@ class SchoolService {
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GET_SCHOOL_BY_ID_FAILED",
+        action: "GET_SCHOOL_BY_ID_SCHOOL_ADMIN_FAILED",
         targetId: id,
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
@@ -75,28 +87,54 @@ class SchoolService {
     actorId: string,
     userRole: string
   ) {
-    try {
-      const code = generateSchoolCode(SchoolData.name || "XXX YYY ZZZ"); // Generate code from name
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-      const schoolData = await this.schoolRepository.create({
-        ...SchoolData,
-        code,
-      });
+    try {
+      const code = generateSchoolCode(SchoolData.name || "XXX YYY ZZZ");
+
+      // 1. Tạo School
+      const newSchool = await this.schoolRepository.createWithSession(
+        {
+          ...SchoolData,
+          adminId: new Types.ObjectId(SchoolData.adminId),
+          code: code,
+        },
+        session
+      );
+
+      // 2. Update SchoolAdmin
+      const schoolAdmin = await this.schoolAdminRepository.updateByUserId(
+        actorId,
+        { schoolId: newSchool._id },
+        session
+      );
+
+      // 3. Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
+      // 4. Log activity
       await this.logger.log({
         userId: actorId,
         action: "POST_SCHOOL",
         roleSnapshot: userRole,
-        metadata: { found: !!schoolData },
+        metadata: { found: !!newSchool },
       });
 
-      return schoolData;
+      return newSchool;
     } catch (error) {
+      // Rollback khi lỗi
+      await session.abortTransaction();
+      session.endSession();
+
       await this.logger.log({
         userId: actorId,
         action: "POST_SCHOOL_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
+
       throw error;
     }
   }

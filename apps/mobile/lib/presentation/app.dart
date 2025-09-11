@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/theme/theme_cubit.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/app_view.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bl
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -28,6 +30,8 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<RegistrationBloc>()),
         BlocProvider(create: (_) => sl<SchoolBloc>()),
         BlocProvider(create: (_) => sl<ClassBloc>()),
+        BlocProvider(create: (_) => sl<DashboardCubit>()),
+        BlocProvider(create: (_) => ThemeCubit()),
       ],
       child: const AppView(),
     );

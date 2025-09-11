@@ -1,17 +1,18 @@
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/dashboard_data_base_entity.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/class_state_entity.dart';
 import 'dashboard_overview_entity.dart';
+import 'attendance_stats_entity.dart';
 
 class SchoolAdminDashboardDataEntity extends DashboardDataBaseEntity {
   final DashboardOverviewEntity overview;
   final AttendanceStatsEntity attendanceStats;
 
-  const SchoolAdminDashboardDataEntity({
+  SchoolAdminDashboardDataEntity({
     required this.overview,
     required this.attendanceStats,
     required DateTime cachedAt,
   }) : super(cachedAt: cachedAt);
 
+  /// Convert Entity -> Map (dùng để cache)
   @override
   Map<String, dynamic> toJson() => {
     'overview': overview.toJson(),
@@ -19,6 +20,7 @@ class SchoolAdminDashboardDataEntity extends DashboardDataBaseEntity {
     'cachedAt': cachedAt.toIso8601String(),
   };
 
+  /// Convert Map -> Entity (dùng khi load cache)
   factory SchoolAdminDashboardDataEntity.fromJson(Map<String, dynamic> json) {
     return SchoolAdminDashboardDataEntity(
       overview: DashboardOverviewEntity.fromJson(json['overview']),
@@ -27,15 +29,13 @@ class SchoolAdminDashboardDataEntity extends DashboardDataBaseEntity {
     );
   }
 
-  SchoolAdminDashboardDataEntity copyWith({
-    DashboardOverviewEntity? overview,
-    AttendanceStatsEntity? attendanceStats,
-    DateTime? cachedAt,
-  }) {
+  /// Copy với cachedAt mới (dùng trong cache)
+  @override
+  DashboardDataBaseEntity copyWith({required DateTime cachedAt}) {
     return SchoolAdminDashboardDataEntity(
-      overview: overview ?? this.overview,
-      attendanceStats: attendanceStats ?? this.attendanceStats,
-      cachedAt: cachedAt ?? this.cachedAt,
+      overview: overview,
+      attendanceStats: attendanceStats,
+      cachedAt: cachedAt,
     );
   }
 }

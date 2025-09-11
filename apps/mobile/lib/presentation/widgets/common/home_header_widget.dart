@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
-  final dynamic user;
   final VoidCallback? onAccountTap;
   final VoidCallback? onProfileTap;
   final VoidCallback? onLogoutTap;
 
   const HomeHeaderWidget({
     super.key,
-    required this.user,
     this.onAccountTap,
     this.onProfileTap,
     this.onLogoutTap,
@@ -17,136 +18,150 @@ class HomeHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).primaryColor,
-            Theme.of(context).primaryColor.withOpacity(0.8),
-          ],
-        ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).primaryColor.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Left Side - User Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Xin chào, ',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      TextSpan(
-                        text: user.fullName ?? 'Người dùng',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'PlayfairDisplay',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+      builder: (context, state) {
+        if (state is! AuthenticationAuthenticated) {
+          return const SizedBox.shrink();
+        }
 
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    DisplayMapper.roleName(user.roleName ?? ''),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                // School Name if exists
-                if (user.schoolName != null && user.schoolName!.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.school,
-                        size: 16,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          user.schoolName!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withOpacity(0.9),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                // Class Name if exists
-                if (user.className != null && user.className!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.class_,
-                        size: 16,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Lớp ${user.className!}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+        final user = state.user;
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).primaryColor,
+                Theme.of(context).primaryColor.withOpacity(0.8),
               ],
             ),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).primaryColor.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-
-          // Right Side - Avatar with Dropdown
-          _buildAvatarWithDropdown(context),
-        ],
-      ),
+          child: Row(
+            children: [
+              // Left Side - User Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Xin chào, ',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          TextSpan(
+                            text: user.fullName ?? 'Người dùng',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'PlayfairDisplay',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        DisplayMapper.roleName(user.roleName ?? ''),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (user.schoolName?.isNotEmpty ?? false) ...[
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.school,
+                            size: 16,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              user.schoolName!,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (user.className?.isNotEmpty ?? false) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.class_,
+                            size: 16,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Lớp ${user.className!}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withOpacity(0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              // Right Side - Avatar with Dropdown
+              _buildAvatarWithDropdown(
+                context,
+                user.avatarUrl,
+                user.isVerified,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildAvatarWithDropdown(BuildContext context) {
+  Widget _buildAvatarWithDropdown(
+    BuildContext context,
+    String? avatarUrl,
+    bool? isVerified,
+  ) {
     return PopupMenuButton<String>(
       onSelected: (value) => _handleMenuSelection(context, value),
       itemBuilder: (BuildContext context) => [
@@ -199,15 +214,12 @@ class HomeHeaderWidget extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 30,
-              backgroundImage:
-                  (user.avatarUrl != null && user.avatarUrl!.isNotEmpty)
-                  ? NetworkImage(user.avatarUrl!)
+              backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
+                  ? NetworkImage(avatarUrl)
                   : const AssetImage("assets/images/default/default_avatar.png")
                         as ImageProvider,
             ),
           ),
-
-          // Status Indicator
           Positioned(
             right: 2,
             top: 2,
@@ -215,7 +227,7 @@ class HomeHeaderWidget extends StatelessWidget {
               width: 16,
               height: 16,
               decoration: BoxDecoration(
-                color: _getStatusColor(user.isVerified),
+                color: _getStatusColor(isVerified),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
@@ -234,22 +246,10 @@ class HomeHeaderWidget extends StatelessWidget {
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case 'account':
-        if (onAccountTap != null) {
-          onAccountTap!();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Chuyển đến trang tài khoản')),
-          );
-        }
+        onAccountTap?.call();
         break;
       case 'profile':
-        if (onProfileTap != null) {
-          onProfileTap!();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Chuyển đến thông tin cá nhân')),
-          );
-        }
+        onProfileTap?.call();
         break;
       case 'logout':
         _showLogoutDialog(context);
@@ -278,13 +278,7 @@ class HomeHeaderWidget extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                if (onLogoutTap != null) {
-                  onLogoutTap!();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Đã đăng xuất thành công')),
-                  );
-                }
+                onLogoutTap?.call();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

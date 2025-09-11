@@ -11,7 +11,6 @@ export const createSchoolBodySchema = SchoolSchema.omit({
 // Schema cập nhật
 export const updateSchoolBodySchema = SchoolSchema.partial({
   name: true,
-  code: true,
   address: true,
   phone: true,
   description: true,

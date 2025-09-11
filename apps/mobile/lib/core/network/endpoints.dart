@@ -22,9 +22,16 @@ class Endpoints {
 
   // ================== SCHOOLS ==================
   static const String schools = "/v1/schools";
-  static String schoolDetail(String id) => "/v1/schools/$id";
+  static String schoolId(String id) => "/v1/schools/$id";
+  static const String getSchoolDetailForSchoolAdmin =
+      "/v1/schools/school-admin";
   static const String searchSchoolByEducationLevel = "/v1/schools/search/query";
 
   // ================== ROLES ==================
   static const String roles = "/v1/roles";
+
+  // ================== SCHOOLADMIN DASHBOARD ==================
+  static const String getSummary = "/v1/school-admin-dashboard/get-summary";
+  static const String getSchoolAttendanceStats =
+      "/v1/school-admin-dashboard/get-school-attendance-stats";
 }

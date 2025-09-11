@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/logout_user_usecase.dart';
 import 'authentication_event.dart';
@@ -16,6 +17,7 @@ class AuthenticationBloc
     on<AuthenticationStarted>(_onStarted);
     on<AuthenticationLoggedIn>(_onLoggedIn);
     on<AuthenticationLoggedOut>(_onLoggedOut);
+    on<AuthenticationSchoolUpdated>(_onSchoolUpdated);
   }
 
   Future<void> _onStarted(
@@ -40,6 +42,7 @@ class AuthenticationBloc
     AuthenticationLoggedIn event,
     Emitter<AuthenticationState> emit,
   ) {
+    logger.i("User: ${event.user}");
     emit(AuthenticationAuthenticated(event.user));
   }
 
@@ -54,6 +57,25 @@ class AuthenticationBloc
       emit(AuthenticationUnauthenticated());
     } catch (e) {
       emit(AuthenticationFailure("Đăng xuất thất bại: $e"));
+    }
+  }
+
+  void _onSchoolUpdated(
+    AuthenticationSchoolUpdated event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    final currentState = state;
+
+    logger.i("Update user with schoolName: ${event.schoolName}");
+    logger.i("Current state before update: $currentState");
+    if (currentState is AuthenticationAuthenticated) {
+      final updatedUser = currentState.user.copyWith(
+        schoolName: event.schoolName,
+      );
+
+      logger.i("Update user with schoolName: ${updatedUser.schoolName}");
+
+      emit(AuthenticationAuthenticated(updatedUser));
     }
   }
 }

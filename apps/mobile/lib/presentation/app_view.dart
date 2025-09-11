@@ -1,32 +1,39 @@
-// lib/app_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_theme.dart';
+import 'package:flutter_ios_android_platforms/core/theme/theme_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/registration_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school/school_data_schooladmin_screen.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
-      builder: (context, state) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'OmniMer EDU',
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: ThemeMode.system,
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/register': (context) => const RegistrationScreen(),
-            '/main': (context) => const MainScreen(),
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'OmniMer EDU',
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeMode, // 👈 lấy theme từ ThemeCubit
+              routes: {
+                '/login': (context) => const LoginScreen(),
+                '/register': (context) => const RegistrationScreen(),
+                '/main': (context) => const MainScreen(),
+                '/school-admin/details': (context) =>
+                    const SchoolDataSchoolAdminScreen(),
+              },
+              home: _buildHome(state),
+            );
           },
-          home: _buildHome(state),
         );
       },
     );

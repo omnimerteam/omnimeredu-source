@@ -21,3 +21,12 @@ class AuthenticationLoggedIn extends AuthenticationEvent {
 }
 
 class AuthenticationLoggedOut extends AuthenticationEvent {}
+
+class AuthenticationSchoolUpdated extends AuthenticationEvent {
+  final String? schoolName;
+
+  const AuthenticationSchoolUpdated({this.schoolName});
+
+  @override
+  List<Object?> get props => [schoolName];
+}

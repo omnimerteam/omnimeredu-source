@@ -10,27 +10,34 @@ class ClassRemoteDataSource {
     String schoolId,
     String? query,
   ) async {
-    final res = await client.get(
+    final res = await client.get<List<ClassSearchEntity>>(
       Endpoints.searchClassesInSchool,
       query: {"schoolId": schoolId, "query": query},
+      parser: (data) {
+        if (data is List) {
+          return data
+              .map(
+                (e) => ClassSearchEntity(
+                  id: e["_id"].toString(),
+                  name: e["name"].toString(),
+                  code: e["code"].toString(),
+                  schoolId: e["schoolId"].toString(),
+                ),
+              )
+              .toList();
+        }
+        throw Exception("API không trả về danh sách lớp học hợp lệ");
+      },
     );
-    final List<dynamic> list = res.data["data"];
-    if (list.isEmpty) {
-      // Ném exception nếu không có lớp nào phù hợp
-      throw Exception("Không có lớp phù hợp");
+
+    if (res.success) {
+      final list = res.data ?? [];
+      if (list.isEmpty) {
+        throw Exception("Không có lớp phù hợp");
+      }
+      return list;
+    } else {
+      throw Exception(res.message ?? "Không thể tìm lớp trong trường");
     }
-
-    final List<ClassSearchEntity> classes = list
-        .map(
-          (e) => ClassSearchEntity(
-            id: e["_id"].toString(),
-            name: e["name"].toString(),
-            code: e["code"].toString(),
-            schoolId: e["schoolId"].toString(),
-          ),
-        )
-        .toList();
-
-    return classes;
   }
 }

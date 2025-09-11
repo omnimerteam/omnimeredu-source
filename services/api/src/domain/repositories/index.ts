@@ -32,3 +32,9 @@ export { default as DetailsRecordRepository } from "./school/attendance/detailsR
 // ======================
 export { default as ActivityLogRepository } from "./system/activityLog.repository";
 export { default as VipPackageRepository } from "./system/vipPackage.repository";
+
+// ======================
+// ScholAdmin Dashboard Module
+// ======================
+export { default as SchoolAdminDashboardRepository } from "./schoolAdminDashboard/schoolAdminDashboard.repository";
+export { default as AttendanceStatsRepository } from "./schoolAdminDashboard/attendanceStats.repository";

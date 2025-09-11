@@ -245,7 +245,7 @@ class ClassController {
         return next(error);
       }
 
-      sendNoContent(res, "Đã xóa lớp thành công");
+      sendNoContent(res);
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Delete class failed"), error);

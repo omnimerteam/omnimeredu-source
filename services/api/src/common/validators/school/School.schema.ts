@@ -15,14 +15,6 @@ export const SchoolSchema = z.object({
     .min(1, { message: "Tên trường là bắt buộc" })
     .max(200, { message: "Tên trường không được vượt quá 200 ký tự" }),
 
-  code: z
-    .string()
-    .length(8, { message: "Mã trường phải đúng 8 ký tự" }) // bắt buộc 8 ký tự
-    .regex(/^[A-Z0-9]{8}$/, {
-      message: "Mã trường chỉ được chứa chữ in hoa và số",
-    })
-    .optional(),
-
   address: z
     .string()
     .min(10, { message: "Địa chỉ phải có ít nhất 10 ký tự" })

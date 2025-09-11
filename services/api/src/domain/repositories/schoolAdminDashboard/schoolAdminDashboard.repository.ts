@@ -6,33 +6,22 @@ class SchoolAdminDashboardRepository {
   private readonly userModel: Model<IBaseUser>;
   private readonly classModel: Model<IClass>;
   private readonly membershipRequestModel: Model<IMembershipRequest>;
-  private readonly schoolModel: Model<ISchool>;
 
   constructor(
     userModel: Model<IBaseUser>,
     classModel: Model<IClass>,
-    membershipRequestModel: Model<IMembershipRequest>,
-    schoolModel: Model<ISchool>
+    membershipRequestModel: Model<IMembershipRequest>
   ) {
     this.userModel = userModel;
     this.classModel = classModel;
     this.membershipRequestModel = membershipRequestModel;
-    this.schoolModel = schoolModel;
   }
 
   /**
    * Lấy dữ liệu tổng quan cho SchoolAdmin
    * @param adminId ID của SchoolAdmin (từ req.user.id)
    */
-  async getSummary(adminId: string) {
-    // Tìm trường mà admin này quản lý
-    const school = await this.schoolModel.findOne({ adminId });
-    if (!school) {
-      throw new Error("School not found for this admin");
-    }
-
-    const schoolId = school._id;
-
+  async getSummary(schoolId: string) {
     // Tổng số học sinh
     const totalStudents = await this.userModel.countDocuments({
       schoolId,

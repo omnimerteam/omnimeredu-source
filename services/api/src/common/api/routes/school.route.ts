@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response, Router } from "express";
 
 //import các model, repository, service và controller cần thiết
-import { School } from "../../../domain/models";
+import { School, SchoolAdmin } from "../../../domain/models";
 import {
   SchoolRepository,
   ActivityLogRepository,
+  SchoolAdminRepository,
 } from "../../../domain/repositories";
 import { SchoolService } from "../../../domain/services";
 import { SchoolController } from "../../../domain/controllers";
@@ -17,6 +18,10 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { searchSchoolsQuerySchema } from "../../validators/query/query.validator";
+import {
+  createSchoolBodySchema,
+  updateSchoolBodySchema,
+} from "../../validators/school/school.validator";
 
 const router = Router();
 
@@ -24,7 +29,12 @@ const router = Router();
 //Lưu ý cần phải theo thứ tự từ Model -> Repository -> Service -> Controller
 const logger = new DefaultLogger(new ActivityLogRepository());
 const schoolRepository = new SchoolRepository(School);
-const schoolService = new SchoolService(schoolRepository, logger);
+const schoolAdminRepository = new SchoolAdminRepository(SchoolAdmin);
+const schoolService = new SchoolService(
+  schoolRepository,
+  logger,
+  schoolAdminRepository
+);
 const schoolController = new SchoolController(schoolService);
 
 //Cần chắc chắn để router search đầu tiên để không bị các route khác chặn
@@ -36,13 +46,14 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/school-admin",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
-    schoolController.getSchoolById(req, res, next)
+    schoolController.getSchoolDetailForSchoolAdmin(req, res, next)
 );
 
+// Todo: Hàm này ko nên tồn tại hoặc nên hiệu chỉnh cho nó tránh hiển thị các thông tin nhạy cảm cảm của trường hoặc thiếu cần thiết
 router.get(
   "/",
   verifyFirebaseToken,
@@ -53,6 +64,7 @@ router.get(
 
 router.post(
   "/",
+  validateData({ body: createSchoolBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
@@ -60,17 +72,18 @@ router.post(
 );
 
 router.put(
-  "/:id",
+  "/",
+  validateData({ body: updateSchoolBodySchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.updateSchool(req, res, next)
 );
 
 router.delete(
-  "/:id",
+  "/",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.deleteSchool(req, res, next)
 );

@@ -27,3 +27,8 @@ export { default as DetailsRecordService } from "./school/attendance/detailsReco
 // System Module
 // ======================
 export { default as VipPackageService } from "./system/vipPackage.service";
+
+// ======================
+// System Module
+// ======================
+export { default as SchoolAdminDashboardService } from "./schoolAdminDashboard/schoolAdminDashboard.service";

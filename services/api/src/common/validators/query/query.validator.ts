@@ -62,3 +62,7 @@ export const searchSchoolsQuerySchema = z.object({
     .optional(),
   query: z.string().nullable().optional(),
 });
+
+export const getSchoolAttendanceStatsSchema = z.object({
+  date: z.coerce.date().optional().nullable(),
+});

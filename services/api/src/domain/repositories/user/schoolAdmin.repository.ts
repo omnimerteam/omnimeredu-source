@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { ClientSession, Model, Types, UpdateQuery } from "mongoose";
 import { ISchoolAdmin } from "../../models";
 import { BaseRepository } from "../base.repository";
 
@@ -22,6 +22,18 @@ class SchoolAdminRepository extends BaseRepository<ISchoolAdmin> {
 
   async findByUserId(userId: string): Promise<ISchoolAdmin | null> {
     return this.model.findOne({ userId }).exec();
+  }
+
+  async updateByUserId(
+    userId: string,
+    data: Partial<ISchoolAdmin>,
+    session?: ClientSession
+  ) {
+    return this.model.findOneAndUpdate(
+      { _id: new Types.ObjectId(userId) },
+      data,
+      { new: true, session }
+    );
   }
 }
 

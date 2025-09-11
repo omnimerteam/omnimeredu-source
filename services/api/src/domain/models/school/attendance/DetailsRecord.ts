@@ -24,6 +24,7 @@ const DetailsRecordSchema = new Schema<IDetailsRecord>(
     status: {
       type: String,
       enum: AttendanceStatusTuple,
+      default: AttendanceStatusEnum.Present,
       required: true,
     },
     note: String,

@@ -28,3 +28,8 @@ export { default as DetailsRecordController } from "./school/attendance/detailsR
 // System Module
 // ======================
 export { default as VipPackageController } from "./system/vipPackage.controller";
+
+// ======================
+// SchoolAdmin Dashboard Module
+// ======================
+export { default as SchoolAdminDashboardController } from "./schoolAdminDashboard/schoolAdminDashboard.controller";

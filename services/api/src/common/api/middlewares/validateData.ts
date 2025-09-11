@@ -11,6 +11,14 @@ interface ValidationSchemas {
   headers?: ZodSchema<any>;
 }
 
+function removeEmpty(obj: Record<string, any>) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(
+      ([, v]) => v !== null && v !== "" && v !== undefined
+    )
+  );
+}
+
 export const validateData = (schemas: ValidationSchemas) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
@@ -18,7 +26,7 @@ export const validateData = (schemas: ValidationSchemas) => {
       // console.log(chalk.green("Schemas"), schemas);
 
       if (schemas.body) {
-        req.body = schemas.body.parse(req.body);
+        req.body = schemas.body.parse(removeEmpty(req.body));
       }
 
       if (schemas.query) {

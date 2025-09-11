@@ -8,8 +8,9 @@ abstract class DashboardDataBaseEntity {
     return DateTime.now().difference(cachedAt) > maxCacheAge;
   }
 
-  Map<String, dynamic> toJson();
+  /// Tạo bản copy với cachedAt mới
+  DashboardDataBaseEntity copyWith({required DateTime cachedAt});
 
-  /// Để abstract, bắt buộc class con phải implement
-  DashboardDataBaseEntity copyWith({DateTime? cachedAt});
+  /// Convert ra Map để lưu cache
+  Map<String, dynamic> toJson();
 }

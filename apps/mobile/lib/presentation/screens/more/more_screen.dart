@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/core/theme/theme_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/under_development_screen.dart';
@@ -170,7 +171,7 @@ class MoreScreen extends StatelessWidget {
             title: 'Chế độ tối',
             subtitle: 'Bật/tắt giao diện tối',
             color: Colors.indigo,
-            value: false, // TODO: Get from theme provider
+            value: context.watch<ThemeCubit>().state == ThemeMode.dark,
             onChanged: (value) => _toggleTheme(context),
           ),
           const Divider(height: 1),
@@ -464,13 +465,7 @@ class MoreScreen extends StatelessWidget {
   }
 
   void _toggleTheme(BuildContext context) {
-    // TODO: Implement theme toggle logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Chức năng chuyển đổi theme đang được phát triển'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    context.read<ThemeCubit>().toggleTheme();
   }
 
   void _shareApp(BuildContext context) {

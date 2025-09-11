@@ -36,14 +36,12 @@ class AuthRemoteDataSource {
       headers: {"Authorization": "Bearer $idToken"},
     );
 
-    logger.i("raw: ${raw.data}");
-
     if (raw.success == false) {
-      throw Failure(raw.message ?? "Đăng nhập thất bại");
+      throw Exception(raw.message ?? "Đăng nhập thất bại");
     }
 
-    final userJson = raw.data["data"]["user"];
-    if (userJson == null) throw Failure("Người dùng ko tồn tại");
+    final userJson = raw.data["user"];
+    if (userJson == null) throw Exception("Người dùng ko tồn tại");
 
     return AuthUserModel.fromJson(userJson);
   }
@@ -71,7 +69,7 @@ class AuthRemoteDataSource {
         throw Failure(raw.message ?? "Lấy thông tin user thất bại");
       }
 
-      final userJson = raw.data["data"]["user"];
+      final userJson = raw.data["user"];
       if (userJson == null) return null;
 
       return AuthUserModel.fromJson(userJson);

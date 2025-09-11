@@ -1,15 +1,13 @@
 // repositories/attendanceStats.repository.ts
-import { Model } from "mongoose";
-import { IAttendance, IClass } from "../../models";
-import { Mode } from "fs";
+import { Model, Types } from "mongoose";
+import { IDetailsRecord } from "../../models";
+import { DateUtils } from "../../../common/utils/DateUtils";
 
 class AttendanceStatsRepository {
-  private readonly attendanceModel: Model<IAttendance>;
-  private readonly classModel: Model<IClass>;
+  private readonly detailsRecordModel: Model<IDetailsRecord>;
 
-  constructor(attendanceModel: Model<IAttendance>, classModel: Model<IClass>) {
-    this.attendanceModel = attendanceModel;
-    this.classModel = classModel;
+  constructor(detailsRecordModel: Model<IDetailsRecord>) {
+    this.detailsRecordModel = detailsRecordModel;
   }
 
   /**
@@ -17,43 +15,69 @@ class AttendanceStatsRepository {
    * @param schoolId id của trường
    * @param date ngày cần lấy thống kê
    */
-  async getStatsBySchool(schoolId: string, date: Date) {
-    // Lấy danh sách lớp thuộc school
-    const classes = await this.classModel.find({ schoolId });
+  async getAttendanceStatsBySchool(schoolId: string, date?: Date) {
+    const match: any = { "attendance.schoolId": new Types.ObjectId(schoolId) };
 
-    let totalStudents = 0;
-    let totalPresent = 0;
-    const classAttendanceRates: Record<string, number> = {};
+    // luôn mặc định là hôm nay (theo VN) nếu không truyền date
+    const targetDate = date ?? new Date();
+    console.log("Ngày hôm nay UTC + 7:", targetDate);
 
-    for (const cls of classes) {
-      const studentsInClass = cls.students.length;
+    // VN = UTC+7, cần convert sang UTC để query trên Mongo Atlas
+    const { start, end } = DateUtils.getUtcDayRange(targetDate);
+    console.log(`Ngày hôm nay UTC + 0: ${start} - ${end}`);
 
-      if (studentsInClass === 0) {
-        classAttendanceRates[cls.name] = 0;
-        continue;
-      }
+    match["attendance.date"] = { $gte: start, $lte: end };
 
-      const presentCount = await this.attendanceModel.countDocuments({
-        classId: cls._id,
-        date,
-        status: "Present",
-      });
-
-      const rate = presentCount / studentsInClass;
-      classAttendanceRates[cls.name] = Number(rate.toFixed(2));
-
-      totalStudents += studentsInClass;
-      totalPresent += presentCount;
-    }
-
-    const attendanceRate =
-      totalStudents > 0 ? Number((totalPresent / totalStudents).toFixed(2)) : 0;
-
-    return {
-      attendanceRate,
-      classAttendanceRates,
-      date,
-    };
+    return this.detailsRecordModel.aggregate([
+      {
+        $lookup: {
+          from: "attendances",
+          let: { attendanceId: "$attendanceId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$attendanceId"] } } },
+            { $project: { classId: 1, schoolId: 1, date: 1 } },
+          ],
+          as: "attendance",
+        },
+      },
+      { $unwind: "$attendance" },
+      { $match: match },
+      {
+        $lookup: {
+          from: "classes",
+          let: { classId: "$attendance.classId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$classId"] } } },
+            { $project: { name: 1 } },
+          ],
+          as: "class",
+        },
+      },
+      { $unwind: "$class" },
+      {
+        $group: {
+          _id: "$attendance.classId",
+          className: { $first: "$class.name" },
+          total: { $sum: 1 },
+          presentCount: {
+            $sum: { $cond: [{ $eq: ["$status", "Present"] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          className: 1,
+          classAttendanceRate: {
+            $cond: [
+              { $eq: ["$total", 0] },
+              0,
+              { $divide: ["$presentCount", "$total"] },
+            ],
+          },
+        },
+      },
+    ]);
   }
 }
 

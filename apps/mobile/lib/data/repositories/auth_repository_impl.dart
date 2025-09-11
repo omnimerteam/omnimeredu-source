@@ -41,6 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
       logger.i("_currentUser: ${_currentUser}");
       return userModel.toEntity();
     } catch (e) {
+      logger.e("Repository Impl: ${e}");
       throw ServerFailure("Đăng nhập thất bại: ${e.toString()}");
     }
   }

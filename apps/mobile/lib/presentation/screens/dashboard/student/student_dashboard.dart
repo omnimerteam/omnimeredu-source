@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/widget/progress_item.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/widget/schedule_item.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/student/progress_item.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/student/schedule_item.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
 
 class StudentDashboard extends StatelessWidget {

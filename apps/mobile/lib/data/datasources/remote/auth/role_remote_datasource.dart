@@ -10,22 +10,23 @@ class RoleRemoteDataSource {
 
   Future<List<RoleModel>> fetchRoles() async {
     try {
-      final raw = await client.get(Endpoints.roles);
+      final response = await client.get<List<RoleModel>>(
+        Endpoints.roles,
+        parser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => RoleModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          throw Exception("API trả về không phải List");
+        },
+      );
 
-      if (raw.success != true) {
-        throw Exception(raw.message ?? "Không thể lấy roles");
+      if (response.success) {
+        return response.data ?? [];
+      } else {
+        throw Exception(response.message ?? "Không thể lấy roles");
       }
-
-      final nested = raw.data;
-      if (nested is Map<String, dynamic> && nested["data"] is List) {
-        final list = (nested["data"] as List)
-            .map((e) => RoleModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-
-        return list;
-      }
-
-      throw Exception("Dữ liệu roles không hợp lệ: ${raw.data}");
     } catch (e) {
       logger.e("❌ Exception khi fetch roles: $e");
       throw Exception("Lỗi khi fetch roles: $e");

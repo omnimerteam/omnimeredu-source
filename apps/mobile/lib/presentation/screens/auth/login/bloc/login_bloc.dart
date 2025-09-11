@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
@@ -36,12 +37,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       emit(state.copyWith(loading: false, user: user, error: null));
     } catch (e) {
-      emit(
-        state.copyWith(
-          loading: false,
-          error: e.toString(), // TODO: có thể map sang FirebaseAuthFailure
-        ),
-      );
+      logger.e("LoginBloc error emit: $e");
+      emit(state.copyWith(loading: false, error: e.toString()));
     }
   }
 }
