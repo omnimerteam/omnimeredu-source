@@ -3,7 +3,9 @@ import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/quick_access_button.dart';
 
 class DashboardQuickAccess extends StatelessWidget {
-  const DashboardQuickAccess({Key? key}) : super(key: key);
+  final bool highlightSchool;
+  const DashboardQuickAccess({Key? key, this.highlightSchool = false})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +27,29 @@ class DashboardQuickAccess extends StatelessWidget {
           mainAxisSpacing: 12,
           childAspectRatio: 1.1,
           children: [
-            QuickAccessButton(
-              title: 'Trường',
-              icon: Icons.school,
-              color: AppColors.primary,
-              onTap: () {
-                Navigator.of(context).pushNamed('/school-admin/details');
-              },
+            DecoratedBox(
+              decoration: highlightSchool
+                  ? BoxDecoration(
+                      border: Border.all(color: Colors.redAccent, width: 3),
+                      borderRadius: BorderRadius.circular(16),
+                    )
+                  : const BoxDecoration(),
+              child: QuickAccessButton(
+                title: 'Trường',
+                icon: Icons.school,
+                color: AppColors.primary,
+                onTap: () {
+                  Navigator.of(context).pushNamed('/school-admin/school');
+                },
+              ),
             ),
             QuickAccessButton(
               title: 'Lớp',
               icon: Icons.class_,
               color: Colors.orange,
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pushNamed('/school-admin/classes');
+              },
             ),
             QuickAccessButton(
               title: 'Học sinh',

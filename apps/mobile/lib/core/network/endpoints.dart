@@ -17,7 +17,8 @@ class Endpoints {
 
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
-  static String classDetail(String id) => "/v1/classes/$id";
+  static String classId(String id) => "/v1/classes/$id";
+  static const classDetailView = "v1/classes/class-detail-view";
   static const String searchClassesInSchool = "/v1/classes/schools/search";
 
   // ================== SCHOOLS ==================

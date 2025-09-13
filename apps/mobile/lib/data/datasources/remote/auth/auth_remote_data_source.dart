@@ -63,8 +63,6 @@ class AuthRemoteDataSource {
         headers: {"Authorization": "Bearer $idToken"},
       );
 
-      logger.i("raw: ${raw.data}");
-
       if (raw.success == false) {
         throw Failure(raw.message ?? "Lấy thông tin user thất bại");
       }

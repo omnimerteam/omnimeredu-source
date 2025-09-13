@@ -15,6 +15,8 @@ export const SchoolSchema = z.object({
     .min(1, { message: "Tên trường là bắt buộc" })
     .max(200, { message: "Tên trường không được vượt quá 200 ký tự" }),
 
+  code: z.string().optional(),
+
   address: z
     .string()
     .min(10, { message: "Địa chỉ phải có ít nhất 10 ký tự" })

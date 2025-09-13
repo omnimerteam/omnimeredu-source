@@ -99,10 +99,9 @@ router.get(
 // ✅ Tạo lớp mới
 router.post(
   "/",
-  validateData({ headers: authHeaderSchema }),
+  validateData({ headers: authHeaderSchema, body: createClassBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  validateData({ body: createClassBodySchema }),
   (req, res, next) => classController.createClass(req, res, next)
 );
 

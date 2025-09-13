@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/create_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/delete_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
@@ -42,6 +41,13 @@ class SchoolDataSchoolAdminBloc
       emit(SchoolDataAdminLoading());
       try {
         final school = await createSchoolUseCase.call(event.school);
+
+        if (school.name != null) {
+          authenticationBloc.add(
+            AuthenticationSchoolUpdated(schoolName: school.name),
+          );
+        }
+
         emit(SchoolDataAdminLoaded(school));
       } catch (e) {
         emit(SchoolDataAdminError(e.toString()));
@@ -54,7 +60,6 @@ class SchoolDataSchoolAdminBloc
         final school = await updateSchoolUseCase.call(event.school);
 
         if (school.name != null) {
-          logger.i("Cập nhật tên truonwfg: ${school.name}");
           authenticationBloc.add(
             AuthenticationSchoolUpdated(schoolName: school.name),
           );

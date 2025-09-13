@@ -28,3 +28,22 @@ export function generateSchoolCode(name: string): string {
 
   return initials;
 }
+
+export function generateClassCode(name: string): string {
+  let initials = name
+    .split(" ")
+    .filter((word) => word.trim().length > 0)
+    .map((word) => word[0].toUpperCase())
+    .join("");
+
+  const randomGen = customAlphabet(alphabet);
+
+  if (initials.length < 10) {
+    const needed = 10 - initials.length;
+    initials += randomGen(needed);
+  } else if (initials.length > 10) {
+    initials = initials.slice(-10);
+  }
+
+  return initials;
+}

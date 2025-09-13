@@ -156,20 +156,23 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    const schoolId = req.user?.schoolId;
+
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const data = req.body;
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
-
-      const body = req.body;
-
       const result = await this.classService.createClass(
         actorId,
         userRole,
-        body
+        data,
+        schoolId
       );
 
       sendCreated(res, result, "Tạo lớp thành công");
@@ -245,7 +248,7 @@ class ClassController {
         return next(error);
       }
 
-      sendNoContent(res);
+      sendSuccess(res, null, "Xóa thông tin trường học thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Delete class failed"), error);

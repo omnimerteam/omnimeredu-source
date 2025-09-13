@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/bloc/school_data_schooladmin_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/bloc/school_data_schooladmin_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/bloc/school_data_schooladmin_state.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_data_widget.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_empty_state_widget.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_error_state_widget.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_form_dialog.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_skeleton_loader.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_data_widget.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_empty_state_widget.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_error_state_widget.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_form_dialog.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_skeleton_loader.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
 class SchoolDataSchoolAdminScreen extends StatelessWidget {

@@ -6,7 +6,7 @@ import {
 } from "../../../repositories";
 import { createSchoolBodySchema } from "../../../../common/validators/school/school.validator";
 import chalk from "chalk";
-import { generateSchoolCode } from "../../../utils/generateSchoolCode";
+import { generateSchoolCode } from "../../../utils/generateCode";
 
 export class SchoolAdminRegisterHandler implements IRegisterHandler {
   private readonly schoolRepository: SchoolRepository;

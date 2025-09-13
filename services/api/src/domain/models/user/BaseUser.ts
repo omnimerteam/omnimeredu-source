@@ -11,7 +11,7 @@ export interface IBaseUser extends Document {
   phone?: string;
   address?: string;
   isVerified?: boolean;
-  schoolId?: Types.ObjectId;
+  schoolId?: Types.ObjectId | null;
   avatarUrl?: string;
   roleKey?: String;
 }

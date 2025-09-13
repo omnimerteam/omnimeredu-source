@@ -38,7 +38,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final userModel = await remote.login(loginInfo);
       _currentUser = userModel;
-      logger.i("_currentUser: ${_currentUser}");
       return userModel.toEntity();
     } catch (e) {
       logger.e("Repository Impl: ${e}");
@@ -51,7 +50,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remote.logout();
       _currentUser = null;
-      logger.i("User logout thành công");
     } catch (e) {
       throw ServerFailure("Đăng xuất thất bại: ${e.toString()}");
     }

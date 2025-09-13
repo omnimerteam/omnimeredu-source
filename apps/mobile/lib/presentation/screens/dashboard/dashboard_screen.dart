@@ -13,51 +13,55 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ở đây bạn giả định rằng DashboardCubit đã được cung cấp ở ancestor (AppView hoặc route)
-    final cubit = context.read<DashboardCubit>();
-
-    // Trigger load khi mở màn
-    cubit.loadDashboard(user.roleName);
+    // Đảm bảo không gọi loadDashboard nhiều lần
+    context.read<DashboardCubit>().loadDashboard(user.roleName);
 
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
-        if (state is DashboardLoading) {
-          return const Center(child: CircularProgressIndicator());
+        if (state is DashboardLoaded) {
+          return _buildDashboardByRole(
+            context,
+            data: state.data,
+            isLoading: false,
+          );
         }
 
         if (state is DashboardError) {
-          return Center(child: Text(state.message));
+          return _buildDashboardByRole(
+            context,
+            data: null, // không có dữ liệu
+            isLoading: false, // loading đã xong, hiện hướng dẫn
+          );
         }
 
-        if (state is DashboardLoaded) {
-          return _buildDashboardByRole(context, state.data);
-        }
-
-        return const SizedBox.shrink();
+        // Trường hợp DashboardLoading hoặc Initial
+        return _buildDashboardByRole(context, data: null, isLoading: true);
       },
     );
   }
 
   /// Phân UI theo role
-  Widget _buildDashboardByRole(BuildContext context, dynamic data) {
+  Widget _buildDashboardByRole(
+    BuildContext context, {
+    required dynamic data,
+    required bool isLoading,
+  }) {
     switch (user.roleName) {
       case "SchoolAdmin":
-        if (data is SchoolAdminDashboardDataEntity) {
-          return RefreshIndicator(
-            onRefresh: () =>
-                context.read<DashboardCubit>().refreshDashboard(user.roleName),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
-              child: SchoolAdminDashboard(data: data),
+        return RefreshIndicator(
+          onRefresh: () =>
+              context.read<DashboardCubit>().refreshDashboard(user.roleName),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: SchoolAdminDashboard(
+              data: data is SchoolAdminDashboardDataEntity ? data : null,
+              isLoading: isLoading,
             ),
-          );
-        }
-        return const Center(
-          child: Text("Dữ liệu không hợp lệ cho SchoolAdmin"),
+          ),
         );
 
-      // TODO: thêm các case khác như teacher, student
+      // TODO: thêm các role khác như Teacher, Student...
       default:
         return const Center(child: Text("Role không được hỗ trợ"));
     }

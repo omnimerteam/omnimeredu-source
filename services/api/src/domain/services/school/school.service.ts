@@ -1,9 +1,9 @@
 import { SchoolAdminRepository, SchoolRepository } from "../../repositories";
 import { ISchool } from "../../models";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
-import { generateSchoolCode } from "../../utils/generateSchoolCode";
+import { generateSchoolCode } from "../../utils/generateCode";
 import mongoose, { Types } from "mongoose";
-import { createSchoolBodySchema } from "../../../common/validators/school/school.validator";
+import { HttpError } from "../../../common/utils/HttpError";
 
 class SchoolService {
   private readonly schoolRepository: SchoolRepository;
@@ -104,7 +104,7 @@ class SchoolService {
       );
 
       // 2. Update SchoolAdmin
-      const schoolAdmin = await this.schoolAdminRepository.updateByUserId(
+      await this.schoolAdminRepository.updateByUserId(
         actorId,
         { schoolId: newSchool._id },
         session
@@ -169,8 +169,29 @@ class SchoolService {
   }
 
   async deleteSchool(id: string, actorId: string, userRole: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-      const schoolData = await this.schoolRepository.delete(id);
+      const schoolData = await this.schoolRepository.deleteWithSession(
+        id,
+        session
+      );
+
+      if (!schoolData) {
+        throw new HttpError(404, "Không tìm thấy document để xoá");
+      }
+
+      // 2. Update SchoolAdmin
+      await this.schoolAdminRepository.updateByUserId(
+        actorId,
+        { schoolId: null },
+        session
+      );
+
+      // 3. Commit transaction
+      await session.commitTransaction();
+      session.endSession();
+
       await this.logger.log({
         userId: actorId,
         action: "DELETE_SCHOOL",

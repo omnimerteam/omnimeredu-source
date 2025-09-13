@@ -7,7 +7,8 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/authenti
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/registration_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/school_data_schooladmin_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/class_management_page.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/school_data_schooladmin_screen.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
@@ -28,8 +29,10 @@ class AppView extends StatelessWidget {
                 '/login': (context) => const LoginScreen(),
                 '/register': (context) => const RegistrationScreen(),
                 '/main': (context) => const MainScreen(),
-                '/school-admin/details': (context) =>
+                '/school-admin/school': (context) =>
                     const SchoolDataSchoolAdminScreen(),
+                '/school-admin/classes': (context) =>
+                    const ClassManagementPage(),
               },
               home: _buildHome(state),
             );

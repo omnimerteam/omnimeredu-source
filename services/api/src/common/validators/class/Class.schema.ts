@@ -21,9 +21,12 @@ export const ClassSchema = z.object({
       message: "Mã lớp phải từ 3-10 ký tự in hoa, số hoặc dấu gạch ngang",
     }),
 
-  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-    message: "Định dạng ObjectId không hợp lệ cho schoolId",
-  }),
+  schoolId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Định dạng ObjectId không hợp lệ cho schoolId",
+    })
+    .optional(),
 
   teacherId: z
     .string()

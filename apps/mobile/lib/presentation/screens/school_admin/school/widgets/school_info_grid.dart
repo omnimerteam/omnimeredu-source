@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_info_card.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_info_card.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 

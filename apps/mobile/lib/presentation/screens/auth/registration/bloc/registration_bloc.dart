@@ -233,8 +233,6 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
       await registerUserUseCase.call(user);
 
-      logger.i("Đăng ký thành công cho user: ${user.email}");
-
       emit(state.copyWith(loading: false, success: true));
     } catch (error) {
       logger.e("Lỗi submit registration", error: error);

@@ -36,6 +36,11 @@ class SchoolAdminDashboardController {
 
     const schoolId = req.user?.schoolId;
 
+    if (!schoolId) {
+      sendBadRequest(res);
+      return;
+    }
+
     try {
       const result = await this.schoolAdminDashboardService.getSummary(
         actorId,

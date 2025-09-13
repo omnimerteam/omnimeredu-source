@@ -42,7 +42,6 @@ class AuthenticationBloc
     AuthenticationLoggedIn event,
     Emitter<AuthenticationState> emit,
   ) {
-    logger.i("User: ${event.user}");
     emit(AuthenticationAuthenticated(event.user));
   }
 
@@ -65,15 +64,10 @@ class AuthenticationBloc
     Emitter<AuthenticationState> emit,
   ) {
     final currentState = state;
-
-    logger.i("Update user with schoolName: ${event.schoolName}");
-    logger.i("Current state before update: $currentState");
     if (currentState is AuthenticationAuthenticated) {
       final updatedUser = currentState.user.copyWith(
         schoolName: event.schoolName,
       );
-
-      logger.i("Update user with schoolName: ${updatedUser.schoolName}");
 
       emit(AuthenticationAuthenticated(updatedUser));
     }

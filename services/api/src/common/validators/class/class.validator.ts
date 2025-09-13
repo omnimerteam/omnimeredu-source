@@ -2,7 +2,11 @@ import { z } from "zod";
 import { ClassSchema } from "./Class.schema";
 
 // ✅ Create Class Validator
-export const createClassBodySchema = ClassSchema.omit({ _id: true }).extend({
+export const createClassBodySchema = ClassSchema.omit({
+  _id: true,
+  code: true,
+  schoolId: true,
+}).extend({
   students: ClassSchema.shape.students.unwrap().optional(), // Có thể thêm rule bắt buộc khác nếu cần
 });
 

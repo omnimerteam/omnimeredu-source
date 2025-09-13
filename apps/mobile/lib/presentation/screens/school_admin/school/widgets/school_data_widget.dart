@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_action_buttons.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_description_card.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_header_card.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school/widget/school_info_grid.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_action_buttons.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_description_card.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_header_card.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_info_grid.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
 class SchoolDataWidget extends StatelessWidget {

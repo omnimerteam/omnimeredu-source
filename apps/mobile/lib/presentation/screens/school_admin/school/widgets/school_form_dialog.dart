@@ -430,9 +430,6 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
         studentCount: widget.school?.studentCount ?? 0,
       );
 
-      await Future.delayed(
-        const Duration(milliseconds: 500),
-      ); // Simulate API call
       widget.onSubmit(school);
       Navigator.of(context).pop();
     } finally {

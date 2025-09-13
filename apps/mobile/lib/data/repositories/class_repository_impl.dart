@@ -1,6 +1,10 @@
 // data/repositories/class_repository_impl.dart
 
+import 'package:flutter_ios_android_platforms/core/app_constants.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/class/class_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/class_repository.dart';
 
@@ -13,12 +17,78 @@ class ClassRepositoryImpl implements ClassRepository {
   Future<List<ClassSearchEntity>> searchClassesInSchool(
     String schoolId,
     String? query,
-  ) {
-    return remote.searchClassesInSchool(schoolId, query);
+  ) async {
+    return await remote.searchClassesInSchool(schoolId, query);
   }
 
   @override
-  Future<List<ClassSearchEntity>> getClassesInSchool(String schoolId) {
-    return remote.searchClassesInSchool(schoolId, null);
+  Future<List<ClassSearchEntity>> getClassesInSchool(String schoolId) async {
+    return await remote.searchClassesInSchool(schoolId, null);
+  }
+
+  @override
+  Future<List<ClassDetailViewEntity>> getAllClassDetailView(
+    String sort, {
+    int page = AppConstants.defaultPage,
+    int limit = AppConstants.defaultLimit,
+  }) async {
+    try {
+      final models = await remote.getAllClassDetailView(
+        sort,
+        page: page,
+        limit: limit,
+      );
+
+      return models.map((m) => m.toEntity()).toList();
+    } catch (e, st) {
+      // Có thể log lại để dễ debug
+      print("Lỗi khi lấy danh sách lớp: $e\n$st");
+      throw Exception("Không thể lấy danh sách lớp");
+    }
+  }
+
+  @override
+  Future<ClassEntity> getClassById(String id) async {
+    try {
+      final model = await remote.getClassById(id);
+
+      return model.toEntity();
+    } catch (e) {
+      throw Exception("Không thể lấy danh sách lớp: $e");
+    }
+  }
+
+  @override
+  Future<ClassEntity> createClass(ClassEntity createClassData) async {
+    try {
+      final model = ClassModel.fromEntity(createClassData);
+      final creatModel = await remote.createClass(model);
+      return creatModel.toEntity();
+    } catch (e) {
+      // có thể log stacktrace để debug
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<ClassEntity> updateClass(ClassEntity updateClassData) async {
+    try {
+      final model = ClassModel.fromEntity(updateClassData);
+      final updatedModel = await remote.updateClass(model);
+      return updatedModel.toEntity();
+    } catch (e) {
+      // có thể log stacktrace để debug
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<void> deleteClass(String id) async {
+    try {
+      await remote.deleteClass(id);
+    } catch (e, st) {
+      // Có thể log stacktrace để debug
+      throw Exception("Xóa trường thất bại: $e\n$st");
+    }
   }
 }

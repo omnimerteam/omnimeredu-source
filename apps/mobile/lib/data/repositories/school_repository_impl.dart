@@ -32,8 +32,8 @@ class SchoolRepositoryImpl implements SchoolRepository {
   ) async {
     try {
       final model = SchoolModel.fromEntity(createSchoolData);
-      final updatedModel = await remote.createSchool(model);
-      return updatedModel.toEntity();
+      final createSchool = await remote.createSchool(model);
+      return createSchool.toEntity();
     } catch (e) {
       // có thể log stacktrace để debug
       throw Exception(e);

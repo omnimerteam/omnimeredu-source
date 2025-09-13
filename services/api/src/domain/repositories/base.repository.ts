@@ -82,4 +82,15 @@ export class BaseRepository<T> {
     const result = await this.model.findByIdAndDelete(id).exec();
     return result !== null;
   }
+
+  async deleteWithSession(
+    id: string,
+    session?: ClientSession
+  ): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) return false;
+
+    const result = await this.model.findByIdAndDelete(id, { session }).exec();
+
+    return result !== null;
+  }
 }

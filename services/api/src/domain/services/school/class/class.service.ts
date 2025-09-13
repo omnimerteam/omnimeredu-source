@@ -9,6 +9,7 @@ import {
 } from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
+import { generateClassCode } from "../../../utils/generateCode";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -152,9 +153,20 @@ class ClassService {
     }
   }
 
-  async createClass(actorId: string, userRole: string, data: Partial<IClass>) {
+  async createClass(
+    actorId: string,
+    userRole: string,
+    data: IClass,
+    schoolId: string
+  ) {
     try {
-      const created = await this.classRepository.create(data);
+      const code = generateClassCode(data.name);
+
+      const created = await this.classRepository.create({
+        ...data,
+        code,
+        schoolId: new Types.ObjectId(schoolId),
+      });
 
       await this.logger.log({
         userId: actorId,

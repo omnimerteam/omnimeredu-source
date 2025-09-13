@@ -1,4 +1,4 @@
-import '../../domain/entities/auth/role.dart';
+import '../../../domain/entities/auth/role.dart';
 
 class RoleModel extends RoleEntity {
   const RoleModel({
