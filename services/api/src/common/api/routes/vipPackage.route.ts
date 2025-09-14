@@ -18,12 +18,12 @@ import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
 // Validator
-import { authHeaderSchema } from "../../validators/header/header.validator";
-import { objectIdParamSchema } from "../../validators/params/params.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import {
   createVipPackageBodySchema,
   updateVipPackageBodySchema,
-} from "../../validators/vipPackage/vipPackage.validator";
+} from "../../validators/system/vipPackage/vipPackage.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());

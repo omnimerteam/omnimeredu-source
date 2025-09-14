@@ -14,6 +14,7 @@ import discountPolicy from "./discountPolicy.route";
 import extraFee from "./extraFee.route";
 import roleRoute from "./role.route";
 import schoolAdminDashboardRoute from "./schoolAdminDashboard.route";
+import membershipRequestRoute from "./membershipRequest.route";
 
 import { Express } from "express";
 
@@ -22,7 +23,7 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/auth", authRoutes); // Auth API: /api/auth
   app.use("/api/v1/schools", schoolRouter); // School API: /api/schools
   app.use("/api/v1/teachers", teacherRoutes); // Teacher API: /api/teachers
-  app.use("/api/v1/teaching-assignment", teachingAssignment); // Teaching Assignment API: /api/teachingassignments
+  app.use("/api/v1/teaching-assignment", teachingAssignment); // Teaching Assignment API: /api/teaching-assignments
   app.use("/api/v1/classes", classRoutes); // Class API Version 1: /api/v1/classes
   app.use("/api/v1/school-admins", schoolAdmin); // School Admin API: /api/v1/schooladmins
   app.use("/api/v1/details-records", detailsRecord); // Details Record API: /api/v1/detailsrecords
@@ -33,6 +34,7 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/roles", roleRoute); // Roles API: /api/v1/roles
   app.use("/api/v1/discount-policies", discountPolicy); //Discount Policy: /api/v1/discount-policies
   app.use("/api/v1/extra-fees", extraFee); //Extra fee: /api/v1/extra-fees
-  app.use("/api/v1/school-admin-dashboard", schoolAdminDashboardRoute); //Extra fee: /api/v1/extra-fees
+  app.use("/api/v1/school-admin-dashboard", schoolAdminDashboardRoute); //Extra School Admin Dashboard: /api/v1/school-admin-dashboard
+  app.use("/api/v1/membership-request", membershipRequestRoute); //Membership Request: /api/v1/membership-request
 }
 export default setupRoutes;

@@ -17,11 +17,12 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
-import { searchSchoolsQuerySchema } from "../../validators/query/query.validator";
+import { searchSchoolsQuerySchema } from "../../validators/common/query/query.validator";
 import {
   createSchoolBodySchema,
   updateSchoolBodySchema,
-} from "../../validators/school/school.validator";
+} from "../../validators/app/school/school.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 
 const router = Router();
 
@@ -47,6 +48,7 @@ router.get(
 
 router.get(
   "/school-admin",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
@@ -64,7 +66,7 @@ router.get(
 
 router.post(
   "/",
-  validateData({ body: createSchoolBodySchema }),
+  validateData({ headers: authHeaderSchema, body: createSchoolBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
@@ -73,7 +75,7 @@ router.post(
 
 router.put(
   "/",
-  validateData({ body: updateSchoolBodySchema }),
+  validateData({ headers: authHeaderSchema, body: updateSchoolBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
@@ -82,6 +84,7 @@ router.put(
 
 router.delete(
   "/",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>

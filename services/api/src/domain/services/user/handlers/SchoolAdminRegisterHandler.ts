@@ -4,9 +4,13 @@ import {
   MembershipRequestRepository,
   SchoolRepository,
 } from "../../../repositories";
-import { createSchoolBodySchema } from "../../../../common/validators/school/school.validator";
-import chalk from "chalk";
+import { createSchoolBodySchema } from "../../../../common/validators/app/school/school.validator";
 import { generateSchoolCode } from "../../../utils/generateCode";
+import {
+  MembershipActionEnum,
+  MembershipRoleEnum,
+  MembershipStatusEnum,
+} from "../../../../common/enum/membershipRequest.enum";
 
 export class SchoolAdminRegisterHandler implements IRegisterHandler {
   private readonly schoolRepository: SchoolRepository;
@@ -48,9 +52,9 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
         {
           userId: user._id,
           schoolId: payload.schoolId,
-          role: "SchoolAdmin",
-          action: "Enroll",
-          status: "Pending",
+          role: MembershipRoleEnum.SchoolAdmin,
+          action: MembershipActionEnum.Enroll,
+          status: MembershipStatusEnum.Pending,
         },
         session
       );

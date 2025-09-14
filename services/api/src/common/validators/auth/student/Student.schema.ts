@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 import { BaseUserSchema } from "../baseUser/BaseUser.schema";
-import { EducationSystemLevelsTuple } from "../../enum/educationSystemLevels.enum";
+import { EducationSystemLevelsTuple } from "../../../enum/educationSystemLevels.enum";
 
 // Schema cho Student, kế thừa BaseUserSchema
 export const StudentSchema = BaseUserSchema.extend({

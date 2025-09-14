@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-import { AttendanceStatusTuple } from "../../enum/attendanceStatus.enum";
+import { AttendanceStatusTuple } from "../../../enum/attendanceStatus.enum";
 
 export const DetailsRecordSchema = z.object({
   _id: z

@@ -25,13 +25,13 @@ import {
   modifyStudentsBodySchema,
   transferClassBodySchema,
   updateClassBodySchema,
-} from "../../validators/class/class.validator";
-import { objectIdParamSchema } from "../../validators/params/params.validator";
-import { authHeaderSchema } from "../../validators/header/header.validator";
+} from "../../validators/app/class/class.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import {
   createPaginationSchemaWithSort,
   searchClassesQuerySchema,
-} from "../../validators/query/query.validator";
+} from "../../validators/common/query/query.validator";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);

@@ -27,10 +27,10 @@ import { validateData } from "../middlewares/validateData";
 import {
   createPaginationSchemaWithSort,
   getSchoolAttendanceStatsSchema,
-} from "../../validators/query/query.validator";
+} from "../../validators/common/query/query.validator";
 
 // Validate
-import { authHeaderSchema } from "../../validators/header/header.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 
 const schoolAdminDashboardRepository = new SchoolAdminDashboardRepository(
   BaseUser,

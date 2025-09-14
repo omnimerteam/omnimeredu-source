@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-import { EducationSystemLevelsTuple } from "../../enum/educationSystemLevels.enum";
+import { EducationSystemLevelsTuple } from "../../../enum/educationSystemLevels.enum";
 
 export const SchoolSchema = z.object({
   _id: z

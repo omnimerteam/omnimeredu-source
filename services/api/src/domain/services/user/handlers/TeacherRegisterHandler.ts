@@ -1,6 +1,11 @@
 import { ClientSession } from "mongoose";
 import { MembershipRequestRepository } from "../../../repositories";
 import { IRegisterHandler } from "./IRegisterHandler";
+import {
+  MembershipActionEnum,
+  MembershipRoleEnum,
+  MembershipStatusEnum,
+} from "../../../../common/enum/membershipRequest.enum";
 
 export class TeacherRegisterHandler implements IRegisterHandler {
   private readonly memberShipRepository: MembershipRequestRepository;
@@ -13,9 +18,9 @@ export class TeacherRegisterHandler implements IRegisterHandler {
         {
           userId: user._id,
           schoolId: payload.schoolId,
-          role: "Teacher",
-          action: "Enroll",
-          status: "Pending",
+          role: MembershipRoleEnum.Teacher,
+          action: MembershipActionEnum.Enroll,
+          status: MembershipStatusEnum.Pending,
         },
         session
       );

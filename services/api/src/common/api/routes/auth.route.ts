@@ -28,8 +28,8 @@ import {
   changePasswordSchema,
   createAccountBodySchema,
   updatePasswordSchema,
-} from "../../validators/account/account.validator";
-import { authHeaderSchema } from "../../validators/header/header.validator";
+} from "../../validators/auth/account/account.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 const accountRepository = new AccountRepository(Account);
