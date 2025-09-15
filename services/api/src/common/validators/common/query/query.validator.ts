@@ -43,6 +43,60 @@ export function createPaginationSchemaWithSort(allowedFields: string[]) {
   });
 }
 
+/**
+ * Hàm tạo schema pagination + sort + filter theo whitelist field
+ * @param allowedSortFields Các field được phép sort
+ * @param allowedFilterFields Các field được phép filter
+ */
+export function createPaginationSchemaWithSortAndFilter(
+  allowedSortFields: string[],
+  allowedFilterFields: string[]
+) {
+  return paginationQuerySchema.extend({
+    sort: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true;
+          const fields = val.split(",");
+          return fields.every((f) => {
+            const [field] = f.split(":");
+            return allowedSortFields.includes(field);
+          });
+        },
+        {
+          message: `Sort chỉ được phép các field: ${allowedSortFields.join(
+            ", "
+          )}`,
+        }
+      ),
+
+    /**
+     * filter có dạng:
+     *   filter=gender:Male,literacy:Bachelor,subjects:Math|English
+     */
+    filter: z
+      .string()
+      .optional()
+      .refine(
+        (val) => {
+          if (!val) return true;
+          const fields = val.split(",");
+          return fields.every((f) => {
+            const [field] = f.split(":");
+            return allowedFilterFields.includes(field);
+          });
+        },
+        {
+          message: `Filter chỉ được phép các field: ${allowedFilterFields.join(
+            ", "
+          )}`,
+        }
+      ),
+  });
+}
+
 export const searchClassesQuerySchema = z.object({
   schoolId: z
     .string()

@@ -1,6 +1,8 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger.js";
 import { StudentRepository } from "../../repositories";
 import { IStudent } from "../../models";
+import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
+import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
 class StudentService {
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
@@ -16,16 +18,19 @@ class StudentService {
   async getAllStudents(
     actorId: string,
     userRole: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    schoolId?: string,
+    options?: PaginationQueryOptions
   ) {
     try {
-      const students = await this.studentRepository.findAll({}, options);
+      const filter = buildPermissionFilter(userRole, schoolId);
+
+      const students = await this.studentRepository.findAll(filter, options);
 
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_STUDENTS",
         roleSnapshot: userRole,
-        metadata: { count: students.length, options: options },
+        metadata: { options, filter, count: students.length },
       });
 
       return students;

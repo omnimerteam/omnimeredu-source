@@ -30,6 +30,7 @@ import { objectIdParamSchema } from "../../validators/common/params/params.valid
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import {
   createPaginationSchemaWithSort,
+  createPaginationSchemaWithSortAndFilter,
   searchClassesQuerySchema,
 } from "../../validators/common/query/query.validator";
 
@@ -49,12 +50,10 @@ const classService = new ClassService(
 const classController = new ClassController(classService);
 
 // Custom Validate
-const getAllClassPaginationSchema = createPaginationSchemaWithSort([
-  "name",
-  "code",
-  "schoolId",
-  "baseFee",
-]);
+const getAllClassPaginationSchema = createPaginationSchemaWithSortAndFilter(
+  ["name", "code", "schoolId", "baseFee"],
+  []
+);
 
 // Router
 const router = Router();

@@ -1,7 +1,7 @@
 // data/repositories/class_repository_impl.dart
 
 import 'package:flutter_ios_android_platforms/core/app_constants.dart';
-import 'package:flutter_ios_android_platforms/data/datasources/remote/class/class_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';

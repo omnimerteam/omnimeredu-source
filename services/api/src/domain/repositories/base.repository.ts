@@ -5,6 +5,8 @@ import {
   UpdateQuery,
   ClientSession,
 } from "mongoose";
+import { PaginationQueryOptions } from "../../common/utils/buildQueryOptions";
+import chalk from "chalk";
 
 /**
  * BaseRepository là class cơ sở để thao tác CRUD với Mongoose.
@@ -24,14 +26,29 @@ export class BaseRepository<T> {
    */
   async findAll(
     filter: FilterQuery<T> = {},
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ): Promise<T[]> {
-    const page = options?.page || 1;
-    const limit = options?.limit || 20;
+    const page = options?.page ?? 1;
+    const limit = options?.limit ?? 20;
     const skip = (page - 1) * limit;
-    const sort = options?.sort || { _id: -1 };
+    const sort = options?.sort ?? { _id: -1 };
 
-    return this.model.find(filter).skip(skip).limit(limit).sort(sort).exec();
+    const finalFilter = {
+      ...filter,
+      ...(options?.filter || {}),
+    };
+
+    console.log(
+      chalk.green("🟢 Final Filter:"),
+      JSON.stringify(finalFilter, null, 2)
+    );
+
+    return this.model
+      .find(finalFilter)
+      .skip(skip)
+      .limit(limit)
+      .sort(sort)
+      .exec();
   }
 
   /**

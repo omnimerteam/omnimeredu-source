@@ -1,8 +1,7 @@
-// widgets/class_form_dialog.dart
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';
@@ -155,12 +154,10 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                         hintText: 'Tên lớp học',
                         prefixIcon: Icons.class_,
                         isFocused: _nameFocusNode.hasFocus,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Vui lòng nhập tên lớp học';
-                          }
-                          return null;
-                        },
+                        validator: (value) => Validators.requiredField(
+                          value,
+                          name: 'Tên lớp học',
+                        ),
                       ),
                       const SizedBox(height: 16),
                       PrimaryTextField(
@@ -170,16 +167,7 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                         prefixIcon: Icons.group,
                         isFocused: _maxStudentsFocusNode.hasFocus,
                         keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Vui lòng nhập số học sinh tối đa';
-                          }
-                          final number = int.tryParse(value.trim());
-                          if (number == null || number <= 0) {
-                            return 'Số học sinh phải là số nguyên dương';
-                          }
-                          return null;
-                        },
+                        validator: Validators.maxStudents,
                       ),
                       const SizedBox(height: 16),
                       PrimaryTextField(
@@ -189,16 +177,7 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                         prefixIcon: Icons.attach_money,
                         isFocused: _baseFeeFocusNode.hasFocus,
                         keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return null; // Optional
-                          }
-                          final number = Decimal.tryParse(value.trim());
-                          if (number == null || number < Decimal.zero) {
-                            return 'Học phí phải là số không âm';
-                          }
-                          return null;
-                        },
+                        validator: Validators.baseFee,
                       ),
                     ],
                   ),

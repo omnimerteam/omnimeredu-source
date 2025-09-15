@@ -9,8 +9,8 @@ export interface IClassDetailView extends Document {
   schoolId: Types.ObjectId;
   schoolName: string;
   schoolLevel: string;
-  teacherId: Types.ObjectId;
-  teacherName: string;
+  mainTeacherId: Types.ObjectId;
+  mainTeacherName: string;
 }
 
 const ClassDetailSchema = new Schema<IClassDetailView>(
@@ -23,8 +23,8 @@ const ClassDetailSchema = new Schema<IClassDetailView>(
     schoolId: { type: Schema.Types.ObjectId },
     schoolName: { type: String },
     schoolLevel: { type: String },
-    teacherId: { type: Schema.Types.ObjectId },
-    teacherName: { type: String },
+    mainTeacherId: { type: Schema.Types.ObjectId },
+    mainTeacherName: { type: String },
   },
   { collection: "ClassDetail", timestamps: false }
 );

@@ -11,15 +11,6 @@ class DisplayMapper {
     'CanteenStaff': 'Nhân viên căng tin',
   };
 
-  /// Map cho trạng thái chung (học phí, đăng ký, duyệt hồ sơ,...)
-  static const Map<String, String> statusNames = {
-    'pending': 'Đang chờ',
-    'approved': 'Đã duyệt',
-    'rejected': 'Từ chối',
-    'paid': 'Đã thanh toán',
-    'unpaid': 'Chưa thanh toán',
-  };
-
   /// Map cho loại/cấp học
   static const Map<String, String> educationLevels = {
     'Preschool': 'Mầm non',
@@ -65,11 +56,6 @@ class DisplayMapper {
   /// Lấy tên vai trò
   static String roleName(String? code) {
     return fromMapping(value: code ?? '', mapping: roleNames);
-  }
-
-  /// Lấy tên trạng thái
-  static String statusName(String? code) {
-    return fromMapping(value: code ?? '', mapping: statusNames);
   }
 
   /// Lấy tên cấp học / loại lớp

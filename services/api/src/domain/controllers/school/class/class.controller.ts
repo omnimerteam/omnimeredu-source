@@ -386,13 +386,11 @@ class ClassController {
   ): Promise<void> {
     const { schoolId, query } = req.query;
 
-    console.log("schoolId", schoolId);
-    console.log("query", query);
-
     if (!schoolId?.toString().trim() && !query?.toString().trim()) {
       sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
       return;
     }
+
     try {
       const classes = await this.classService.searchClassesInSchool(
         schoolId?.toString(),

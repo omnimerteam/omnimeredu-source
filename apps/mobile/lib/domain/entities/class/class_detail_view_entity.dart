@@ -9,8 +9,8 @@ class ClassDetailViewEntity extends Equatable {
   final String? schoolId;
   final String? schoolName;
   final String? schoolLevel;
-  final String? teacherId;
-  final String? teacherName;
+  final String? mainTeacherId;
+  final String? mainTeacherName;
 
   const ClassDetailViewEntity({
     this.id,
@@ -21,8 +21,8 @@ class ClassDetailViewEntity extends Equatable {
     this.schoolId,
     this.schoolName,
     this.schoolLevel,
-    this.teacherId,
-    this.teacherName,
+    this.mainTeacherId,
+    this.mainTeacherName,
   });
 
   @override
@@ -35,8 +35,8 @@ class ClassDetailViewEntity extends Equatable {
     schoolId,
     schoolName,
     schoolLevel,
-    teacherId,
-    teacherName,
+    mainTeacherId,
+    mainTeacherName,
   ];
 }
 
@@ -48,5 +48,5 @@ class ClassDetailViewEntity extends Equatable {
 //   schoolId: Types.ObjectId;
 //   schoolName: string;
 //   schoolLevel: string;
-//   teacherId: Types.ObjectId;
-//   teacherName: string;
+//   mainTeacherId: Types.ObjectId;
+//   mainTeacherName: string;

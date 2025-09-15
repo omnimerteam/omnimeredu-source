@@ -6,10 +6,6 @@ import 'package:flutter_ios_android_platforms/presentation/app_view.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -21,16 +17,6 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => sl<AuthenticationBloc>()..add(AuthenticationStarted()),
         ),
-        BlocProvider(
-          create: (ctx) => LoginBloc(
-            loginUseCase: sl(),
-            authenticationBloc: ctx.read<AuthenticationBloc>(),
-          ),
-        ),
-        BlocProvider(create: (_) => sl<RegistrationBloc>()),
-        BlocProvider(create: (_) => sl<SchoolBloc>()),
-        BlocProvider(create: (_) => sl<ClassBloc>()),
-        BlocProvider(create: (_) => sl<DashboardCubit>()),
         BlocProvider(create: (_) => ThemeCubit()),
       ],
       child: const AppView(),

@@ -13,9 +13,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Đảm bảo không gọi loadDashboard nhiều lần
-    context.read<DashboardCubit>().loadDashboard(user.roleName);
-
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         if (state is DashboardLoaded) {
@@ -27,20 +24,15 @@ class DashboardScreen extends StatelessWidget {
         }
 
         if (state is DashboardError) {
-          return _buildDashboardByRole(
-            context,
-            data: null, // không có dữ liệu
-            isLoading: false, // loading đã xong, hiện hướng dẫn
-          );
+          return _buildDashboardByRole(context, data: null, isLoading: false);
         }
 
-        // Trường hợp DashboardLoading hoặc Initial
+        // DashboardLoading hoặc Initial
         return _buildDashboardByRole(context, data: null, isLoading: true);
       },
     );
   }
 
-  /// Phân UI theo role
   Widget _buildDashboardByRole(
     BuildContext context, {
     required dynamic data,
@@ -61,7 +53,6 @@ class DashboardScreen extends StatelessWidget {
           ),
         );
 
-      // TODO: thêm các role khác như Teacher, Student...
       default:
         return const Center(child: Text("Role không được hỗ trợ"));
     }

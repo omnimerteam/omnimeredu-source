@@ -1,6 +1,8 @@
-import { MembershipActionEnum } from "../../../common/enum/membershipRequest.enum";
+import { MembershipStatusEnum } from "../../../common/enum/membershipRequest.enum";
+import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../common/utils/HttpError";
+import { buildPermissionFilterForMemberShipRequest } from "../../../common/utils/permissionFilter";
 import { MembershipRequestRepository } from "../../repositories";
 
 class MembershipRequestService {
@@ -23,24 +25,14 @@ class MembershipRequestService {
     actorId: string,
     userRole: string,
     schoolId?: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
-      let filter: any = {};
-
-      if (userRole === "SuperAdmin") {
-        filter = {}; // không giới hạn
-      } else if (userRole === "SchoolAdmin") {
-        if (!schoolId)
-          throw new HttpError(
-            400,
-            "Thiếu thông tin",
-            "MISSING_MEMBERSHIP_REQUEST_ID"
-          );
-        filter = { schoolId };
-      } else {
-        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
-      }
+      const filter = buildPermissionFilterForMemberShipRequest(
+        userRole,
+        schoolId,
+        actorId
+      );
 
       const membershipRequest = await this.membershipRequestRepo.findAll(
         filter,
@@ -189,11 +181,11 @@ class MembershipRequestService {
     }
   }
 
-  // 🔹 Update action (dành cho SchoolAdmin phê duyệt)
-  async updateActionMemberRequest(
+  // 🔹 Update status (dành cho SchoolAdmin phê duyệt)
+  async updateStatusMemberRequest(
     actorId: string,
     id: string,
-    action: MembershipActionEnum
+    status: MembershipStatusEnum
   ) {
     try {
       const existing = await this.membershipRequestRepo.findById(id);
@@ -204,13 +196,13 @@ class MembershipRequestService {
           "MEMBERSHIP_NOT_FOUND"
         );
 
-      const updated = await this.membershipRequestRepo.update(id, { action });
+      const updated = await this.membershipRequestRepo.update(id, { status });
 
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_ACTION_MEMBERSHIP_REQUEST",
         roleSnapshot: existing.role,
-        metadata: { membershipRequestId: id, action },
+        metadata: { membershipRequestId: id, status },
       });
 
       return updated;

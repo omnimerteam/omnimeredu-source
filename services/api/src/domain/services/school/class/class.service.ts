@@ -10,6 +10,8 @@ import {
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
 import { generateClassCode } from "../../../utils/generateCode";
+import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
+import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -33,24 +35,10 @@ class ClassService {
     actorId: string,
     userRole: string,
     schoolId?: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
-      let filter: any = {};
-
-      if (userRole === "SuperAdmin") {
-        filter = {}; // không giới hạn
-      } else if (userRole === "SchoolAdmin") {
-        if (!schoolId)
-          throw new HttpError(
-            400,
-            "Thiếu thông tin trường",
-            "MISSING_SCHOOL_ID"
-          );
-        filter = { schoolId };
-      } else {
-        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
-      }
+      const filter = buildPermissionFilter(userRole, schoolId);
 
       const classes = await this.classRepository.findAll(filter, options);
 
@@ -81,7 +69,7 @@ class ClassService {
     actorId: string,
     userRole: string,
     schoolId?: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
       let filter: any = {};
@@ -261,7 +249,7 @@ class ClassService {
     actorId: string,
     userRole: string,
     filter: FilterQuery<IClass> = {},
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
       const result = await this.classRepository.findAll(filter, options);

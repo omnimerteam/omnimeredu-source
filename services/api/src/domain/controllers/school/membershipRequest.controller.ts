@@ -5,12 +5,12 @@ import {
   sendEmpty,
   sendUnauthorized,
   sendBadRequest,
-  sendNotFound,
   sendError,
 } from "../../../common/utils/ResponseHelper";
 import chalk from "chalk";
-import { MembershipActionEnum } from "../../../common/enum/membershipRequest.enum";
+import { MembershipStatusEnum } from "../../../common/enum/membershipRequest.enum";
 import { MembershipRequestService } from "../../services";
+import { buildQueryOptions } from "../../../common/utils/buildQueryOptions";
 
 class MembershipRequestController {
   private readonly membershipRequestService: MembershipRequestService;
@@ -32,7 +32,7 @@ class MembershipRequestController {
     }
 
     const schoolId = req.user?.schoolId;
-    const options = req.query as any;
+    const options = buildQueryOptions(req.query as any);
 
     try {
       const memberRequest =
@@ -157,7 +157,7 @@ class MembershipRequestController {
     }
   }
 
-  async updateActionMemberRequest(
+  async updateStatusMemberRequest(
     req: Request,
     res: Response,
     next: NextFunction
@@ -165,28 +165,28 @@ class MembershipRequestController {
     const actorId = req.user?.id;
     const userRole = req.role;
     const id = req.params.id;
-    const action: MembershipActionEnum = req.body.action;
+    const status: MembershipStatusEnum = req.body.action;
 
     if (!userRole || !actorId) {
       sendUnauthorized(res);
       return;
     }
-    if (!id || !action) {
+    if (!id || !status) {
       sendBadRequest(res, "Thiếu thông tin action hoặc ID");
       return;
     }
 
     try {
       const updated =
-        await this.membershipRequestService.updateActionMemberRequest(
+        await this.membershipRequestService.updateStatusMemberRequest(
           actorId,
           id,
-          action
+          status
         );
       sendSuccess(res, updated, "Cập nhật action thành công");
     } catch (error) {
       console.log(
-        chalk.red("[MEMBERSHIP] Error updateActionMemberRequest: ", error)
+        chalk.red("[MEMBERSHIP] Error updateStatusMemberRequest: ", error)
       );
       return next(error);
     }

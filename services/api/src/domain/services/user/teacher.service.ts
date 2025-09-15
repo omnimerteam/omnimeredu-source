@@ -1,6 +1,9 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger.js";
-import { TeacherRepository } from "../../repositories";
+import { TeacherRepository } from "../../repositories/index.js";
 import { ITeacher } from "../../models";
+import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
+import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
+
 class TeacherService {
   private readonly logger: DefaultLogger;
   private readonly teacherRepository: TeacherRepository;
@@ -13,15 +16,24 @@ class TeacherService {
     this.teacherRepository = TeacherRepository;
   }
 
-  async getAllTeachers(actorId: string, userRole: string) {
+  async getAllTeachers(
+    actorId: string,
+    userRole: string,
+    schoolId?: string,
+    options?: PaginationQueryOptions
+  ) {
     try {
-      const teachers = await this.teacherRepository.findAll();
+      const filter = buildPermissionFilter(userRole, schoolId);
+
+      const teachers = await this.teacherRepository.findAll(filter, options);
+
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_TEACHERS",
         roleSnapshot: userRole,
-        metadata: { count: teachers.length },
+        metadata: { filter, options, count: teachers.length },
       });
+
       return teachers;
     } catch (error) {
       await this.logger.log({

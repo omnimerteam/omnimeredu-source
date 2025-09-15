@@ -18,11 +18,14 @@ import { validateData } from "../middlewares/validateData";
 // Validators
 import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
-import { createPaginationSchemaWithSort } from "../../validators/common/query/query.validator";
+import {
+  createPaginationSchemaWithSort,
+  createPaginationSchemaWithSortAndFilter,
+} from "../../validators/common/query/query.validator";
 import {
   createMembershipRequestBodySchema,
-  updateActionMembershipRequestBodySchema,
   updateMembershipRequestBodySchema,
+  updateStatusMembershipRequestBodySchema,
 } from "../../validators/app/membershipRequest/membershipRequest.validator";
 import { z } from "zod";
 import { MembershipActionTuple } from "../../../common/enum/membershipRequest.enum";
@@ -44,12 +47,11 @@ const membershipRequestController = new MembershipRequestController(
 const router = Router();
 
 // Custom Validate
-const getAllMemberRequestPaginationSchema = createPaginationSchemaWithSort([
-  "name",
-  "code",
-  "schoolId",
-  "baseFee",
-]);
+const getAllMemberRequestPaginationSchema =
+  createPaginationSchemaWithSortAndFilter(
+    ["createdAt"],
+    ["role", "action", "status"]
+  );
 
 /**
  * ROUTE DEFINITIONS
@@ -76,7 +78,6 @@ router.get(
     params: objectIdParamSchema,
   }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.getMemberRequestById(req, res, next)
 );
@@ -89,7 +90,6 @@ router.post(
     body: createMembershipRequestBodySchema,
   }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.createMemberRequest(req, res, next)
 );
@@ -122,17 +122,17 @@ router.delete(
 );
 
 // ✅ Cập nhật action (dành cho SchoolAdmin phê duyệt)
-router.put(
-  "/:id/action",
+router.patch(
+  "/:id/status",
   validateData({
     headers: authHeaderSchema,
     params: objectIdParamSchema,
-    body: updateActionMembershipRequestBodySchema,
+    body: updateStatusMembershipRequestBodySchema,
   }),
   verifyFirebaseToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) =>
-    membershipRequestController.updateActionMemberRequest(req, res, next)
+    membershipRequestController.updateStatusMemberRequest(req, res, next)
 );
 
 export default router;

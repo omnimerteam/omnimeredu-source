@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
 import 'bloc/class_management_bloc.dart';
-import 'bloc/class_management_event.dart';
 import 'bloc/class_management_state.dart';
 import 'widgets/class_sort_controls.dart';
 import 'widgets/class_pagination.dart';
@@ -15,11 +13,8 @@ class ClassManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          sl<ClassManagementBloc>()..add(const LoadClassesEvent()),
-      child: const ClassManagementView(),
-    );
+    // Không còn BlocProvider ở đây
+    return const ClassManagementView();
   }
 }
 

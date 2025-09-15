@@ -133,8 +133,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                         isFocused: _isPasswordFocused,
                         obscureText: _obscureText,
                         validator: (v) =>
-                            Validators.requiredField(v, name: "Mật khẩu") ??
-                            Validators.password(v),
+                            Validators.requiredField(v, name: "Mật khẩu"),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureText

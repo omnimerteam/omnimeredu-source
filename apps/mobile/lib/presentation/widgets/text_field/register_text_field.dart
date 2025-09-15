@@ -72,7 +72,24 @@ class _RegisterTextFieldState extends State<RegisterTextField> {
           obscureText: widget.isPassword ? _isObscured : false,
           keyboardType: widget.keyboardType,
           maxLines: widget.isPassword ? 1 : widget.maxLines,
-          validator: widget.validator,
+          validator: (value) {
+            final error = widget.validator?.call(value);
+
+            if (error != null) {
+              // 🔹 Hiện SnackBar cho field này
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(error),
+                    backgroundColor: AppColors.red,
+                  ),
+                );
+              });
+            }
+
+            // 🔹 Vẫn return để TextFormField show errorText bên dưới
+            return error;
+          },
           onTap: widget.onTap,
           onChanged: widget.onChanged,
           readOnly: widget.readOnly,

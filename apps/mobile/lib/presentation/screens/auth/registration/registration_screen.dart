@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/already_have_account.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/step_basic_info.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/step_review.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/step_role.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/register_button.dart';
 
 class RegistrationScreen extends StatefulWidget {

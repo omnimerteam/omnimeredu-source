@@ -1,9 +1,19 @@
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/create_membership_request_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/delete_membership_request.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_all_membership_request_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_membership_request_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,16 +28,16 @@ import 'services/dashboard_cache_service.dart';
 // DataSources
 import 'data/datasources/remote/auth/auth_remote_data_source.dart';
 import 'data/datasources/remote/auth/role_remote_datasource.dart';
-import 'data/datasources/remote/class/class_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'data/datasources/remote/school/school_remote_data_source.dart';
 import 'data/datasources/remote/dashboard/school_admin_dashboard_remote_data_source.dart';
 
 // Repositories
-import 'data/repositories/auth_repository_impl.dart';
-import 'data/repositories/role_repository_impl.dart';
-import 'data/repositories/class_repository_impl.dart';
-import 'data/repositories/school_repository_impl.dart';
-import 'data/repositories/dashboard_repository_impl.dart';
+import 'data/repositories/auth/auth_repository_impl.dart';
+import 'data/repositories/auth/role_repository_impl.dart';
+import 'data/repositories/school/class/class_repository_impl.dart';
+import 'data/repositories/school/school_repository_impl.dart';
+import 'data/repositories/dashboard/dashboard_repository_impl.dart';
 
 // Domain Repositories
 import 'domain/repositories/auth/auth_repository.dart';
@@ -105,6 +115,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SchoolAdminDashboardRemoteDataSource>(
     () => SchoolAdminDashboardRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
+    () => MembershipRequestRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -115,6 +128,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SchoolRepository>(() => SchoolRepositoryImpl(sl()));
   sl.registerLazySingleton<SchoolAdminDashboardRepository>(
     () => SchoolAdminDashboardRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<MembershipRequestRepository>(
+    () => MembershipRequestRepositoryImpl(sl()),
   );
 
   // ======================
@@ -142,6 +158,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeleteSchoolUseCase(sl()));
   sl.registerLazySingleton(() => GetSchoolDetailForSchoolAdminUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSchoolUseCase(sl()));
+
+  // Membership Request
+  sl.registerLazySingleton(() => CreateMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllMembershipRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => GetMembershipRequestByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateStatusMembershipRequestUseCase(sl()));
 
   // Dashboard
   sl.registerLazySingleton(() => GetDashboardSummaryUseCase(sl()));
@@ -191,6 +215,13 @@ Future<void> init() async {
       updateClassUseCase: sl(),
       deleteClassUseCase: sl(),
       getClassByIdUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => MembershipRequestManagementBloc(
+      getAllMembershipRequests: sl(),
+      updateStatusMembershipRequest: sl(),
     ),
   );
 }

@@ -81,7 +81,7 @@ class ClassListItem extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        'GV: ${classDetail.teacherName ?? 'Chưa phân công'}',
+                        'GV: ${classDetail.mainTeacherName ?? 'Chưa phân công'}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(
                             context,

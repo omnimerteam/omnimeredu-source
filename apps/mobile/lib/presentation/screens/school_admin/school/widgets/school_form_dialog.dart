@@ -169,6 +169,8 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         prefixIcon: Icons.school_outlined,
                         isFocused: _selectedLevel != null,
                         onChanged: (v) => setState(() => _selectedLevel = v),
+                        validator: (v) =>
+                            Validators.requiredField(v, name: "Cấp trường"),
                       ),
 
                       const SizedBox(height: 32),
@@ -183,13 +185,7 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         hintText: 'Nhập địa chỉ trường...',
                         prefixIcon: Icons.location_on,
                         isFocused: _addressFocus.hasFocus,
-
-                        validator: (v) {
-                          if (v != null && v.isNotEmpty && v.length < 10) {
-                            return 'Địa chỉ phải có ít nhất 10 ký tự';
-                          }
-                          return null;
-                        },
+                        validator: Validators.address,
                       ),
 
                       const SizedBox(height: 20),
@@ -201,14 +197,7 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         prefixIcon: Icons.phone,
                         isFocused: _phoneFocus.hasFocus,
                         keyboardType: TextInputType.phone,
-                        validator: (v) {
-                          if (v != null && v.isNotEmpty) {
-                            if (v.length < 10 || v.length > 11) {
-                              return 'Số điện thoại phải có 10-11 chữ số';
-                            }
-                          }
-                          return null;
-                        },
+                        validator: Validators.phone,
                       ),
 
                       const SizedBox(height: 32),
@@ -222,12 +211,7 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         focusNode: _descriptionFocus,
                         hintText: "Nhập mô tả về trường...",
                         prefixIcon: Icons.description,
-                        validator: (v) {
-                          if (v != null && v.isNotEmpty && v.length < 10) {
-                            return 'Mô tả phải có ít nhất 10 ký tự';
-                          }
-                          return null;
-                        },
+                        validator: Validators.description,
                       ),
 
                       const SizedBox(height: 32),

@@ -66,7 +66,7 @@ class ClassRemoteDataSource {
       query: {
         "page": page.toString(),
         "limit": limit.toString(),
-        "sort": sort.isNotEmpty ? sort : AppConstants.nameSort,
+        "sort": sort.isNotEmpty ? sort : "name:asc",
       },
       parser: (data) {
         if (data is List) {

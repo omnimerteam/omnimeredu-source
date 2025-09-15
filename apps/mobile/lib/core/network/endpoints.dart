@@ -35,4 +35,10 @@ class Endpoints {
   static const String getSummary = "/v1/school-admin-dashboard/get-summary";
   static const String getSchoolAttendanceStats =
       "/v1/school-admin-dashboard/get-school-attendance-stats";
+
+  // ================== MEMBERSHIP REQUEST ==================
+  static const String membershipRequests = "/v1/membership-request";
+  static String membershipRequestId(String id) => "/v1/membership-request/$id";
+  static String membershipRequestStatus(String id) =>
+      "/v1/membership-request/$id/status";
 }

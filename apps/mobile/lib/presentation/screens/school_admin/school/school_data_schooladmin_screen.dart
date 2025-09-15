@@ -17,11 +17,8 @@ class SchoolDataSchoolAdminScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          sl<SchoolDataSchoolAdminBloc>()..add(LoadSchoolDataAdmin()),
-      child: const _SchoolDataSchoolAdminScreenView(),
-    );
+    // Không còn BlocProvider ở đây
+    return const _SchoolDataSchoolAdminScreenView();
   }
 }
 

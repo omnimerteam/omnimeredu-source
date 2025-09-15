@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
 
 class ClassDetailViewModel extends ClassDetailViewEntity {
@@ -11,8 +10,8 @@ class ClassDetailViewModel extends ClassDetailViewEntity {
     String? schoolId,
     String? schoolName,
     String? schoolLevel,
-    String? teacherId,
-    String? teacherName,
+    String? mainTeacherId,
+    String? mainTeacherName,
   }) : super(
          id: id,
          name: name,
@@ -22,8 +21,8 @@ class ClassDetailViewModel extends ClassDetailViewEntity {
          schoolId: schoolId,
          schoolName: schoolName,
          schoolLevel: schoolLevel,
-         teacherId: teacherId,
-         teacherName: teacherName,
+         mainTeacherId: mainTeacherId,
+         mainTeacherName: mainTeacherName,
        );
 
   factory ClassDetailViewModel.fromJson(Map<String, dynamic> json) {
@@ -36,8 +35,8 @@ class ClassDetailViewModel extends ClassDetailViewEntity {
       studentCount: json['studentCount'] as int?,
       schoolName: json['schoolName'] as String?,
       schoolLevel: json['schoolLevel'] as String?,
-      teacherId: json['teacherId'] as String?,
-      teacherName: json['teacherName'] as String?,
+      mainTeacherId: json['mainTeacherId'] as String?,
+      mainTeacherName: json['mainTeacherName'] as String?,
     );
   }
 
@@ -51,8 +50,8 @@ class ClassDetailViewModel extends ClassDetailViewEntity {
       schoolId: schoolId,
       schoolName: schoolName,
       schoolLevel: schoolLevel,
-      teacherId: teacherId,
-      teacherName: teacherName,
+      mainTeacherId: mainTeacherId,
+      mainTeacherName: mainTeacherName,
     );
   }
 }

@@ -52,6 +52,16 @@ class DashboardQuickAccess extends StatelessWidget {
               },
             ),
             QuickAccessButton(
+              title: 'Yêu cầu',
+              icon: Icons.person_add,
+              color: Colors.purple,
+              onTap: () {
+                Navigator.of(
+                  context,
+                ).pushNamed('/school-admin/membership-requests');
+              },
+            ),
+            QuickAccessButton(
               title: 'Học sinh',
               icon: Icons.people,
               color: Colors.blue,

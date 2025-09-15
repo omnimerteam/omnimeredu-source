@@ -37,7 +37,6 @@ class PrimaryTextField extends StatelessWidget {
         controller: controller,
         focusNode: focusNode,
         obscureText: obscureText,
-        validator: validator,
         keyboardType: keyboardType,
         onChanged: onChanged,
         style: TextStyle(
@@ -46,6 +45,26 @@ class PrimaryTextField extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: theme.colorScheme.onBackground,
         ),
+        validator: (value) {
+          final error = validator?.call(value);
+
+          if (error != null && error.isNotEmpty) {
+            // 🔹 show SnackBar khi có lỗi
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final messenger = ScaffoldMessenger.of(context);
+              messenger.hideCurrentSnackBar(); // tránh chồng nhiều snackbar
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text("$hintText: $error"),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            });
+          }
+
+          return error; // vẫn hiện errorText dưới input
+        },
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
@@ -88,6 +107,14 @@ class PrimaryTextField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
           contentPadding: const EdgeInsets.symmetric(
             vertical: 20,
