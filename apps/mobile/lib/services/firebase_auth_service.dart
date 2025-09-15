@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_ios_android_platforms/core/error/firebase_auth_failure.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 
 abstract class FirebaseAuthService {
   Future<String> signInAndGetToken(String email, String password);
@@ -13,21 +15,34 @@ class FirebaseAuthServiceImpl implements FirebaseAuthService {
 
   @override
   Future<String> signInAndGetToken(String email, String password) async {
-    final credential = await firebaseAuth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    try {
+      final credential = await firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    final idToken = await credential.user?.getIdToken();
-    if (idToken == null) {
-      throw Exception("Không lấy được idToken từ Firebase");
+      final idToken = await credential.user?.getIdToken();
+      if (idToken == null) {
+        throw const FirebaseAuthFailure("Không lấy được idToken từ Firebase");
+      }
+      return idToken;
+    } on FirebaseAuthException catch (e) {
+      logger.e("Firebase exception: ${e.code}");
+      throw FirebaseAuthFailure.fromCode(e.code);
+    } catch (_) {
+      throw const FirebaseAuthFailure("Đăng nhập thất bại, vui lòng thử lại.");
     }
-    return idToken;
   }
 
   @override
   Future<void> signOut() async {
-    await firebaseAuth.signOut();
+    try {
+      await firebaseAuth.signOut();
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseAuthFailure.fromCode(e.code);
+    } catch (_) {
+      throw const FirebaseAuthFailure("Đăng xuất thất bại.");
+    }
   }
 
   @override

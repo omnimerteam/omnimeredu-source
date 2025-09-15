@@ -15,7 +15,6 @@ class ApiClient {
           responseType: ResponseType.json,
         ),
       ) {
-    // Thêm interceptor để log request/response
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -31,17 +30,21 @@ class ApiClient {
         },
         onError: (e, handler) {
           logger.e("❌ Error: ${e.message}");
+          if (e.response?.data != null) {
+            logger.e("❌ Error body: ${e.response?.data}");
+          }
           return handler.next(e);
         },
       ),
     );
   }
 
-  /// GET
+  /// GET with optional parser that maps the server `data` → T
   Future<ApiResponse<T>> get<T>(
     String path, {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
   }) async {
     try {
       final response = await dio.get(
@@ -49,18 +52,18 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return _handleResponse<T>(response);
+      return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       return _handleError<T>(e);
     }
   }
 
-  /// POST
   Future<ApiResponse<T>> post<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
   }) async {
     try {
       final response = await dio.post(
@@ -69,18 +72,18 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return _handleResponse<T>(response);
+      return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       return _handleError<T>(e);
     }
   }
 
-  /// PUT
   Future<ApiResponse<T>> put<T>(
     String path, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
   }) async {
     try {
       final response = await dio.put(
@@ -89,17 +92,37 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return _handleResponse<T>(response);
+      return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       return _handleError<T>(e);
     }
   }
 
-  /// DELETE
+  Future<ApiResponse<T>> patch<T>(
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? query,
+    Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
+  }) async {
+    try {
+      final response = await dio.patch(
+        path,
+        data: data,
+        queryParameters: query,
+        options: Options(headers: headers),
+      );
+      return _handleResponse<T>(response, fromJsonT: parser);
+    } on DioException catch (e) {
+      return _handleError<T>(e);
+    }
+  }
+
   Future<ApiResponse<T>> delete<T>(
     String path, {
     Map<String, dynamic>? query,
     Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
   }) async {
     try {
       final response = await dio.delete(
@@ -107,64 +130,105 @@ class ApiClient {
         queryParameters: query,
         options: Options(headers: headers),
       );
-      return _handleResponse<T>(response);
+      return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       return _handleError<T>(e);
     }
   }
 
-  /// Xử lý response OK
-  ApiResponse<T> _handleResponse<T>(Response response) {
-    final data = response.data;
-    logger.i("Api Reponse Data: ${data}");
-    return ApiResponse.success(
-      data as T,
-      message: data is Map && data['message'] != null ? data['message'] : null,
-    );
+  /// Nếu server trả wrapper { success, data, message }, parse nó.
+  ApiResponse<T> _handleResponse<T>(
+    Response response, {
+    T Function(dynamic)? fromJsonT,
+  }) {
+    final raw = response.data;
+
+    if (raw == null) {
+      return ApiResponse<T>.success(null, message: "Không có thông tin");
+    }
+
+    // server trả theo chuẩn wrapper
+    if (raw is Map && raw.containsKey('success')) {
+      try {
+        return ApiResponse<T>.fromJson(raw, fromJsonT: fromJsonT);
+      } catch (e, st) {
+        logger.e("_parse wrapper error: $e\n$st");
+        // fallback: trả toàn bộ body như data
+        return ApiResponse<T>.success(raw as T?, message: "Thành công");
+      }
+    }
+
+    // server không dùng wrapper → fallback
+    return ApiResponse<T>.success(raw as T?, message: "Thành công");
   }
 
-  /// Xử lý lỗi (return ApiResponse chứ không throw Exception)
   ApiResponse<T> _handleError<T>(DioException e) {
     final status = e.response?.statusCode ?? 500;
+    String message = "Lỗi không xác định";
 
-    String message;
-
-    // Timeout
+    // timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      message = "Request timeout";
-    }
-    // Lỗi mạng
-    else if (e.type == DioExceptionType.connectionError) {
-      message = "No internet connection";
-    }
-    // Backend trả lỗi
-    else if (e.response != null) {
-      final backendMessage = e.response?.data is Map
-          ? e.response?.data['message']?.toString()
-          : null;
+      message = "Yêu cầu quá thời gian. Vui lòng thử lại";
+    } else if (e.type == DioExceptionType.connectionError) {
+      message = "Không có kết nối internet";
+    } else if (e.response != null) {
+      final body = e.response?.data;
+      // Nếu backend trả object { success, message, error }
+      if (body is Map) {
+        final backendMessage = body['message'] != null
+            ? body['message'].toString()
+            : null;
+        final backendDevError =
+            body['error'] ?? body['detail'] ?? body['debug'];
 
-      if (backendMessage != null && backendMessage.isNotEmpty) {
-        message = backendMessage;
+        if (backendMessage != null && backendMessage.isNotEmpty) {
+          message = backendMessage;
+        } else {
+          // fallback theo status
+          switch (status) {
+            case 401:
+              message = "Không có quyền truy cập";
+              break;
+            case 404:
+              message = "Không tìm thấy thông tin";
+              break;
+            case 500:
+              message = "Lỗi hệ thống";
+              break;
+            default:
+              message = "Lỗi dịch vụ (${status})";
+          }
+        }
+
+        // Ghi log chi tiết cho dev (không show cho người dùng)
+        if (backendDevError != null) {
+          logger.e("Backend error detail: $backendDevError");
+        } else {
+          // nếu backend không có 'error' field, log body để debug
+          logger.e("Backend error body: $body");
+        }
       } else {
+        // body không phải map
         switch (status) {
           case 401:
-            message = "Unauthorized";
+            message = "Không có quyền truy cập";
             break;
           case 404:
-            message = "Resource not found";
+            message = "Không tìm thấy thông tin";
             break;
           case 500:
-            message = "Internal server error";
+            message = "Lỗi hệ thống";
             break;
           default:
-            message = "Unexpected error";
+            message = "Lỗi dịch vụ (${status})";
         }
+        logger.e("Backend error (non-map body): ${e.response?.data}");
       }
     } else {
-      message = "Unknown error";
+      message = "Không thể kết nối đến server";
     }
 
-    return ApiResponse.error(message);
+    return ApiResponse<T>.error(message);
   }
 }

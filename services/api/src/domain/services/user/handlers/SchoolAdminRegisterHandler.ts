@@ -4,9 +4,13 @@ import {
   MembershipRequestRepository,
   SchoolRepository,
 } from "../../../repositories";
-import { createSchoolBodySchema } from "../../../../common/validators/school/school.validator";
-import chalk from "chalk";
-import { generateSchoolCode } from "../../../utils/generateSchoolCode";
+import { createSchoolBodySchema } from "../../../../common/validators/app/school/school.validator";
+import { generateSchoolCode } from "../../../utils/generateCode";
+import {
+  MembershipActionEnum,
+  MembershipRoleEnum,
+  MembershipStatusEnum,
+} from "../../../../common/enum/membershipRequest.enum";
 
 export class SchoolAdminRegisterHandler implements IRegisterHandler {
   private readonly schoolRepository: SchoolRepository;
@@ -22,14 +26,13 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
   async handle(user: any, payload: any, session: ClientSession) {
     if (payload.schoolData) {
       // Trường hợp tạo mới trường
-      const code = generateSchoolCode(payload.schoolData.name || "XXX YYY ZZZ"); // Generate code from name
-      console.log(payload.schoolData);
+      const code = generateSchoolCode(payload.schoolData.name || "XXX YYY ZZZ");
+      // Generate code from name
+      console.log("Payload", payload.schoolData);
       const schoolData = createSchoolBodySchema.parse({
         ...payload.schoolData,
         adminId: user.id,
       });
-
-      console.log(schoolData);
 
       const school = await this.schoolRepository.createWithSession(
         {
@@ -49,9 +52,9 @@ export class SchoolAdminRegisterHandler implements IRegisterHandler {
         {
           userId: user._id,
           schoolId: payload.schoolId,
-          role: "SchoolAdmin",
-          action: "Enroll",
-          status: "Pending",
+          role: MembershipRoleEnum.SchoolAdmin,
+          action: MembershipActionEnum.Enroll,
+          status: MembershipStatusEnum.Pending,
         },
         session
       );

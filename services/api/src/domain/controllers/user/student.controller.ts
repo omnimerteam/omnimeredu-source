@@ -30,12 +30,15 @@ class StudentController {
       return;
     }
 
+    const schoolId = req.user?.schoolId;
+
     const options = buildQueryOptions(req.query as any);
 
     try {
       const students = await this.studentService.getAllStudents(
         actorId,
         userRole,
+        schoolId,
         options
       );
       if (!students || students.length === 0) {

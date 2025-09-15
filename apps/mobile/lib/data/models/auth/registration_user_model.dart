@@ -23,7 +23,7 @@ class RegisterUserModel extends RegisterUserEntity {
         if (baseUserInfo.gender != null) 'gender': baseUserInfo.gender,
         if (baseUserInfo.phone != null) 'phone': baseUserInfo.phone,
         if (baseUserInfo.birthday != null)
-          'birthday': baseUserInfo.birthday!.toIso8601String(),
+          'birthday': baseUserInfo.birthday!.toUtc().toIso8601String(),
         if (baseUserInfo.address != null) 'address': baseUserInfo.address,
       },
     };

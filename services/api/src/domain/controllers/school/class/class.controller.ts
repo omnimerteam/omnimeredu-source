@@ -62,6 +62,51 @@ class ClassController {
   }
 
   /**
+   * Lấy danh sách View Model DetailClass
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
+  async getAllClassDetailView(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolId = req.user?.schoolId;
+
+    const options = buildQueryOptions(req.query as any);
+
+    try {
+      const result = await this.classService.getAllClassDetailView(
+        actorId,
+        userRole,
+        schoolId,
+        options
+      );
+
+      if (!result || result.length === 0) {
+        console.log(chalk.yellow("[CLASS] No classes found for user"));
+        sendEmpty(res, "Không có lớp học trong hệ thống");
+        return;
+      }
+
+      sendSuccess(res, result, "Lấy danh sách lớp thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[CLASS] ❌ Get all classes failed"), error);
+      return next(error);
+    }
+  }
+
+  /**
    * Lấy lớp học theo ID
    */
   async getClassById(
@@ -111,20 +156,23 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    const schoolId = req.user?.schoolId;
+
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const data = req.body;
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
-
-      const body = req.body;
-
       const result = await this.classService.createClass(
         actorId,
         userRole,
-        body
+        data,
+        schoolId
       );
 
       sendCreated(res, result, "Tạo lớp thành công");
@@ -200,7 +248,7 @@ class ClassController {
         return next(error);
       }
 
-      sendNoContent(res, "Đã xóa lớp thành công");
+      sendSuccess(res, null, "Xóa thông tin trường học thành công");
       return;
     } catch (error) {
       console.log(chalk.red("[CLASS] ❌ Delete class failed"), error);
@@ -338,13 +386,11 @@ class ClassController {
   ): Promise<void> {
     const { schoolId, query } = req.query;
 
-    console.log("schoolId", schoolId);
-    console.log("query", query);
-
     if (!schoolId?.toString().trim() && !query?.toString().trim()) {
       sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
       return;
     }
+
     try {
       const classes = await this.classService.searchClassesInSchool(
         schoolId?.toString(),

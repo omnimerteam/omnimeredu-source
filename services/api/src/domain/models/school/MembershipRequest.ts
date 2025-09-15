@@ -1,5 +1,16 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import {
+  MembershipActionEnum,
+  MembershipActionTuple,
+  MembershipRoleEnum,
+  MembershipRoleTuple,
+  MembershipStatusEnum,
+  MembershipStatusTuple,
+} from "../../../common/enum/membershipRequest.enum";
 
+/**
+ * 🔹 Interface cho Mongo Document
+ */
 export interface IMembershipRequest extends Document {
   _id: Types.ObjectId;
 
@@ -7,19 +18,19 @@ export interface IMembershipRequest extends Document {
   schoolId: Types.ObjectId; // Trường muốn tham gia
   classId?: Types.ObjectId; // Nếu xin vào lớp cụ thể
 
-  role: "Student" | "Teacher" | "Staff" | "SchoolAdmin";
-  action: "Enroll" | "Transfer" | "Assign" | "Resign";
-  // Enroll = nhập học / nhận công tác
-  // Transfer = chuyển lớp
-  // Assign = phân công giảng dạy/làm việc
-  // Resign = nghỉ học / thôi công tác
-  status: "Pending" | "Approved" | "Rejected";
+  role: MembershipRoleEnum;
+  action: MembershipActionEnum;
+  status: MembershipStatusEnum;
+
   note?: string;
 
   createdAt: Date;
   updatedAt: Date;
 }
 
+/**
+ * 🔹 Schema
+ */
 const MembershipRequestSchema = new Schema<IMembershipRequest>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
@@ -30,20 +41,20 @@ const MembershipRequestSchema = new Schema<IMembershipRequest>(
 
     role: {
       type: String,
-      enum: ["Student", "Teacher", "Staff", "SchoolAdmin"],
+      enum: MembershipRoleTuple,
       required: true,
     },
     action: {
       type: String,
-      enum: ["Enroll", "Transfer", "Assign", "Resign"],
+      enum: MembershipActionTuple,
       required: true,
     },
-
     status: {
       type: String,
-      enum: ["Pending", "Approved", "Rejected"],
-      default: "Pending",
+      enum: MembershipStatusTuple,
+      default: MembershipStatusEnum.Pending,
     },
+
     note: { type: String },
   },
   { timestamps: true }

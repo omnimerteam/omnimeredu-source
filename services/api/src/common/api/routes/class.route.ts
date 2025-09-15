@@ -1,11 +1,12 @@
 import { Router } from "express";
 
 // Models → Repo → Service → Controller
-import { Class, Student } from "../../../domain/models";
+import { Class, ClassDetailView, Student } from "../../../domain/models";
 import {
   ClassRepository,
   StudentRepository,
   ActivityLogRepository,
+  ClassDetailViewRepository,
 } from "../../../domain/repositories";
 import { ClassService } from "../../../domain/services";
 import { ClassController } from "../../../domain/controllers";
@@ -24,32 +25,35 @@ import {
   modifyStudentsBodySchema,
   transferClassBodySchema,
   updateClassBodySchema,
-} from "../../validators/class/class.validator";
-import { objectIdParamSchema } from "../../validators/params/params.validator";
-import { authHeaderSchema } from "../../validators/header/header.validator";
+} from "../../validators/app/class/class.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import {
   createPaginationSchemaWithSort,
+  createPaginationSchemaWithSortAndFilter,
   searchClassesQuerySchema,
-} from "../../validators/query/query.validator";
+} from "../../validators/common/query/query.validator";
 
 // Init Dependencies
 const classRepository = new ClassRepository(Class);
+const classDetailViewRepository = new ClassDetailViewRepository(
+  ClassDetailView
+);
 const studentRepository = new StudentRepository(Student);
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classService = new ClassService(
   classRepository,
   logger,
-  studentRepository
+  studentRepository,
+  classDetailViewRepository
 );
 const classController = new ClassController(classService);
 
 // Custom Validate
-const getAllClassPaginationSchema = createPaginationSchemaWithSort([
-  "name",
-  "code",
-  "schoolId",
-  "baseFee",
-]);
+const getAllClassPaginationSchema = createPaginationSchemaWithSortAndFilter(
+  ["name", "code", "schoolId", "baseFee"],
+  []
+);
 
 // Router
 const router = Router();
@@ -70,6 +74,18 @@ router.get(
   (req, res, next) => classController.getAllClasses(req, res, next)
 );
 
+// ✅ Lấy tất cả lớp trong view model ClassDetail (có filter query)
+router.get(
+  "/class-detail-view",
+  validateData({
+    headers: authHeaderSchema,
+    query: getAllClassPaginationSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.getAllClassDetailView(req, res, next)
+);
+
 // ✅ Lấy lớp theo ID
 router.get(
   "/:id",
@@ -82,10 +98,9 @@ router.get(
 // ✅ Tạo lớp mới
 router.post(
   "/",
-  validateData({ headers: authHeaderSchema }),
+  validateData({ headers: authHeaderSchema, body: createClassBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
-  validateData({ body: createClassBodySchema }),
   (req, res, next) => classController.createClass(req, res, next)
 );
 

@@ -12,6 +12,7 @@ export { default as RoleService } from "./user/role.service";
 // ======================
 export { default as SchoolService } from "./school/school.service";
 export { default as NewsService } from "./school/news.service";
+export { default as MembershipRequestService } from "./school/membershipRequest.service";
 
 export { default as ClassService } from "./school/class/class.service";
 export { default as TeachingAssignmentService } from "./school/class/teachingAssignment.service";
@@ -27,3 +28,8 @@ export { default as DetailsRecordService } from "./school/attendance/detailsReco
 // System Module
 // ======================
 export { default as VipPackageService } from "./system/vipPackage.service";
+
+// ======================
+// System Module
+// ======================
+export { default as SchoolAdminDashboardService } from "./schoolAdminDashboard/schoolAdminDashboard.service";

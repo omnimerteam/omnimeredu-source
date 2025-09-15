@@ -36,15 +36,44 @@ class AuthRemoteDataSource {
       headers: {"Authorization": "Bearer $idToken"},
     );
 
-    logger.i("raw: ${raw.data}");
-
     if (raw.success == false) {
-      throw Failure(raw.message ?? "Đăng nhập thất bại");
+      throw Exception(raw.message ?? "Đăng nhập thất bại");
     }
 
-    final userJson = raw.data["data"]["user"];
-    if (userJson == null) throw Failure("Người dùng ko tồn tại");
+    final userJson = raw.data["user"];
+    if (userJson == null) throw Exception("Người dùng ko tồn tại");
 
     return AuthUserModel.fromJson(userJson);
+  }
+
+  Future<void> logout() async {
+    try {
+      await firebaseAuthService.signOut();
+    } catch (e) {
+      throw new Exception(e);
+    }
+  }
+
+  Future<AuthUserModel?> getCurrentUserFromBackend({
+    required String idToken,
+  }) async {
+    try {
+      final raw = await client.get(
+        Endpoints.login, // hoặc endpoint riêng "me"
+        headers: {"Authorization": "Bearer $idToken"},
+      );
+
+      if (raw.success == false) {
+        throw Failure(raw.message ?? "Lấy thông tin user thất bại");
+      }
+
+      final userJson = raw.data["user"];
+      if (userJson == null) return null;
+
+      return AuthUserModel.fromJson(userJson);
+    } catch (e) {
+      logger.e("getCurrentUserFromBackend error: $e");
+      return null;
+    }
   }
 }

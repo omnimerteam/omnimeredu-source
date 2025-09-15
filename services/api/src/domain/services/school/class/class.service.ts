@@ -2,30 +2,74 @@ import { FilterQuery, Types } from "mongoose";
 
 import { IClass } from "../../../models";
 
-import { ClassRepository, StudentRepository } from "../../../repositories";
+import {
+  ClassDetailViewRepository,
+  ClassRepository,
+  StudentRepository,
+} from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
+import { generateClassCode } from "../../../utils/generateCode";
+import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
+import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
+  private readonly classDetailViewRepository: ClassDetailViewRepository;
 
   constructor(
     classRepository: ClassRepository,
     logger: DefaultLogger,
-    studentRepository: StudentRepository
+    studentRepository: StudentRepository,
+    classDetailViewRepository: ClassDetailViewRepository
   ) {
     this.classRepository = classRepository;
     this.logger = logger;
     this.studentRepository = studentRepository;
+    this.classDetailViewRepository = classDetailViewRepository;
   }
 
   async getAllClasses(
     actorId: string,
     userRole: string,
     schoolId?: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
+  ) {
+    try {
+      const filter = buildPermissionFilter(userRole, schoolId);
+
+      const classes = await this.classRepository.findAll(filter, options);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_CLASSES",
+        roleSnapshot: userRole,
+        metadata: {
+          filter,
+          options,
+          count: classes.length,
+        },
+      });
+
+      return classes;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_CLASSES_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getAllClassDetailView(
+    actorId: string,
+    userRole: string,
+    schoolId?: string,
+    options?: PaginationQueryOptions
   ) {
     try {
       let filter: any = {};
@@ -44,7 +88,10 @@ class ClassService {
         throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
       }
 
-      const classes = await this.classRepository.findAll(filter, options);
+      const classes = await this.classDetailViewRepository.findAll(
+        filter,
+        options
+      );
 
       await this.logger.log({
         userId: actorId,
@@ -94,9 +141,20 @@ class ClassService {
     }
   }
 
-  async createClass(actorId: string, userRole: string, data: Partial<IClass>) {
+  async createClass(
+    actorId: string,
+    userRole: string,
+    data: IClass,
+    schoolId: string
+  ) {
     try {
-      const created = await this.classRepository.create(data);
+      const code = generateClassCode(data.name);
+
+      const created = await this.classRepository.create({
+        ...data,
+        code,
+        schoolId: new Types.ObjectId(schoolId),
+      });
 
       await this.logger.log({
         userId: actorId,
@@ -191,7 +249,7 @@ class ClassService {
     actorId: string,
     userRole: string,
     filter: FilterQuery<IClass> = {},
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
       const result = await this.classRepository.findAll(filter, options);

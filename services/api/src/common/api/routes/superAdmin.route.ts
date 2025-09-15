@@ -16,9 +16,9 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
-import { authHeaderSchema } from "../../validators/header/header.validator";
-import { objectIdParamSchema } from "../../validators/params/params.validator";
-import { createSuperAdminSchema } from "../../validators/superAdmin/superAdmin.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import { createSuperAdminSchema } from "../../validators/auth/superAdmin/superAdmin.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());

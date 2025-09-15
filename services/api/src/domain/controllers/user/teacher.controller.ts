@@ -10,6 +10,7 @@ import {
   sendNotFound,
   sendEmpty,
 } from "../../../common/utils/ResponseHelper";
+import { buildQueryOptions } from "../../../common/utils/buildQueryOptions";
 class TeacherController {
   private teacherService: TeacherService;
   constructor(teacherService: TeacherService) {
@@ -21,16 +22,22 @@ class TeacherController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolId = req.user?.schoolId;
+
+    const options = buildQueryOptions(req.query as any);
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!userRole || !actorId) {
-        sendUnauthorized(res);
-        return;
-      }
       const teachers = await this.teacherService.getAllTeachers(
         actorId,
-        userRole
+        userRole,
+        schoolId,
+        options
       );
       if (!teachers || teachers.length === 0) {
         sendEmpty(res);

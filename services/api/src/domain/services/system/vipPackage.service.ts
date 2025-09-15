@@ -1,3 +1,4 @@
+import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { IVipPackage } from "../../models";
 import { VipPackageRepository } from "../../repositories";
@@ -16,7 +17,7 @@ class VipPackageService {
   async getAllVipPackages(
     actorId: string,
     userRole: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
       const vipPackage = await this.vipPackageRepository.findAll({}, options);

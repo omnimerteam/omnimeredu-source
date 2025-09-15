@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
-import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -148,7 +148,9 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
             label: 'Họ và tên',
             hintText: 'Nhập họ và tên',
             requiredInput: true,
-            validator: (v) => Validators.requiredField(v, name: "Họ và tên"),
+            validator: (v) =>
+                Validators.requiredField(v, name: "Họ và tên") ??
+                Validators.name(v),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(fullName: v),
             ),
@@ -178,7 +180,8 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
             hintText: 'Nhập số điện thoại',
             keyboardType: TextInputType.phone,
             validator: (v) =>
-                Validators.requiredField(v, name: "Số điện thoại"),
+                Validators.requiredField(v, name: "Số điện thoại") ??
+                Validators.phone(v),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(phone: v),
             ),
@@ -216,6 +219,7 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(address: v),
             ),
+            validator: (v) => Validators.address(v),
           ),
           const SizedBox(height: 24),
         ],

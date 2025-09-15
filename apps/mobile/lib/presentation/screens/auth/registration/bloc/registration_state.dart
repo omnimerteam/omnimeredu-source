@@ -50,6 +50,17 @@ class RegistrationState extends Equatable {
   final String? schoolLevel;
   final File? schoolLogoFile;
 
+  factory RegistrationState.initial() {
+    return const RegistrationState(
+      loading: false,
+      error: null,
+      success: false,
+      roles: [],
+      gender: "Male",
+      isCreateNewSchool: false,
+    );
+  }
+
   const RegistrationState({
     this.loading = false,
     this.error,

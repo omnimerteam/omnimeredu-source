@@ -15,6 +15,9 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
@@ -24,8 +27,17 @@ const teacherController = new TeacherController(teacherService);
 
 const router = Router();
 
+const teacherQuerySchema = createPaginationSchemaWithSortAndFilter(
+  ["fullName", "createdAt", "birthday"],
+  ["gender", "literacy", "subjects"]
+);
+
 router.get(
   "/",
+  validateData({
+    headers: authHeaderSchema,
+    query: teacherQuerySchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
@@ -33,13 +45,6 @@ router.get(
 );
 
 router.get(
-  "/teachers/:id",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.getTeacherById(req, res, next)
-);
-router.get(
   "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
@@ -47,13 +52,6 @@ router.get(
     teacherController.getTeacherById(req, res, next)
 );
 
-router.post(
-  "/teachers",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.createTeacher(req, res, next)
-);
 router.post(
   "/",
   verifyFirebaseToken,
@@ -63,26 +61,11 @@ router.post(
 );
 
 router.put(
-  "/teachers/:id",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.updateTeacher(req, res, next)
-);
-router.put(
   "/:id",
   verifyFirebaseToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.updateTeacher(req, res, next)
-);
-
-router.delete(
-  "/teachers/:id",
-  verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
-  async (req: Request, res: Response, next: NextFunction) =>
-    teacherController.deleteTeacher(req, res, next)
 );
 
 router.delete(

@@ -18,12 +18,13 @@ import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
 // Validator
-import { authHeaderSchema } from "../../validators/header/header.validator";
-import { objectIdParamSchema } from "../../validators/params/params.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import {
   createStudentBodySchema,
   updateStudentBodySchema,
-} from "../../validators/student/student.validator";
+} from "../../validators/auth/student/student.validator";
+import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
@@ -33,9 +34,14 @@ const studentController = new StudentController(studentService);
 
 const router = Router();
 
+const studentQuerySchema = createPaginationSchemaWithSortAndFilter(
+  ["fullName", "createdAt", "birthday"],
+  ["grade", "educationLevel"]
+);
+
 router.get(
   "/",
-  validateData({ headers: authHeaderSchema }),
+  validateData({ headers: authHeaderSchema, query: studentQuerySchema }),
   verifyFirebaseToken,
   verifyRole(["Teacher", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>

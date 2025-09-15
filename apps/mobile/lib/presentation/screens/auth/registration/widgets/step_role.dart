@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/display_mapper.dart';
-import 'package:flutter_ios_android_platforms/core/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
@@ -213,7 +213,9 @@ class _StepRoleState extends State<StepRole> {
           label: 'Khối lớp',
           hintText: 'Nhập khối lớp (vd: 10, 11, 12)',
           keyboardType: TextInputType.text,
-          validator: (v) => Validators.requiredField(v, name: "Khối lớp"),
+          validator: (v) =>
+              Validators.requiredField(v, name: "Khối lớp") ??
+              Validators.grade(v),
           onChanged: (v) => context.read<RegistrationBloc>().add(
             UpdateStudentInfoEvent(grade: v),
           ),
@@ -227,7 +229,8 @@ class _StepRoleState extends State<StepRole> {
           hintText: 'Nhập họ tên phụ huynh',
           requiredInput: true,
           validator: (v) =>
-              Validators.requiredField(v, name: "Họ tên phụ huynh"),
+              Validators.requiredField(v, name: "Họ tên phụ huynh") ??
+              Validators.name(v),
           onChanged: (v) => context.read<RegistrationBloc>().add(
             UpdateStudentInfoEvent(guardianName: v),
           ),
@@ -242,7 +245,8 @@ class _StepRoleState extends State<StepRole> {
           keyboardType: TextInputType.phone,
           requiredInput: true,
           validator: (v) =>
-              Validators.requiredField(v, name: "Số điện thoại phụ huynh"),
+              Validators.requiredField(v, name: "Số điện thoại phụ huynh") ??
+              Validators.phone(v),
           onChanged: (v) => context.read<RegistrationBloc>().add(
             UpdateStudentInfoEvent(guardianPhone: v),
           ),
@@ -346,7 +350,9 @@ class _StepRoleState extends State<StepRole> {
             label: 'Tên trường',
             hintText: 'Nhập tên trường học',
             requiredInput: true,
-            validator: (v) => Validators.requiredField(v, name: "Tên trường"),
+            validator: (v) =>
+                Validators.requiredField(v, name: "Tên trường") ??
+                Validators.name(v),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateSchoolAdminInfoEvent(schoolName: v),
             ),
@@ -360,7 +366,8 @@ class _StepRoleState extends State<StepRole> {
             requiredInput: true,
             maxLines: 2,
             validator: (v) =>
-                Validators.requiredField(v, name: "Địa chỉ trường"),
+                Validators.requiredField(v, name: "Địa chỉ trường") ??
+                Validators.address(v),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateSchoolAdminInfoEvent(schoolAddress: v),
             ),
@@ -412,7 +419,9 @@ class _StepRoleState extends State<StepRole> {
             hintText:
                 'Nhập chức vụ của bạn (vd: Hiệu trưởng, Phó hiệu trưởng, ...)',
             requiredInput: true,
-            validator: (v) => Validators.requiredField(v, name: "Chức vụ"),
+            validator: (v) =>
+                Validators.requiredField(v, name: "Chức vụ") ??
+                Validators.position(v),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateSchoolAdminInfoEvent(position: v),
             ),

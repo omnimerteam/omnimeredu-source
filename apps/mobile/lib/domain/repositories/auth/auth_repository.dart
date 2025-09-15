@@ -8,5 +8,6 @@ abstract class AuthRepository {
   Future<AuthUserEntity> login({required LoginEntity loginInfo});
 
   Future<void> logout();
-  AuthUserEntity? getCurrentUser();
+
+  Future<AuthUserEntity?> getCurrentUser();
 }

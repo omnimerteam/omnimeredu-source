@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { AccountSchema } from "../account/Account.schema";
-import { BaseUserSchema } from "../baseUser/BaseUser.schema";
-import { SchoolAdminSchema } from "../schoolAdmin/SchoolAdmin.schema";
+import { AccountSchema } from "./account/Account.schema";
+import { BaseUserSchema } from "./baseUser/BaseUser.schema";
+import { SchoolAdminSchema } from "./schoolAdmin/SchoolAdmin.schema";
 
 // Common fields cho account khi register (uid sẽ sinh bên Firebase nên bỏ ra)
 const RegisterAccountSchema = AccountSchema.pick({

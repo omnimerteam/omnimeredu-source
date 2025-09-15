@@ -107,3 +107,5 @@ class UpdateSelectedEducationLevelEvent extends RegistrationEvent {
   final String? selectedEducationLevel;
   const UpdateSelectedEducationLevelEvent({this.selectedEducationLevel});
 }
+
+class ResetRegistration extends RegistrationEvent {}

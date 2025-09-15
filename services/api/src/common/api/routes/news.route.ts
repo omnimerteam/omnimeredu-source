@@ -18,19 +18,19 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
-import { createPaginationSchemaWithSort } from "../../validators/query/query.validator";
+import { createPaginationSchemaWithSort } from "../../validators/common/query/query.validator";
 
 // Validate
 import {
   objectIdParamSchema,
   schoolIdParamSchema,
-} from "../../validators/params/params.validator";
-import { authHeaderSchema } from "../../validators/header/header.validator";
+} from "../../validators/common/params/params.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import {
   createNewsBodySchema,
   updateNewsBodySchema,
   updateNewsVisibilityBodySchema,
-} from "../../validators/news/news.validator";
+} from "../../validators/app/news/news.validator";
 
 const newsRepository = new NewsRepository(News);
 const logger = new DefaultLogger(new ActivityLogRepository());

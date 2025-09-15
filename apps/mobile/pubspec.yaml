@@ -35,19 +35,25 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_bloc: ^9.1.1
-  firebase_core: ^3.15.1
-  firebase_auth: ^5.6.2
+  firebase_core: ^4.1.0
+  firebase_auth: ^6.0.2
   equatable: ^2.0.7
   http: ^1.4.0
   json_annotation: ^4.9.0
-  flutter_dotenv: ^5.2.1
+  flutter_dotenv: ^6.0.0
   getwidget: ^6.0.0
   dio: ^5.9.0
-  firebase_storage: ^12.4.10
+  firebase_storage: ^13.0.1
   image_picker: ^1.2.0
   get_it: ^8.2.0
   logger: ^2.6.1
   dropdown_search: ^6.0.2
+  shimmer: ^3.0.0
+  fl_chart: ^0.69.0
+  shared_preferences: ^2.5.3
+  flutter_cache_manager: ^3.4.1
+  dropdown_button2: ^2.3.9
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +64,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -76,12 +82,11 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - .env
-    - assets/images/logo/
-    - assets/images/default/
-    # - assets/images/logo.jpg
-    # - assets/images/Combination_Logo.jpeg
-    # - assets/images/Pictorial_mark_logo.jpeg
-    # - assets/images/Sub_mark_logo.jpg
+    - assets/images/logo/logo.jpg
+    - assets/images/logo/Combination_Logo.jpeg
+    - assets/images/logo/Pictorial_mark_logo.jpeg
+    - assets/images/logo/Sub_mark_logo.jpg
+    - assets/images/default/default_avatar.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

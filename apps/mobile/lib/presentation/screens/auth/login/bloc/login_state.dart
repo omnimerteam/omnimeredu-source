@@ -11,11 +11,11 @@ class LoginState extends Equatable {
   LoginState copyWith({bool? loading, String? error, AuthUserEntity? user}) {
     return LoginState(
       loading: loading ?? this.loading,
-      error: error,
+      error: error ?? this.error,
       user: user ?? this.user,
     );
   }
 
   @override
-  List<Object?> get props => [loading, error ?? "", user ?? ""];
+  List<Object?> get props => [loading, error, user];
 }

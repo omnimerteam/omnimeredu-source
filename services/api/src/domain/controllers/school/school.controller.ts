@@ -9,6 +9,7 @@ import {
   sendEmpty,
   sendUnauthorized,
   sendBadRequest,
+  sendNoContent,
 } from "../../../common/utils/ResponseHelper";
 
 class SchoolController {
@@ -42,8 +43,14 @@ class SchoolController {
       return next(error);
     }
   }
-
-  async getSchoolById(
+  /**
+   * Đây là hàm lấy toàn bộ thông tin của trường dành riêng cho SchoolAdmin (SchoolAdmin nào thì chỉ được lấy của người đó)
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
+  async getSchoolDetailForSchoolAdmin(
     req: Request,
     res: Response,
     next: NextFunction
@@ -55,14 +62,15 @@ class SchoolController {
         sendUnauthorized(res);
         return;
       }
-      const schoolId = req.params.id;
-      const school = await this.schoolService.getSchoolById(
+      const schoolId = req.user?.schoolId;
+
+      const school = await this.schoolService.getSchoolDetailForSchoolAdmin(
         schoolId,
         actorId,
         userRole
       );
       if (!school) {
-        sendEmpty(res);
+        sendNotFound(res, "Không tìm thấy trường học");
         return;
       }
       console.log(chalk.green("[SCHOOL] Get school by ID successfully"));
@@ -124,7 +132,6 @@ class SchoolController {
         actorId,
         userRole
       );
-      console.log(chalk.green("[SCHOOL] Create new school successfully"));
       sendCreated(res, newSchool, "Thêm mới trường học thành công");
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error creating new school: ", error));
@@ -144,7 +151,7 @@ class SchoolController {
         sendUnauthorized(res);
         return;
       }
-      const schoolId = req.params.id;
+      const schoolId = req.user?.schoolId;
       const schoolData: Partial<ISchool> = req.body;
       const updatedSchool = await this.schoolService.updateSchool(
         schoolId,
@@ -156,7 +163,7 @@ class SchoolController {
         sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[SCHOOL] Update school successfully"));
+
       sendSuccess(
         res,
         updatedSchool,
@@ -180,17 +187,18 @@ class SchoolController {
         sendUnauthorized(res);
         return;
       }
-      const schoolId = req.params.id;
+      const schoolId = req.user?.schoolId;
       const deleted = await this.schoolService.deleteSchool(
         schoolId,
         actorId,
         userRole
       );
+
       if (!deleted) {
-        sendEmpty(res);
+        sendBadRequest(res, "Xóa trường thất bại");
         return;
       }
-      console.log(chalk.green("[SCHOOL] Delete school successfully"));
+
       sendSuccess(res, null, "Xóa thông tin trường học thành công");
     } catch (error) {
       console.log(chalk.red("[SCHOOL] Error deleting school: ", error));

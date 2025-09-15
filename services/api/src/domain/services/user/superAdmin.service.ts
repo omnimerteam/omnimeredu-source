@@ -1,6 +1,7 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger.js";
 import { SuperAdminRepository } from "../../repositories";
 import { ISuperAdmin } from "../../models";
+import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions.js";
 class SuperAdminService {
   private readonly logger: DefaultLogger;
   private readonly superAdminRepository: SuperAdminRepository;
@@ -16,7 +17,7 @@ class SuperAdminService {
   async getAllSuperAdmin(
     actorId: string,
     userRole: string,
-    options?: { page?: number; limit?: number; sort?: any }
+    options?: PaginationQueryOptions
   ) {
     try {
       const superAdmins = await this.superAdminRepository.findAll({}, options);

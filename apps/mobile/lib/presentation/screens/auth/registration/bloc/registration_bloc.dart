@@ -31,6 +31,9 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     on<UpdateSchoolIdEvent>(_onUpdateSchoolId);
     on<UpdateClassIdEvent>(_onUpdateClassId);
     on<UpdateSelectedEducationLevelEvent>(_onSelectedEducationLevel);
+    on<ResetRegistration>((event, emit) {
+      emit(RegistrationState.initial()); // quay về state gốc
+    });
   }
 
   /// Load roles từ API
@@ -41,7 +44,14 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     emit(state.copyWith(loading: true, error: null));
     try {
       final roles = await getAllRolesUseCase.call();
-      emit(state.copyWith(roles: roles, loading: false));
+      emit(
+        state.copyWith(
+          roles: roles,
+          loading: false,
+          selectedRoleId: roles[0].id,
+          selectedRoleName: roles[0].name,
+        ),
+      );
     } catch (error) {
       logger.e("Lỗi load roles", error: error);
       emit(state.copyWith(loading: false, error: error.toString()));
@@ -222,8 +232,6 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
       );
 
       await registerUserUseCase.call(user);
-
-      logger.i("Đăng ký thành công cho user: ${user.email}");
 
       emit(state.copyWith(loading: false, success: true));
     } catch (error) {
