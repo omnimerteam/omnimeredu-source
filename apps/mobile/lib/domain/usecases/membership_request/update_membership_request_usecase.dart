@@ -6,9 +6,7 @@ class UpdateMembershipRequestUseCase {
 
   UpdateMembershipRequestUseCase(this.repository);
 
-  Future<MembershipRequestEntity> call(
-    MembershipRequestEntity updateMembershipRequestData,
-  ) {
+  Future<void> call(MembershipRequestEntity updateMembershipRequestData) {
     return repository.updateMembershipRequest(updateMembershipRequestData);
   }
 }

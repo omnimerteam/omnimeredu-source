@@ -8,11 +8,11 @@ abstract class MembershipRequestRepository {
     Map<String, dynamic>? filter,
   });
 
-  Future<MembershipRequestEntity> createMembershipRequest(
+  Future<void> createMembershipRequest(
     MembershipRequestEntity createMembershipRequestData,
   );
 
-  Future<MembershipRequestEntity> updateMembershipRequest(
+  Future<void> updateMembershipRequest(
     MembershipRequestEntity updateMembershipRequestData,
   );
 
@@ -20,7 +20,7 @@ abstract class MembershipRequestRepository {
 
   Future<MembershipRequestEntity> getMemberRequestById(String id);
 
-  Future<MembershipRequestEntity> updateStatusMemberRequest(
+  Future<MembershipStatusEnum> updateStatusMemberRequest(
     String id,
     MembershipStatusEnum status,
   );

@@ -6,7 +6,7 @@ import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart'; // <-- import LoginBloc
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
@@ -38,16 +38,8 @@ class AppView extends StatelessWidget {
               darkTheme: AppTheme.darkTheme,
               themeMode: themeMode,
               routes: {
-                // route tạo LoginBloc khi push tới /login
-                '/login': (context) => BlocProvider(
-                  create: (ctx) => LoginBloc(
-                    loginUseCase: sl(),
-                    authenticationBloc: ctx.read<AuthenticationBloc>(),
-                  ),
-                  child: const LoginScreen(),
-                ),
+                '/login': (context) => const LoginScreen(),
 
-                // register flow tạo RegistrationBloc + SchoolBloc + ClassBloc local cho flow
                 '/register': (context) => MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (_) => sl<RegistrationBloc>()),
@@ -56,32 +48,26 @@ class AppView extends StatelessWidget {
                   ],
                   child: const RegistrationScreen(),
                 ),
-
                 '/main': (context) => const MainScreen(),
-
                 '/school-admin/school': (context) => BlocProvider(
                   create: (_) =>
                       sl<SchoolDataSchoolAdminBloc>()
                         ..add(LoadSchoolDataAdmin()),
                   child: const SchoolDataSchoolAdminScreen(),
                 ),
-
                 '/school-admin/classes': (context) => BlocProvider(
-                  create: (context) =>
+                  create: (_) =>
                       sl<ClassManagementBloc>()..add(const LoadClassesEvent()),
                   child: const ClassManagementPage(),
                 ),
-
                 '/school-admin/membership-requests': (context) => BlocProvider(
-                  create: (context) =>
+                  create: (_) =>
                       sl<MembershipRequestManagementBloc>()
                         ..add(const LoadMembershipRequestsEvent()),
                   child: const MembershipRequestManagementPage(),
                 ),
               },
-
-              // use Builder so we have the right BuildContext when creating LoginBloc for home
-              home: Builder(builder: (ctx) => _buildHome(ctx, state)),
+              home: _buildHome(state),
             );
           },
         );
@@ -89,20 +75,11 @@ class AppView extends StatelessWidget {
     );
   }
 
-  // now _buildHome has access to a BuildContext so it can create LoginBloc when needed
-  Widget _buildHome(BuildContext context, AuthenticationState state) {
+  Widget _buildHome(AuthenticationState state) {
     if (state is AuthenticationAuthenticated) {
       return const MainScreen();
-    }
-    if (state is AuthenticationUnauthenticated) {
-      // create LoginBloc only when showing login as home
-      return BlocProvider(
-        create: (ctx) => LoginBloc(
-          loginUseCase: sl(),
-          authenticationBloc: ctx.read<AuthenticationBloc>(),
-        ),
-        child: const LoginScreen(),
-      );
+    } else if (state is AuthenticationUnauthenticated) {
+      return const LoginScreen();
     }
     return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }

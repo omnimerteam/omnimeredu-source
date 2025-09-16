@@ -38,11 +38,6 @@ export class BaseRepository<T> {
       ...(options?.filter || {}),
     };
 
-    console.log(
-      chalk.green("🟢 Final Filter:"),
-      JSON.stringify(finalFilter, null, 2)
-    );
-
     return this.model
       .find(finalFilter)
       .skip(skip)

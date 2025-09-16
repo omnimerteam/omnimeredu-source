@@ -17,6 +17,13 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => sl<AuthenticationBloc>()..add(AuthenticationStarted()),
         ),
+        BlocProvider(
+          create: (_) => LoginBloc(
+            loginUseCase: sl(),
+            authenticationBloc: sl<AuthenticationBloc>(),
+          ),
+        ),
+        // thêm các bloc khác nếu cần
         BlocProvider(create: (_) => ThemeCubit()),
       ],
       child: const AppView(),

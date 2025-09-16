@@ -24,8 +24,6 @@ class _MembershipRequestManagementPageState
   static const Map<String, String> sortOptions = {
     'createdAt:desc': 'Mới nhất',
     'createdAt:asc': 'Cũ nhất',
-    'updatedAt:desc': 'Cập nhật mới nhất',
-    'updatedAt:asc': 'Cập nhật cũ nhất',
   };
 
   @override
@@ -146,7 +144,6 @@ class _MembershipRequestManagementPageState
       children: [
         // Filter
         Expanded(
-          flex: 2,
           child: MembershipFilterWidget(
             currentFilter: currentFilter,
             onFilterChanged: _onFilterChanged,

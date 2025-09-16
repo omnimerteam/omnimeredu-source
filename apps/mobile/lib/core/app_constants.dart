@@ -36,6 +36,11 @@ class AppConstants {
     symbol: '₫',
   );
 
+  static DateTime? toVietnamTime(DateTime? utcDateTime) {
+    if (utcDateTime == null) return null;
+    return utcDateTime.toUtc().add(const Duration(hours: 7));
+  }
+
   static final dateFormatter = DateFormat(defaultDateFormat, 'vi_VN');
   static final dateTimeFormatter = DateFormat(defaultDateTimeFormat, 'vi_VN');
 

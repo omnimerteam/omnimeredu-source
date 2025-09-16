@@ -40,26 +40,24 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
   }
 
   @override
-  Future<MembershipRequestEntity> createMembershipRequest(
+  Future<void> createMembershipRequest(
     MembershipRequestEntity createData,
   ) async {
     try {
       final model = MembershipRequestModel.fromEntity(createData);
-      final created = await remote.createMembershipRequest(model);
-      return created.toEntity();
+      await remote.createMembershipRequest(model);
     } catch (e) {
       throw Exception("Không thể tạo membership request: $e");
     }
   }
 
   @override
-  Future<MembershipRequestEntity> updateMembershipRequest(
+  Future<void> updateMembershipRequest(
     MembershipRequestEntity updateData,
   ) async {
     try {
       final model = MembershipRequestModel.fromEntity(updateData);
-      final updated = await remote.updateMembershipRequest(model);
-      return updated.toEntity();
+      await remote.updateMembershipRequest(model);
     } catch (e) {
       throw Exception("Không thể cập nhật membership request: $e");
     }
@@ -75,13 +73,12 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
   }
 
   @override
-  Future<MembershipRequestEntity> updateStatusMemberRequest(
+  Future<MembershipStatusEnum> updateStatusMemberRequest(
     String id,
     MembershipStatusEnum status,
   ) async {
     try {
-      final updated = await remote.updateStatusMemberRequest(id, status);
-      return updated.toEntity();
+      return await remote.updateStatusMemberRequest(id, status);
     } catch (e) {
       throw Exception("Không thể cập nhật status membership request: $e");
     }

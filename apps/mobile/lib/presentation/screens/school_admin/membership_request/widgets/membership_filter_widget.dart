@@ -1,6 +1,5 @@
-// membership_filter_widget.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 
 class MembershipFilterWidget extends StatefulWidget {
   final Map<String, dynamic> currentFilter;
@@ -24,19 +23,6 @@ class _MembershipFilterWidgetState extends State<MembershipFilterWidget> {
     'Teacher': 'Giáo viên',
     'Staff': 'Nhân viên',
     'SchoolAdmin': 'Quản trị viên',
-  };
-
-  static const Map<String, String> actionOptions = {
-    'Enroll': 'Nhập học/Nhận công tác',
-    'Transfer': 'Chuyển lớp',
-    'Assign': 'Phân công',
-    'Resign': 'Nghỉ học/Thôi công tác',
-  };
-
-  static const Map<String, String> statusOptions = {
-    'Pending': 'Chờ duyệt',
-    'Approved': 'Đã duyệt',
-    'Rejected': 'Từ chối',
   };
 
   @override
@@ -108,7 +94,7 @@ class _MembershipFilterWidgetState extends State<MembershipFilterWidget> {
                     context,
                     'Hành động',
                     'action',
-                    actionOptions,
+                    DisplayMapper.membershipActions,
                     tempFilterData,
                     setDialogState,
                   ),
@@ -117,7 +103,7 @@ class _MembershipFilterWidgetState extends State<MembershipFilterWidget> {
                     context,
                     'Trạng thái',
                     'status',
-                    statusOptions,
+                    DisplayMapper.membershipStatuses,
                     tempFilterData,
                     setDialogState,
                   ),

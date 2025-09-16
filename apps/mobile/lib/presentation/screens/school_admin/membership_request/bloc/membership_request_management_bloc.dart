@@ -191,6 +191,7 @@ class MembershipRequestManagementBloc
     if (state is MembershipRequestLoaded) {
       final currentState = state as MembershipRequestLoaded;
 
+      // Emit trạng thái updating
       emit(
         MembershipRequestUpdatingStatus(
           requests: currentState.requests,
@@ -199,29 +200,22 @@ class MembershipRequestManagementBloc
       );
 
       try {
-        final updatedRequest = await updateStatusMembershipRequest.call(
+        // Gọi usecase -> chỉ trả về MembershipStatusEnum
+        final newStatus = await updateStatusMembershipRequest.call(
           event.requestId,
           event.newStatus,
         );
 
+        // Cập nhật lại danh sách request
         final updatedRequests = currentState.requests.map((request) {
           if (request.id == event.requestId) {
-            return MembershipRequestEntity(
-              id: updatedRequest.id,
-              userId: updatedRequest.userId,
-              schoolId: updatedRequest.schoolId,
-              classId: updatedRequest.classId,
-              role: updatedRequest.role,
-              action: updatedRequest.action,
-              status: updatedRequest.status,
-              note: updatedRequest.note,
-              createdAt: updatedRequest.createdAt,
-              updatedAt: updatedRequest.updatedAt,
-            );
+            // Chỉ thay đổi field status
+            return request.copyWith(status: newStatus);
           }
           return request;
         }).toList();
 
+        // Emit state mới
         emit(currentState.copyWith(requests: updatedRequests));
       } catch (error) {
         emit(MembershipRequestError(error.toString()));

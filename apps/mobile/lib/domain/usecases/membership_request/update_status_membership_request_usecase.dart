@@ -6,7 +6,7 @@ class UpdateStatusMembershipRequestUseCase {
 
   UpdateStatusMembershipRequestUseCase(this.repository);
 
-  Future<MembershipRequestEntity> call(String id, MembershipStatusEnum status) {
+  Future<MembershipStatusEnum> call(String id, MembershipStatusEnum status) {
     return repository.updateStatusMemberRequest(id, status);
   }
 }

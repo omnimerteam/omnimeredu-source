@@ -9,6 +9,7 @@ class DisplayMapper {
     'Security': 'Bảo vệ',
     'Nurse': 'Y tá',
     'CanteenStaff': 'Nhân viên căng tin',
+    'Staff': 'Nhân viên',
   };
 
   /// Map cho loại/cấp học
@@ -42,6 +43,21 @@ class DisplayMapper {
     'advanced': 'Cao cấp',
   };
 
+  /// Map cho trạng thái Membership
+  static const Map<String, String> membershipStatuses = {
+    'Pending': 'Chờ duyệt',
+    'Approved': 'Đã duyệt',
+    'Rejected': 'Từ chối',
+  };
+
+  /// Map cho hành động Membership
+  static const Map<String, String> membershipActions = {
+    'Enroll': 'Nhập học/Nhận công tác',
+    'Transfer': 'Chuyển lớp',
+    'Assign': 'Phân công',
+    'Resign': 'Nghỉ học/Thôi công tác',
+  };
+
   /// Hàm tiện ích chung: nhận key và map sang tên hiển thị
   static String fromMapping({
     required String value,
@@ -73,5 +89,13 @@ class DisplayMapper {
 
   static String subjectsName(String? code) {
     return fromMapping(value: code ?? '', mapping: subjects);
+  }
+
+  static String membershipStatusName(String? code) {
+    return fromMapping(value: code ?? '', mapping: membershipStatuses);
+  }
+
+  static String membershipActionName(String? code) {
+    return fromMapping(value: code ?? '', mapping: membershipActions);
   }
 }

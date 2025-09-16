@@ -165,14 +165,14 @@ class MembershipRequestController {
     const actorId = req.user?.id;
     const userRole = req.role;
     const id = req.params.id;
-    const status: MembershipStatusEnum = req.body.action;
+    const status: MembershipStatusEnum = req.body.status;
 
     if (!userRole || !actorId) {
       sendUnauthorized(res);
       return;
     }
     if (!id || !status) {
-      sendBadRequest(res, "Thiếu thông tin action hoặc ID");
+      sendBadRequest(res, "Thiếu thông tin, hãy thử lại");
       return;
     }
 
