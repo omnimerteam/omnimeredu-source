@@ -15,6 +15,7 @@ export { default as RoleRepository } from "./user/role.repository";
 export { default as SchoolRepository } from "./school/school.repository";
 export { default as NewsRepository } from "./school/news.repository";
 export { default as MembershipRequestRepository } from "./school/membershipRequest.repository";
+export { default as GradeRepository } from "./school/grade.repository";
 
 export { default as ClassRepository } from "./school/class/class.repository";
 export { default as TeachingAssignmentRepository } from "./school/class/teachingAssignment.repository";

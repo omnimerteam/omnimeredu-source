@@ -2,8 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/login_usecase.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 
 import 'login_event.dart';
 import 'login_state.dart';

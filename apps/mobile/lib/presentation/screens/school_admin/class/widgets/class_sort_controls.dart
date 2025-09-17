@@ -1,7 +1,7 @@
 // widgets/class_sort_controls.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/sort_dropdown.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';

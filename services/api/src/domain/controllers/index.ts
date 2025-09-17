@@ -14,6 +14,7 @@ export { default as RoleController } from "./user/role.controller";
 export { default as SchoolController } from "./school/school.controller";
 export { default as NewsController } from "./school/news.controller";
 export { default as MembershipRequestController } from "./school/membershipRequest.controller";
+export { default as GradeController } from "./school/grade.controller";
 
 export { default as ClassController } from "./school/class/class.controller";
 export { default as TeachingAssignmentController } from "./school/class/teachingAssignment.controller";

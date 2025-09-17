@@ -1,0 +1,26 @@
+import { z } from "zod";
+import { EducationSystemLevelsTuple } from "../../../enum/educationSystemLevels.enum";
+/**
+ * 🔹 Schema cơ bản cho Grade
+ */
+export const GradeSchema = z.object({
+  _id: z.string().optional(), // ObjectId dưới dạng string, optional khi tạo mới
+  schoolId: z.string({ message: "schoolId là bắt buộc" }), // ObjectId dưới dạng string
+  name: z.string({ message: "Tên khối là bắt buộc" }).min(1),
+  level: z.enum(EducationSystemLevelsTuple as [string, ...string[]], {
+    message: "Level là bắt buộc",
+  }),
+  order: z.number({ message: "Order là bắt buộc" }).int().nonnegative(),
+  ageRange: z
+    .object({
+      min: z.number().int().nonnegative(),
+      max: z.number().int().nonnegative(),
+    })
+    .optional(),
+  description: z.string().optional(),
+  customFields: z.record(z.string(), z.any()).optional(),
+  active: z.boolean().optional().default(true),
+  linkedClasses: z.array(z.string()).optional(), // Array ObjectId dạng string
+});
+
+export type GradeInput = z.infer<typeof GradeSchema>;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_state.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 
 class HomeHeaderWidget extends StatelessWidget {

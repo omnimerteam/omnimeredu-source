@@ -1,11 +1,21 @@
+import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/grade_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/create_grade_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/delete_grade_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_all_grades_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_grade_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_grades_for_select_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/update_grade_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/create_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/delete_membership_request.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_all_membership_request_usecase.dart';
@@ -68,7 +78,7 @@ import 'domain/usecases/school_admin_dashboard/get_dashboard_overview.dart';
 import 'domain/usecases/school_admin_dashboard/get_school_attendance_stats.dart';
 
 // Blocs / Cubits
-import 'presentation/screens/auth/authentication/authentication_bloc.dart';
+import 'core/bloc/authentication/authentication_bloc.dart';
 import 'presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'presentation/screens/auth/registration/bloc/school/school_bloc.dart';
@@ -118,6 +128,9 @@ Future<void> init() async {
   sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
     () => MembershipRequestRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<GradeRemoteDataSource>(
+    () => GradeRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -132,6 +145,7 @@ Future<void> init() async {
   sl.registerLazySingleton<MembershipRequestRepository>(
     () => MembershipRequestRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<GradeRepository>(() => GradeRepositoryImpl(sl()));
 
   // ======================
   // UseCases
@@ -170,7 +184,13 @@ Future<void> init() async {
   // Dashboard
   sl.registerLazySingleton(() => GetDashboardSummaryUseCase(sl()));
   sl.registerLazySingleton(() => GetSchoolAttendanceStatsUseCase(sl()));
-
+  // Grade
+  sl.registerLazySingleton(() => CreateGradeUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteGradeUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllGradesUseCase(sl()));
+  sl.registerLazySingleton(() => GetGradeByIdUseCase(sl()));
+  sl.registerLazySingleton(() => GetGradesForSelectUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateGradeUseCase(sl()));
   // ======================
   // Blocs / Cubits
   // ======================
@@ -224,4 +244,6 @@ Future<void> init() async {
       updateStatusMembershipRequest: sl(),
     ),
   );
+
+  sl.registerFactory(() => GradeSelectCubit(sl()));
 }

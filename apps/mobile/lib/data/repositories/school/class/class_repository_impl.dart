@@ -1,6 +1,6 @@
 // data/repositories/class_repository_impl.dart
 
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
@@ -27,16 +27,18 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<List<ClassDetailViewEntity>> getAllClassDetailView(
-    String sort, {
+  Future<List<ClassDetailViewEntity>> getAllClassDetailView({
     int page = AppConstants.defaultPage,
     int limit = AppConstants.defaultLimit,
+    Map<String, String>? sort,
+    Map<String, dynamic>? filter,
   }) async {
     try {
       final models = await remote.getAllClassDetailView(
-        sort,
         page: page,
         limit: limit,
+        sort: sort,
+        filter: filter,
       );
 
       return models.map((m) => m.toEntity()).toList();

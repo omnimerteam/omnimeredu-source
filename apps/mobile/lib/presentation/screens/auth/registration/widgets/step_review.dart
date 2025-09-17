@@ -142,7 +142,9 @@ class StepReview extends StatelessWidget {
                   if (state.selectedRoleName!.toLowerCase() == 'teacher') ...[
                     _reviewItem(
                       'Trình độ',
-                      DisplayMapper.literacyLevelsName(state.literacy),
+                      DisplayMapper.teacherQualificationName(
+                        state.qualification,
+                      ),
                     ),
                     _reviewItem(
                       'Môn giảng dạy',

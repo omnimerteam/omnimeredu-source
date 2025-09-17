@@ -6,9 +6,9 @@ import 'package:flutter_ios_android_platforms/presentation/widgets/common/home_h
 import 'package:flutter_ios_android_platforms/presentation/screens/features/feature_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/progress/progress_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/more/more_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_state.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/dashboard_screen_wrapper.dart';
 

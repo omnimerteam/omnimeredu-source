@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_detail_view_model.dart';
@@ -53,21 +53,26 @@ class ClassRemoteDataSource {
   }
 
   /// Danh sác lớp học bằng ClassDetail View Model
-  Future<List<ClassDetailViewModel>> getAllClassDetailView(
-    String sort, {
+  Future<List<ClassDetailViewModel>> getAllClassDetailView({
     int page = AppConstants.defaultPage,
     int limit = AppConstants.defaultLimit,
+    Map<String, String>? sort,
+    Map<String, dynamic>? filter,
   }) async {
     final token = await _getIdToken();
 
+    final queryParams = AppConstants.buildQueryParams(
+      module: "class",
+      page: page,
+      limit: limit,
+      sort: sort,
+      filter: filter,
+    );
+
     final res = await client.get<List<ClassDetailViewModel>>(
-      Endpoints.classes,
+      Endpoints.classDetailView,
       headers: {if (token != null) "Authorization": "Bearer $token"},
-      query: {
-        "page": page.toString(),
-        "limit": limit.toString(),
-        "sort": sort.isNotEmpty ? sort : "name:asc",
-      },
+      query: queryParams,
       parser: (data) {
         if (data is List) {
           return data

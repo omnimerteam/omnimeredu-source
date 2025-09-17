@@ -13,6 +13,7 @@ export { default as RoleService } from "./user/role.service";
 export { default as SchoolService } from "./school/school.service";
 export { default as NewsService } from "./school/news.service";
 export { default as MembershipRequestService } from "./school/membershipRequest.service";
+export { default as GradeService } from "./school/grade.service";
 
 export { default as ClassService } from "./school/class/class.service";
 export { default as TeachingAssignmentService } from "./school/class/teachingAssignment.service";

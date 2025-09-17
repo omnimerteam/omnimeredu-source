@@ -6,6 +6,7 @@ class ClassModel extends ClassEntity {
     String? name,
     String? code,
     String? schoolId,
+    String? gradeId,
     int? maxStudents,
     int? baseFee,
   }) : super(
@@ -13,6 +14,7 @@ class ClassModel extends ClassEntity {
          name: name,
          code: code,
          schoolId: schoolId,
+         gradeId: gradeId,
          maxStudents: maxStudents,
          baseFee: baseFee,
        );
@@ -22,6 +24,7 @@ class ClassModel extends ClassEntity {
       id: json['_id'] as String?,
       name: json['name'] as String?,
       code: json['code'] as String?,
+      gradeId: json['gradeId'] as String?,
       schoolId: json['schoolId'] as String?,
       maxStudents: json['maxStudents'] as int?,
       baseFee: json['baseFee'] as int?,
@@ -34,6 +37,7 @@ class ClassModel extends ClassEntity {
       'name': name,
       'code': code,
       'schoolId': schoolId,
+      'gradeId': gradeId,
       'maxStudents': maxStudents,
       'baseFee': baseFee?.toDouble(),
     };
@@ -45,6 +49,7 @@ class ClassModel extends ClassEntity {
       name: name,
       code: code,
       schoolId: schoolId,
+      gradeId: gradeId,
       maxStudents: maxStudents,
       baseFee: baseFee,
     );
@@ -56,6 +61,7 @@ class ClassModel extends ClassEntity {
       name: entity.name,
       code: entity.code,
       schoolId: entity.schoolId,
+      gradeId: entity.gradeId,
       maxStudents: entity.maxStudents,
       baseFee: entity.baseFee,
     );

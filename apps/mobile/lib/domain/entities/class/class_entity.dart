@@ -5,6 +5,7 @@ class ClassEntity extends Equatable {
   final String? name;
   final String? code;
   final String? schoolId;
+  final String? gradeId;
   final int? maxStudents;
   final int? baseFee;
 
@@ -13,10 +14,19 @@ class ClassEntity extends Equatable {
     this.name,
     this.code,
     this.schoolId,
+    this.gradeId,
     this.maxStudents,
     this.baseFee,
   });
 
   @override
-  List<Object?> get props => [id, name, code, schoolId, maxStudents, baseFee];
+  List<Object?> get props => [
+    id,
+    name,
+    code,
+    schoolId,
+    gradeId,
+    maxStudents,
+    baseFee,
+  ];
 }

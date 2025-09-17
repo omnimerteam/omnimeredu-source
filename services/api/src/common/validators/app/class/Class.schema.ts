@@ -28,12 +28,14 @@ export const ClassSchema = z.object({
     })
     .optional(),
 
-  teacherId: z
+  gradeId: z
     .string()
-    .refine((val) => !val || Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho teacherId",
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Định dạng ObjectId không hợp lệ cho gradeId",
     })
     .optional(),
+
+  maxStudents: z.number().optional(),
 
   students: z
     .array(

@@ -21,14 +21,26 @@ class DisplayMapper {
     'University': 'Đại học',
   };
 
+  /// 🔹 Danh sách môn học (key = English code, value = tên tiếng Việt)
   static const Map<String, String> subjects = {
     'Math': 'Toán',
     'Literature': 'Ngữ văn',
+    'English': 'Tiếng Anh',
+    'Physics': 'Vật lý',
+    'Chemistry': 'Hóa học',
+    'Biology': 'Sinh học',
     'History': 'Lịch sử',
     'Geography': 'Địa lý',
-    'Biology': 'Sinh học',
-    'Chemistry': 'Hóa học',
-    'Physics': 'Vật lý',
+    'CivicEducation': 'Giáo dục công dân',
+    'Informatics': 'Tin học',
+    'Technology': 'Công nghệ',
+    'PE': 'Thể dục',
+    'Art': 'Mỹ thuật',
+    'Music': 'Âm nhạc',
+    'NationalDefense': 'Giáo dục quốc phòng - an ninh',
+    'ExperientialActivities': 'Hoạt động trải nghiệm',
+    'AdvancedInformatics': 'Tin học (Lập trình nâng cao)',
+    'OtherForeignLanguage': 'Ngoại ngữ khác',
   };
 
   static const Map<String, String> gender = {
@@ -37,10 +49,27 @@ class DisplayMapper {
     'Other': 'Khác',
   };
 
-  static const Map<String, String> literacyLevels = {
-    'beginner': 'Sơ cấp',
-    'intermediate': 'Trung cấp',
-    'advanced': 'Cao cấp',
+  static const Map<String, String> teacherQualifications = {
+    'DuoiTHSP': 'Dưới trung học sư phạm',
+    'TH9_3': 'THCS + 3 năm học nghề',
+    'TH12_2': 'THPT + 2 năm học nghề',
+    'TrungCap': 'Trung cấp',
+    'TrungCapSuPham': 'Trung cấp sư phạm',
+    'TrungCap_BDNVSP': 'Trung cấp + BDNVSP',
+    'CaoDang': 'Cao đẳng',
+    'CaoDangSuPham': 'Cao đẳng sư phạm',
+    'DaiHoc': 'Đại học',
+    'DaiHocSuPham': 'Đại học sư phạm',
+    'ThacSi': 'Thạc sĩ',
+    'TienSi': 'Tiến sĩ',
+    'PGS': 'Phó Giáo sư',
+    'GS': 'Giáo sư',
+    'BacSiDaKhoa': 'Bác sĩ đa khoa',
+    'BacSiChuyenKhoa1': 'Bác sĩ chuyên khoa 1',
+    'BacSiChuyenKhoa2': 'Bác sĩ chuyên khoa 2',
+    'ChuaQuaDaoTaoSP': 'Chưa qua đào tạo sư phạm',
+    'CoChungChiNghe': 'Có chứng chỉ nghề',
+    'TrinhDoKhac': 'Trình độ khác',
   };
 
   /// Map cho trạng thái Membership
@@ -83,8 +112,8 @@ class DisplayMapper {
     return fromMapping(value: code ?? '', mapping: gender);
   }
 
-  static String literacyLevelsName(String? code) {
-    return fromMapping(value: code ?? '', mapping: literacyLevels);
+  static String teacherQualificationName(String? code) {
+    return fromMapping(value: code ?? '', mapping: teacherQualifications);
   }
 
   static String subjectsName(String? code) {

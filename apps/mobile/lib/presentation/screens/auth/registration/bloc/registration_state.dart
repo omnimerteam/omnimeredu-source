@@ -37,7 +37,7 @@ class RegistrationState extends Equatable {
   final String? grade;
 
   // teacher
-  final String? literacy;
+  final String? qualification;
   final List<String>? subjects;
 
   // school admin
@@ -86,7 +86,7 @@ class RegistrationState extends Equatable {
     this.classId,
     this.assignClassName,
     this.grade,
-    this.literacy,
+    this.qualification,
     this.subjects,
     this.isCreateNewSchool = false,
     this.position,
@@ -123,7 +123,7 @@ class RegistrationState extends Equatable {
     String? classId,
     String? assignClassName,
     String? grade,
-    String? literacy,
+    String? qualification,
     List<String>? subjects,
     bool? isCreateNewSchool,
     String? position,
@@ -161,7 +161,7 @@ class RegistrationState extends Equatable {
       classId: classId ?? this.classId,
       assignClassName: assignClassName ?? this.assignClassName,
       grade: grade ?? this.grade,
-      literacy: literacy ?? this.literacy,
+      qualification: qualification ?? this.qualification,
       subjects: subjects ?? this.subjects,
       isCreateNewSchool: isCreateNewSchool ?? this.isCreateNewSchool,
       position: position ?? this.position,
@@ -200,7 +200,7 @@ class RegistrationState extends Equatable {
     classId,
     assignClassName,
     grade,
-    literacy,
+    qualification,
     subjects,
     isCreateNewSchool,
     position,

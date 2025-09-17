@@ -18,7 +18,7 @@ class Endpoints {
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
   static String classId(String id) => "/v1/classes/$id";
-  static const classDetailView = "v1/classes/class-detail-view";
+  static const classDetailView = "/v1/classes/view-model/class-detail";
   static const String searchClassesInSchool = "/v1/classes/schools/search";
 
   // ================== SCHOOLS ==================
@@ -41,4 +41,9 @@ class Endpoints {
   static String membershipRequestId(String id) => "/v1/membership-request/$id";
   static String membershipRequestStatus(String id) =>
       "/v1/membership-request/$id/status";
+
+  // ================== SCHOOLS ==================
+  static const String grades = "/v1/grades";
+  static String gradeId(String id) => "/v1/grades/$id";
+  static const String gradeSelect = "/v1/grades/select/box";
 }

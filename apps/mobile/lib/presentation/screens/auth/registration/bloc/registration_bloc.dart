@@ -141,7 +141,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   ) {
     emit(
       state.copyWith(
-        literacy: event.literacy ?? state.literacy,
+        qualification: event.qualification ?? state.qualification,
         subjects: event.subjects ?? state.subjects,
       ),
     );
@@ -213,7 +213,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           "guardianPhone": state.guardianPhone,
           "educationLevel": state.educationLevel,
           // Teacher
-          "literacy": state.literacy,
+          "qualification": state.qualification,
           "subjects": state.subjects,
           // School Admin
           "position": state.position,

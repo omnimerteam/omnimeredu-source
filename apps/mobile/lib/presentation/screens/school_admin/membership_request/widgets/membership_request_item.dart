@@ -1,7 +1,7 @@
 // membership_request_item.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/widgets/membership_request_detail_sheet.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 

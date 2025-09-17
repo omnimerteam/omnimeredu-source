@@ -1,6 +1,6 @@
 // class_management_state.dart
 import 'package:equatable/equatable.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
 

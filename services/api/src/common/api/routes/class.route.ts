@@ -52,7 +52,7 @@ const classController = new ClassController(classService);
 // Custom Validate
 const getAllClassPaginationSchema = createPaginationSchemaWithSortAndFilter(
   ["name", "code", "schoolId", "baseFee"],
-  []
+  ["gradeId"]
 );
 
 // Router
@@ -76,7 +76,7 @@ router.get(
 
 // ✅ Lấy tất cả lớp trong view model ClassDetail (có filter query)
 router.get(
-  "/class-detail-view",
+  "/view-model/class-detail",
   validateData({
     headers: authHeaderSchema,
     query: getAllClassPaginationSchema,

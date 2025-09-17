@@ -3,8 +3,8 @@ import 'package:flutter_ios_android_platforms/domain/usecases/school/create_scho
 import 'package:flutter_ios_android_platforms/domain/usecases/school/delete_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/school/update_school_usecase.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'school_data_schooladmin_event.dart';
 import 'school_data_schooladmin_state.dart';
 

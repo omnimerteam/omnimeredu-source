@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/grade_select_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';
@@ -18,13 +20,17 @@ class ClassFormDialog extends StatefulWidget {
 
 class _ClassFormDialogState extends State<ClassFormDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _maxStudentsController = TextEditingController();
-  final _baseFeeController = TextEditingController();
+
+  late TextEditingController _nameController;
+  late TextEditingController _maxStudentsController;
+  late TextEditingController _baseFeeController;
 
   final _nameFocusNode = FocusNode();
   final _maxStudentsFocusNode = FocusNode();
   final _baseFeeFocusNode = FocusNode();
+  final _gradeFocusNode = FocusNode();
+
+  String? _selectedGradeId;
 
   bool get isEditMode => widget.classToEdit != null;
 
@@ -32,17 +38,36 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
   void initState() {
     super.initState();
 
-    // Focus style
+    _nameController = TextEditingController();
+    _maxStudentsController = TextEditingController();
+    _baseFeeController = TextEditingController();
+
     _nameFocusNode.addListener(() => setState(() {}));
     _maxStudentsFocusNode.addListener(() => setState(() {}));
     _baseFeeFocusNode.addListener(() => setState(() {}));
+    _gradeFocusNode.addListener(() => setState(() {}));
 
-    // Nếu là edit thì load dữ liệu vào form
+    _initForm();
+  }
+
+  @override
+  void didUpdateWidget(covariant ClassFormDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initForm();
+  }
+
+  void _initForm() {
     if (isEditMode) {
       _nameController.text = widget.classToEdit?.name ?? '';
       _maxStudentsController.text =
           widget.classToEdit?.maxStudents?.toString() ?? '';
       _baseFeeController.text = widget.classToEdit?.baseFee?.toString() ?? '';
+      _selectedGradeId = widget.classToEdit?.gradeId;
+    } else {
+      _nameController.clear();
+      _maxStudentsController.clear();
+      _baseFeeController.clear();
+      _selectedGradeId = null;
     }
   }
 
@@ -54,6 +79,7 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
     _nameFocusNode.dispose();
     _maxStudentsFocusNode.dispose();
     _baseFeeFocusNode.dispose();
+    _gradeFocusNode.dispose();
     super.dispose();
   }
 
@@ -64,6 +90,7 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
         name: _nameController.text.trim(),
         maxStudents: int.tryParse(_maxStudentsController.text.trim()),
         baseFee: int.tryParse(_baseFeeController.text.trim()),
+        gradeId: _selectedGradeId,
       );
 
       if (isEditMode) {
@@ -95,7 +122,8 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
               ),
             ),
           );
-          Navigator.of(context).pop();
+          // Reset form state in bloc
+          context.read<ClassManagementBloc>().add(ResetFormEvent());
         } else if (state.formStatus == ClassManagementStatus.formError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -157,6 +185,22 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                         validator: (value) => Validators.requiredField(
                           value,
                           name: 'Tên lớp học',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Focus(
+                        focusNode: _gradeFocusNode,
+                        child: GradeSelectDropdown(
+                          selectedGradeId: _selectedGradeId,
+                          hintText: 'Chọn khối lớp',
+                          isFocused: _gradeFocusNode.hasFocus,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGradeId = value;
+                            });
+                          },
+                          validator: (value) =>
+                              Validators.requiredField(value, name: 'Khối lớp'),
                         ),
                       ),
                       const SizedBox(height: 16),

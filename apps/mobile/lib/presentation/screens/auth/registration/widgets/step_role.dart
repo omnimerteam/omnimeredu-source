@@ -136,7 +136,7 @@ class _StepRoleState extends State<StepRole> {
         );
 
         context.read<RegistrationBloc>().add(
-          UpdateTeacherInfoEvent(subjects: null, literacy: null),
+          UpdateTeacherInfoEvent(subjects: null, qualification: null),
         );
 
         context.read<RegistrationBloc>().add(
@@ -304,8 +304,8 @@ class _StepRoleState extends State<StepRole> {
         RegisterDropdown<String>(
           label: "Trình độ học vấn",
           requiredInput: true,
-          value: state.literacy,
-          items: DisplayMapper.literacyLevels.entries
+          value: state.qualification,
+          items: DisplayMapper.teacherQualifications.entries
               .map(
                 (entry) => DropdownMenuItem(
                   value: entry.key,
@@ -315,7 +315,7 @@ class _StepRoleState extends State<StepRole> {
               .toList(),
           onChanged: (value) {
             context.read<RegistrationBloc>().add(
-              UpdateTeacherInfoEvent(literacy: value),
+              UpdateTeacherInfoEvent(qualification: value),
             );
           },
         ),

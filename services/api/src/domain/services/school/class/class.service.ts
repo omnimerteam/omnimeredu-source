@@ -72,21 +72,7 @@ class ClassService {
     options?: PaginationQueryOptions
   ) {
     try {
-      let filter: any = {};
-
-      if (userRole === "SuperAdmin") {
-        filter = {}; // không giới hạn
-      } else if (userRole === "SchoolAdmin") {
-        if (!schoolId)
-          throw new HttpError(
-            400,
-            "Thiếu thông tin trường",
-            "MISSING_SCHOOL_ID"
-          );
-        filter = { schoolId };
-      } else {
-        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
-      }
+      const filter = buildPermissionFilter(userRole, schoolId);
 
       const classes = await this.classDetailViewRepository.findAll(
         filter,
@@ -186,6 +172,7 @@ class ClassService {
     data: Partial<IClass>
   ) {
     try {
+      console.log(data);
       const updated = await this.classRepository.update(id, data);
 
       await this.logger.log({

@@ -61,9 +61,9 @@ class UpdateStudentInfoEvent extends RegistrationEvent {
 
 /// update thông tin giáo viên
 class UpdateTeacherInfoEvent extends RegistrationEvent {
-  final String? literacy;
+  final String? qualification;
   final List<String>? subjects;
-  const UpdateTeacherInfoEvent({this.literacy, this.subjects});
+  const UpdateTeacherInfoEvent({this.qualification, this.subjects});
 }
 
 /// update thông tin school admin
