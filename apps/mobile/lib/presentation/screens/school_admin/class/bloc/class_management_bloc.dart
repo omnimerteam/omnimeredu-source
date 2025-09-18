@@ -24,11 +24,12 @@ class ClassManagementBloc
     required this.updateClassUseCase,
     required this.deleteClassUseCase,
     required this.getClassByIdUseCase,
-  }) : super(const ClassManagementState()) {
+  }) : super(const ClassManagementInitial()) {
     on<LoadClassesEvent>(_onLoadClasses);
-    on<ChangeSortStringEvent>(_onChangeSortString);
-    on<ChangeSortEvent>(_onChangeSort); // Keep for backward compatibility
-    on<ChangePageEvent>(_onChangePage);
+    on<RefreshClassesEvent>(_onRefreshClasses);
+    on<LoadMoreClassesEvent>(_onLoadMoreClasses);
+    on<FilterClassesEvent>(_onFilterClasses);
+    on<SortClassesEvent>(_onSortClasses);
     on<CreateClassEvent>(_onCreateClass);
     on<UpdateClassEvent>(_onUpdateClass);
     on<DeleteClassEvent>(_onDeleteClass);
@@ -36,115 +37,206 @@ class ClassManagementBloc
     on<ShowCreateFormEvent>(_onShowCreateForm);
     on<HideFormEvent>(_onHideForm);
     on<ResetFormEvent>(_onResetForm);
+    on<ClearFormDataEvent>(_onClearFormData);
   }
 
   Future<void> _onLoadClasses(
     LoadClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
+    emit(const ClassManagementLoading());
+
     try {
-      emit(state.copyWith(status: ClassManagementStatus.loading));
-
+      final defaultSort = <String, String>{"name": "asc"};
       final classes = await getAllClassDetailViewUseCase.call(
-        event.sort ?? AppConstants.nameSort,
-        page: event.page ?? AppConstants.defaultPage,
+        page: AppConstants.defaultPage,
         limit: AppConstants.defaultLimit,
+        sort: defaultSort,
       );
 
       emit(
-        state.copyWith(
-          status: ClassManagementStatus.loaded,
+        ClassManagementLoaded(
           classes: classes,
-          currentPage: event.page,
-          hasMorePages: classes.length == AppConstants.defaultLimit,
+          hasReachedMax: classes.length < AppConstants.defaultLimit,
+          currentPage: AppConstants.defaultPage,
+          currentSort: defaultSort,
+          currentFilter: {},
         ),
       );
-    } catch (e) {
+    } catch (error) {
+      emit(ClassManagementError(error.toString()));
+    }
+  }
+
+  Future<void> _onRefreshClasses(
+    RefreshClassesEvent event,
+    Emitter<ClassManagementState> emit,
+  ) async {
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      try {
+        final classes = await getAllClassDetailViewUseCase.call(
+          page: AppConstants.defaultPage,
+          limit: AppConstants.defaultLimit,
+          sort: currentState.currentSort,
+          filter: currentState.currentFilter,
+        );
+
+        emit(
+          currentState.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < AppConstants.defaultLimit,
+            currentPage: AppConstants.defaultPage,
+          ),
+        );
+      } catch (error) {
+        emit(ClassManagementError(error.toString()));
+      }
+    }
+  }
+
+  Future<void> _onLoadMoreClasses(
+    LoadMoreClassesEvent event,
+    Emitter<ClassManagementState> emit,
+  ) async {
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      if (currentState.hasReachedMax) return;
+
       emit(
-        state.copyWith(
-          status: ClassManagementStatus.error,
-          errorMessage: e.toString(),
+        ClassManagementLoadingMore(
+          classes: currentState.classes,
+          currentSort: currentState.currentSort,
+          currentFilter: currentState.currentFilter,
         ),
       );
+
+      try {
+        final nextPage = currentState.currentPage + 1;
+        final newClasses = await getAllClassDetailViewUseCase.call(
+          page: nextPage,
+          limit: AppConstants.defaultLimit,
+          sort: currentState.currentSort,
+          filter: currentState.currentFilter,
+        );
+
+        emit(
+          currentState.copyWith(
+            classes: [...currentState.classes, ...newClasses],
+            hasReachedMax: newClasses.length < AppConstants.defaultLimit,
+            currentPage: nextPage,
+          ),
+        );
+      } catch (error) {
+        emit(ClassManagementError(error.toString()));
+      }
     }
   }
 
-  Future<void> _onChangeSortString(
-    ChangeSortStringEvent event,
+  Future<void> _onFilterClasses(
+    FilterClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    emit(
-      state.copyWith(
-        sortString: event.sortString,
-        currentPage: AppConstants.defaultPage, // Reset to first page
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
 
-    // Reload with new sort
-    add(
-      LoadClassesEvent(page: AppConstants.defaultPage, sort: event.sortString),
-    );
-  }
+      emit(const ClassManagementLoading());
 
-  // Keep the old method for backward compatibility
-  Future<void> _onChangeSort(
-    ChangeSortEvent event,
-    Emitter<ClassManagementState> emit,
-  ) async {
-    String newSortString;
+      try {
+        final classes = await getAllClassDetailViewUseCase.call(
+          page: AppConstants.defaultPage,
+          limit: AppConstants.defaultLimit,
+          sort: currentState.currentSort,
+          filter: event.filter,
+        );
 
-    // If clicking the same field, toggle direction
-    if (state.currentSortField == event.sortField) {
-      final newDirection = state.isAscending ? 'desc' : 'asc';
-      newSortString = '${event.sortField}:$newDirection';
-    } else {
-      // New field, default to ascending
-      newSortString = '${event.sortField}:asc';
+        emit(
+          currentState.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < AppConstants.defaultLimit,
+            currentPage: AppConstants.defaultPage,
+            currentFilter: event.filter,
+          ),
+        );
+      } catch (error) {
+        emit(ClassManagementError(error.toString()));
+      }
     }
-
-    emit(
-      state.copyWith(
-        sortString: newSortString,
-        currentPage: AppConstants.defaultPage,
-      ),
-    );
-
-    // Reload with new sort
-    add(LoadClassesEvent(page: AppConstants.defaultPage, sort: newSortString));
   }
 
-  Future<void> _onChangePage(
-    ChangePageEvent event,
+  Future<void> _onSortClasses(
+    SortClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    add(LoadClassesEvent(page: event.page, sort: state.sortString));
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      emit(const ClassManagementLoading());
+
+      try {
+        final classes = await getAllClassDetailViewUseCase.call(
+          page: AppConstants.defaultPage,
+          limit: AppConstants.defaultLimit,
+          sort: event.sort,
+          filter: currentState.currentFilter,
+        );
+
+        emit(
+          currentState.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < AppConstants.defaultLimit,
+            currentPage: AppConstants.defaultPage,
+            currentSort: event.sort,
+          ),
+        );
+      } catch (error) {
+        emit(ClassManagementError(error.toString()));
+      }
+    }
   }
 
   Future<void> _onCreateClass(
     CreateClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
-
-      await createClassUseCase.call(event.classEntity);
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
 
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formSuccess,
-          isFormVisible: false,
+        ClassManagementFormLoading(
+          classes: currentState.classes,
+          currentSort: currentState.currentSort,
+          currentFilter: currentState.currentFilter,
+          isFormVisible: currentState.isFormVisible,
+          isEditMode: currentState.isEditMode,
+          classToEdit: currentState.classToEdit,
         ),
       );
 
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
-        ),
-      );
+      try {
+        await createClassUseCase.call(event.classEntity);
+
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.success,
+            isFormVisible: false,
+            clearClassToEdit: true,
+            clearFormErrorMessage: true,
+          ),
+        );
+
+        // Refresh the list
+        add(const RefreshClassesEvent());
+      } catch (error) {
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.error,
+            formErrorMessage: error.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -152,29 +244,43 @@ class ClassManagementBloc
     UpdateClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
-
-      await updateClassUseCase.call(event.classEntity);
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
 
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formSuccess,
-          isFormVisible: false,
-          isEditMode: false,
-          classToEdit: null,
+        ClassManagementFormLoading(
+          classes: currentState.classes,
+          currentSort: currentState.currentSort,
+          currentFilter: currentState.currentFilter,
+          isFormVisible: currentState.isFormVisible,
+          isEditMode: currentState.isEditMode,
+          classToEdit: currentState.classToEdit,
         ),
       );
 
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
-        ),
-      );
+      try {
+        await updateClassUseCase.call(event.classEntity);
+
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.success,
+            isFormVisible: false,
+            isEditMode: false,
+            clearClassToEdit: true,
+            clearFormErrorMessage: true,
+          ),
+        );
+
+        // Refresh the list
+        add(const RefreshClassesEvent());
+      } catch (error) {
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.error,
+            formErrorMessage: error.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -186,15 +292,10 @@ class ClassManagementBloc
       logger.i("Id deleted: ${event.classId}");
       await deleteClassUseCase.call(event.classId);
 
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: ClassManagementStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+      // Refresh the list
+      add(const RefreshClassesEvent());
+    } catch (error) {
+      emit(ClassManagementError(error.toString()));
     }
   }
 
@@ -202,26 +303,40 @@ class ClassManagementBloc
     LoadClassForEditEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
 
-      final classEntity = await getClassByIdUseCase.call(event.classId);
-      logger.i("Thông tin update: ${classEntity}");
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.loaded,
+        ClassManagementFormLoading(
+          classes: currentState.classes,
+          currentSort: currentState.currentSort,
+          currentFilter: currentState.currentFilter,
           isFormVisible: true,
           isEditMode: true,
-          classToEdit: classEntity,
         ),
       );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
-        ),
-      );
+
+      try {
+        final classEntity = await getClassByIdUseCase.call(event.classId);
+        logger.i("Thông tin update: ${classEntity}");
+
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.initial,
+            isFormVisible: true,
+            isEditMode: true,
+            classToEdit: classEntity,
+            clearFormErrorMessage: true,
+          ),
+        );
+      } catch (error) {
+        emit(
+          currentState.copyWith(
+            formStatus: ClassManagementFormStatus.error,
+            formErrorMessage: error.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -229,35 +344,65 @@ class ClassManagementBloc
     ShowCreateFormEvent event,
     Emitter<ClassManagementState> emit,
   ) {
-    emit(
-      state.copyWith(
-        isFormVisible: true,
-        isEditMode: false,
-        classToEdit: null,
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      emit(
+        currentState.copyWith(
+          isFormVisible: true,
+          isEditMode: false,
+          clearClassToEdit: true,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 
   void _onHideForm(HideFormEvent event, Emitter<ClassManagementState> emit) {
-    emit(
-      state.copyWith(
-        isFormVisible: false,
-        isEditMode: false,
-        classToEdit: null,
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      emit(
+        currentState.copyWith(
+          isFormVisible: false,
+          isEditMode: false,
+          clearClassToEdit: true,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 
   void _onResetForm(ResetFormEvent event, Emitter<ClassManagementState> emit) {
-    emit(
-      state.copyWith(
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      emit(
+        currentState.copyWith(
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
+  }
+
+  void _onClearFormData(
+    ClearFormDataEvent event,
+    Emitter<ClassManagementState> emit,
+  ) {
+    if (state is ClassManagementLoaded) {
+      final currentState = state as ClassManagementLoaded;
+
+      emit(
+        currentState.copyWith(
+          clearClassToEdit: true,
+          isEditMode: false,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 }

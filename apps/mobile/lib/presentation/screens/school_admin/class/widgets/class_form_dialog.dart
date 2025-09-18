@@ -1,6 +1,8 @@
+// Updated ClassFormDialog for Map-based state
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_state.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/grade_select_dropdown.dart';
@@ -47,27 +49,33 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
     _baseFeeFocusNode.addListener(() => setState(() {}));
     _gradeFocusNode.addListener(() => setState(() {}));
 
-    _initForm();
+    // Initialize form with proper data
+    _initFormData();
   }
 
   @override
   void didUpdateWidget(covariant ClassFormDialog oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _initForm();
+    // Re-initialize when widget updates
+    if (oldWidget.classToEdit != widget.classToEdit) {
+      _initFormData();
+    }
   }
 
-  void _initForm() {
-    if (isEditMode) {
+  void _initFormData() {
+    // Clear controllers first
+    _nameController.clear();
+    _maxStudentsController.clear();
+    _baseFeeController.clear();
+    _selectedGradeId = null;
+
+    // Only populate if we have data to edit
+    if (isEditMode && widget.classToEdit != null) {
       _nameController.text = widget.classToEdit?.name ?? '';
       _maxStudentsController.text =
           widget.classToEdit?.maxStudents?.toString() ?? '';
       _baseFeeController.text = widget.classToEdit?.baseFee?.toString() ?? '';
       _selectedGradeId = widget.classToEdit?.gradeId;
-    } else {
-      _nameController.clear();
-      _maxStudentsController.clear();
-      _baseFeeController.clear();
-      _selectedGradeId = null;
     }
   }
 
@@ -101,43 +109,63 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
     }
   }
 
+  void _closeDialog(BuildContext context) {
+    context.read<ClassManagementBloc>().add(HideFormEvent());
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ClassManagementBloc, ClassManagementState>(
-      listenWhen: (previous, current) =>
-          previous.formStatus != current.formStatus,
+      listenWhen: (previous, current) {
+        if (previous is ClassManagementLoaded &&
+            current is ClassManagementLoaded) {
+          return previous.formStatus != current.formStatus;
+        }
+        return false;
+      },
       listener: (context, state) {
-        if (state.formStatus == ClassManagementStatus.formSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEditMode
-                    ? 'Cập nhật lớp học thành công!'
-                    : 'Tạo lớp học thành công!',
+        if (state is ClassManagementLoaded) {
+          if (state.formStatus == ClassManagementFormStatus.success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  isEditMode
+                      ? 'Cập nhật lớp học thành công!'
+                      : 'Tạo lớp học thành công!',
+                ),
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            );
+            // Reset form state in bloc and close dialog
+            context.read<ClassManagementBloc>().add(ResetFormEvent());
+          } else if (state.formStatus == ClassManagementFormStatus.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.formErrorMessage ?? 'Có lỗi xảy ra!'),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-          );
-          // Reset form state in bloc
-          context.read<ClassManagementBloc>().add(ResetFormEvent());
-        } else if (state.formStatus == ClassManagementStatus.formError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.formErrorMessage ?? 'Có lỗi xảy ra!'),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
+            );
+          }
         }
       },
       builder: (context, state) {
+        bool isFormLoading = false;
+
+        if (state is ClassManagementFormLoading) {
+          isFormLoading = true;
+        } else if (state is ClassManagementLoaded) {
+          isFormLoading = state.formStatus == ClassManagementFormStatus.loading;
+        }
+
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -161,12 +189,7 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        context.read<ClassManagementBloc>().add(
-                          HideFormEvent(),
-                        );
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: () => _closeDialog(context),
                       icon: const Icon(Icons.close),
                     ),
                   ],
@@ -190,17 +213,23 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                       const SizedBox(height: 16),
                       Focus(
                         focusNode: _gradeFocusNode,
-                        child: GradeSelectDropdown(
-                          selectedGradeId: _selectedGradeId,
-                          hintText: 'Chọn khối lớp',
-                          isFocused: _gradeFocusNode.hasFocus,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedGradeId = value;
-                            });
+                        child: BlocBuilder<GradeSelectCubit, GradeSelectState>(
+                          builder: (context, gradeState) {
+                            return GradeSelectDropdown(
+                              selectedGradeId: _selectedGradeId,
+                              hintText: 'Chọn khối lớp',
+                              isFocused: _gradeFocusNode.hasFocus,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedGradeId = value;
+                                });
+                              },
+                              validator: (value) => Validators.requiredField(
+                                value,
+                                name: 'Khối lớp',
+                              ),
+                            );
                           },
-                          validator: (value) =>
-                              Validators.requiredField(value, name: 'Khối lớp'),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -231,30 +260,19 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed:
-                            state.formStatus ==
-                                ClassManagementStatus.formLoading
+                        onPressed: isFormLoading
                             ? null
-                            : () {
-                                context.read<ClassManagementBloc>().add(
-                                  HideFormEvent(),
-                                );
-                                Navigator.of(context).pop();
-                              },
+                            : () => _closeDialog(context),
                         child: const Text('Hủy'),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed:
-                            state.formStatus ==
-                                ClassManagementStatus.formLoading
+                        onPressed: isFormLoading
                             ? null
                             : () => _submitForm(context),
-                        child:
-                            state.formStatus ==
-                                ClassManagementStatus.formLoading
+                        child: isFormLoading
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,

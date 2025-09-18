@@ -1,6 +1,9 @@
+// Fixed class_management_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
+import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'bloc/class_management_bloc.dart';
 import 'bloc/class_management_state.dart';
 import 'widgets/class_sort_controls.dart';
@@ -13,8 +16,15 @@ class ClassManagementPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Không còn BlocProvider ở đây
-    return const ClassManagementView();
+    // Create GradeSelectCubit and load grades immediately
+    return BlocProvider<GradeSelectCubit>(
+      create: (context) {
+        final cubit = sl<GradeSelectCubit>();
+        cubit.loadGrades(); // Load grades immediately
+        return cubit;
+      },
+      child: const ClassManagementView(),
+    );
   }
 }
 
@@ -32,16 +42,28 @@ class ClassManagementView extends StatelessWidget {
         foregroundColor: Theme.of(context).colorScheme.onBackground,
       ),
       body: BlocListener<ClassManagementBloc, ClassManagementState>(
-        listenWhen: (previous, current) =>
-            previous.isFormVisible != current.isFormVisible,
+        listenWhen: (previous, current) {
+          if (previous is ClassManagementLoaded &&
+              current is ClassManagementLoaded) {
+            return previous.isFormVisible != current.isFormVisible;
+          }
+          return false;
+        },
         listener: (context, state) {
-          if (state.isFormVisible) {
+          if (state is ClassManagementLoaded && state.isFormVisible) {
             showDialog(
               context: context,
               barrierDismissible: false,
               builder: (dialogContext) {
-                return BlocProvider.value(
-                  value: context.read<ClassManagementBloc>(),
+                return MultiBlocProvider(
+                  providers: [
+                    // Provide ClassManagementBloc to the dialog
+                    BlocProvider.value(
+                      value: context.read<ClassManagementBloc>(),
+                    ),
+                    // Provide GradeSelectCubit to the dialog
+                    BlocProvider.value(value: context.read<GradeSelectCubit>()),
+                  ],
                   child: ClassFormDialog(classToEdit: state.classToEdit),
                 );
               },
@@ -50,13 +72,13 @@ class ClassManagementView extends StatelessWidget {
         },
         child: Column(
           children: [
-            // Nội dung chính cuộn được
+            // Main scrollable content
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     SectionTitle(title: 'Danh sách lớp học'),
                     SizedBox(height: 24),
                     ClassSortControls(),
@@ -67,13 +89,14 @@ class ClassManagementView extends StatelessWidget {
               ),
             ),
 
-            // Thanh phân trang dính dưới
+            // Sticky pagination bar at bottom (Optional - can be removed if using load more)
             BlocBuilder<ClassManagementBloc, ClassManagementState>(
               builder: (context, state) {
-                if (state.classes.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: const ClassPagination(),
+                if (state is ClassManagementLoaded &&
+                    state.classes.isNotEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: ClassPagination(),
                   );
                 }
                 return const SizedBox.shrink();

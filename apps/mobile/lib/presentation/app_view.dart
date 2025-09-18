@@ -55,9 +55,14 @@ class AppView extends StatelessWidget {
                         ..add(LoadSchoolDataAdmin()),
                   child: const SchoolDataSchoolAdminScreen(),
                 ),
-                '/school-admin/classes': (context) => BlocProvider(
-                  create: (_) =>
-                      sl<ClassManagementBloc>()..add(const LoadClassesEvent()),
+                '/school-admin/classes': (context) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (_) =>
+                          sl<ClassManagementBloc>()
+                            ..add(const LoadClassesEvent()),
+                    ),
+                  ],
                   child: const ClassManagementPage(),
                 ),
                 '/school-admin/membership-requests': (context) => BlocProvider(

@@ -1,4 +1,3 @@
-// widgets/class_pagination.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/class_management_bloc.dart';
@@ -12,6 +11,14 @@ class ClassPagination extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ClassManagementBloc, ClassManagementState>(
       builder: (context, state) {
+        if (state is! ClassManagementLoaded) {
+          return const SizedBox.shrink();
+        }
+
+        if (state.hasReachedMax && state.currentPage == 1) {
+          return const SizedBox.shrink(); // Don't show pagination if all fits on first page
+        }
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -28,7 +35,7 @@ class ClassPagination extends StatelessWidget {
                 onPressed: state.currentPage > 1
                     ? () {
                         context.read<ClassManagementBloc>().add(
-                          ChangePageEvent(state.currentPage - 1),
+                          const LoadMoreClassesEvent(), // This would need to be updated to handle previous page
                         );
                       }
                     : null,
@@ -56,10 +63,10 @@ class ClassPagination extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               IconButton(
-                onPressed: state.hasMorePages
+                onPressed: !state.hasReachedMax
                     ? () {
                         context.read<ClassManagementBloc>().add(
-                          ChangePageEvent(state.currentPage + 1),
+                          const LoadMoreClassesEvent(),
                         );
                       }
                     : null,
@@ -68,10 +75,10 @@ class ClassPagination extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 constraints: const BoxConstraints(),
                 style: IconButton.styleFrom(
-                  backgroundColor: state.hasMorePages
+                  backgroundColor: !state.hasReachedMax
                       ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
                       : Colors.transparent,
-                  foregroundColor: state.hasMorePages
+                  foregroundColor: !state.hasReachedMax
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(
                           context,

@@ -10,42 +10,33 @@ abstract class ClassManagementEvent extends Equatable {
 }
 
 class LoadClassesEvent extends ClassManagementEvent {
-  final int? page;
-  final String? sort;
-
-  const LoadClassesEvent({this.page, this.sort});
-
-  @override
-  List<Object?> get props => [page, sort];
+  const LoadClassesEvent();
 }
 
-// New event for handling sort string directly
-class ChangeSortStringEvent extends ClassManagementEvent {
-  final String sortString;
-
-  const ChangeSortStringEvent(this.sortString);
-
-  @override
-  List<Object?> get props => [sortString];
+class RefreshClassesEvent extends ClassManagementEvent {
+  const RefreshClassesEvent();
 }
 
-// Keep the old event for backward compatibility if needed
-class ChangeSortEvent extends ClassManagementEvent {
-  final String sortField;
-
-  const ChangeSortEvent(this.sortField);
-
-  @override
-  List<Object?> get props => [sortField];
+class LoadMoreClassesEvent extends ClassManagementEvent {
+  const LoadMoreClassesEvent();
 }
 
-class ChangePageEvent extends ClassManagementEvent {
-  final int page;
+class FilterClassesEvent extends ClassManagementEvent {
+  final Map<String, dynamic> filter;
 
-  const ChangePageEvent(this.page);
+  const FilterClassesEvent(this.filter);
 
   @override
-  List<Object?> get props => [page];
+  List<Object?> get props => [filter];
+}
+
+class SortClassesEvent extends ClassManagementEvent {
+  final Map<String, String> sort;
+
+  const SortClassesEvent(this.sort);
+
+  @override
+  List<Object?> get props => [sort];
 }
 
 class CreateClassEvent extends ClassManagementEvent {
@@ -89,3 +80,5 @@ class ShowCreateFormEvent extends ClassManagementEvent {}
 class HideFormEvent extends ClassManagementEvent {}
 
 class ResetFormEvent extends ClassManagementEvent {}
+
+class ClearFormDataEvent extends ClassManagementEvent {}

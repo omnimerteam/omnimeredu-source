@@ -1,4 +1,4 @@
-// widgets/class_list_view.dart
+// widgets/class_list_view.dart - Fixed version
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
@@ -14,19 +14,30 @@ class ClassListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ClassManagementBloc, ClassManagementState>(
       builder: (context, state) {
-        if (state.status == ClassManagementStatus.loading) {
+        if (state is ClassManagementLoading) {
           return _buildLoadingList();
         }
 
-        if (state.status == ClassManagementStatus.error) {
-          return _buildErrorView(context, state.errorMessage);
+        if (state is ClassManagementError) {
+          return _buildErrorView(context, state.message);
         }
 
-        if (state.classes.isEmpty) {
-          return _buildEmptyView(context);
+        if (state is ClassManagementLoaded) {
+          if (state.classes.isEmpty) {
+            return _buildEmptyView(context);
+          }
+          return _buildClassList(context, state);
         }
 
-        return _buildClassList(state);
+        if (state is ClassManagementLoadingMore) {
+          return _buildClassListWithLoadingMore(context, state);
+        }
+
+        if (state is ClassManagementFormLoading) {
+          return _buildClassListFromFormLoading(context, state);
+        }
+
+        return const SizedBox.shrink();
       },
     );
   }
@@ -64,7 +75,7 @@ class ClassListView extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorView(BuildContext context, String? errorMessage) {
+  Widget _buildErrorView(BuildContext context, String errorMessage) {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(32),
@@ -85,7 +96,7 @@ class ClassListView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              errorMessage ?? 'Không thể tải danh sách lớp học',
+              errorMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -94,12 +105,8 @@ class ClassListView extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
-                // Retry loading
                 context.read<ClassManagementBloc>().add(
-                  LoadClassesEvent(
-                    page: context.read<ClassManagementBloc>().state.currentPage,
-                    sort: context.read<ClassManagementBloc>().state.sortString,
-                  ),
+                  const RefreshClassesEvent(),
                 );
               },
               icon: const Icon(Icons.refresh),
@@ -163,14 +170,72 @@ class ClassListView extends StatelessWidget {
     );
   }
 
-  Widget _buildClassList(ClassManagementState state) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: state.classes.length,
-      itemBuilder: (context, index) {
-        return ClassListItem(classDetail: state.classes[index]);
-      },
+  Widget _buildClassList(BuildContext context, ClassManagementLoaded state) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.classes.length,
+          itemBuilder: (context, index) {
+            return ClassListItem(classDetail: state.classes[index]);
+          },
+        ),
+        // Load more button if there are more items
+        if (!state.hasReachedMax)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: ElevatedButton(
+              onPressed: () {
+                context.read<ClassManagementBloc>().add(
+                  const LoadMoreClassesEvent(),
+                );
+              },
+              child: const Text('Tải thêm'),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildClassListWithLoadingMore(
+    BuildContext context,
+    ClassManagementLoadingMore state,
+  ) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.classes.length,
+          itemBuilder: (context, index) {
+            return ClassListItem(classDetail: state.classes[index]);
+          },
+        ),
+        // Loading indicator
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: CircularProgressIndicator(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildClassListFromFormLoading(
+    BuildContext context,
+    ClassManagementFormLoading state,
+  ) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: state.classes.length,
+          itemBuilder: (context, index) {
+            return ClassListItem(classDetail: state.classes[index]);
+          },
+        ),
+      ],
     );
   }
 }
