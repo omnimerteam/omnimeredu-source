@@ -8,6 +8,7 @@ class ClassEntity extends Equatable {
   final String? gradeId;
   final int? maxStudents;
   final int? baseFee;
+  final List<String>? students; // 🔹 danh sách id học sinh
 
   const ClassEntity({
     this.id,
@@ -17,6 +18,7 @@ class ClassEntity extends Equatable {
     this.gradeId,
     this.maxStudents,
     this.baseFee,
+    this.students,
   });
 
   @override
@@ -28,5 +30,6 @@ class ClassEntity extends Equatable {
     gradeId,
     maxStudents,
     baseFee,
+    students,
   ];
 }

@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/foundation.dart'; // mapEquals
 
-class SortDropdownWidget extends StatelessWidget {
-  final String currentSort;
-  final Map<String, String> sortOptions;
-  final ValueChanged<String> onSortChanged;
+class SingleSortDropdownWidget extends StatelessWidget {
+  final List<Map<String, String>> currentSort;
+  final Map<Map<String, String>, String> sortOptions;
+  final ValueChanged<List<Map<String, String>>> onSortChanged;
   final String? placeholder;
   final double? width;
   final EdgeInsetsGeometry? padding;
 
-  const SortDropdownWidget({
+  const SingleSortDropdownWidget({
     super.key,
     required this.currentSort,
     required this.sortOptions,
@@ -32,8 +33,7 @@ class SortDropdownWidget extends StatelessWidget {
         ),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          value: sortOptions.containsKey(currentSort) ? currentSort : null,
+        child: DropdownButton2(
           isExpanded: true,
           hint: Row(
             children: [
@@ -55,19 +55,24 @@ class SortDropdownWidget extends StatelessWidget {
             ],
           ),
           items: sortOptions.entries.map((entry) {
-            final isSelected = entry.key == currentSort;
-            return DropdownMenuItem<String>(
+            final isSelected =
+                currentSort.isNotEmpty &&
+                mapEquals(currentSort.first, entry.key);
+
+            return DropdownMenuItem<Map<String, String>>(
               value: entry.key,
               child: Row(
                 children: [
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle_rounded,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
-                  else
-                    const SizedBox(width: 16),
+                  Checkbox(
+                    value: isSelected,
+                    onChanged: (checked) {
+                      if (checked == true) {
+                        onSortChanged([entry.key]); // chỉ giữ 1
+                      } else {
+                        onSortChanged([]); // bỏ chọn hết
+                      }
+                    },
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -86,11 +91,6 @@ class SortDropdownWidget extends StatelessWidget {
               ),
             );
           }).toList(),
-          onChanged: (value) {
-            if (value != null) onSortChanged(value);
-          },
-
-          // 🔥 popup menu
           dropdownStyleData: DropdownStyleData(
             maxHeight: 300,
             width: width != null ? width! + 60 : null,
@@ -100,8 +100,6 @@ class SortDropdownWidget extends StatelessWidget {
             ),
             elevation: 8,
           ),
-
-          // 🔥 style cho từng item trong menu
           menuItemStyleData: MenuItemStyleData(
             height: 42,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -109,12 +107,10 @@ class SortDropdownWidget extends StatelessWidget {
               Theme.of(context).colorScheme.primary.withOpacity(0.08),
             ),
           ),
-
           buttonStyleData: const ButtonStyleData(
             padding: EdgeInsets.symmetric(horizontal: 8),
             height: 40,
           ),
-
           iconStyleData: IconStyleData(
             icon: Icon(
               Icons.keyboard_arrow_down_rounded,

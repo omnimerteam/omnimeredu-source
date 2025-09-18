@@ -9,6 +9,7 @@ class ClassModel extends ClassEntity {
     String? gradeId,
     int? maxStudents,
     int? baseFee,
+    List<String>? students,
   }) : super(
          id: id,
          name: name,
@@ -17,6 +18,7 @@ class ClassModel extends ClassEntity {
          gradeId: gradeId,
          maxStudents: maxStudents,
          baseFee: baseFee,
+         students: students,
        );
 
   factory ClassModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,9 @@ class ClassModel extends ClassEntity {
       schoolId: json['schoolId'] as String?,
       maxStudents: json['maxStudents'] as int?,
       baseFee: json['baseFee'] as int?,
+      students: (json['students'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 
@@ -40,6 +45,7 @@ class ClassModel extends ClassEntity {
       'gradeId': gradeId,
       'maxStudents': maxStudents,
       'baseFee': baseFee?.toDouble(),
+      'students': students,
     };
   }
 
@@ -52,6 +58,7 @@ class ClassModel extends ClassEntity {
       gradeId: gradeId,
       maxStudents: maxStudents,
       baseFee: baseFee,
+      students: students,
     );
   }
 
@@ -64,6 +71,7 @@ class ClassModel extends ClassEntity {
       gradeId: entity.gradeId,
       maxStudents: entity.maxStudents,
       baseFee: entity.baseFee,
+      students: entity.students,
     );
   }
 }

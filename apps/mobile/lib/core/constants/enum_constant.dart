@@ -1,9 +1,9 @@
 enum EducationSystemLevelsEnum {
-  preschool,
-  primary,
-  secondary,
-  highSchool,
-  university,
+  Preschool,
+  Primary,
+  Secondary,
+  HighSchool,
+  University,
 }
 
 /// 🔧 Extension giúp convert String <-> Enum
@@ -15,7 +15,7 @@ extension EducationSystemLevelsEnumX on EducationSystemLevelsEnum {
   static EducationSystemLevelsEnum fromString(String value) {
     return EducationSystemLevelsEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => EducationSystemLevelsEnum.primary,
+      orElse: () => EducationSystemLevelsEnum.Preschool,
     );
   }
 }

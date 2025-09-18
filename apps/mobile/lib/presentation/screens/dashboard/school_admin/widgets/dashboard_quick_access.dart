@@ -44,6 +44,14 @@ class DashboardQuickAccess extends StatelessWidget {
               ),
             ),
             QuickAccessButton(
+              title: 'Khối',
+              icon: Icons.roofing,
+              color: Colors.cyan,
+              onTap: () {
+                Navigator.of(context).pushNamed('/school-admin/grades');
+              },
+            ),
+            QuickAccessButton(
               title: 'Lớp',
               icon: Icons.class_,
               color: Colors.orange,

@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_all_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_state.dart';
+import 'membership_request_management_event.dart';
+import 'membership_request_management_state.dart';
 
 class MembershipRequestManagementBloc
     extends
@@ -19,35 +19,39 @@ class MembershipRequestManagementBloc
     required this.getAllMembershipRequests,
     required this.updateStatusMembershipRequest,
   }) : super(const MembershipRequestInitial()) {
-    on<LoadMembershipRequestsEvent>(_onLoadMembershipRequests);
-    on<RefreshMembershipRequestsEvent>(_onRefreshMembershipRequests);
-    on<LoadMoreMembershipRequestsEvent>(_onLoadMoreMembershipRequests);
-    on<FilterMembershipRequestsEvent>(_onFilterMembershipRequests);
-    on<SortMembershipRequestsEvent>(_onSortMembershipRequests);
+    on<LoadMembershipRequestsEvent>(_onLoadRequests);
+    on<RefreshMembershipRequestsEvent>(_onRefreshRequests);
+    on<LoadMoreMembershipRequestsEvent>(_onLoadMoreRequests);
+    on<FilterMembershipRequestsEvent>(_onFilterRequests);
+    on<SortMembershipRequestsEvent>(_onSortRequests);
     on<UpdateStatusEvent>(_onUpdateStatus);
   }
 
-  Future<void> _onLoadMembershipRequests(
+  Future<void> _onLoadRequests(
     LoadMembershipRequestsEvent event,
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     emit(const MembershipRequestLoading());
 
     try {
-      final defaultSort = <String, String>{"createdAt": "desc"};
-      final requests = await getAllMembershipRequests.call(
-        page: AppConstants.defaultPage,
-        limit: AppConstants.defaultLimit,
-        sort: defaultSort,
-      );
+      final query =
+          event.query ??
+          DefaultQueryEntity(
+            page: 1,
+            limit: 10,
+            sort: [
+              {"createdAt": "desc"},
+            ],
+            filter: {},
+          );
+
+      final requests = await getAllMembershipRequests.call(query);
 
       emit(
         MembershipRequestLoaded(
           requests: requests,
-          hasReachedMax: requests.length < AppConstants.defaultLimit,
-          currentPage: AppConstants.defaultPage,
-          currentSort: defaultSort,
-          currentFilter: {},
+          hasReachedMax: requests.length < query.limit,
+          currentQuery: query,
         ),
       );
     } catch (error) {
@@ -55,26 +59,22 @@ class MembershipRequestManagementBloc
     }
   }
 
-  Future<void> _onRefreshMembershipRequests(
+  Future<void> _onRefreshRequests(
     RefreshMembershipRequestsEvent event,
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     if (state is MembershipRequestLoaded) {
-      final currentState = state as MembershipRequestLoaded;
+      final current = state as MembershipRequestLoaded;
 
       try {
-        final requests = await getAllMembershipRequests.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
-          filter: currentState.currentFilter,
-        );
+        final refreshedQuery = current.currentQuery.copyWith(page: 1);
+        final requests = await getAllMembershipRequests.call(refreshedQuery);
 
         emit(
-          currentState.copyWith(
+          current.copyWith(
             requests: requests,
-            hasReachedMax: requests.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
+            hasReachedMax: requests.length < refreshedQuery.limit,
+            currentQuery: refreshedQuery,
           ),
         );
       } catch (error) {
@@ -83,37 +83,32 @@ class MembershipRequestManagementBloc
     }
   }
 
-  Future<void> _onLoadMoreMembershipRequests(
+  Future<void> _onLoadMoreRequests(
     LoadMoreMembershipRequestsEvent event,
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     if (state is MembershipRequestLoaded) {
-      final currentState = state as MembershipRequestLoaded;
-
-      if (currentState.hasReachedMax) return;
+      final current = state as MembershipRequestLoaded;
+      if (current.hasReachedMax) return;
 
       emit(
         MembershipRequestLoadingMore(
-          requests: currentState.requests,
-          currentSort: currentState.currentSort,
-          currentFilter: currentState.currentFilter,
+          requests: current.requests,
+          currentQuery: current.currentQuery,
         ),
       );
 
       try {
-        final nextPage = currentState.currentPage + 1;
-        final newRequests = await getAllMembershipRequests.call(
-          page: nextPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
-          filter: currentState.currentFilter,
+        final nextQuery = current.currentQuery.copyWith(
+          page: current.currentQuery.page + 1,
         );
+        final newRequests = await getAllMembershipRequests.call(nextQuery);
 
         emit(
-          currentState.copyWith(
-            requests: [...currentState.requests, ...newRequests],
-            hasReachedMax: newRequests.length < AppConstants.defaultLimit,
-            currentPage: nextPage,
+          current.copyWith(
+            requests: [...current.requests, ...newRequests],
+            hasReachedMax: newRequests.length < nextQuery.limit,
+            currentQuery: nextQuery,
           ),
         );
       } catch (error) {
@@ -122,29 +117,27 @@ class MembershipRequestManagementBloc
     }
   }
 
-  Future<void> _onFilterMembershipRequests(
+  Future<void> _onFilterRequests(
     FilterMembershipRequestsEvent event,
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     if (state is MembershipRequestLoaded) {
-      final currentState = state as MembershipRequestLoaded;
+      final current = state as MembershipRequestLoaded;
 
       emit(const MembershipRequestLoading());
 
       try {
-        final requests = await getAllMembershipRequests.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
+        final newQuery = current.currentQuery.copyWith(
+          page: 1,
           filter: event.filter,
         );
+        final requests = await getAllMembershipRequests.call(newQuery);
 
         emit(
-          currentState.copyWith(
+          current.copyWith(
             requests: requests,
-            hasReachedMax: requests.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
-            currentFilter: event.filter,
+            hasReachedMax: requests.length < newQuery.limit,
+            currentQuery: newQuery,
           ),
         );
       } catch (error) {
@@ -153,29 +146,27 @@ class MembershipRequestManagementBloc
     }
   }
 
-  Future<void> _onSortMembershipRequests(
+  Future<void> _onSortRequests(
     SortMembershipRequestsEvent event,
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     if (state is MembershipRequestLoaded) {
-      final currentState = state as MembershipRequestLoaded;
+      final current = state as MembershipRequestLoaded;
 
       emit(const MembershipRequestLoading());
 
       try {
-        final requests = await getAllMembershipRequests.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: event.sort,
-          filter: currentState.currentFilter,
+        final newQuery = current.currentQuery.copyWith(
+          page: 1,
+          sort: [event.sort],
         );
+        final requests = await getAllMembershipRequests.call(newQuery);
 
         emit(
-          currentState.copyWith(
+          current.copyWith(
             requests: requests,
-            hasReachedMax: requests.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
-            currentSort: event.sort,
+            hasReachedMax: requests.length < newQuery.limit,
+            currentQuery: newQuery,
           ),
         );
       } catch (error) {
@@ -189,36 +180,43 @@ class MembershipRequestManagementBloc
     Emitter<MembershipRequestManagementState> emit,
   ) async {
     if (state is MembershipRequestLoaded) {
-      final currentState = state as MembershipRequestLoaded;
+      final current = state as MembershipRequestLoaded;
 
-      // Emit trạng thái updating
       emit(
-        MembershipRequestUpdatingStatus(
-          requests: currentState.requests,
-          updatingRequestId: event.requestId,
+        MembershipRequestFormLoading(
+          requests: current.requests,
+          currentQuery: current.currentQuery,
+          isFormVisible: current.isFormVisible,
         ),
       );
 
       try {
-        // Gọi usecase -> chỉ trả về MembershipStatusEnum
         final newStatus = await updateStatusMembershipRequest.call(
           event.requestId,
           event.newStatus,
         );
 
-        // Cập nhật lại danh sách request
-        final updatedRequests = currentState.requests.map((request) {
-          if (request.id == event.requestId) {
-            // Chỉ thay đổi field status
-            return request.copyWith(status: newStatus);
-          }
-          return request;
-        }).toList();
+        final updatedRequests = current.requests
+            .map(
+              (r) =>
+                  r.id == event.requestId ? r.copyWith(status: newStatus) : r,
+            )
+            .toList();
 
-        // Emit state mới
-        emit(currentState.copyWith(requests: updatedRequests));
+        emit(
+          current.copyWith(
+            requests: updatedRequests,
+            formStatus: MembershipRequestFormStatus.success,
+            isFormVisible: false,
+          ),
+        );
       } catch (error) {
-        emit(MembershipRequestError(error.toString()));
+        emit(
+          current.copyWith(
+            formStatus: MembershipRequestFormStatus.error,
+            formErrorMessage: error.toString(),
+          ),
+        );
       }
     }
   }

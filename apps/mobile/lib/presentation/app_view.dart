@@ -6,7 +6,6 @@ import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
@@ -15,6 +14,9 @@ import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.d
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/class_management_page.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/grade_management_page.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/membership_request_management_page.dart';
@@ -70,6 +72,11 @@ class AppView extends StatelessWidget {
                       sl<MembershipRequestManagementBloc>()
                         ..add(const LoadMembershipRequestsEvent()),
                   child: const MembershipRequestManagementPage(),
+                ),
+                '/school-admin/grades': (context) => BlocProvider(
+                  create: (_) =>
+                      sl<GradeManagementBloc>()..add(const LoadGradesEvent()),
+                  child: const GradeManagementPage(),
                 ),
               },
               home: _buildHome(state),

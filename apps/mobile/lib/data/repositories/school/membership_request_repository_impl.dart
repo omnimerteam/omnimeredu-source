@@ -1,6 +1,7 @@
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/membership_request/membership_request_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
 
 class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
@@ -9,19 +10,11 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
   MembershipRequestRepositoryImpl(this.remote);
 
   @override
-  Future<List<MembershipRequestEntity>> getAllMembershipRequest({
-    int page = 1,
-    int limit = 20,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<MembershipRequestEntity>> getAllMembershipRequest(
+    DefaultQueryEntity query,
+  ) async {
     try {
-      final models = await remote.getAllMembershipRequest(
-        page: page,
-        limit: limit,
-        sort: sort,
-        filter: filter,
-      );
+      final models = await remote.getAllMembershipRequest(query);
       return models.map((m) => m.toEntity()).toList();
     } catch (e, st) {
       print("❌ Lỗi khi lấy danh sách membership request: $e\n$st");

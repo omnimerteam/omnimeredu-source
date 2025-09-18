@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
-/// Loại button hỗ trợ sẵn
-enum AppButtonType { primary, secondary, success, danger }
+/// Các loại button hỗ trợ sẵn
+enum AppButtonType { primary, secondary, success, danger, cancel }
 
 class AppButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool loading;
   final bool fullWidth;
+  final double? width; // 👈 thêm width tuỳ chọn
   final AppButtonType type;
 
   const AppButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.loading = false,
     this.fullWidth = true,
+    this.width,
     this.type = AppButtonType.primary,
   });
 
@@ -23,32 +26,36 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    // 🎨 Xác định màu theo type
+    // 🎨 Màu sắc theo type
     Color background;
     Color foreground;
     switch (type) {
-      case AppButtonType.primary: // Submit
+      case AppButtonType.primary:
         background = colorScheme.primary;
         foreground = colorScheme.onPrimary;
         break;
-      case AppButtonType.secondary: // Cancel
-        background = Colors.grey.shade600;
+      case AppButtonType.secondary:
+        background = colorScheme.secondary;
+        foreground = colorScheme.onSecondary;
+        break;
+      case AppButtonType.cancel:
+        background = Colors.grey.shade700;
         foreground = Colors.white;
         break;
-      case AppButtonType.success: // Update / Approve
-        background = Colors.green;
+      case AppButtonType.success:
+        background = AppColors.approvedColor;
         foreground = Colors.white;
         break;
-      case AppButtonType.danger: // Delete / Reject
-        background = Colors.red;
+      case AppButtonType.danger:
+        background = colorScheme.error;
         foreground = Colors.white;
         break;
     }
 
-    // Nội dung
+    // Nội dung nút
     final buttonChild = loading
         ? SizedBox(
-            height: 20,
+            height: 18,
             width: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
@@ -65,16 +72,25 @@ class AppButton extends StatelessWidget {
 
     // Nút chính
     final button = ElevatedButton(
-      onPressed: loading ? null : onPressed,
+      onPressed: (loading || onPressed == null) ? null : onPressed,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(52),
         backgroundColor: background,
+        foregroundColor: foreground,
+        disabledBackgroundColor: background.withOpacity(0.5),
+        disabledForegroundColor: foreground.withOpacity(0.8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 0,
       ),
       child: buttonChild,
     );
 
-    return fullWidth ? SizedBox(width: double.infinity, child: button) : button;
+    if (fullWidth) {
+      return SizedBox(width: double.infinity, child: button);
+    } else if (width != null) {
+      return SizedBox(width: width, child: button); // 👈 khi truyền width
+    } else {
+      return button; // 👈 intrinsic width
+    }
   }
 }

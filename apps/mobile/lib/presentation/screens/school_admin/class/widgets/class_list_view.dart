@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_state.dart';
@@ -105,9 +106,7 @@ class ClassListView extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () {
-                context.read<ClassManagementBloc>().add(
-                  const RefreshClassesEvent(),
-                );
+                context.read<ClassManagementBloc>().add(RefreshClassesEvent());
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Thử lại'),
@@ -185,13 +184,11 @@ class ClassListView extends StatelessWidget {
         if (!state.hasReachedMax)
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton(
+            child: AppButton(
               onPressed: () {
-                context.read<ClassManagementBloc>().add(
-                  const LoadMoreClassesEvent(),
-                );
+                context.read<ClassManagementBloc>().add(LoadMoreClassesEvent());
               },
-              child: const Text('Tải thêm'),
+              text: 'Tải thêm',
             ),
           ),
       ],

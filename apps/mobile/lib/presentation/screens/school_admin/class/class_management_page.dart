@@ -2,12 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'bloc/class_management_bloc.dart';
 import 'bloc/class_management_state.dart';
 import 'widgets/class_sort_controls.dart';
-import 'widgets/class_pagination.dart';
 import 'widgets/class_list_view.dart';
 import 'widgets/class_form_dialog.dart';
 
@@ -76,33 +76,90 @@ class ClassManagementView extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SectionTitle(title: 'Danh sách lớp học'),
-                    SizedBox(height: 24),
-                    ClassSortControls(),
-                    SizedBox(height: 24),
-                    ClassListView(),
+                    const ClassSortControls(),
+                    const SizedBox(height: 16),
+
+                    // Title + Create button cùng 1 dòng
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SectionTitle(title: 'Danh sách lớp học'),
+
+                        Row(
+                          children: [
+                            // Nút Reload
+                            IconButton(
+                              tooltip: "Tải lại danh sách",
+                              onPressed: () {
+                                context.read<ClassManagementBloc>().add(
+                                  LoadClassesEvent(),
+                                );
+                              },
+                              icon: const Icon(Icons.refresh_rounded),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            // Nút Create
+                            _buildCreateButton(context, Theme.of(context)),
+                          ],
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 12),
+                    const ClassListView(),
                   ],
                 ),
               ),
             ),
-
-            // Sticky pagination bar at bottom (Optional - can be removed if using load more)
-            BlocBuilder<ClassManagementBloc, ClassManagementState>(
-              builder: (context, state) {
-                if (state is ClassManagementLoaded &&
-                    state.classes.isNotEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: ClassPagination(),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCreateButton(BuildContext context, ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ElevatedButton.icon(
+        onPressed: () {
+          context.read<ClassManagementBloc>().add(ShowCreateFormEvent());
+        },
+        icon: const Icon(Icons.add_rounded, size: 18),
+        label: const Text(
+          'Tạo lớp mới',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: theme.colorScheme.onPrimary,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          minimumSize: const Size(140, 40), // Đảm bảo button có size tối thiểu
         ),
       ),
     );

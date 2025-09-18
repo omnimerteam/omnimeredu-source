@@ -2,12 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/delete_confirm_dialog.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';
 
 class ClassListItem extends StatelessWidget {
-  final ClassDetailViewEntity classDetail;
+  final ClassEntity classDetail;
 
   const ClassListItem({super.key, required this.classDetail});
 
@@ -68,31 +70,6 @@ class ClassListItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.person,
-                      size: 16,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'GV: ${classDetail.mainTeacherName ?? 'Chưa phân công'}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.8),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
@@ -105,7 +82,7 @@ class ClassListItem extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Học sinh: ${classDetail.studentCount ?? 0}',
+                      'Học sinh: ${classDetail.students?.length ?? 0}/${classDetail.maxStudents ?? "0"}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
@@ -232,20 +209,20 @@ class ClassListItem extends StatelessWidget {
     switch (action) {
       case 'update':
         if (classDetail.id != null) {
-          bloc.add(LoadClassForEditEvent(classDetail.id!));
+          bloc.add(LoadClassForEditEvent(classDetail));
         }
         break;
       case 'delete':
         _showDeleteConfirmation(context);
         break;
       case 'add_student':
-        _showComingSoonSnackBar(context, 'Thêm học sinh');
+        AppSnackBars.showComingSoon(context, 'Thêm học sinh');
         break;
       case 'assign_teacher':
-        _showComingSoonSnackBar(context, 'Phân bổ giáo viên');
+        AppSnackBars.showComingSoon(context, 'Đăng ký giảng dạy');
         break;
       case 'supplement_teacher':
-        _showComingSoonSnackBar(context, 'Bổ sung giáo viên');
+        AppSnackBars.showComingSoon(context, 'Bổ sung giáo viên');
         break;
     }
   }
@@ -253,41 +230,18 @@ class ClassListItem extends StatelessWidget {
   void _showDeleteConfirmation(BuildContext context) {
     final bloc = context
         .read<ClassManagementBloc>(); // lấy trước ở ngoài dialog
-
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text(
-          'Bạn có chắc chắn muốn xóa lớp "${classDetail.name}"?\nHành động này không thể hoàn tác.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              if (classDetail.id != null) {
-                bloc.add(
-                  DeleteClassEvent(classDetail.id!),
-                ); // dùng bloc lấy trước
-              }
-            },
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showComingSoonSnackBar(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Tính năng "$feature" sẽ được cập nhật sớm'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      builder: (_) => DeleteConfirmationDialog(
+        message:
+            'Bạn có chắc chắn muốn xóa lớp "${classDetail.name}"?\nHành động này không thể hoàn tác.',
+        onConfirm: () {
+          if (classDetail.id != null) {
+            context.read<ClassManagementBloc>().add(
+              DeleteClassEvent(classDetail.id!),
+            );
+          }
+        },
       ),
     );
   }

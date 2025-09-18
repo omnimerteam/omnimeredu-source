@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
+import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_detail_view_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class ClassRemoteDataSource {
   final ApiClient client;
@@ -52,33 +54,18 @@ class ClassRemoteDataSource {
     }
   }
 
-  /// Danh sác lớp học bằng ClassDetail View Model
-  Future<List<ClassDetailViewModel>> getAllClassDetailView({
-    int page = AppConstants.defaultPage,
-    int limit = AppConstants.defaultLimit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<ClassModel>> getAllClasses(DefaultQueryEntity query) async {
     final token = await _getIdToken();
+    final queryParams = query.toQueryBuilder().build();
 
-    final queryParams = AppConstants.buildQueryParams(
-      module: "class",
-      page: page,
-      limit: limit,
-      sort: sort,
-      filter: filter,
-    );
-
-    final res = await client.get<List<ClassDetailViewModel>>(
-      Endpoints.classDetailView,
+    final res = await client.get<List<ClassModel>>(
+      Endpoints.classes,
       headers: {if (token != null) "Authorization": "Bearer $token"},
       query: queryParams,
       parser: (data) {
         if (data is List) {
           return data
-              .map(
-                (e) => ClassDetailViewModel.fromJson(e as Map<String, dynamic>),
-              )
+              .map((e) => ClassModel.fromJson(e as Map<String, dynamic>))
               .toList();
         }
         throw Exception("API không trả về danh sách lớp hợp lệ");

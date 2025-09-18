@@ -3,7 +3,7 @@ import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart'
 
 class GradeModel extends GradeEntity {
   const GradeModel({
-    required String id,
+    String? id,
     required String schoolId,
     required String name,
     required EducationSystemLevelsEnum level,

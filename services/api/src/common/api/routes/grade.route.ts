@@ -24,6 +24,7 @@ import {
   createGradeBodySchema,
   updateGradeBodySchema,
 } from "../../validators/app/grade/grade.validator";
+import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const gradeRepository = new GradeRepository(Grade);
@@ -32,11 +33,17 @@ const gradeController = new GradeController(gradeService);
 
 const router = Router();
 
+const getAllGradePaginationSchema = createPaginationSchemaWithSortAndFilter(
+  ["name", "level", "order"],
+  ["schoolId", "level", "active"]
+);
+
 // 🔹 Lấy danh sách tất cả khối
 router.get(
   "/",
   validateData({
     headers: authHeaderSchema,
+    query: getAllGradePaginationSchema,
   }),
   verifyFirebaseToken,
   async (req: Request, res: Response, next: NextFunction) =>

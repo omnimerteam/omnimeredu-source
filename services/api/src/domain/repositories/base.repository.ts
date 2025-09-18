@@ -38,6 +38,10 @@ export class BaseRepository<T> {
       ...(options?.filter || {}),
     };
 
+    console.log(finalFilter);
+
+    console.log("Option", options);
+
     return this.model
       .find(finalFilter)
       .skip(skip)

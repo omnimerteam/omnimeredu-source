@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 class GradeEntity extends Equatable {
-  final String id;
+  final String? id;
   final String schoolId;
   final String name;
   final EducationSystemLevelsEnum level;
@@ -17,7 +17,7 @@ class GradeEntity extends Equatable {
   final DateTime? updatedAt;
 
   const GradeEntity({
-    required this.id,
+    this.id,
     required this.schoolId,
     required this.name,
     required this.level,

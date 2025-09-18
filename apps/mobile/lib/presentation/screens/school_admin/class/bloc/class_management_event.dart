@@ -1,6 +1,6 @@
-// class_management_event.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 abstract class ClassManagementEvent extends Equatable {
   const ClassManagementEvent();
@@ -10,20 +10,19 @@ abstract class ClassManagementEvent extends Equatable {
 }
 
 class LoadClassesEvent extends ClassManagementEvent {
-  const LoadClassesEvent();
+  final DefaultQueryEntity? query;
+  const LoadClassesEvent({this.query});
+
+  @override
+  List<Object?> get props => [query];
 }
 
-class RefreshClassesEvent extends ClassManagementEvent {
-  const RefreshClassesEvent();
-}
+class RefreshClassesEvent extends ClassManagementEvent {}
 
-class LoadMoreClassesEvent extends ClassManagementEvent {
-  const LoadMoreClassesEvent();
-}
+class LoadMoreClassesEvent extends ClassManagementEvent {}
 
 class FilterClassesEvent extends ClassManagementEvent {
   final Map<String, dynamic> filter;
-
   const FilterClassesEvent(this.filter);
 
   @override
@@ -31,8 +30,7 @@ class FilterClassesEvent extends ClassManagementEvent {
 }
 
 class SortClassesEvent extends ClassManagementEvent {
-  final Map<String, String> sort;
-
+  final List<Map<String, String>> sort;
   const SortClassesEvent(this.sort);
 
   @override
@@ -41,7 +39,6 @@ class SortClassesEvent extends ClassManagementEvent {
 
 class CreateClassEvent extends ClassManagementEvent {
   final ClassEntity classEntity;
-
   const CreateClassEvent(this.classEntity);
 
   @override
@@ -50,7 +47,6 @@ class CreateClassEvent extends ClassManagementEvent {
 
 class UpdateClassEvent extends ClassManagementEvent {
   final ClassEntity classEntity;
-
   const UpdateClassEvent(this.classEntity);
 
   @override
@@ -59,7 +55,6 @@ class UpdateClassEvent extends ClassManagementEvent {
 
 class DeleteClassEvent extends ClassManagementEvent {
   final String classId;
-
   const DeleteClassEvent(this.classId);
 
   @override
@@ -67,12 +62,11 @@ class DeleteClassEvent extends ClassManagementEvent {
 }
 
 class LoadClassForEditEvent extends ClassManagementEvent {
-  final String classId;
-
-  const LoadClassForEditEvent(this.classId);
+  final ClassEntity classEdit;
+  const LoadClassForEditEvent(this.classEdit);
 
   @override
-  List<Object?> get props => [classId];
+  List<Object?> get props => [classEdit];
 }
 
 class ShowCreateFormEvent extends ClassManagementEvent {}

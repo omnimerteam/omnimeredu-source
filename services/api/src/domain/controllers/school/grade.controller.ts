@@ -26,7 +26,7 @@ class GradeController {
       return;
     }
 
-    const schoolId = req.query.schoolId as string | undefined;
+    const schoolId = req.user?.schoolId;
     const options = buildQueryOptions(req.query as any);
 
     try {

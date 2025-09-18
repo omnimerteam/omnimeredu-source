@@ -5,6 +5,7 @@ import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_selec
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_state.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/grade_select_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 import '../bloc/class_management_bloc.dart';
@@ -106,6 +107,8 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
       } else {
         context.read<ClassManagementBloc>().add(CreateClassEvent(classEntity));
       }
+
+      Navigator.of(context).pop();
     }
   }
 
@@ -259,28 +262,22 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      child: AppButton(
                         onPressed: isFormLoading
                             ? null
                             : () => _closeDialog(context),
-                        child: const Text('Hủy'),
+                        text: 'Hủy',
+                        type: AppButtonType.danger,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: ElevatedButton(
+                      child: AppButton(
                         onPressed: isFormLoading
                             ? null
                             : () => _submitForm(context),
-                        child: isFormLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(isEditMode ? 'Cập nhật' : 'Tạo mới'),
+                        text: isEditMode ? 'Cập nhật' : 'Tạo mới',
+                        loading: isFormLoading,
                       ),
                     ),
                   ],

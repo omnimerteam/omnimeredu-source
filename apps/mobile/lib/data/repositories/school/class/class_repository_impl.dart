@@ -3,9 +3,10 @@
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
+
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/class_repository.dart';
 
 class ClassRepositoryImpl implements ClassRepository {
@@ -27,23 +28,11 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<List<ClassDetailViewEntity>> getAllClassDetailView({
-    int page = AppConstants.defaultPage,
-    int limit = AppConstants.defaultLimit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<ClassEntity>> getAllClasses(DefaultQueryEntity query) async {
     try {
-      final models = await remote.getAllClassDetailView(
-        page: page,
-        limit: limit,
-        sort: sort,
-        filter: filter,
-      );
-
+      final models = await remote.getAllClasses(query);
       return models.map((m) => m.toEntity()).toList();
     } catch (e, st) {
-      // Có thể log lại để dễ debug
       print("Lỗi khi lấy danh sách lớp: $e\n$st");
       throw Exception("Không thể lấy danh sách lớp");
     }

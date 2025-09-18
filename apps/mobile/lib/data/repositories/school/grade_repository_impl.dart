@@ -1,7 +1,9 @@
+import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_select_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 
 class GradeRepositoryImpl implements GradeRepository {
@@ -10,19 +12,9 @@ class GradeRepositoryImpl implements GradeRepository {
   GradeRepositoryImpl(this.remote);
 
   @override
-  Future<List<GradeEntity>> getAllGrades({
-    int page = 1,
-    int limit = 20,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<GradeEntity>> getAllGrades(DefaultQueryEntity query) async {
     try {
-      final models = await remote.getAllGrades(
-        page: page,
-        limit: limit,
-        sort: sort,
-        filter: filter,
-      );
+      final models = await remote.getAllGrades(query);
       return models.map((m) => m.toEntity()).toList();
     } catch (e, st) {
       print("❌ Lỗi khi lấy danh sách grade: $e\n$st");

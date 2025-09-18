@@ -7,7 +7,7 @@ import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_r
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/grade/create_grade_usecase.dart';
@@ -23,6 +23,7 @@ import 'package:flutter_ios_android_platforms/domain/usecases/membership_request
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -164,7 +165,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateClassUseCase(sl()));
   sl.registerLazySingleton(() => DeleteClassUseCase(sl()));
   sl.registerLazySingleton(() => GetClassByIdUseCase(sl()));
-  sl.registerLazySingleton(() => GetAllClassDetailViewUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllClassUseCase(sl()));
 
   // School
   sl.registerLazySingleton(() => GetSchoolsByLevelUseCase(sl()));
@@ -230,11 +231,10 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => ClassManagementBloc(
-      getAllClassDetailViewUseCase: sl(),
       createClassUseCase: sl(),
       updateClassUseCase: sl(),
       deleteClassUseCase: sl(),
-      getClassByIdUseCase: sl(),
+      getAllClassUseCase: sl(),
     ),
   );
 
@@ -246,4 +246,13 @@ Future<void> init() async {
   );
 
   sl.registerFactory(() => GradeSelectCubit(sl()));
+
+  sl.registerFactory(
+    () => GradeManagementBloc(
+      createGradeUseCase: sl(),
+      deleteGradeUseCase: sl(),
+      getAllGradesUseCase: sl(),
+      updateGradeUseCase: sl(),
+    ),
+  );
 }

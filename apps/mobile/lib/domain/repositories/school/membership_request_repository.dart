@@ -1,12 +1,10 @@
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 abstract class MembershipRequestRepository {
-  Future<List<MembershipRequestEntity>> getAllMembershipRequest({
-    int page,
-    int limit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  });
+  Future<List<MembershipRequestEntity>> getAllMembershipRequest(
+    DefaultQueryEntity query,
+  );
 
   Future<void> createMembershipRequest(
     MembershipRequestEntity createMembershipRequestData,

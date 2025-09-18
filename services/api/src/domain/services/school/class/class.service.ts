@@ -8,10 +8,12 @@ import {
   StudentRepository,
 } from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
-import { HttpError } from "../../../../common/utils/HttpError";
 import { generateClassCode } from "../../../utils/generateCode";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
-import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
+import {
+  buildPermissionFilter,
+  buildPermissionFilterForClass,
+} from "../../../../common/utils/permissionFilter";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -38,7 +40,7 @@ class ClassService {
     options?: PaginationQueryOptions
   ) {
     try {
-      const filter = buildPermissionFilter(userRole, schoolId);
+      const filter = buildPermissionFilterForClass(userRole, schoolId);
 
       const classes = await this.classRepository.findAll(filter, options);
 
@@ -72,7 +74,7 @@ class ClassService {
     options?: PaginationQueryOptions
   ) {
     try {
-      const filter = buildPermissionFilter(userRole, schoolId);
+      const filter = buildPermissionFilterForClass(userRole, schoolId);
 
       const classes = await this.classDetailViewRepository.findAll(
         filter,

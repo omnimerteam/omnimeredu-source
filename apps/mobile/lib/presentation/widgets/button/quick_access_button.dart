@@ -32,12 +32,12 @@ class QuickAccessButton extends StatelessWidget {
               Stack(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(icon, color: color, size: 24),
+                    child: Icon(icon, color: color, size: 26),
                   ),
                   if (badge != null)
                     Positioned(

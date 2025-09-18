@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
+import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_select_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class GradeRemoteDataSource {
   final ApiClient client;
@@ -16,21 +18,9 @@ class GradeRemoteDataSource {
   }
 
   /// 🔹 Lấy tất cả grade
-  Future<List<GradeModel>> getAllGrades({
-    int page = AppConstants.defaultPage,
-    int limit = AppConstants.defaultLimit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<GradeModel>> getAllGrades(DefaultQueryEntity query) async {
     final token = await _getIdToken();
-
-    final queryParams = AppConstants.buildQueryParams(
-      module: "membership",
-      page: page,
-      limit: limit,
-      sort: sort,
-      filter: filter,
-    );
+    final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<GradeModel>>(
       Endpoints.grades,
@@ -101,14 +91,11 @@ class GradeRemoteDataSource {
   /// 🔹 Cập nhật grade
   Future<GradeModel> updateGrade(GradeModel grade) async {
     final id = grade.id;
-    if (id.isEmpty) {
-      throw Exception("Grade chưa được chọn");
-    }
 
     final token = await _getIdToken();
 
     final res = await client.put<GradeModel>(
-      Endpoints.gradeId(id),
+      Endpoints.gradeId(id!),
       headers: {if (token != null) "Authorization": "Bearer $token"},
       data: grade.toJson(),
       parser: (data) {

@@ -1,5 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+
+enum MembershipRequestFormStatus { initial, loading, success, error }
 
 abstract class MembershipRequestManagementState extends Equatable {
   const MembershipRequestManagementState();
@@ -8,42 +11,63 @@ abstract class MembershipRequestManagementState extends Equatable {
   List<Object?> get props => [];
 }
 
+// Ban đầu
 class MembershipRequestInitial extends MembershipRequestManagementState {
   const MembershipRequestInitial();
 }
 
+// Loading danh sách
 class MembershipRequestLoading extends MembershipRequestManagementState {
   const MembershipRequestLoading();
 }
 
+// Loading thêm (pagination)
+class MembershipRequestLoadingMore extends MembershipRequestManagementState {
+  final List<MembershipRequestEntity> requests;
+  final DefaultQueryEntity currentQuery;
+
+  const MembershipRequestLoadingMore({
+    required this.requests,
+    required this.currentQuery,
+  });
+
+  @override
+  List<Object?> get props => [requests, currentQuery];
+}
+
+// Loaded thành công
 class MembershipRequestLoaded extends MembershipRequestManagementState {
   final List<MembershipRequestEntity> requests;
   final bool hasReachedMax;
-  final int currentPage;
-  final Map<String, String> currentSort;
-  final Map<String, dynamic> currentFilter;
+  final DefaultQueryEntity currentQuery;
+  final bool isFormVisible;
+  final MembershipRequestFormStatus formStatus;
+  final String? formErrorMessage;
 
   const MembershipRequestLoaded({
     required this.requests,
     required this.hasReachedMax,
-    required this.currentPage,
-    required this.currentSort,
-    required this.currentFilter,
+    required this.currentQuery,
+    this.isFormVisible = false,
+    this.formStatus = MembershipRequestFormStatus.initial,
+    this.formErrorMessage,
   });
 
   MembershipRequestLoaded copyWith({
     List<MembershipRequestEntity>? requests,
     bool? hasReachedMax,
-    int? currentPage,
-    Map<String, String>? currentSort,
-    Map<String, dynamic>? currentFilter,
+    DefaultQueryEntity? currentQuery,
+    bool? isFormVisible,
+    MembershipRequestFormStatus? formStatus,
+    String? formErrorMessage,
   }) {
     return MembershipRequestLoaded(
       requests: requests ?? this.requests,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      currentPage: currentPage ?? this.currentPage,
-      currentSort: currentSort ?? this.currentSort,
-      currentFilter: currentFilter ?? this.currentFilter,
+      currentQuery: currentQuery ?? this.currentQuery,
+      isFormVisible: isFormVisible ?? this.isFormVisible,
+      formStatus: formStatus ?? this.formStatus,
+      formErrorMessage: formErrorMessage ?? this.formErrorMessage,
     );
   }
 
@@ -51,12 +75,14 @@ class MembershipRequestLoaded extends MembershipRequestManagementState {
   List<Object?> get props => [
     requests,
     hasReachedMax,
-    currentPage,
-    currentSort,
-    currentFilter,
+    currentQuery,
+    isFormVisible,
+    formStatus,
+    formErrorMessage,
   ];
 }
 
+// Lỗi
 class MembershipRequestError extends MembershipRequestManagementState {
   final String message;
 
@@ -66,30 +92,18 @@ class MembershipRequestError extends MembershipRequestManagementState {
   List<Object?> get props => [message];
 }
 
-class MembershipRequestLoadingMore extends MembershipRequestManagementState {
+// Form đang xử lý (update status)
+class MembershipRequestFormLoading extends MembershipRequestManagementState {
   final List<MembershipRequestEntity> requests;
-  final Map<String, String> currentSort;
-  final Map<String, dynamic> currentFilter;
+  final DefaultQueryEntity currentQuery;
+  final bool isFormVisible;
 
-  const MembershipRequestLoadingMore({
+  const MembershipRequestFormLoading({
     required this.requests,
-    required this.currentSort,
-    required this.currentFilter,
+    required this.currentQuery,
+    required this.isFormVisible,
   });
 
   @override
-  List<Object?> get props => [requests, currentSort, currentFilter];
-}
-
-class MembershipRequestUpdatingStatus extends MembershipRequestManagementState {
-  final List<MembershipRequestEntity> requests;
-  final String updatingRequestId;
-
-  const MembershipRequestUpdatingStatus({
-    required this.requests,
-    required this.updatingRequestId,
-  });
-
-  @override
-  List<Object?> get props => [requests, updatingRequestId];
+  List<Object?> get props => [requests, currentQuery, isFormVisible];
 }

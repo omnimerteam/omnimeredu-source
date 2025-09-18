@@ -1,7 +1,7 @@
-// class_management_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/class/class_detail_view_entity.dart';
+
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 abstract class ClassManagementState extends Equatable {
   const ClassManagementState();
@@ -19,13 +19,11 @@ class ClassManagementLoading extends ClassManagementState {
 }
 
 class ClassManagementLoaded extends ClassManagementState {
-  final List<ClassDetailViewEntity> classes;
+  final List<ClassEntity> classes;
   final bool hasReachedMax;
-  final int currentPage;
-  final Map<String, String> currentSort;
-  final Map<String, dynamic> currentFilter;
+  final DefaultQueryEntity currentQuery;
 
-  // Form related
+  // Form
   final bool isFormVisible;
   final bool isEditMode;
   final ClassEntity? classToEdit;
@@ -35,9 +33,7 @@ class ClassManagementLoaded extends ClassManagementState {
   const ClassManagementLoaded({
     required this.classes,
     required this.hasReachedMax,
-    required this.currentPage,
-    required this.currentSort,
-    required this.currentFilter,
+    required this.currentQuery,
     this.isFormVisible = false,
     this.isEditMode = false,
     this.classToEdit,
@@ -46,11 +42,9 @@ class ClassManagementLoaded extends ClassManagementState {
   });
 
   ClassManagementLoaded copyWith({
-    List<ClassDetailViewEntity>? classes,
+    List<ClassEntity>? classes,
     bool? hasReachedMax,
-    int? currentPage,
-    Map<String, String>? currentSort,
-    Map<String, dynamic>? currentFilter,
+    DefaultQueryEntity? currentQuery,
     bool? isFormVisible,
     bool? isEditMode,
     ClassEntity? classToEdit,
@@ -62,9 +56,7 @@ class ClassManagementLoaded extends ClassManagementState {
     return ClassManagementLoaded(
       classes: classes ?? this.classes,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      currentPage: currentPage ?? this.currentPage,
-      currentSort: currentSort ?? this.currentSort,
-      currentFilter: currentFilter ?? this.currentFilter,
+      currentQuery: currentQuery ?? this.currentQuery,
       isFormVisible: isFormVisible ?? this.isFormVisible,
       isEditMode: isEditMode ?? this.isEditMode,
       classToEdit: clearClassToEdit ? null : (classToEdit ?? this.classToEdit),
@@ -79,9 +71,7 @@ class ClassManagementLoaded extends ClassManagementState {
   List<Object?> get props => [
     classes,
     hasReachedMax,
-    currentPage,
-    currentSort,
-    currentFilter,
+    currentQuery,
     isFormVisible,
     isEditMode,
     classToEdit,
@@ -92,7 +82,6 @@ class ClassManagementLoaded extends ClassManagementState {
 
 class ClassManagementError extends ClassManagementState {
   final String message;
-
   const ClassManagementError(this.message);
 
   @override
@@ -100,32 +89,28 @@ class ClassManagementError extends ClassManagementState {
 }
 
 class ClassManagementLoadingMore extends ClassManagementState {
-  final List<ClassDetailViewEntity> classes;
-  final Map<String, String> currentSort;
-  final Map<String, dynamic> currentFilter;
+  final List<ClassEntity> classes;
+  final DefaultQueryEntity currentQuery;
 
   const ClassManagementLoadingMore({
     required this.classes,
-    required this.currentSort,
-    required this.currentFilter,
+    required this.currentQuery,
   });
 
   @override
-  List<Object?> get props => [classes, currentSort, currentFilter];
+  List<Object?> get props => [classes, currentQuery];
 }
 
 class ClassManagementFormLoading extends ClassManagementState {
-  final List<ClassDetailViewEntity> classes;
-  final Map<String, String> currentSort;
-  final Map<String, dynamic> currentFilter;
+  final List<ClassEntity> classes;
+  final DefaultQueryEntity currentQuery;
   final bool isFormVisible;
   final bool isEditMode;
   final ClassEntity? classToEdit;
 
   const ClassManagementFormLoading({
     required this.classes,
-    required this.currentSort,
-    required this.currentFilter,
+    required this.currentQuery,
     required this.isFormVisible,
     required this.isEditMode,
     this.classToEdit,
@@ -134,8 +119,7 @@ class ClassManagementFormLoading extends ClassManagementState {
   @override
   List<Object?> get props => [
     classes,
-    currentSort,
-    currentFilter,
+    currentQuery,
     isFormVisible,
     isEditMode,
     classToEdit,

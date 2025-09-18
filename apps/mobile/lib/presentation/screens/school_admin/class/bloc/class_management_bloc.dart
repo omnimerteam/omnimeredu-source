@@ -1,29 +1,24 @@
-// class_management_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
-import 'class_management_event.dart';
-import 'class_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_state.dart';
 
 class ClassManagementBloc
     extends Bloc<ClassManagementEvent, ClassManagementState> {
-  final GetAllClassDetailViewUseCase getAllClassDetailViewUseCase;
+  final GetAllClassUseCase getAllClassUseCase;
   final CreateClassUseCase createClassUseCase;
   final UpdateClassUseCase updateClassUseCase;
   final DeleteClassUseCase deleteClassUseCase;
-  final GetClassByIdUseCase getClassByIdUseCase;
 
   ClassManagementBloc({
-    required this.getAllClassDetailViewUseCase,
+    required this.getAllClassUseCase,
     required this.createClassUseCase,
     required this.updateClassUseCase,
     required this.deleteClassUseCase,
-    required this.getClassByIdUseCase,
   }) : super(const ClassManagementInitial()) {
     on<LoadClassesEvent>(_onLoadClasses);
     on<RefreshClassesEvent>(_onRefreshClasses);
@@ -45,26 +40,18 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     emit(const ClassManagementLoading());
-
     try {
-      final defaultSort = <String, String>{"name": "asc"};
-      final classes = await getAllClassDetailViewUseCase.call(
-        page: AppConstants.defaultPage,
-        limit: AppConstants.defaultLimit,
-        sort: defaultSort,
-      );
-
+      final query = event.query ?? DefaultQueryEntity();
+      final classes = await getAllClassUseCase.call(query);
       emit(
         ClassManagementLoaded(
           classes: classes,
-          hasReachedMax: classes.length < AppConstants.defaultLimit,
-          currentPage: AppConstants.defaultPage,
-          currentSort: defaultSort,
-          currentFilter: {},
+          hasReachedMax: classes.length < query.limit,
+          currentQuery: query,
         ),
       );
-    } catch (error) {
-      emit(ClassManagementError(error.toString()));
+    } catch (e) {
+      emit(ClassManagementError(e.toString()));
     }
   }
 
@@ -73,25 +60,20 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
+      final refreshedQuery = current.currentQuery.copyWith(page: 1);
+      emit(const ClassManagementLoading());
       try {
-        final classes = await getAllClassDetailViewUseCase.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
-          filter: currentState.currentFilter,
-        );
-
+        final classes = await getAllClassUseCase.call(refreshedQuery);
         emit(
-          currentState.copyWith(
+          current.copyWith(
             classes: classes,
-            hasReachedMax: classes.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
+            hasReachedMax: classes.length < refreshedQuery.limit,
+            currentQuery: refreshedQuery,
           ),
         );
-      } catch (error) {
-        emit(ClassManagementError(error.toString()));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
       }
     }
   }
@@ -101,36 +83,30 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
-      if (currentState.hasReachedMax) return;
+      final current = state as ClassManagementLoaded;
+      if (current.hasReachedMax) return;
 
       emit(
         ClassManagementLoadingMore(
-          classes: currentState.classes,
-          currentSort: currentState.currentSort,
-          currentFilter: currentState.currentFilter,
+          classes: current.classes,
+          currentQuery: current.currentQuery,
         ),
       );
 
       try {
-        final nextPage = currentState.currentPage + 1;
-        final newClasses = await getAllClassDetailViewUseCase.call(
-          page: nextPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
-          filter: currentState.currentFilter,
+        final nextQuery = current.currentQuery.copyWith(
+          page: current.currentQuery.page + 1,
         );
-
+        final newClasses = await getAllClassUseCase.call(nextQuery);
         emit(
-          currentState.copyWith(
-            classes: [...currentState.classes, ...newClasses],
-            hasReachedMax: newClasses.length < AppConstants.defaultLimit,
-            currentPage: nextPage,
+          current.copyWith(
+            classes: [...current.classes, ...newClasses],
+            hasReachedMax: newClasses.length < nextQuery.limit,
+            currentQuery: nextQuery,
           ),
         );
-      } catch (error) {
-        emit(ClassManagementError(error.toString()));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
       }
     }
   }
@@ -140,28 +116,23 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
+      final newQuery = current.currentQuery.copyWith(
+        page: 1,
+        filter: event.filter,
+      );
       emit(const ClassManagementLoading());
-
       try {
-        final classes = await getAllClassDetailViewUseCase.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: currentState.currentSort,
-          filter: event.filter,
-        );
-
+        final classes = await getAllClassUseCase.call(newQuery);
         emit(
-          currentState.copyWith(
+          current.copyWith(
             classes: classes,
-            hasReachedMax: classes.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
-            currentFilter: event.filter,
+            hasReachedMax: classes.length < newQuery.limit,
+            currentQuery: newQuery,
           ),
         );
-      } catch (error) {
-        emit(ClassManagementError(error.toString()));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
       }
     }
   }
@@ -171,28 +142,20 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
+      final newQuery = current.currentQuery.copyWith(page: 1, sort: event.sort);
       emit(const ClassManagementLoading());
-
       try {
-        final classes = await getAllClassDetailViewUseCase.call(
-          page: AppConstants.defaultPage,
-          limit: AppConstants.defaultLimit,
-          sort: event.sort,
-          filter: currentState.currentFilter,
-        );
-
+        final classes = await getAllClassUseCase.call(newQuery);
         emit(
-          currentState.copyWith(
+          current.copyWith(
             classes: classes,
-            hasReachedMax: classes.length < AppConstants.defaultLimit,
-            currentPage: AppConstants.defaultPage,
-            currentSort: event.sort,
+            hasReachedMax: classes.length < newQuery.limit,
+            currentQuery: newQuery,
           ),
         );
-      } catch (error) {
-        emit(ClassManagementError(error.toString()));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
       }
     }
   }
@@ -202,38 +165,34 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
         ClassManagementFormLoading(
-          classes: currentState.classes,
-          currentSort: currentState.currentSort,
-          currentFilter: currentState.currentFilter,
-          isFormVisible: currentState.isFormVisible,
-          isEditMode: currentState.isEditMode,
-          classToEdit: currentState.classToEdit,
+          classes: current.classes,
+          currentQuery: current.currentQuery,
+          isFormVisible: current.isFormVisible,
+          isEditMode: current.isEditMode,
+          classToEdit: current.classToEdit,
         ),
       );
 
       try {
-        await createClassUseCase.call(event.classEntity);
-
+        final newClass = await createClassUseCase.call(event.classEntity);
         emit(
-          currentState.copyWith(
+          current.copyWith(
+            classes: [...current.classes, newClass],
             formStatus: ClassManagementFormStatus.success,
             isFormVisible: false,
+            isEditMode: false,
             clearClassToEdit: true,
             clearFormErrorMessage: true,
           ),
         );
-
-        // Refresh the list
-        add(const RefreshClassesEvent());
-      } catch (error) {
+      } catch (e) {
         emit(
-          currentState.copyWith(
+          current.copyWith(
             formStatus: ClassManagementFormStatus.error,
-            formErrorMessage: error.toString(),
+            formErrorMessage: e.toString(),
           ),
         );
       }
@@ -245,24 +204,25 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
         ClassManagementFormLoading(
-          classes: currentState.classes,
-          currentSort: currentState.currentSort,
-          currentFilter: currentState.currentFilter,
-          isFormVisible: currentState.isFormVisible,
-          isEditMode: currentState.isEditMode,
-          classToEdit: currentState.classToEdit,
+          classes: current.classes,
+          currentQuery: current.currentQuery,
+          isFormVisible: current.isFormVisible,
+          isEditMode: current.isEditMode,
+          classToEdit: current.classToEdit,
         ),
       );
 
       try {
-        await updateClassUseCase.call(event.classEntity);
-
+        final updatedClass = await updateClassUseCase.call(event.classEntity);
+        final updatedList = current.classes
+            .map((c) => c.id == updatedClass.id ? updatedClass : c)
+            .toList();
         emit(
-          currentState.copyWith(
+          current.copyWith(
+            classes: updatedList,
             formStatus: ClassManagementFormStatus.success,
             isFormVisible: false,
             isEditMode: false,
@@ -270,14 +230,11 @@ class ClassManagementBloc
             clearFormErrorMessage: true,
           ),
         );
-
-        // Refresh the list
-        add(const RefreshClassesEvent());
-      } catch (error) {
+      } catch (e) {
         emit(
-          currentState.copyWith(
+          current.copyWith(
             formStatus: ClassManagementFormStatus.error,
-            formErrorMessage: error.toString(),
+            formErrorMessage: e.toString(),
           ),
         );
       }
@@ -288,14 +245,17 @@ class ClassManagementBloc
     DeleteClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      logger.i("Id deleted: ${event.classId}");
-      await deleteClassUseCase.call(event.classId);
-
-      // Refresh the list
-      add(const RefreshClassesEvent());
-    } catch (error) {
-      emit(ClassManagementError(error.toString()));
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      try {
+        await deleteClassUseCase.call(event.classId);
+        final remaining = current.classes
+            .where((c) => c.id != event.classId)
+            .toList();
+        emit(current.copyWith(classes: remaining));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
     }
   }
 
@@ -304,39 +264,16 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) async {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
-        ClassManagementFormLoading(
-          classes: currentState.classes,
-          currentSort: currentState.currentSort,
-          currentFilter: currentState.currentFilter,
+        current.copyWith(
           isFormVisible: true,
           isEditMode: true,
+          classToEdit: event.classEdit,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
         ),
       );
-
-      try {
-        final classEntity = await getClassByIdUseCase.call(event.classId);
-        logger.i("Thông tin update: ${classEntity}");
-
-        emit(
-          currentState.copyWith(
-            formStatus: ClassManagementFormStatus.initial,
-            isFormVisible: true,
-            isEditMode: true,
-            classToEdit: classEntity,
-            clearFormErrorMessage: true,
-          ),
-        );
-      } catch (error) {
-        emit(
-          currentState.copyWith(
-            formStatus: ClassManagementFormStatus.error,
-            formErrorMessage: error.toString(),
-          ),
-        );
-      }
     }
   }
 
@@ -345,10 +282,9 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
-        currentState.copyWith(
+        current.copyWith(
           isFormVisible: true,
           isEditMode: false,
           clearClassToEdit: true,
@@ -361,10 +297,9 @@ class ClassManagementBloc
 
   void _onHideForm(HideFormEvent event, Emitter<ClassManagementState> emit) {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
-        currentState.copyWith(
+        current.copyWith(
           isFormVisible: false,
           isEditMode: false,
           clearClassToEdit: true,
@@ -377,10 +312,9 @@ class ClassManagementBloc
 
   void _onResetForm(ResetFormEvent event, Emitter<ClassManagementState> emit) {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
-        currentState.copyWith(
+        current.copyWith(
           formStatus: ClassManagementFormStatus.initial,
           clearFormErrorMessage: true,
         ),
@@ -393,10 +327,9 @@ class ClassManagementBloc
     Emitter<ClassManagementState> emit,
   ) {
     if (state is ClassManagementLoaded) {
-      final currentState = state as ClassManagementLoaded;
-
+      final current = state as ClassManagementLoaded;
       emit(
-        currentState.copyWith(
+        current.copyWith(
           clearClassToEdit: true,
           isEditMode: false,
           formStatus: ClassManagementFormStatus.initial,

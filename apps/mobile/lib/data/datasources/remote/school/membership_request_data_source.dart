@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
+import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/models/membership_request/membership_request_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class MembershipRequestRemoteDataSource {
   final ApiClient client;
@@ -15,21 +17,12 @@ class MembershipRequestRemoteDataSource {
   }
 
   /// 🔹 Lấy tất cả membership request
-  Future<List<MembershipRequestModel>> getAllMembershipRequest({
-    int page = AppConstants.defaultPage,
-    int limit = AppConstants.defaultLimit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  }) async {
+  Future<List<MembershipRequestModel>> getAllMembershipRequest(
+    DefaultQueryEntity query,
+  ) async {
     final token = await _getIdToken();
 
-    final queryParams = AppConstants.buildQueryParams(
-      module: "membership",
-      page: page,
-      limit: limit,
-      sort: sort,
-      filter: filter,
-    );
+    final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<MembershipRequestModel>>(
       Endpoints.membershipRequests,
