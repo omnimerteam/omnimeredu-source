@@ -434,11 +434,14 @@ class FeatureScreen extends StatelessWidget {
     }
   }
 
-  void _navigateToFeature(BuildContext context, String route) {
+  void _navigateToFeature(BuildContext context, String featureName) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UnderDevelopmentScreen(featureName: route),
+        builder: (context) => UnderDevelopmentScreen(
+          featureName: featureName,
+          expectedReleaseDate: DateTime(2024),
+        ),
       ),
     );
   }

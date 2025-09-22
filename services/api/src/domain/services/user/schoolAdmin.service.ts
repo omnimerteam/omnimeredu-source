@@ -1,6 +1,6 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { SchoolAdminRepository } from "../../repositories";
-import { ITeachingAssignment, ISchoolAdmin } from "../../models";
+import { ISchoolAdmin } from "../../models";
 
 class SchoolAdminService {
   private readonly schoolAdminRepository: SchoolAdminRepository;

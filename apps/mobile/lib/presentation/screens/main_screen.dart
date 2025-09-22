@@ -7,7 +7,6 @@ import 'package:flutter_ios_android_platforms/presentation/screens/features/feat
 import 'package:flutter_ios_android_platforms/presentation/screens/progress/progress_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/more/more_screen.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/dashboard_screen_wrapper.dart';
@@ -58,11 +57,7 @@ class _MainScreenState extends State<MainScreen> {
             body: SafeArea(
               child: Column(
                 children: [
-                  HomeHeaderWidget(
-                    onAccountTap: () => _navigateToAccount(context),
-                    onProfileTap: () => _navigateToProfile(context),
-                    onLogoutTap: () => _handleLogout(context),
-                  ),
+                  HomeHeaderWidget(),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
@@ -171,17 +166,5 @@ class _MainScreenState extends State<MainScreen> {
       default:
         return 'Tiến trình';
     }
-  }
-
-  void _navigateToAccount(BuildContext context) {
-    print('Navigate to account');
-  }
-
-  void _navigateToProfile(BuildContext context) {
-    print('Navigate to profile');
-  }
-
-  void _handleLogout(BuildContext context) {
-    context.read<AuthenticationBloc>().add(AuthenticationLoggedOut());
   }
 }

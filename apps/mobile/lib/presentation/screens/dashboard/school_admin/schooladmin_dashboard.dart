@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/school_admin_dashboard_data_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/school_admin/widgets/dashboard_quick_overview_skeleton.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/chart/attendance_chart.dart';

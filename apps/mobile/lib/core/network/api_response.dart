@@ -1,7 +1,7 @@
 class ApiResponse<T> {
   final bool success;
   final T? data;
-  final String message;
+  final String? message;
 
   const ApiResponse({required this.success, this.data, required this.message});
 

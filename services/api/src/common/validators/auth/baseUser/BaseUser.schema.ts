@@ -8,7 +8,8 @@ export const BaseUserSchema = z.object({
     .refine((val) => Types.ObjectId.isValid(val), {
       message: "Định dạng ObjectId không hợp lệ cho _id",
     })
-    .optional(), // MongoDB tự sinh
+    .optional()
+    .nullable(), // MongoDB tự sinh
 
   fullName: z
     .string()
@@ -19,41 +20,50 @@ export const BaseUserSchema = z.object({
         "Họ tên chỉ được chứa chữ cái, khoảng trắng, dấu gạch ngang hoặc dấu chấm",
     }),
 
-  roleId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-    message: "Định dạng ObjectId không hợp lệ cho roleId",
-  }),
+  roleId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Định dạng ObjectId không hợp lệ cho roleId",
+    })
+    .optional()
+    .nullable(),
 
   gender: z
     .enum(GenderEnum, {
       message: "Giới tính phải phải là nam, nữ hoặc giới tính khác",
     })
-    .optional(),
+    .optional()
+    .nullable(),
 
   birthday: z
     .string()
     .datetime({ message: "Ngày sinh phải đúng định dạng ISO" })
-    .optional(),
+    .optional()
+    .nullable(),
 
   phone: z
     .string()
     .regex(/^(?:\+84|0)\d{9,10}$/, {
       message: "Số điện thoại không hợp lệ (VD: +84987654321 hoặc 0987654321)",
     })
-    .optional(),
+    .optional()
+    .nullable(),
 
   address: z
     .string()
     .max(500, { message: "Địa chỉ không vượt quá 500 ký tự" })
-    .optional(),
+    .optional()
+    .nullable(),
 
-  isVerified: z.boolean().optional(),
+  isVerified: z.boolean().optional().nullable(),
 
   schoolId: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
       message: "Định dạng ObjectId không hợp lệ cho schoolId",
     })
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 export type BaseUser = z.infer<typeof BaseUserSchema>;

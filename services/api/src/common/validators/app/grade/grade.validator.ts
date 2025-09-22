@@ -6,6 +6,7 @@ import { GradeSchema } from "./grade.schema";
 export const createGradeBodySchema = GradeSchema.pick({
   name: true,
   level: true,
+  gradeGroup: true,
   order: true,
   ageRange: true,
   description: true,

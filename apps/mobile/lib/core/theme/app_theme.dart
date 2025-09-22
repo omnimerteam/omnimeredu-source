@@ -91,6 +91,14 @@ class AppTheme {
       secondaryLabelStyle: const TextStyle(color: AppColors.textDark),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
+
+    cardTheme: CardThemeData(
+      color: Colors.grey[100], // nền tối cho dark
+      elevation: 2,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+    ),
   );
 
   // --- Dark Theme ---
@@ -172,6 +180,14 @@ class AppTheme {
       labelStyle: const TextStyle(color: AppColors.textLight),
       secondaryLabelStyle: const TextStyle(color: AppColors.textLight),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+
+    cardTheme: CardThemeData(
+      color: AppColors.grey900,
+      elevation: 2,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
     ),
   );
 }

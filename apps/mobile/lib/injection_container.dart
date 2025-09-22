@@ -1,10 +1,13 @@
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/grade_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/student_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
@@ -22,9 +25,15 @@ import 'package:flutter_ios_android_platforms/domain/usecases/membership_request
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/create_student_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/delete_student_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/get_all_students_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/get_student_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -132,6 +141,9 @@ Future<void> init() async {
   sl.registerLazySingleton<GradeRemoteDataSource>(
     () => GradeRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<StudentRemoteDataSource>(
+    () => StudentRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -147,6 +159,9 @@ Future<void> init() async {
     () => MembershipRequestRepositoryImpl(sl()),
   );
   sl.registerLazySingleton<GradeRepository>(() => GradeRepositoryImpl(sl()));
+  sl.registerLazySingleton<StudentRepository>(
+    () => StudentRepositoryImpl(sl()),
+  );
 
   // ======================
   // UseCases
@@ -185,6 +200,7 @@ Future<void> init() async {
   // Dashboard
   sl.registerLazySingleton(() => GetDashboardSummaryUseCase(sl()));
   sl.registerLazySingleton(() => GetSchoolAttendanceStatsUseCase(sl()));
+
   // Grade
   sl.registerLazySingleton(() => CreateGradeUseCase(sl()));
   sl.registerLazySingleton(() => DeleteGradeUseCase(sl()));
@@ -192,6 +208,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetGradeByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetGradesForSelectUseCase(sl()));
   sl.registerLazySingleton(() => UpdateGradeUseCase(sl()));
+
+  // Student
+  sl.registerLazySingleton(() => CreateStudentUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteStudentUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllStudentsUseCase(sl()));
+  sl.registerLazySingleton(() => GetStudentByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateStudentUseCase(sl()));
+
   // ======================
   // Blocs / Cubits
   // ======================
@@ -253,6 +277,16 @@ Future<void> init() async {
       deleteGradeUseCase: sl(),
       getAllGradesUseCase: sl(),
       updateGradeUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => StudentManagementBloc(
+      createStudentUseCase: sl(),
+      deleteStudentUseCase: sl(),
+      getAllStudentsUseCase: sl(),
+      getStudentByIdUseCase: sl(),
+      updateStudentUseCase: sl(),
     ),
   );
 }

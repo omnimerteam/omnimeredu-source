@@ -10,10 +10,7 @@ import {
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { generateClassCode } from "../../../utils/generateCode";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
-import {
-  buildPermissionFilter,
-  buildPermissionFilterForClass,
-} from "../../../../common/utils/permissionFilter";
+import { buildPermissionFilterForClass } from "../../../../common/utils/permissionFilter";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -566,11 +563,10 @@ class ClassService {
     }
   }
 
-  async searchClassesInSchool(schoolId?: string, query?: string) {
+  async searchClassesInSchool(schoolId: string) {
     try {
       const classes = await this.classRepository.searchClassesInSchool(
-        schoolId,
-        query
+        schoolId
       );
 
       return classes;

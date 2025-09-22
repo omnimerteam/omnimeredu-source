@@ -53,6 +53,7 @@ class StudentController {
       return next(error);
     }
   }
+
   async getStudentById(
     req: Request,
     res: Response,

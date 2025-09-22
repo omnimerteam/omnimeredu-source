@@ -5,7 +5,7 @@ class AppSnackBars {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Tính năng "$feature" sẽ được cập nhật sớm'),
-        behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.fixed,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );

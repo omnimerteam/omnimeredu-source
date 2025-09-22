@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/logout_dialog_widget.dart';
 
 class HomeHeaderWidget extends StatelessWidget {
-  final VoidCallback? onAccountTap;
-  final VoidCallback? onProfileTap;
-  final VoidCallback? onLogoutTap;
-
-  const HomeHeaderWidget({
-    super.key,
-    this.onAccountTap,
-    this.onProfileTap,
-    this.onLogoutTap,
-  });
+  const HomeHeaderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +61,7 @@ class HomeHeaderWidget extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: user.fullName ?? 'Người dùng',
+                            text: user.fullName,
                             style: const TextStyle(
                               fontSize: 22,
                               color: Colors.white,
@@ -90,7 +83,7 @@ class HomeHeaderWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        DisplayMapper.roleName(user.roleName ?? ''),
+                        DisplayMapper.roleName(user.roleName),
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white,
@@ -246,10 +239,8 @@ class HomeHeaderWidget extends StatelessWidget {
   void _handleMenuSelection(BuildContext context, String value) {
     switch (value) {
       case 'account':
-        onAccountTap?.call();
         break;
       case 'profile':
-        onProfileTap?.call();
         break;
       case 'logout':
         _showLogoutDialog(context);
@@ -260,38 +251,13 @@ class HomeHeaderWidget extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text('Xác nhận đăng xuất'),
-          content: const Text('Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Hủy',
-                style: TextStyle(color: Theme.of(context).primaryColor),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onLogoutTap?.call();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Đăng xuất'),
-            ),
-          ],
-        );
-      },
+      builder: (BuildContext context) => LogoutDialogWidget(
+        onConfirm: () {
+          Navigator.of(context).pop();
+          context.read<AuthenticationBloc>().add(AuthenticationLoggedOut());
+        },
+        onCancel: () => Navigator.of(context).pop(),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 
 class AuthUserModel extends AuthUserEntity {
@@ -7,9 +8,12 @@ class AuthUserModel extends AuthUserEntity {
     required super.roleName,
     super.isVerified,
     super.avatarUrl,
+    super.schoolId,
     super.schoolName,
+    super.schoolLevel,
     super.position,
-    super.literacy,
+    super.qualification,
+    super.classId,
     super.className,
     super.educationLevel,
     super.grade,
@@ -23,11 +27,18 @@ class AuthUserModel extends AuthUserEntity {
       roleName: json['roleId']?['name'] ?? '',
       isVerified: json['isVerified'] ?? false,
       avatarUrl: json['avatarUrl'] ?? '',
+      schoolId: json['schoolId']?['_id'] ?? '',
       schoolName: json['schoolId']?['name'] ?? '',
+      schoolLevel: EducationSystemLevelsEnum.fromString(
+        json['schoolId']?['level'] as String?,
+      ),
       position: json['position']?.toString() ?? '',
-      literacy: json['literacy']?.toString() ?? '',
+      qualification: json['qualification']?.toString() ?? '',
+      classId: json['classId']?['_id'] ?? '',
       className: json['classId']?['name'] ?? '',
-      educationLevel: json['educationLevel']?.toString() ?? '',
+      educationLevel: EducationSystemLevelsEnum.fromString(
+        json['eductionLevel'] as String?,
+      ),
       grade: json['grade']?.toString() ?? '',
     );
   }
@@ -39,12 +50,15 @@ class AuthUserModel extends AuthUserEntity {
       'fullName': fullName,
       'roleName': roleName,
       'isVerified': isVerified,
+      'schoolId': schoolId,
       'schoolName': schoolName,
+      'schoolLevel': schoolLevel?.name,
       'avatarUrl': avatarUrl,
       'position': position,
-      'literacy': literacy,
+      'qualification': qualification,
+      'classId': classId,
       'className': className,
-      'educationLevel': educationLevel,
+      'educationLevel': educationLevel?.name,
       'grade': grade,
     };
   }
@@ -57,9 +71,12 @@ class AuthUserModel extends AuthUserEntity {
       roleName: roleName,
       isVerified: isVerified,
       avatarUrl: avatarUrl,
+      schoolId: schoolId,
       schoolName: schoolName,
+      schoolLevel: schoolLevel,
       position: position,
-      literacy: literacy,
+      qualification: qualification,
+      classId: classId,
       className: className,
       educationLevel: educationLevel,
       grade: grade,

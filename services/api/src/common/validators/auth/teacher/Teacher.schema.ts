@@ -11,7 +11,9 @@ export const TeacherSchema = BaseUserSchema.extend({
    * Trình độ học vấn của giáo viên (enum)
    */
   qualification: z
-    .enum([...TeacherQualificationTuple] as [string, ...string[]])
+    .enum(TeacherQualificationTuple, {
+      message: "Dữ liệu không hợp lệ",
+    })
     .optional(),
 
   /**

@@ -1,6 +1,3 @@
-// data/repositories/class_repository_impl.dart
-
-import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
 
@@ -13,18 +10,9 @@ class ClassRepositoryImpl implements ClassRepository {
   final ClassRemoteDataSource remote;
 
   ClassRepositoryImpl(this.remote);
-
-  @override
-  Future<List<ClassSearchEntity>> searchClassesInSchool(
-    String schoolId,
-    String? query,
-  ) async {
-    return await remote.searchClassesInSchool(schoolId, query);
-  }
-
   @override
   Future<List<ClassSearchEntity>> getClassesInSchool(String schoolId) async {
-    return await remote.searchClassesInSchool(schoolId, null);
+    return await remote.searchClassesInSchool(schoolId);
   }
 
   @override
@@ -32,8 +20,7 @@ class ClassRepositoryImpl implements ClassRepository {
     try {
       final models = await remote.getAllClasses(query);
       return models.map((m) => m.toEntity()).toList();
-    } catch (e, st) {
-      print("Lỗi khi lấy danh sách lớp: $e\n$st");
+    } catch (e) {
       throw Exception("Không thể lấy danh sách lớp");
     }
   }

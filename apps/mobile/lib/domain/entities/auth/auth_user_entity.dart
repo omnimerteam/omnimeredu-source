@@ -1,16 +1,23 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 class AuthUserEntity extends Equatable {
   final String id;
   final String fullName;
   final String roleName;
   final bool? isVerified;
+  final String? schoolId;
   final String? schoolName;
+  final EducationSystemLevelsEnum? schoolLevel;
   final String? avatarUrl;
-  final String? position; // SchoolAdmin
-  final String? literacy; // Teacher
-  final String? className; // Student
-  final String? educationLevel;
+  // SchoolAdmin
+  final String? position;
+  // Teacher
+  final String? qualification;
+  final String? classId;
+  // Student
+  final String? className;
+  final EducationSystemLevelsEnum? educationLevel;
   final String? grade;
 
   const AuthUserEntity({
@@ -18,10 +25,13 @@ class AuthUserEntity extends Equatable {
     required this.fullName,
     required this.roleName,
     this.isVerified,
+    this.schoolId,
     this.schoolName,
+    this.schoolLevel,
     this.avatarUrl,
     this.position,
-    this.literacy,
+    this.qualification,
+    this.classId,
     this.className,
     this.educationLevel,
     this.grade,
@@ -34,10 +44,13 @@ class AuthUserEntity extends Equatable {
     Object? fullName = _noChange,
     Object? roleName = _noChange,
     Object? isVerified = _noChange,
+    Object? schoolId = _noChange,
     Object? schoolName = _noChange,
+    Object? schoolLevel = _noChange,
     Object? avatarUrl = _noChange,
     Object? position = _noChange,
-    Object? literacy = _noChange,
+    Object? qualification = _noChange,
+    Object? classId = _noChange,
     Object? className = _noChange,
     Object? educationLevel = _noChange,
     Object? grade = _noChange,
@@ -49,16 +62,23 @@ class AuthUserEntity extends Equatable {
       isVerified: isVerified == _noChange
           ? this.isVerified
           : isVerified as bool?,
+      schoolId: schoolId == _noChange ? this.schoolId : schoolName as String?,
       schoolName: schoolName == _noChange
           ? this.schoolName
           : schoolName as String?,
+      schoolLevel: schoolLevel == _noChange
+          ? this.schoolLevel
+          : schoolLevel as EducationSystemLevelsEnum?,
       avatarUrl: avatarUrl == _noChange ? this.avatarUrl : avatarUrl as String?,
       position: position == _noChange ? this.position : position as String?,
-      literacy: literacy == _noChange ? this.literacy : literacy as String?,
+      qualification: qualification == _noChange
+          ? this.qualification
+          : qualification as String?,
+      classId: classId == _noChange ? this.classId : classId as String?,
       className: className == _noChange ? this.className : className as String?,
       educationLevel: educationLevel == _noChange
           ? this.educationLevel
-          : educationLevel as String?,
+          : educationLevel as EducationSystemLevelsEnum?,
       grade: grade == _noChange ? this.grade : grade as String?,
     );
   }
@@ -69,10 +89,13 @@ class AuthUserEntity extends Equatable {
     fullName,
     roleName,
     isVerified,
+    schoolId,
     schoolName,
+    schoolLevel,
     avatarUrl,
     position,
-    literacy,
+    qualification,
+    classId,
     className,
     educationLevel,
     grade,

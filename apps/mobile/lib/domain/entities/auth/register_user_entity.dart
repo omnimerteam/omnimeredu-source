@@ -7,7 +7,7 @@ class RegisterUserEntity extends Equatable {
   final String password;
   final String? schoolId;
   final String? classId;
-  final BaseUserEntity baseUserInfo;
+  final BaseUserForRegisterEntity baseUserInfo;
   final Map<String, dynamic>? specificInfo;
   final SchoolDataEntity? schoolData;
 

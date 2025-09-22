@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 
 class SchoolModel extends SchoolDataEntity {
@@ -10,7 +11,7 @@ class SchoolModel extends SchoolDataEntity {
     String? address,
     String? phone,
     String? description,
-    String? level,
+    EducationSystemLevelsEnum? level,
     String? adminId,
     String? logoUrl,
     int studentCount = 0,
@@ -53,7 +54,7 @@ class SchoolModel extends SchoolDataEntity {
       address: json['address'] as String?,
       phone: json['phone'] as String?,
       description: json['description'] as String?,
-      level: json['level'] as String?,
+      level: (EducationSystemLevelsEnum.fromString(json['level'] as String)),
       adminId: json['adminId'] as String?,
       logoUrl: json['logoUrl'] as String?,
       studentCount: json['studentCount'] as int? ?? 0,
@@ -69,7 +70,7 @@ class SchoolModel extends SchoolDataEntity {
       'address': address,
       'phone': phone,
       'description': description,
-      'level': level,
+      'level': level?.name,
       'adminId': adminId,
       'logoUrl': logoUrl,
       'studentCount': studentCount,

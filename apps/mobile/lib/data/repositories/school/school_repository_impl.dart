@@ -1,4 +1,5 @@
 // data/repositories/school_repository_impl.dart
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/school_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/school/school_model.dart';
@@ -13,14 +14,14 @@ class SchoolRepositoryImpl implements SchoolRepository {
 
   @override
   Future<List<SchoolSearchEntity>> getSchoolsByLevel(
-    String educationLevel,
+    EducationSystemLevelsEnum educationLevel,
   ) async {
     return await remote.searchSchoolsByLevel(educationLevel, null);
   }
 
   @override
   Future<List<SchoolSearchEntity>> searchSchoolsByLevel(
-    String educationLevel,
+    EducationSystemLevelsEnum educationLevel,
     String? query,
   ) async {
     return await remote.searchSchoolsByLevel(educationLevel, query);

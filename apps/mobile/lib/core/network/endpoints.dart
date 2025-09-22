@@ -1,7 +1,7 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_ios_android_platforms/core/network/app_config.dart';
 
 class Endpoints {
-  static final String baseUrl = "${dotenv.env['API_BASE_URL']}/api";
+  static String get baseUrl => AppConfig.baseUrl;
 
   // ================== AUTH ==================
   static const String login = "/v1/auth/login";
@@ -46,4 +46,15 @@ class Endpoints {
   static const String grades = "/v1/grades";
   static String gradeId(String id) => "/v1/grades/$id";
   static const String gradeSelect = "/v1/grades/select/box";
+
+  // ================== STUDENTS ==================
+  static const String students = "/v1/students";
+  static String studentId(String id) => "/v1/students/$id";
+
+  // ================== PERSONNEL ==================
+  static const String personnel = "/v1/personnel";
+
+  // ================== TEACHER ==================
+  static const String teachers = "/v1/teachers";
+  static String teacherId(String id) => "/v1/teachers/$id";
 }

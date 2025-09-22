@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/login_usecase.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
@@ -15,6 +14,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc({required this.loginUseCase, required this.authenticationBloc})
     : super(const LoginState()) {
     on<LoginSubmitted>(_onLoginSubmitted);
+    on<ClearLoginErrorEvent>((event, emit) {
+      emit(state.copyWith(error: null));
+    });
   }
 
   Future<void> _onLoginSubmitted(
@@ -35,9 +37,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       // báo cho AuthenticationBloc biết user đã login
       authenticationBloc.add(AuthenticationLoggedIn(user));
 
-      emit(state.copyWith(loading: false, user: user, error: null));
+      emit(state.copyWith(loading: false, isLogin: true, error: null));
     } catch (e) {
-      logger.e("LoginBloc error emit: $e");
       emit(state.copyWith(loading: false, error: e.toString()));
     }
   }

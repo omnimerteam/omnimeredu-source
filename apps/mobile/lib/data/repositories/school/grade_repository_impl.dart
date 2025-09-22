@@ -1,4 +1,3 @@
-import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
@@ -16,8 +15,7 @@ class GradeRepositoryImpl implements GradeRepository {
     try {
       final models = await remote.getAllGrades(query);
       return models.map((m) => m.toEntity()).toList();
-    } catch (e, st) {
-      print("❌ Lỗi khi lấy danh sách grade: $e\n$st");
+    } catch (e) {
       throw Exception("Không thể lấy danh sách grade");
     }
   }

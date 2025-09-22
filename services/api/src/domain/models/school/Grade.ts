@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import {
+  EducationGradesEnum,
+  EducationGradesTuple,
   EducationSystemLevelsEnum,
   EducationSystemLevelsTuple,
 } from "../../../common/enum/educationSystemLevels.enum";
@@ -9,6 +11,9 @@ export interface IGrade extends Document {
   schoolId: Types.ObjectId; // null = khối chuẩn chung
   name: string; // tên khối (Chồi, Lá, Mầm…)
   level: EducationSystemLevelsEnum;
+
+  gradeGroup: EducationGradesEnum;
+
   order: number; // thứ tự hiển thị
   ageRange?: { min?: number; max?: number }; // độ tuổi học sinh
   description?: string; // mô tả chi tiết khối
@@ -27,6 +32,12 @@ const GradeSchema = new Schema<IGrade>(
     level: {
       type: String,
       enum: EducationSystemLevelsTuple,
+      required: true,
+      index: true,
+    },
+    gradeGroup: {
+      type: String,
+      enum: EducationGradesTuple,
       required: true,
       index: true,
     },

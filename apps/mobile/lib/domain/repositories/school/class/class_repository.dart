@@ -1,15 +1,8 @@
-// domain/repositories/class_repository.dart
-
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 abstract class ClassRepository {
-  Future<List<ClassSearchEntity>> searchClassesInSchool(
-    String schoolId,
-    String? query,
-  );
-
   Future<List<ClassSearchEntity>> getClassesInSchool(String schoolId);
 
   Future<List<ClassEntity>> getAllClasses(DefaultQueryEntity query);

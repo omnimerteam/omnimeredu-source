@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { Student } from "../../../domain/models";
+import { Role, Student } from "../../../domain/models";
 
 // Import các model, repository, service và controller cần thiết
 import {
   StudentRepository,
   ActivityLogRepository,
+  RoleRepository,
 } from "../../../domain/repositories";
 import { StudentService } from "../../../domain/services";
 import { StudentController } from "../../../domain/controllers";
@@ -29,14 +30,19 @@ import { createPaginationSchemaWithSortAndFilter } from "../../validators/common
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
 const studentRepository = new StudentRepository(Student);
-const studentService = new StudentService(studentRepository, logger);
+const roleRepository = new RoleRepository(Role);
+const studentService = new StudentService(
+  studentRepository,
+  roleRepository,
+  logger
+);
 const studentController = new StudentController(studentService);
 
 const router = Router();
 
 const studentQuerySchema = createPaginationSchemaWithSortAndFilter(
   ["fullName", "createdAt", "birthday"],
-  ["grade", "educationLevel"]
+  ["grade", "educationLevel", "classId", "gender"]
 );
 
 router.get(
@@ -83,7 +89,7 @@ router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["Student"]),
+  verifyRole(["Student", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.deleteStudent(req, res, next)
 );

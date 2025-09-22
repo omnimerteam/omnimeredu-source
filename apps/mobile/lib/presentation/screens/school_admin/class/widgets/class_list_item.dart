@@ -228,8 +228,6 @@ class ClassListItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final bloc = context
-        .read<ClassManagementBloc>(); // lấy trước ở ngoài dialog
     showDialog(
       context: context,
       builder: (_) => DeleteConfirmationDialog(

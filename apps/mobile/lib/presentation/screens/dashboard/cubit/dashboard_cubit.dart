@@ -9,73 +9,86 @@ import 'dashboard_state.dart';
 class DashboardCubit extends Cubit<DashboardState> {
   final SchoolAdminDashboardRepository schoolAdminRepo;
   final DashboardCacheService cacheService;
-  // TODO: thêm repository khác nếu có teacher/student
 
   DashboardCubit({required this.schoolAdminRepo, required this.cacheService})
     : super(DashboardInitial());
 
-  /// Load dashboard (có dùng cache)
+  /// Load dashboard (sử dụng cache nếu còn hạn)
   Future<void> loadDashboard(String role) async {
     emit(DashboardLoading());
+
     try {
-      // 1. Kiểm tra cache trước
-      logger.i("Kiểm tra cache");
+      // 1. Kiểm tra cache
+      logger.i("[DashboardCubit] Kiểm tra cache cho role=$role");
       final cached = await cacheService.load(role);
+
       if (cached != null) {
+        // Nếu cache còn hạn, emit luôn
         emit(DashboardLoaded(data: cached));
-        _refreshInBackground(role);
+
+        // Refresh dữ liệu background để cập nhật cache
+        _refreshCacheInBackground(role);
         return;
       }
 
-      // 2. Nếu không có cache hoặc hết hạn, gọi API
-      await _fetchAndCache(role);
+      // 2. Nếu không có cache hoặc hết hạn -> fetch + emit
+      final freshData = await _fetchFreshData(role);
+      await cacheService.save(role, freshData);
+
+      emit(DashboardLoaded(data: freshData));
     } catch (e) {
       emit(DashboardError("Không thể tải dữ liệu: $e"));
     }
   }
 
-  /// Refresh dashboard, luôn gọi API
+  /// Refresh dashboard bắt buộc từ API, emit luôn
   Future<void> refreshDashboard(String role) async {
-    await _fetchAndCache(role);
+    emit(DashboardLoading());
+    try {
+      final freshData = await _fetchFreshData(role);
+      await cacheService.save(role, freshData);
+      emit(DashboardLoaded(data: freshData));
+    } catch (e) {
+      emit(DashboardError("Không thể refresh dữ liệu: $e"));
+    }
   }
 
-  /// Fetch mới từ API và lưu cache
-  Future<void> _fetchAndCache(String role) async {
-    late final DashboardDataBaseEntity fresh;
-
+  /// Core function: lấy dữ liệu mới từ API theo role
+  Future<DashboardDataBaseEntity> _fetchFreshData(String role) async {
     switch (role) {
       case "SchoolAdmin":
         final overview = await schoolAdminRepo.getSummary();
         final attendance = await schoolAdminRepo.getSchoolAttendanceStats();
-        fresh = SchoolAdminDashboardDataEntity(
+        return SchoolAdminDashboardDataEntity(
           overview: overview,
           attendanceStats: attendance,
           cachedAt: DateTime.now(),
         );
-        break;
 
-      // case "teacher":
-      //   fresh = TeacherDashboardDataEntity(...);
-      //   break;
+      // case "Teacher":
+      //   return TeacherDashboardDataEntity(...);
 
-      // case "student":
-      //   fresh = StudentDashboardDataEntity(...);
-      //   break;
+      // case "Student":
+      //   return StudentDashboardDataEntity(...);
 
       default:
         throw Exception("Role không hỗ trợ: $role");
     }
-
-    // Lưu cache
-    await cacheService.save(role, fresh);
-
-    emit(DashboardLoaded(data: fresh));
   }
 
-  /// Tải lại dữ liệu trong background nhưng không emit nếu user đang xem cache
-  void _refreshInBackground(String role) async {
-    try {
-      final fresh = await _fetchAndCache(role);
-    } catch (_) {}
+  /// Refresh cache trong background mà không emit UI
+  void _refreshCacheInBackground(String role) {
+    _fetchFreshData(role)
+        .then((freshData) async {
+          await cacheService.save(role, freshData);
+          logger.i(
+            "[DashboardCubit] Cache updated in background for role=$role",
+          );
+        })
+        .catchError((e, s) {
+          logger.w(
+            "[DashboardCubit] Refresh cache in background failed: $e\n$s",
+          );
+        });
   }
 }

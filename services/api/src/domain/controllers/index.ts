@@ -7,6 +7,7 @@ export { default as SuperAdminController } from "./user/superAdmin.controller";
 export { default as TeacherController } from "./user/teacher.controller";
 export { default as StudentController } from "./user/student.controller";
 export { default as RoleController } from "./user/role.controller";
+export { default as PersonnelController } from "./user/personnel.controller";
 
 // ======================
 // School Module

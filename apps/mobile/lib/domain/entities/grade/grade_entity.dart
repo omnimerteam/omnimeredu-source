@@ -6,6 +6,7 @@ class GradeEntity extends Equatable {
   final String schoolId;
   final String name;
   final EducationSystemLevelsEnum level;
+  final EducationGradesEnum gradeGroup;
   final int order;
   final Map<String, int>? ageRange;
   final String? description;
@@ -21,6 +22,7 @@ class GradeEntity extends Equatable {
     required this.schoolId,
     required this.name,
     required this.level,
+    required this.gradeGroup,
     required this.order,
     this.ageRange,
     this.description,
@@ -37,6 +39,7 @@ class GradeEntity extends Equatable {
     schoolId,
     name,
     level,
+    gradeGroup,
     order,
     ageRange,
     description,
@@ -52,6 +55,7 @@ class GradeEntity extends Equatable {
     String? schoolId,
     String? name,
     EducationSystemLevelsEnum? level,
+    EducationGradesEnum? gradeGroup,
     int? order,
     Map<String, int>? ageRange,
     String? description,
@@ -66,6 +70,7 @@ class GradeEntity extends Equatable {
       schoolId: schoolId ?? this.schoolId,
       name: name ?? this.name,
       level: level ?? this.level,
+      gradeGroup: gradeGroup ?? this.gradeGroup,
       order: order ?? this.order,
       ageRange: ageRange ?? this.ageRange,
       description: description ?? this.description,

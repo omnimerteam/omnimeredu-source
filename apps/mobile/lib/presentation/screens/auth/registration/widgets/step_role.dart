@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
@@ -8,7 +9,9 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/registra
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/school_selector.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/register_dropdown.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/register_multi_select_dropdwon.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/register_text_field.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import 'class_selector.dart';
 
@@ -25,7 +28,6 @@ class _StepRoleState extends State<StepRole> {
   // Controllers for Student
   late final TextEditingController _guardianNameController;
   late final TextEditingController _guardianPhoneController;
-  late final TextEditingController _gradeController;
 
   // Controllers for SchoolAdmin
   late final TextEditingController _positionController;
@@ -43,7 +45,6 @@ class _StepRoleState extends State<StepRole> {
     _guardianPhoneController = TextEditingController(
       text: widget.state.guardianPhone,
     );
-    _gradeController = TextEditingController(text: widget.state.grade);
 
     _positionController = TextEditingController(text: widget.state.position);
     _newSchoolNameController = TextEditingController(
@@ -64,7 +65,6 @@ class _StepRoleState extends State<StepRole> {
   void dispose() {
     _guardianNameController.dispose();
     _guardianPhoneController.dispose();
-    _gradeController.dispose();
 
     _positionController.dispose();
     _newSchoolNameController.dispose();
@@ -131,7 +131,7 @@ class _StepRoleState extends State<StepRole> {
             classId: null,
             guardianName: null,
             guardianPhone: null,
-            grade: null,
+            gradeGroup: null,
           ),
         );
 
@@ -179,9 +179,10 @@ class _StepRoleState extends State<StepRole> {
 
         SchoolSelector(
           key: ValueKey(state.selectedEducationLevel),
-          educationLevel: state.selectedEducationLevel ?? "",
+          educationLevel:
+              state.selectedEducationLevel ??
+              EducationSystemLevelsEnum.Preschool,
           onSchoolSelected: (school) {
-            print("📌 School selected: $school");
             context.read<RegistrationBloc>().add(
               UpdateSchoolIdEvent(
                 schoolId: school?.id,
@@ -196,6 +197,7 @@ class _StepRoleState extends State<StepRole> {
           ClassSelector(
             key: ValueKey(state.schoolId),
             schoolId: state.schoolId ?? "",
+            gradeGroup: state.gradeGroup,
             onClassSelected: (clazz) {
               context.read<RegistrationBloc>().add(
                 UpdateClassIdEvent(
@@ -208,18 +210,29 @@ class _StepRoleState extends State<StepRole> {
         const SizedBox(height: 16),
 
         /// Grade
-        RegisterTextField(
-          controller: _gradeController,
-          label: 'Khối lớp',
-          hintText: 'Nhập khối lớp (vd: 10, 11, 12)',
-          keyboardType: TextInputType.text,
-          validator: (v) =>
-              Validators.requiredField(v, name: "Khối lớp") ??
-              Validators.grade(v),
-          onChanged: (v) => context.read<RegistrationBloc>().add(
-            UpdateStudentInfoEvent(grade: v),
+        /// Grade (Dropdown theo cấp học)
+        if (state.selectedEducationLevel != null)
+          RegisterDropdown<EducationGradesEnum>(
+            label: "Lớp",
+            requiredInput: true,
+            value: state
+                .gradeGroup, // <-- state cần có field selectedGrade: EducationGradesEnum?
+            items: state.selectedEducationLevel!.grades
+                .map(
+                  (g) => DropdownMenuItem(value: g, child: Text(g.displayName)),
+                )
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                context.read<RegistrationBloc>().add(
+                  UpdateStudentInfoEvent(
+                    gradeGroup: value,
+                  ), // gửi tên enum (hoặc value)
+                );
+              }
+            },
+            validator: (v) => Validators.requiredField(v, name: "Lớp"),
           ),
-        ),
         const SizedBox(height: 16),
 
         /// Guardian Name
@@ -255,7 +268,7 @@ class _StepRoleState extends State<StepRole> {
     );
   }
 
-  /// Form cho giáo viên
+  /// Form đăng ký cho giáo viên
   Widget _buildTeacherForm(BuildContext context, RegistrationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +279,9 @@ class _StepRoleState extends State<StepRole> {
         if (state.selectedEducationLevel != null)
           SchoolSelector(
             key: ValueKey(state.selectedEducationLevel),
-            educationLevel: state.selectedEducationLevel ?? "",
+            educationLevel:
+                state.selectedEducationLevel ??
+                EducationSystemLevelsEnum.Preschool,
             onSchoolSelected: (school) {
               context.read<RegistrationBloc>().add(
                 UpdateSchoolIdEvent(
@@ -278,39 +293,37 @@ class _StepRoleState extends State<StepRole> {
           ),
         const SizedBox(height: 16),
 
-        RegisterDropdown<String>(
+        /// 🔹 Môn dạy (MultiSelect)
+        RegisterDropdownMultiSelect<SubjectEnum>(
           label: "Chọn môn dạy",
           requiredInput: true,
-          value: state.subjects?.isNotEmpty == true
-              ? state.subjects!.first
-              : null,
-          items: DisplayMapper.subjects.entries
-              .map(
-                (entry) => DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(entry.value),
-                ),
-              )
+          selectedValues: state.subjects ?? [],
+          items: SubjectEnum.values
+              .map((subject) => MultiSelectItem(subject, subject.displayName))
               .toList(),
-          onChanged: (value) {
+          onChanged: (values) {
             context.read<RegistrationBloc>().add(
-              UpdateTeacherInfoEvent(subjects: value != null ? [value] : null),
+              UpdateTeacherInfoEvent(subjects: values),
             );
+          },
+          hintText: "Chọn môn dạy",
+          validator: (values) {
+            if (values == null || values.isEmpty) {
+              return "Vui lòng chọn ít nhất 1 môn";
+            }
+            return null;
           },
         ),
         const SizedBox(height: 16),
 
-        /// Literacy Level
-        RegisterDropdown<String>(
+        /// 🔹 Trình độ học vấn (SingleSelect)
+        RegisterDropdown<TeacherQualificationEnum>(
           label: "Trình độ học vấn",
           requiredInput: true,
           value: state.qualification,
-          items: DisplayMapper.teacherQualifications.entries
+          items: TeacherQualificationEnum.values
               .map(
-                (entry) => DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(entry.value),
-                ),
+                (q) => DropdownMenuItem(value: q, child: Text(q.displayName)),
               )
               .toList(),
           onChanged: (value) {
@@ -399,7 +412,9 @@ class _StepRoleState extends State<StepRole> {
           if (state.selectedEducationLevel != null) ...[
             SchoolSelector(
               key: ValueKey(state.selectedEducationLevel),
-              educationLevel: state.selectedEducationLevel ?? "",
+              educationLevel:
+                  state.selectedEducationLevel ??
+                  EducationSystemLevelsEnum.Preschool,
               onSchoolSelected: (school) {
                 context.read<RegistrationBloc>().add(
                   UpdateSchoolIdEvent(
@@ -442,7 +457,9 @@ class _StepRoleState extends State<StepRole> {
         if (state.selectedEducationLevel != null)
           SchoolSelector(
             key: ValueKey(state.selectedEducationLevel),
-            educationLevel: state.selectedEducationLevel ?? "",
+            educationLevel:
+                state.selectedEducationLevel ??
+                EducationSystemLevelsEnum.Preschool,
             onSchoolSelected: (school) {
               context.read<RegistrationBloc>().add(
                 UpdateSchoolIdEvent(
@@ -456,35 +473,41 @@ class _StepRoleState extends State<StepRole> {
     );
   }
 
-  /// Selector cấp học
   Widget _buildLevelSelector(BuildContext context, RegistrationState state) {
-    return RegisterDropdown<String>(
+    return RegisterDropdown<EducationSystemLevelsEnum>(
       label: "Chọn cấp học",
-      value: state.educationLevel,
+      value: state.educationLevel, // enum trực tiếp
       requiredInput: true,
-      items: DisplayMapper.educationLevels.entries
+      items: EducationSystemLevelsEnum.values
           .map(
-            (entry) =>
-                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+            (level) => DropdownMenuItem<EducationSystemLevelsEnum>(
+              value: level,
+              child: Text(level.displayName), // hiển thị tiếng Việt
+            ),
           )
           .toList(),
       onChanged: (value) {
+        if (value == null) return;
+
         context.read<RegistrationBloc>().add(
-          UpdateSelectedEducationLevelEvent(selectedEducationLevel: value!),
+          UpdateSelectedEducationLevelEvent(selectedEducationLevel: value),
         );
+
         // Update education level based on role
         switch (state.selectedRoleName) {
           case "Student":
             context.read<RegistrationBloc>().add(
               UpdateStudentInfoEvent(
-                educationLevel: value,
-                classId: null, // Reset class when level changes
+                educationLevel: value, // gửi string về backend
+                classId: null, // Reset class khi đổi cấp học
               ),
             );
             break;
           case "SchoolAdmin":
             context.read<RegistrationBloc>().add(
-              UpdateSchoolAdminInfoEvent(schoolLevel: value),
+              UpdateSchoolAdminInfoEvent(
+                schoolLevel: value, // gửi string về backend
+              ),
             );
             break;
         }

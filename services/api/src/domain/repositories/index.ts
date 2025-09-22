@@ -8,6 +8,7 @@ export { default as SuperAdminRepository } from "./user/superAdmin.repository";
 export { default as TeacherRepository } from "./user/teacher.repository";
 export { default as StudentRepository } from "./user/student.repository";
 export { default as RoleRepository } from "./user/role.repository";
+export { default as PersonnelRepository } from "./user/personnel.repository";
 
 // ======================
 // School Module

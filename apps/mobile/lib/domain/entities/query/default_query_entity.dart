@@ -5,16 +5,24 @@ class DefaultQueryEntity {
   final int limit;
   final List<Map<String, String>> sort;
   final Map<String, dynamic> filter;
+  final String? search;
 
   DefaultQueryEntity({
     this.page = 1,
     this.limit = 10,
     this.sort = const [],
     this.filter = const {},
+    this.search,
   });
 
   QueryBuilder toQueryBuilder() {
-    return QueryBuilder(page: page, limit: limit, sort: sort, filter: filter);
+    return QueryBuilder(
+      page: page,
+      limit: limit,
+      sort: sort,
+      filter: filter,
+      search: search,
+    );
   }
 
   DefaultQueryEntity copyWith({
@@ -22,12 +30,14 @@ class DefaultQueryEntity {
     int? limit,
     List<Map<String, String>>? sort,
     Map<String, dynamic>? filter,
+    String? search,
   }) {
     return DefaultQueryEntity(
       page: page ?? this.page,
       limit: limit ?? this.limit,
       sort: sort ?? this.sort,
       filter: filter ?? this.filter,
+      search: search ?? this.search,
     );
   }
 }

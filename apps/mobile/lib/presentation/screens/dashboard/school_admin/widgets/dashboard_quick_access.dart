@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/under_development_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/quick_access_button.dart';
 
 class DashboardQuickAccess extends StatelessWidget {
@@ -73,54 +74,91 @@ class DashboardQuickAccess extends StatelessWidget {
               title: 'Học sinh',
               icon: Icons.people,
               color: Colors.blue,
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pushNamed('/school-admin/students');
+              },
             ),
             QuickAccessButton(
               title: 'Giáo viên',
               icon: Icons.person,
               color: Colors.green,
-              onTap: () {},
+              onTap: () => _navigateToFeature(
+                context,
+                'Giáo viên',
+                DateTime(2026, 1, 15),
+              ),
             ),
             QuickAccessButton(
               title: 'Điểm danh',
               icon: Icons.fact_check,
               color: Colors.teal,
-              onTap: () {},
+              onTap: () => _navigateToFeature(
+                context,
+                'Điểm danh',
+                DateTime(2026, 1, 20),
+              ),
             ),
             QuickAccessButton(
               title: 'Học phí',
               icon: Icons.payment,
               color: Colors.red,
-              onTap: () {},
               badge: '12',
+              onTap: () =>
+                  _navigateToFeature(context, 'Học phí', DateTime(2026, 2, 1)),
             ),
-            // QuickAccessButton(
-            //   title: 'Bài viết',
-            //   icon: Icons.article,
-            //   color: Colors.indigo,
-            //   onTap: () {},
-            // ),
-            // QuickAccessButton(
-            //   title: 'Thông báo',
-            //   icon: Icons.notifications,
-            //   color: Colors.amber,
-            //   onTap: () {},
-            // ),
-            // QuickAccessButton(
-            //   title: 'Báo cáo',
-            //   icon: Icons.analytics,
-            //   color: Colors.purple,
-            //   onTap: () {},
-            // ),
-            // QuickAccessButton(
-            //   title: 'Cài đặt',
-            //   icon: Icons.settings,
-            //   color: Colors.grey,
-            //   onTap: () {},
-            // ),
+            QuickAccessButton(
+              title: 'Bài viết',
+              icon: Icons.article,
+              color: Colors.indigo,
+              onTap: () => _navigateToFeature(
+                context,
+                'Bài viết',
+                DateTime(2026, 2, 15),
+              ),
+            ),
+            QuickAccessButton(
+              title: 'Thông báo',
+              icon: Icons.notifications,
+              color: Colors.amber,
+              onTap: () => _navigateToFeature(
+                context,
+                'Thông báo',
+                DateTime(2026, 3, 1),
+              ),
+            ),
+            QuickAccessButton(
+              title: 'Báo cáo',
+              icon: Icons.analytics,
+              color: Colors.purple,
+              onTap: () =>
+                  _navigateToFeature(context, 'Báo cáo', DateTime(2026, 3, 15)),
+            ),
+            QuickAccessButton(
+              title: 'Cài đặt',
+              icon: Icons.settings,
+              color: Colors.grey,
+              onTap: () =>
+                  _navigateToFeature(context, 'Cài đặt', DateTime(2026, 4, 1)),
+            ),
           ],
         ),
       ],
+    );
+  }
+
+  void _navigateToFeature(
+    BuildContext context,
+    String featureName,
+    DateTime expectedReleaseDate,
+  ) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => UnderDevelopmentScreen(
+          featureName: featureName,
+          expectedReleaseDate: expectedReleaseDate,
+        ),
+      ),
     );
   }
 }

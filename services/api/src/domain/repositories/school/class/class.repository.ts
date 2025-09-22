@@ -37,28 +37,47 @@ class ClassRepository extends BaseRepository<IClass> {
   }
 
   /**
-   * Tìm lớp học theo schoolId + query (code hoặc name)
+   * Tìm lớp học theo schoolId
    * @param {String} schoolId
-   * @param {String} query
    */
-  async searchClassesInSchool(
-    schoolId?: string,
-    query?: string
-  ): Promise<IClass[]> {
-    const filter: any = {};
+  async searchClassesInSchool(schoolId: string): Promise<IClass[]> {
+    try {
+      if (!schoolId?.trim()) {
+        throw new Error("schoolId là bắt buộc");
+      }
 
-    if (schoolId?.trim()) {
-      filter.schoolId = new Types.ObjectId(schoolId);
+      const classes = await this.model
+        .aggregate([
+          {
+            $match: { schoolId: new Types.ObjectId(schoolId) },
+          },
+          {
+            $lookup: {
+              from: "grades",
+              localField: "gradeId",
+              foreignField: "_id",
+              as: "grade",
+            },
+          },
+          { $unwind: "$grade" },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              code: 1,
+              schoolId: 1,
+              gradeId: 1,
+              gradeGroup: "$grade.gradeGroup", // lấy trực tiếp từ grade
+            },
+          },
+        ])
+        .exec();
+
+      return classes;
+    } catch (err) {
+      console.error("Error searching classes in school:", err);
+      throw err;
     }
-
-    if (query?.trim()) {
-      filter.$or = [
-        { name: { $regex: query, $options: "i" } },
-        { code: { $regex: query, $options: "i" } },
-      ];
-    }
-
-    return this.model.find(filter).select("_id name code schoolId");
   }
 }
 

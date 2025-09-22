@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
@@ -14,7 +15,6 @@ class SchoolRemoteDataSource {
     return await user?.getIdToken();
   }
 
-  /// Lấy chi tiết trường cho SchoolAdmin
   /// Lấy chi tiết trường cho SchoolAdmin
   Future<SchoolModel?> getSchoolDetailForSchoolAdmin() async {
     final token = await _getIdToken();
@@ -112,13 +112,13 @@ class SchoolRemoteDataSource {
   }
 
   Future<List<SchoolSearchEntity>> searchSchoolsByLevel(
-    String educationLevel,
+    EducationSystemLevelsEnum educationLevel,
     String? query,
   ) async {
     final res = await client.get<List<SchoolSearchEntity>>(
       Endpoints.searchSchoolByEducationLevel,
       query: {
-        "educationLevel": educationLevel,
+        "educationLevel": educationLevel.name,
         if (query != null && query.isNotEmpty) "query": query,
       },
       parser: (data) {

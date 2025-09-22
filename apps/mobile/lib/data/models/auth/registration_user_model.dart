@@ -36,7 +36,7 @@ class RegisterUserModel extends RegisterUserEntity {
       json['schoolData'] = {
         'name': schoolData!.name,
         'address': schoolData!.address,
-        'level': schoolData!.level,
+        'level': schoolData!.level?.name,
         if (schoolData!.phone != null) 'phone': schoolData!.phone,
         if (schoolData!.description != null)
           'description': schoolData!.description,

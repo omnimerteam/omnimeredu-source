@@ -41,7 +41,7 @@ class GradeListView extends StatelessWidget {
                       );
                     },
                     onDelete: (gradeId) {
-                      _showDeleteConfirmation(context, gradeId);
+                      _deleteGrade(context, gradeId);
                     },
                     onViewDetails: (grade) {
                       // Navigate to grade details page
@@ -185,34 +185,7 @@ class GradeListView extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, String gradeId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Xác nhận xóa'),
-          content: const Text('Bạn có chắc chắn muốn xóa khối này không?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Hủy'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-                context.read<GradeManagementBloc>().add(
-                  DeleteGradeEvent(gradeId),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Theme.of(context).colorScheme.onError,
-              ),
-              child: const Text('Xóa'),
-            ),
-          ],
-        );
-      },
-    );
+  void _deleteGrade(BuildContext context, String gradeId) {
+    context.read<GradeManagementBloc>().add(DeleteGradeEvent(gradeId));
   }
 }

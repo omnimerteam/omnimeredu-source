@@ -1,14 +1,21 @@
 import { z } from "zod";
-import { EducationSystemLevelsTuple } from "../../../enum/educationSystemLevels.enum";
+import {
+  EducationGradesEnum,
+  EducationGradesTuple,
+  EducationSystemLevelsTuple,
+} from "../../../enum/educationSystemLevels.enum";
 /**
  * 🔹 Schema cơ bản cho Grade
  */
 export const GradeSchema = z.object({
   _id: z.string().optional(), // ObjectId dưới dạng string, optional khi tạo mới
-  schoolId: z.string({ message: "schoolId là bắt buộc" }), // ObjectId dưới dạng string
+  schoolId: z.string({ message: "Trường học là bắt buộc" }), // ObjectId dưới dạng string
   name: z.string({ message: "Tên khối là bắt buộc" }).min(1),
   level: z.enum(EducationSystemLevelsTuple as [string, ...string[]], {
-    message: "Level là bắt buộc",
+    message: "Cấp học là bắt buộc",
+  }),
+  gradeGroup: z.enum(EducationGradesTuple as [string, ...string[]], {
+    message: "Nhóm khối học là bắt buộc",
   }),
   order: z.number({ message: "Order là bắt buộc" }).int().nonnegative(),
   ageRange: z

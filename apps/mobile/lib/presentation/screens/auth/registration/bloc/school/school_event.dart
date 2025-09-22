@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 /// Base event cho SchoolBloc
 abstract class SchoolEvent extends Equatable {
@@ -10,7 +11,7 @@ abstract class SchoolEvent extends Equatable {
 
 /// Event để load danh sách trường theo cấp độ (level)
 class LoadSchoolsByLevel extends SchoolEvent {
-  final String level;
+  final EducationSystemLevelsEnum level;
 
   const LoadSchoolsByLevel(this.level);
 

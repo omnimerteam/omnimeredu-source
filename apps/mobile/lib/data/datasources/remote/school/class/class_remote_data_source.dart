@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
-import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
-import 'package:flutter_ios_android_platforms/data/models/class/class_detail_view_model.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
@@ -19,13 +18,10 @@ class ClassRemoteDataSource {
   }
 
   // Tìm kiếm lớp học trong trường
-  Future<List<ClassSearchEntity>> searchClassesInSchool(
-    String schoolId,
-    String? query,
-  ) async {
+  Future<List<ClassSearchEntity>> searchClassesInSchool(String schoolId) async {
     final res = await client.get<List<ClassSearchEntity>>(
       Endpoints.searchClassesInSchool,
-      query: {"schoolId": schoolId, "query": query},
+      query: {"schoolId": schoolId},
       parser: (data) {
         if (data is List) {
           return data
@@ -35,6 +31,10 @@ class ClassRemoteDataSource {
                   name: e["name"].toString(),
                   code: e["code"].toString(),
                   schoolId: e["schoolId"].toString(),
+                  gradeId: e["gradeId"].toString(),
+                  groupGrade: EducationGradesEnum.fromString(
+                    e['groupGrade'].toString(),
+                  ),
                 ),
               )
               .toList();
@@ -45,9 +45,7 @@ class ClassRemoteDataSource {
 
     if (res.success) {
       final list = res.data ?? [];
-      if (list.isEmpty) {
-        throw Exception("Không có lớp phù hợp");
-      }
+      logger.i("List ${list}");
       return list;
     } else {
       throw Exception(res.message ?? "Không thể tìm lớp trong trường");

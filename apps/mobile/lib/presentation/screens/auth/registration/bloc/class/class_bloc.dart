@@ -19,11 +19,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       // await để lấy data từ usecase
       final classes = await getClassesBySchoolUseCase.call(event.schoolId);
 
-      if (classes.isEmpty) {
-        emit(ClassError("Không có lớp phù hợp"));
-      } else {
-        emit(ClassLoaded(classes: classes));
-      }
+      emit(ClassLoaded(classes: classes));
     } catch (e) {
       emit(ClassError("Lỗi tải danh sách"));
     }

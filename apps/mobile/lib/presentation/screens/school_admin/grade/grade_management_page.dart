@@ -29,6 +29,15 @@ class GradeManagementView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onBackground,
+        actions: [
+          IconButton(
+            tooltip: "Tải lại danh sách",
+            onPressed: () {
+              context.read<GradeManagementBloc>().add(const LoadGradesEvent());
+            },
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
       ),
       body: BlocListener<GradeManagementBloc, GradeManagementState>(
         listenWhen: (previous, current) {
@@ -69,25 +78,7 @@ class GradeManagementView extends StatelessWidget {
                       children: [
                         const SectionTitle(title: 'Danh sách khối'),
 
-                        Row(
-                          children: [
-                            // Reload button
-                            IconButton(
-                              tooltip: "Tải lại danh sách",
-                              onPressed: () {
-                                context.read<GradeManagementBloc>().add(
-                                  const LoadGradesEvent(),
-                                );
-                              },
-                              icon: const Icon(Icons.refresh_rounded),
-                            ),
-
-                            const SizedBox(width: 8),
-
-                            // Create button
-                            _buildCreateButton(context, Theme.of(context)),
-                          ],
-                        ),
+                        _buildCreateButton(context, Theme.of(context)),
                       ],
                     ),
 

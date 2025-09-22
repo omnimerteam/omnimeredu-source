@@ -1,6 +1,11 @@
 class Validators {
-  static String? requiredField(String? v, {String name = 'Trường'}) {
-    if (v == null || v.trim().isEmpty) return '$name không được để trống';
+  static String? requiredField<T>(T? v, {String name = 'Trường'}) {
+    if (v == null) return '$name không được để trống';
+
+    if (v is String && v.trim().isEmpty) {
+      return '$name không được để trống';
+    }
+
     return null;
   }
 

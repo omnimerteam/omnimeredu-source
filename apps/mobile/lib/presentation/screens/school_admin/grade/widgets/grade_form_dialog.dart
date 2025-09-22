@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
-import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_multiline_text_field.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
@@ -35,8 +34,11 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
   final _minAgeFocus = FocusNode();
   final _maxAgeFocus = FocusNode();
   final _levelFocus = FocusNode();
+  final _gradeGroupFocus = FocusNode();
 
   EducationSystemLevelsEnum _selectedLevel = EducationSystemLevelsEnum.Primary;
+  EducationGradesEnum? _selectedGradeGroup;
+
   bool _isActive = true;
 
   bool get isEditMode => widget.gradeToEdit != null;
@@ -52,6 +54,7 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
     _minAgeFocus.addListener(_onFocusChange);
     _maxAgeFocus.addListener(_onFocusChange);
     _levelFocus.addListener(_onFocusChange);
+    _gradeGroupFocus.addListener(_onFocusChange);
 
     _initFormData();
   }
@@ -75,6 +78,7 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
     _minAgeFocus.dispose();
     _maxAgeFocus.dispose();
     _levelFocus.dispose();
+    _gradeGroupFocus.dispose();
 
     super.dispose();
   }
@@ -125,6 +129,7 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
       schoolId: widget.gradeToEdit?.schoolId ?? 'current_school_id',
       name: _nameController.text.trim(),
       level: _selectedLevel,
+      gradeGroup: _selectedGradeGroup!,
       order: int.parse(_orderController.text),
       ageRange: ageRange,
       description: _descriptionController.text.trim().isEmpty
@@ -240,7 +245,8 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
                   PrimaryTextField(
                     controller: _nameController,
                     focusNode: _nameFocus,
-                    hintText: 'Tên khối *',
+                    hintText: 'Tên khối',
+                    required: true,
                     prefixIcon: Icons.school_rounded,
                     isFocused: _nameFocus.hasFocus,
                     validator: (value) =>
@@ -252,17 +258,16 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
 
                   PrimaryDropdown(
                     value: _selectedLevel.name,
+                    required: true,
                     items: EducationSystemLevelsEnum.values
                         .map(
                           (level) => DropdownMenuItem<String>(
                             value: level.name,
-                            child: Text(
-                              DisplayMapper.educationLevelName(level.name),
-                            ),
+                            child: Text(level.displayName),
                           ),
                         )
                         .toList(),
-                    hintText: 'Cấp độ *',
+                    hintText: 'Cấp độ',
                     prefixIcon: Icons.layers_rounded,
                     isFocused: _levelFocus.hasFocus,
                     onChanged: (val) {
@@ -279,13 +284,39 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
 
                   const SizedBox(height: 16),
 
+                  PrimaryDropdown<EducationGradesEnum>(
+                    value: _selectedGradeGroup,
+                    required: true,
+                    items: _selectedLevel.grades
+                        .map(
+                          (grade) => DropdownMenuItem<EducationGradesEnum>(
+                            value: grade,
+                            child: Text(grade.displayName),
+                          ),
+                        )
+                        .toList(),
+                    hintText: 'Chọn lớp/Grade *',
+                    prefixIcon: Icons.grade_rounded,
+                    isFocused: _gradeGroupFocus.hasFocus,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedGradeGroup = val;
+                      });
+                    },
+                    validator: (value) =>
+                        value == null ? 'Chọn lớp/Grade' : null,
+                  ),
+
+                  const SizedBox(height: 16),
+
                   PrimaryTextField(
                     controller: _orderController,
                     focusNode: _orderFocus,
-                    hintText: 'Thứ tự *',
+                    hintText: 'Thứ tự',
                     prefixIcon: Icons.format_list_numbered_rounded,
                     isFocused: _orderFocus.hasFocus,
                     keyboardType: TextInputType.number,
+                    required: true,
 
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {

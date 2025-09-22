@@ -42,6 +42,7 @@ class AuthenticationBloc
     AuthenticationLoggedIn event,
     Emitter<AuthenticationState> emit,
   ) {
+    logger.i("Người đăng nhập: ${event.user}");
     emit(AuthenticationAuthenticated(event.user));
   }
 
@@ -53,6 +54,7 @@ class AuthenticationBloc
 
     try {
       await logoutUserUseCase.call();
+
       emit(AuthenticationUnauthenticated());
     } catch (e) {
       emit(AuthenticationFailure("Đăng xuất thất bại: $e"));

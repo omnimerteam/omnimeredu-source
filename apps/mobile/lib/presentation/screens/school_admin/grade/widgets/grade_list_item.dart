@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/delete_confirm_dialog.dart';
 
@@ -73,7 +72,7 @@ class GradeListItem extends StatelessWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      DisplayMapper.educationLevelName(grade.level.name),
+                      grade.level.displayName,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.8),
                       ),

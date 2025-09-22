@@ -20,3 +20,5 @@ class LoginSubmitted extends LoginEvent {
   @override
   List<Object?> get props => [email, password, rememberMe];
 }
+
+class ClearLoginErrorEvent extends LoginEvent {}

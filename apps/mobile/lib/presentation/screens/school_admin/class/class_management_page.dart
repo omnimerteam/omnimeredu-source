@@ -40,6 +40,15 @@ class ClassManagementView extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onBackground,
+        actions: [
+          IconButton(
+            tooltip: "Tải lại danh sách",
+            onPressed: () {
+              context.read<ClassManagementBloc>().add(LoadClassesEvent());
+            },
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
       ),
       body: BlocListener<ClassManagementBloc, ClassManagementState>(
         listenWhen: (previous, current) {
@@ -87,26 +96,7 @@ class ClassManagementView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const SectionTitle(title: 'Danh sách lớp học'),
-
-                        Row(
-                          children: [
-                            // Nút Reload
-                            IconButton(
-                              tooltip: "Tải lại danh sách",
-                              onPressed: () {
-                                context.read<ClassManagementBloc>().add(
-                                  LoadClassesEvent(),
-                                );
-                              },
-                              icon: const Icon(Icons.refresh_rounded),
-                            ),
-
-                            const SizedBox(width: 8),
-
-                            // Nút Create
-                            _buildCreateButton(context, Theme.of(context)),
-                          ],
-                        ),
+                        _buildCreateButton(context, Theme.of(context)),
                       ],
                     ),
 

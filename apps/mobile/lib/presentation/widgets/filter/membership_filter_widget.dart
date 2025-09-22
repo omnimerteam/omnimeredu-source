@@ -19,13 +19,6 @@ class MembershipFilterWidget extends StatefulWidget {
 class _MembershipFilterWidgetState extends State<MembershipFilterWidget> {
   late Map<String, dynamic> _filterData;
 
-  static const Map<String, String> roleOptions = {
-    'Student': 'Học sinh',
-    'Teacher': 'Giáo viên',
-    'Staff': 'Nhân viên',
-    'SchoolAdmin': 'Quản trị viên',
-  };
-
   @override
   void initState() {
     super.initState();

@@ -20,7 +20,7 @@ class GradeSelectModel extends GradeSelectEntity {
     return GradeSelectModel(
       id: json['_id'] as String,
       name: json['name'] as String,
-      level: EducationSystemLevelsEnumX.fromString(json['level'] as String),
+      level: EducationSystemLevelsEnum.fromString(json['level'] as String),
       order: json['order'] as int,
       ageRange: json['ageRange'] != null
           ? Map<String, int>.from(json['ageRange'] as Map)

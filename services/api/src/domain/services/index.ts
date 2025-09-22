@@ -7,6 +7,7 @@ export { default as SuperAdminService } from "./user/superAdmin.service";
 export { default as TeacherService } from "./user/teacher.service";
 export { default as StudentService } from "./user/student.service";
 export { default as RoleService } from "./user/role.service";
+export { default as PersonnelService } from "./user/personnel.service";
 // ======================
 // School Module
 // ======================

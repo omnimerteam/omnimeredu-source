@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/widgets/membership_sort_filter_control.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/filter/membership_filter_widget.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/widgets/membership_request_item.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/widgets/membership_view.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/sort/multi_sort_bottom_sheet.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
 
 class MembershipRequestManagementPage extends StatefulWidget {
   const MembershipRequestManagementPage({super.key});
@@ -83,11 +78,8 @@ class _MembershipRequestManagementPageState
         actions: [
           IconButton(
             onPressed: _onRefresh,
-            icon: Icon(
-              Icons.refresh_rounded,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            tooltip: 'Làm mới',
+            icon: Icon(Icons.refresh_rounded),
+            tooltip: "Tải lại danh sách",
           ),
         ],
       ),

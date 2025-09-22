@@ -4,8 +4,6 @@ import 'package:flutter_ios_android_platforms/domain/entities/dashboard/dashboar
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/school_admin_dashboard_data_entity.dart';
 
 class DashboardCacheService {
-  static const Duration _maxCacheAge = Duration(minutes: 10);
-
   Future<SharedPreferences> get _prefs async =>
       await SharedPreferences.getInstance();
 

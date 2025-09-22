@@ -384,17 +384,16 @@ class ClassController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const { schoolId, query } = req.query;
+    const { schoolId } = req.query;
 
-    if (!schoolId?.toString().trim() && !query?.toString().trim()) {
+    if (!schoolId?.toString()) {
       sendBadRequest(res, "Cần cung cấp thông tin tìm kiếm");
       return;
     }
 
     try {
       const classes = await this.classService.searchClassesInSchool(
-        schoolId?.toString(),
-        query?.toString()
+        schoolId?.toString()
       );
 
       if (!classes || classes.length === 0) {

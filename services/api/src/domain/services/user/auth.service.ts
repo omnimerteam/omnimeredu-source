@@ -21,6 +21,7 @@ import { TeacherRegisterHandler } from "./handlers/TeacherRegisterHandler";
 import { SchoolAdminRegisterHandler } from "./handlers/SchoolAdminRegisterHandler";
 import { IRegisterHandler } from "./handlers/IRegisterHandler";
 import { ISchool } from "../../models";
+import { StaffRegisterHandler } from "./handlers/StaffRegisterHandler";
 
 class AuthService {
   private readonly roleRepository: RoleRepository;
@@ -51,6 +52,7 @@ class AuthService {
         this.schoolRepository,
         this.membershipRepository
       ),
+      Staff: new StaffRegisterHandler(this.membershipRepository),
     };
   }
 
@@ -122,7 +124,7 @@ class AuthService {
       );
 
       // 6. Business logic theo role (Student/Teacher/SchoolAdmin)
-      const handler = this.handlers[role.name] ?? this.handlers["Teacher"];
+      const handler = this.handlers[role.name] ?? this.handlers["Staff"];
       if (handler) {
         await handler.handle(
           user,

@@ -459,7 +459,10 @@ class MoreScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UnderDevelopmentScreen(featureName: featureName),
+        builder: (context) => UnderDevelopmentScreen(
+          featureName: featureName,
+          expectedReleaseDate: DateTime(2024),
+        ),
       ),
     );
   }

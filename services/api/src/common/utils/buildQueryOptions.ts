@@ -2,52 +2,63 @@ export interface PaginationQueryOptions {
   page: number;
   limit: number;
   sort?: Record<string, 1 | -1>;
-  filter?: Record<string, any>; // thêm filter
+  filter?: Record<string, any>;
+  search?: string;
 }
+
 /**
- * Build query options (page, limit, sort, filter) từ request query
- * @param parsedQuery object từ req.query
- * @returns QueryOptions object
+ * Build query options (page, limit, sort, filter, search) từ request query
  */
 export function buildQueryOptions(parsedQuery: {
   page: number;
   limit: number;
-  sort?: string;
-  filter?: string; // dạng: "gender:Male,literacy:Bachelor,subjects:Math|English"
+  sort?: string | null;
+  filter?: string | null; // "gender:Male,literacy:Bachelor,subjects:Math|English"
+  search?: string | null; // ?search=John
 }): PaginationQueryOptions {
-  const { page, limit, sort, filter } = parsedQuery;
+  const { page, limit } = parsedQuery;
 
   // 🔹 Xử lý sort
-  const sortObj: Record<string, 1 | -1> = {};
-  if (sort) {
-    const fields = sort.split(",");
+  let sortObj: Record<string, 1 | -1> | undefined;
+  if (parsedQuery.sort && parsedQuery.sort !== "null") {
+    const fields = parsedQuery.sort.split(",");
+    const obj: Record<string, 1 | -1> = {};
     fields.forEach((f) => {
       const [field, order] = f.split(":");
-      if (field) sortObj[field] = order === "asc" ? 1 : -1;
+      if (field) obj[field] = order === "asc" ? 1 : -1;
     });
+    if (Object.keys(obj).length) sortObj = obj;
   }
 
   // 🔹 Xử lý filter
-  const filterObj: Record<string, any> = {};
-  if (filter) {
-    const fields = filter.split(",");
+  let filterObj: Record<string, any> | undefined;
+  if (parsedQuery.filter && parsedQuery.filter !== "null") {
+    const fields = parsedQuery.filter.split(",");
+    const obj: Record<string, any> = {};
     fields.forEach((f) => {
       const [key, value] = f.split(":");
-      if (!key || !value) return;
+      if (!key || !value || value === "null") return;
 
-      // Nếu có nhiều giá trị (dùng |), thì dùng $in
       if (value.includes("|")) {
-        filterObj[key] = { $in: value.split("|").map((v) => v.trim()) };
+        obj[key] = { $in: value.split("|").map((v) => v.trim()) };
       } else {
-        filterObj[key] = value.trim();
+        obj[key] = value.trim();
       }
     });
+    if (Object.keys(obj).length) filterObj = obj;
   }
+
+  // 🔹 Xử lý search
+  const search =
+    parsedQuery.search && parsedQuery.search !== "null"
+      ? parsedQuery.search.trim()
+      : undefined;
 
   return {
     page,
     limit,
-    sort: Object.keys(sortObj).length ? sortObj : undefined,
-    filter: Object.keys(filterObj).length ? filterObj : undefined,
+    sort: sortObj,
+    filter: filterObj,
+    search,
   };
 }

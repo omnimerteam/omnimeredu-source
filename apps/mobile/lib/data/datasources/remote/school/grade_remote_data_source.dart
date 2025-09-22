@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
-import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_select_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
