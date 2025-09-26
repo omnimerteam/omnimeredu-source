@@ -9,6 +9,7 @@ class TeacherEntity extends BaseUserEntity {
     super.id,
     required super.fullName,
     super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,

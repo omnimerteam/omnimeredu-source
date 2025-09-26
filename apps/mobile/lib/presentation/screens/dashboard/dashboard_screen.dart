@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/school_admin_dashboard_data_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/no_access_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/school_admin/schooladmin_dashboard.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/teacher_dashboard.dart';
 
 class DashboardScreen extends StatelessWidget {
   final AuthUserEntity user;
@@ -53,8 +55,11 @@ class DashboardScreen extends StatelessWidget {
           ),
         );
 
+      case "Teacher":
+        return TeacherDashboard(user: user);
+
       default:
-        return const Center(child: Text("Role không được hỗ trợ"));
+        return NoAccessScreen();
     }
   }
 }

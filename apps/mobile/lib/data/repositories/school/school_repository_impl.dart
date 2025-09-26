@@ -1,5 +1,6 @@
 // data/repositories/school_repository_impl.dart
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/school_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/school/school_model.dart';
@@ -37,7 +38,7 @@ class SchoolRepositoryImpl implements SchoolRepository {
       return createSchool.toEntity();
     } catch (e) {
       // có thể log stacktrace để debug
-      throw Exception(e);
+      throw ServerFailure(e.toString());
     }
   }
 
@@ -51,7 +52,7 @@ class SchoolRepositoryImpl implements SchoolRepository {
       return updatedModel.toEntity();
     } catch (e) {
       // có thể log stacktrace để debug
-      throw Exception(e);
+      throw ServerFailure(e.toString());
     }
   }
 
@@ -62,7 +63,7 @@ class SchoolRepositoryImpl implements SchoolRepository {
       // Không cần return gì, xóa thành công
     } catch (e, st) {
       // Có thể log stacktrace để debug
-      throw Exception("Xóa trường thất bại: $e\n$st");
+      throw ServerFailure("Xóa trường thất bại: $e\n$st");
     }
   }
 

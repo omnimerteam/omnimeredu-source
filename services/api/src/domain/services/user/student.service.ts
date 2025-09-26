@@ -29,7 +29,10 @@ class StudentService {
     try {
       const filter = buildPermissionFilter(userRole, schoolId);
 
-      const students = await this.studentRepository.findAll(filter, options);
+      const students = await this.studentRepository.findAllStudent(
+        filter,
+        options
+      );
 
       await this.logger.log({
         userId: actorId,

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/data/models/user/personnel_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
@@ -15,7 +16,9 @@ class PersonnelRemoteDataSource {
   }
 
   /// Lấy danh sách nhân sự (có thể kèm query filter)
-  Future<List<PersonnelModel>> getAllPersonnel(DefaultQueryEntity query) async {
+  Future<ApiResponse<List<PersonnelModel>>> getAllPersonnelFromSchool(
+    DefaultQueryEntity query,
+  ) async {
     final token = await _getIdToken();
     final queryParams = query.toQueryBuilder().build();
 
@@ -33,10 +36,38 @@ class PersonnelRemoteDataSource {
       },
     );
 
-    if (res.success && res.data != null) {
-      return res.data!;
-    } else {
-      throw Exception(res.message ?? "Không thể lấy danh sách nhân sự");
-    }
+    return res;
+  }
+
+  Future<ApiResponse<bool>> updateVerified(
+    String personnelId,
+    bool isVerified,
+  ) async {
+    final token = await _getIdToken();
+
+    final res = await client.patch<bool>(
+      Endpoints.updateVerified(personnelId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      data: {"isVerified": isVerified},
+      parser: (data) {
+        if (data is Map<String, dynamic> && data["isVerified"] != null) {
+          return data["isVerified"] as bool;
+        }
+        throw Exception("API không trả về dữ liệu isVerified hợp lệ");
+      },
+    );
+
+    return res;
+  }
+
+  Future<ApiResponse<void>> dismissPersonnel(String personnelId) async {
+    final token = await _getIdToken();
+
+    final res = await client.patch<bool>(
+      Endpoints.dismissPersonnel(personnelId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+    );
+
+    return res;
   }
 }

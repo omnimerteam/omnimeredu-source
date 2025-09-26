@@ -1,22 +1,9 @@
 import 'package:equatable/equatable.dart';
-
-/// 🔹 Enum cho vai trò
-enum MembershipRoleEnum { Student, Teacher, Staff, SchoolAdmin }
-
-/// 🔹 Enum cho hành động
-enum MembershipActionEnum {
-  Enroll, // Nhập học / Nhận công tác
-  Transfer, // Chuyển lớp
-  Assign, // Phân công giảng dạy / làm việc
-  Resign, // Nghỉ học / Thôi công tác
-}
-
-/// 🔹 Enum cho trạng thái
-enum MembershipStatusEnum { Pending, Approved, Rejected }
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 /// 🔹 Entity MembershipRequest
 class MembershipRequestEntity extends Equatable {
-  final String id;
+  final String? id;
   final String userId;
   final String? fullName;
 
@@ -38,7 +25,7 @@ class MembershipRequestEntity extends Equatable {
   final DateTime? updatedAt;
 
   const MembershipRequestEntity({
-    required this.id,
+    this.id,
     required this.userId,
     this.fullName,
     required this.schoolId,

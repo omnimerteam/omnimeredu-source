@@ -149,7 +149,7 @@ class StepReview extends StatelessWidget {
                   if (state.selectedRoleName!.toLowerCase() ==
                       'schooladmin') ...[
                     if (!state.isCreateNewSchool) ...[
-                      _reviewItem('Chức vụ', state.position),
+                      _reviewItem('Chức vụ', state.position?.displayName),
                     ] else ...[
                       _reviewItem('Tên trường', state.schoolName),
                       _reviewItem('Cấp trường', state.schoolLevel?.displayName),

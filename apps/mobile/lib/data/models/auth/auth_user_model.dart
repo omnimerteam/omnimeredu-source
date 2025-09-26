@@ -1,25 +1,40 @@
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 
-class AuthUserModel extends AuthUserEntity {
+class AuthUserModel {
+  final String id;
+  final String fullName;
+  final String roleName;
+  final bool? isVerified;
+  final String? schoolId;
+  final String? schoolName;
+  final EducationSystemLevelsEnum? schoolLevel;
+  final String? avatarUrl;
+  final SchoolAdminPositionEnum? position;
+  final String? qualification;
+  final String? classId;
+  final String? className;
+  final EducationSystemLevelsEnum? educationLevel;
+  final EducationGradesEnum? gradeGroup;
+
   const AuthUserModel({
-    required super.id,
-    required super.fullName,
-    required super.roleName,
-    super.isVerified,
-    super.avatarUrl,
-    super.schoolId,
-    super.schoolName,
-    super.schoolLevel,
-    super.position,
-    super.qualification,
-    super.classId,
-    super.className,
-    super.educationLevel,
-    super.grade,
+    required this.id,
+    required this.fullName,
+    required this.roleName,
+    this.isVerified,
+    this.schoolId,
+    this.schoolName,
+    this.schoolLevel,
+    this.avatarUrl,
+    this.position,
+    this.qualification,
+    this.classId,
+    this.className,
+    this.educationLevel,
+    this.gradeGroup,
   });
 
-  /// Chuyển từ JSON sang Model
+  /// Parse từ JSON (API -> Model)
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     return AuthUserModel(
       id: json['_id'] ?? '',
@@ -27,23 +42,23 @@ class AuthUserModel extends AuthUserEntity {
       roleName: json['roleId']?['name'] ?? '',
       isVerified: json['isVerified'] ?? false,
       avatarUrl: json['avatarUrl'] ?? '',
-      schoolId: json['schoolId']?['_id'] ?? '',
-      schoolName: json['schoolId']?['name'] ?? '',
+      schoolId: json['schoolId']?['_id'],
+      schoolName: json['schoolId']?['name'],
       schoolLevel: EducationSystemLevelsEnum.fromString(
         json['schoolId']?['level'] as String?,
       ),
-      position: json['position']?.toString() ?? '',
-      qualification: json['qualification']?.toString() ?? '',
-      classId: json['classId']?['_id'] ?? '',
-      className: json['classId']?['name'] ?? '',
+      position: SchoolAdminPositionEnum.fromString(json['position'] as String?),
+      qualification: json['qualification']?.toString(),
+      classId: json['classId']?['_id'],
+      className: json['classId']?['name'],
       educationLevel: EducationSystemLevelsEnum.fromString(
-        json['eductionLevel'] as String?,
+        json['educationLevel'] as String?, // sửa typo eduction -> education
       ),
-      grade: json['grade']?.toString() ?? '',
+      gradeGroup: EducationGradesEnum.fromString(json['gradeGroup'] as String?),
     );
   }
 
-  /// Chuyển từ Model sang JSON
+  /// Convert sang JSON (Model -> API)
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -54,16 +69,16 @@ class AuthUserModel extends AuthUserEntity {
       'schoolName': schoolName,
       'schoolLevel': schoolLevel?.name,
       'avatarUrl': avatarUrl,
-      'position': position,
+      'position': position?.name,
       'qualification': qualification,
       'classId': classId,
       'className': className,
       'educationLevel': educationLevel?.name,
-      'grade': grade,
+      'gradeGroup': gradeGroup?.name,
     };
   }
 
-  /// Chuyển Model về Entity (tách biệt domain)
+  /// Convert Model -> Entity (Data -> Domain)
   AuthUserEntity toEntity() {
     return AuthUserEntity(
       id: id,
@@ -79,7 +94,7 @@ class AuthUserModel extends AuthUserEntity {
       classId: classId,
       className: className,
       educationLevel: educationLevel,
-      grade: grade,
+      gradeGroup: gradeGroup,
     );
   }
 }

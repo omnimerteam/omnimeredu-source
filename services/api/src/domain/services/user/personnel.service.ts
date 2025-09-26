@@ -1,3 +1,4 @@
+import { RoleGroup } from "../../../common/enum/role.enum";
 import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
@@ -38,6 +39,91 @@ class PersonnelService {
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_PERSONNEL_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async updateRoleId(
+    actorId: string,
+    userRole: string,
+    id: string,
+    roleId: string
+  ) {
+    try {
+      const updatePersonnel = await this.personnelRepository.update(id, {
+        roleId: roleId,
+      });
+
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_ROLE_ID_PERSONNEL",
+        roleSnapshot: userRole,
+        metadata: { updateData: { id: id, roleId: roleId } },
+      });
+
+      return updatePersonnel;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_ROLE_ID_PERSONNEL_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async updateVerified(
+    actorId: string,
+    userRole: string,
+    id: string,
+    isVerified: boolean
+  ) {
+    try {
+      const updatePersonnel = await this.personnelRepository.update(id, {
+        isVerified: isVerified,
+      });
+
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_VERIFIED_PERSONNEL",
+        roleSnapshot: userRole,
+        metadata: { updateData: { id: id, isVerified: isVerified } },
+      });
+
+      return updatePersonnel;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_VERIFIED_PERSONNEL_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async dismissPersonnel(actorId: string, userRole: string, id: string) {
+    try {
+      const updatePersonnel = await this.personnelRepository.update(id, {
+        schoolId: null,
+      });
+
+      await this.logger.log({
+        userId: actorId,
+        action: "DISMISS_PERSONNEL",
+        roleSnapshot: userRole,
+        metadata: { personnelDismissed: id },
+      });
+
+      return updatePersonnel;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "DISMISS_PERSONNEL_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });

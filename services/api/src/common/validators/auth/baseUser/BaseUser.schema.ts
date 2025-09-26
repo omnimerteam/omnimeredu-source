@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Types } from "mongoose";
 import { GenderEnum } from "../../../enum/gender.enum";
+import { RoleGroupTuple } from "../../../enum/role.enum";
 
 export const BaseUserSchema = z.object({
   _id: z
@@ -20,11 +21,13 @@ export const BaseUserSchema = z.object({
         "Họ tên chỉ được chứa chữ cái, khoảng trắng, dấu gạch ngang hoặc dấu chấm",
     }),
 
-  roleId: z
+  roleId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Định dạng ObjectId không hợp lệ cho roleId",
+  }),
+
+  email: z
     .string()
-    .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho roleId",
-    })
+    .email({ message: "Email không hợp lệ" })
     .optional()
     .nullable(),
 

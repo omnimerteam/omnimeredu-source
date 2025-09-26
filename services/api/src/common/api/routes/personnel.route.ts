@@ -10,11 +10,13 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
-import {
-  createPaginationSchemaWithSortAndFilter,
-  createPaginationSchemaWithSortFilterAndSearch,
-} from "../../validators/common/query/query.validator";
+import { createPaginationSchemaWithSortFilterAndSearch } from "../../validators/common/query/query.validator";
 import { BaseUser } from "../../../domain/models";
+import {
+  updateRoleId,
+  updateVerified,
+} from "../../validators/auth/baseUser/baseUser.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const personnelRepository = new PersonnelRepository(BaseUser);
@@ -25,7 +27,7 @@ const router = Router();
 
 const personnelQuerySchema = createPaginationSchemaWithSortFilterAndSearch(
   ["fullName", "createdAt", "birthday"],
-  ["gender", "roleKey", "subjects"]
+  ["gender", "roleId", "roleKey", "subjects", "qualification", "position"]
 );
 
 // Lấy danh sách nhân sự (gồm teacher + staff)
@@ -36,6 +38,44 @@ router.get(
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.getAllPersonnel(req, res, next)
+);
+
+router.patch(
+  "/update-role/:id",
+  validateData({
+    headers: authHeaderSchema,
+    body: updateRoleId,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    personnelController.updateRoleId(req, res, next)
+);
+
+router.patch(
+  "/update-verified/:id",
+  validateData({
+    headers: authHeaderSchema,
+    body: updateVerified,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    personnelController.updateVerified(req, res, next)
+);
+
+router.patch(
+  "/dismiss/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    personnelController.dismissPersonnel(req, res, next)
 );
 
 export default router;

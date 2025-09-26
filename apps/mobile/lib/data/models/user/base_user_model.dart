@@ -6,6 +6,7 @@ abstract class BaseUserModel extends BaseUserEntity {
     super.id,
     required super.fullName,
     super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,
@@ -27,10 +28,11 @@ abstract class BaseUserModel extends BaseUserEntity {
       id: json['_id'] as String,
       fullName: json['fullName'] as String,
       roleId: json['roleId'] as String,
+      email: json['email'] as String?,
       gender: json['gender'] as String?,
       birthday: json['birthday'] != null
           ? AppConstants.toVietnamTime(
-              DateTime.tryParse(json['createdAt'] as String),
+              DateTime.tryParse(json['birthday'] as String),
             )
           : null,
       phone: json['phone'] as String?,
@@ -57,6 +59,7 @@ abstract class BaseUserModel extends BaseUserEntity {
       '_id': id,
       'fullName': fullName,
       'roleId': roleId,
+      'email': email,
       'gender': gender,
       'birthday': birthday?.toUtc().toIso8601String(),
       'phone': phone,
@@ -78,6 +81,7 @@ class _BaseUserModelImpl extends BaseUserModel {
     required super.id,
     required super.fullName,
     required super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,

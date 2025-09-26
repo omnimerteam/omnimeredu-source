@@ -15,6 +15,14 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import {
+  createSchoolAdminBodySchema,
+  updatePositionSchoolAdminSchema,
+  updateSchoolAdminBodySchema,
+} from "../../validators/auth/schoolAdmin/schoolAdmin.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
@@ -28,34 +36,55 @@ const schoolAdminController = new SchoolAdminController(schoolAdminService);
 const router = Router();
 router.get(
   "/",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.getAllSchoolAdmins(req, res, next)
 );
 
 router.get(
   "/:id",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.getSchoolAdminById(req, res, next)
 );
 
 router.post(
   "/",
+  validateData({
+    headers: authHeaderSchema,
+    body: createSchoolAdminBodySchema,
+  }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.createSchoolAdmin(req, res, next)
 );
 
 router.put(
   "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: updateSchoolAdminBodySchema,
+  }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.updateSchoolAdmin(req, res, next)
+);
+
+router.patch(
+  "/update-position/:id",
+  validateData({
+    headers: authHeaderSchema,
+    body: updatePositionSchoolAdminSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    schoolAdminController.updatePositionSchoolAdmin(req, res, next)
 );
 
 router.delete(
@@ -67,18 +96,3 @@ router.delete(
 );
 
 export default router;
-
-/** example request body for creating a teacher
- * {
-        "fullName": "Nguyễn Văn DADA",
-        "roleId": "6885e31812e74de500041b53",  
-        "gender": "Male",
-        "birthday": "2000-10-13",
-        "phone": "0909032",
-        "address": "Long An",
-        "isVerified": true,
-        "literacy": "abcbca",
-        "subjects": ["Math"],   
-        "schoolId": "6885e31812e74de500041b51"
-      }
- */

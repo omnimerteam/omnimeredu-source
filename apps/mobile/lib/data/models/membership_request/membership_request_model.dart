@@ -1,42 +1,43 @@
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
-import 'package:flutter_ios_android_platforms/data/models/membership_request/membership_request_enum_helper.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
 
-/// 🔹 Model cho MembershipRequest
-class MembershipRequestModel extends MembershipRequestEntity {
+/// 🔹 Data Model cho MembershipRequest
+/// Trách nhiệm: ánh xạ JSON ↔ Entity
+class MembershipRequestModel {
+  final String? id;
+  final String userId;
+  final String? fullName;
+  final String schoolId;
+  final String? schoolName;
+  final String? schoolCode;
+  final String? classId;
+  final String? className;
+  final String? classCode;
+  final MembershipRoleEnum role;
+  final MembershipActionEnum action;
+  final MembershipStatusEnum status;
+  final String? note;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
   const MembershipRequestModel({
-    required String id,
-    required String userId,
-    String? fullName,
-    required String schoolId,
-    String? schoolName,
-    String? schoolCode,
-    String? classId,
-    String? className,
-    String? classCode,
-    required MembershipRoleEnum role,
-    required MembershipActionEnum action,
-    required MembershipStatusEnum status,
-    String? note,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) : super(
-         id: id,
-         userId: userId,
-         fullName: fullName,
-         schoolId: schoolId,
-         schoolName: schoolName,
-         schoolCode: schoolCode,
-         classId: classId,
-         className: className,
-         classCode: classCode,
-         role: role,
-         action: action,
-         status: status,
-         note: note,
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+    this.id,
+    required this.userId,
+    this.fullName,
+    required this.schoolId,
+    this.schoolName,
+    this.schoolCode,
+    this.classId,
+    this.className,
+    this.classCode,
+    required this.role,
+    required this.action,
+    required this.status,
+    this.note,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   /// 🔹 Parse từ JSON (backend → app)
   factory MembershipRequestModel.fromJson(Map<String, dynamic> json) {
@@ -45,39 +46,39 @@ class MembershipRequestModel extends MembershipRequestEntity {
     final clazz = json['classId'] as Map<String, dynamic>?;
 
     return MembershipRequestModel(
-      id: json['_id'] as String,
+      id: json['_id'] as String? ?? '',
       userId: user?['_id'] as String? ?? '',
       fullName: user?['fullName'] as String?,
       schoolId: school?['_id'] as String? ?? '',
       schoolName: school?['name'] as String?,
       schoolCode: school?['code'] as String?,
-      classId: clazz?['_id'] as String?, // 👈 có thể null
+      classId: clazz?['_id'] as String?,
       className: clazz?['name'] as String?,
       classCode: clazz?['code'] as String?,
-      role: roleFromString(json['role'] as String),
-      action: actionFromString(json['action'] as String),
-      status: statusFromString(json['status'] as String),
+      role: MembershipRoleEnum.fromString(json['role'] as String?),
+      action: MembershipActionEnum.fromString(json['action'] as String?),
+      status: MembershipStatusEnum.fromString(json['status'] as String?),
       note: json['note'] as String?,
-      createdAt: json['createdAt'] != null
+      createdAt: (json['createdAt'] as String?) != null
           ? AppConstants.toVietnamTime(
-              DateTime.tryParse(json['createdAt'] as String),
+              DateTime.tryParse(json['createdAt'] as String)!,
             )
           : null,
-      updatedAt: json['updatedAt'] != null
+      updatedAt: (json['updatedAt'] as String?) != null
           ? AppConstants.toVietnamTime(
-              DateTime.tryParse(json['updatedAt'] as String),
+              DateTime.tryParse(json['updatedAt'] as String)!,
             )
           : null,
     );
   }
 
-  /// 🔹 Convert sang JSON (app → backend)
+  /// 🔹 Convert Model → JSON (app → backend)
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
       'userId': userId,
       'schoolId': schoolId,
-      'classId': classId, // 👈 có thể null, backend handle
+      'classId': classId,
       'role': role.name,
       'action': action.name,
       'status': status.name,
@@ -85,7 +86,7 @@ class MembershipRequestModel extends MembershipRequestEntity {
     };
   }
 
-  /// 🔹 Convert sang Entity (Model → Domain)
+  /// 🔹 Convert Model → Entity (Data → Domain)
   MembershipRequestEntity toEntity() {
     return MembershipRequestEntity(
       id: id,
@@ -106,7 +107,7 @@ class MembershipRequestModel extends MembershipRequestEntity {
     );
   }
 
-  /// 🔹 Parse từ Entity (Domain → Model)
+  /// 🔹 Convert Entity → Model (Domain → Data)
   factory MembershipRequestModel.fromEntity(MembershipRequestEntity entity) {
     return MembershipRequestModel(
       id: entity.id,

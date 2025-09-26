@@ -56,12 +56,7 @@ export const validateData = (schemas: ValidationSchemas) => {
 
         console.log(chalk.red("[VALIDATION] ❌ Validation failed:"), error);
 
-        sendError(
-          res,
-          "Dữ liệu yêu cầu không hợp lệ",
-          400,
-          cleanErrorMessage(combinedMessage)
-        );
+        sendError(res, cleanErrorMessage(combinedMessage), 400);
         return;
       }
 

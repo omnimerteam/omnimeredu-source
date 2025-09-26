@@ -1,6 +1,7 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { SchoolAdminRepository } from "../../repositories";
 import { ISchoolAdmin } from "../../models";
+import { SchoolAdminPositionEnum } from "../../../common/enum/schoolAdmin.enum";
 
 class SchoolAdminService {
   private readonly schoolAdminRepository: SchoolAdminRepository;
@@ -120,6 +121,38 @@ class SchoolAdminService {
       throw error;
     }
   }
+
+  async updatePositionSchoolAdmin(
+    actorId: string,
+    userRole: string,
+    schoolAdminId: string,
+    position: SchoolAdminPositionEnum
+  ) {
+    try {
+      const schoolAdmin = await this.schoolAdminRepository.update(
+        schoolAdminId,
+        { position }
+      );
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_POSITION_SCHOOL_ADMIN",
+        roleSnapshot: userRole,
+        targetId: schoolAdminId,
+        metadata: { SchoolAdmins: !!schoolAdmin },
+      });
+      return schoolAdmin;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_POSITION_SCHOOL_ADMIN_FAILED",
+        roleSnapshot: userRole,
+        targetId: schoolAdminId,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
   async deleteSchoolAdmin(
     schoolAdminId: string,
     actorId: string,

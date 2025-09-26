@@ -31,6 +31,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
 
   // Controllers
   late TextEditingController _nameController;
+  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
   late TextEditingController _birthdayController;
@@ -39,6 +40,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
 
   // Focus Nodes
   final _nameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
   final _addressFocusNode = FocusNode();
   final _birthdayFocusNode = FocusNode();
@@ -62,6 +64,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
     super.initState();
 
     _nameController = TextEditingController();
+    _emailController = TextEditingController();
     _phoneController = TextEditingController();
     _addressController = TextEditingController();
     _birthdayController = TextEditingController();
@@ -70,6 +73,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
 
     // focus listeners
     _nameFocusNode.addListener(() => setState(() {}));
+    _emailFocusNode.addListener(() => setState(() {}));
     _phoneFocusNode.addListener(() => setState(() {}));
     _addressFocusNode.addListener(() => setState(() {}));
     _birthdayFocusNode.addListener(() => setState(() {}));
@@ -84,6 +88,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
 
   void _initFormData() {
     _nameController.clear();
+    _emailController.clear();
     _phoneController.clear();
     _addressController.clear();
     _birthdayController.clear();
@@ -98,6 +103,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
     if (isEditMode && widget.studentToEdit != null) {
       final student = widget.studentToEdit!;
       _nameController.text = student.fullName;
+      _emailController.text = student.email ?? '';
       _phoneController.text = student.phone ?? '';
       _addressController.text = student.address ?? '';
       _selectedGender = student.gender;
@@ -163,6 +169,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
       final studentEntity = StudentEntity(
         id: isEditMode ? widget.studentToEdit!.id : null,
         fullName: _nameController.text.trim(),
+        email: _emailController.text.trim(),
         phone: _phoneController.text.trim().isEmpty
             ? null
             : _phoneController.text.trim(),
@@ -319,6 +326,22 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
                             value,
                             name: 'Họ và tên',
                           ),
+                          required: true,
+                        ),
+                        const SizedBox(height: 16),
+
+                        PrimaryTextField(
+                          controller: _emailController,
+                          focusNode: _emailFocusNode,
+                          hintText: 'Email học sinh',
+                          prefixIcon: Icons.person_outline,
+                          isFocused: _emailFocusNode.hasFocus,
+                          validator: (value) {
+                            if (value?.trim().isNotEmpty == true) {
+                              return Validators.email(value);
+                            }
+                            return null;
+                          },
                           required: true,
                         ),
                         const SizedBox(height: 16),
@@ -493,6 +516,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
                             if (authState is AuthenticationAuthenticated &&
                                 authState.user.schoolLevel != null) {
                               return PrimaryDropdown<EducationGradesEnum>(
+                                required: true,
                                 value: _selectedGrade,
                                 hintText: 'Chọn khối lớp *',
                                 prefixIcon: Icons.school_outlined,

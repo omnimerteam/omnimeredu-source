@@ -24,6 +24,13 @@ class RoleGuard {
     '/school-admin/membership-requests': ['school_admin'],
     '/school-admin/grades': ['school_admin'],
     '/school-admin/students': ['school_admin', 'teacher'],
+    '/school-admin/personnel': [
+      'school_admin',
+      'teacher',
+      'canteen_staff',
+      'nurse',
+      'security',
+    ],
   };
 
   static bool canAccess(String dbRole, String routeName) {

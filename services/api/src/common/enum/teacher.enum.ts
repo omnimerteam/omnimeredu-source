@@ -20,6 +20,8 @@ export enum TeacherQualificationEnum {
   ChuaQuaDaoTaoSP = "ChuaQuaDaoTaoSP",
   CoChungChiNghe = "CoChungChiNghe",
   TrinhDoKhac = "TrinhDoKhac",
+
+  None = "None",
 }
 
 // 🔹 Tuple dùng cho Zod hoặc Mongoose enum
@@ -47,6 +49,8 @@ export enum SubjectEnum {
   ExperientialActivities = "ExperientialActivities",
   AdvancedInformatics = "AdvancedInformatics",
   OtherForeignLanguage = "OtherForeignLanguage",
+
+  None = "None",
 }
 
 // 🔹 Tuple để dùng trong schema validation (Zod hoặc Joi…)

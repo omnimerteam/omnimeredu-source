@@ -19,6 +19,8 @@ class Endpoints {
   static const String classes = "/v1/classes";
   static String classId(String id) => "/v1/classes/$id";
   static const classDetailView = "/v1/classes/view-model/class-detail";
+  static String classDetailViewId(String id) =>
+      "/v1/classes/view-model/class-detail/$id";
   static const String searchClassesInSchool = "/v1/classes/schools/search";
 
   // ================== SCHOOLS ==================
@@ -30,6 +32,7 @@ class Endpoints {
 
   // ================== ROLES ==================
   static const String roles = "/v1/roles";
+  static const String rolesPersonnel = "/v1/roles/roles-personnel";
 
   // ================== SCHOOLADMIN DASHBOARD ==================
   static const String getSummary = "/v1/school-admin-dashboard/get-summary";
@@ -53,8 +56,26 @@ class Endpoints {
 
   // ================== PERSONNEL ==================
   static const String personnel = "/v1/personnel";
+  static String updateRoleIdForPersonnel(String id) =>
+      "/v1/personnel/update-role/${id}";
+  static String updateVerified(String id) =>
+      "/v1/personnel/update-verified/${id}";
+  static String dismissPersonnel(String id) => "/v1/personnel/dismiss/${id}";
 
   // ================== TEACHER ==================
   static const String teachers = "/v1/teachers";
   static String teacherId(String id) => "/v1/teachers/$id";
+
+  // ================== MEMPERSHIP REQUEST ==================
+  static const String teachingAssignment = "/v1/teaching-assignment";
+  static String teachingAssignmentId(String id) =>
+      "/v1/teaching-assignment/$id";
+  static String teachingAssignmentByTeacherIdAndSchoolId(
+    String teacherId,
+    String schoolId,
+  ) => "/v1/teaching-assignment/teacherId-schoolId/${teacherId}/${schoolId}";
+
+  // ================== SCHOOL ADMIN ==================
+  static String updatePositionSchoolAdmin(String id) =>
+      "/v1/school-admins/update-position/${id}";
 }

@@ -21,12 +21,15 @@ class PersonnelRepository extends BaseRepository<IBaseUser> {
     const finalFilter: FilterQuery<IBaseUser> = {
       ...filter,
       ...(options?.filter || {}),
-      roleKey: { $in: ["Teacher", "Staff"] },
+      roleKey: { $in: ["Teacher", "Staff", "SchoolAdmin"] },
     };
 
     // ✅ hỗ trợ search theo name (regex, không phân biệt hoa/thường)
     if (options?.search && options.search.trim() !== "") {
-      finalFilter["name"] = { $regex: options.search.trim(), $options: "i" };
+      finalFilter["fullName"] = {
+        $regex: options.search.trim(),
+        $options: "i",
+      };
     }
 
     return this.model
@@ -35,7 +38,7 @@ class PersonnelRepository extends BaseRepository<IBaseUser> {
       .limit(limit)
       .sort(sort)
       .populate({
-        path: "role",
+        path: "roleId",
         select: "_id name",
       })
       .exec();

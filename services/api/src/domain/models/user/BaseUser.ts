@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { GenderEnum, GenderTuple } from "../../../common/enum/gender.enum";
+import { RoleGroup, RoleGroupTuple } from "../../../common/enum/role.enum";
 export interface IBaseUser extends Document {
   _id: Types.ObjectId;
   fullName: string;
@@ -12,7 +13,7 @@ export interface IBaseUser extends Document {
   isVerified?: boolean;
   schoolId?: Types.ObjectId | null;
   avatarUrl?: string;
-  roleKey?: String;
+  roleKey?: RoleGroup;
 }
 
 const BaseUserSchema = new Schema<IBaseUser>(
@@ -47,7 +48,7 @@ const BaseUserSchema = new Schema<IBaseUser>(
       default: null,
     },
 
-    roleKey: { type: String, default: "Staff" },
+    roleKey: { type: String, enum: RoleGroupTuple, default: RoleGroup.Staff },
   },
   {
     discriminatorKey: "roleKey",

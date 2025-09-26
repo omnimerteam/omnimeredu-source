@@ -3,7 +3,8 @@ enum EducationSystemLevelsEnum {
   Primary("Tiểu học"),
   Secondary("Trung học cơ sở"),
   HighSchool("Trung học phổ thông"),
-  University("Đại học");
+  University("Đại học"),
+  None("");
 
   final String displayName;
   const EducationSystemLevelsEnum(this.displayName);
@@ -13,7 +14,7 @@ enum EducationSystemLevelsEnum {
   static EducationSystemLevelsEnum fromString(String? value) {
     return EducationSystemLevelsEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => EducationSystemLevelsEnum.Preschool,
+      orElse: () => EducationSystemLevelsEnum.None,
     );
   }
 }
@@ -38,7 +39,8 @@ enum TeacherQualificationEnum {
   BacSiChuyenKhoa2("Bác sĩ chuyên khoa 2"),
   ChuaQuaDaoTaoSP("Chưa qua đào tạo sư phạm"),
   CoChungChiNghe("Có chứng chỉ nghề"),
-  TrinhDoKhac("Trình độ khác");
+  TrinhDoKhac("Trình độ khác"),
+  None("Chưa đăng ký trình độ");
 
   final String displayName;
   const TeacherQualificationEnum(this.displayName);
@@ -48,7 +50,7 @@ enum TeacherQualificationEnum {
   static TeacherQualificationEnum fromString(String? value) {
     return TeacherQualificationEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => TeacherQualificationEnum.TrinhDoKhac,
+      orElse: () => TeacherQualificationEnum.None,
     );
   }
 }
@@ -71,7 +73,8 @@ enum SubjectEnum {
   NationalDefense("Giáo dục quốc phòng - an ninh"),
   ExperientialActivities("Hoạt động trải nghiệm"),
   AdvancedInformatics("Tin học (Lập trình nâng cao)"),
-  OtherForeignLanguage("Ngoại ngữ khác");
+  OtherForeignLanguage("Ngoại ngữ khác"),
+  None("Chưa đăng ký");
 
   final String displayName;
   const SubjectEnum(this.displayName);
@@ -81,7 +84,7 @@ enum SubjectEnum {
   static SubjectEnum fromString(String? value) {
     return SubjectEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => SubjectEnum.OtherForeignLanguage,
+      orElse: () => SubjectEnum.None,
     );
   }
 }
@@ -117,7 +120,9 @@ enum EducationGradesEnum {
   University_2("Đại học Năm 2"),
   University_3("Đại học Năm 3"),
   University_4("Đại học Năm 4"),
-  University_5("Đại học Năm 5");
+  University_5("Đại học Năm 5"),
+
+  None("Chưa đăng ký");
 
   final String displayName;
   const EducationGradesEnum(this.displayName);
@@ -125,7 +130,7 @@ enum EducationGradesEnum {
   static EducationGradesEnum fromString(String? value) {
     return EducationGradesEnum.values.firstWhere(
       (e) => e.name == value,
-      orElse: () => EducationGradesEnum.Nursery,
+      orElse: () => EducationGradesEnum.None,
     );
   }
 }
@@ -169,6 +174,104 @@ extension EducationGradeByLevelX on EducationSystemLevelsEnum {
           EducationGradesEnum.University_4,
           EducationGradesEnum.University_5,
         ];
+      case EducationSystemLevelsEnum.None:
+        return [EducationGradesEnum.None];
     }
+  }
+}
+
+// 🔹 Chức vụ quản trị trường học
+enum SchoolAdminPositionEnum {
+  // Nhóm sáng lập / cổ đông
+  Founder("Người sáng lập"),
+  CoFounder("Đồng sáng lập"),
+  Owner("Chủ sở hữu"),
+
+  // Nhóm quản lý điều hành
+  HieuTruong("Hiệu trưởng"),
+  PhoHieuTruong("Phó hiệu trưởng"),
+  TruongPhongDaoTao("Trưởng phòng đào tạo"),
+  PhoPhongDaoTao("Phó phòng đào tạo"),
+  TruongPhongHanhChinh("Trưởng phòng hành chính"),
+  PhoPhongHanhChinh("Phó phòng hành chính"),
+  KeToanTruong("Kế toán trưởng"),
+  ThuQuy("Thủ quỹ"),
+  TruongBanCNTT("Trưởng ban CNTT"),
+  PhoBanCNTT("Phó ban CNTT"),
+
+  None("Chưa được cấp chức vụ");
+
+  final String displayName;
+  const SchoolAdminPositionEnum(this.displayName);
+
+  String get asString => name;
+
+  static SchoolAdminPositionEnum fromString(String? value) {
+    return SchoolAdminPositionEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => SchoolAdminPositionEnum.None,
+    );
+  }
+}
+
+/// 🔹 Enum cho vai trò
+enum MembershipRoleEnum {
+  Student("Học sinh"),
+  Teacher("Giáo viên"),
+  Staff("Nhân viên"),
+  SchoolAdmin("Quản trị trường"),
+  None("");
+
+  final String displayName;
+  const MembershipRoleEnum(this.displayName);
+
+  String get asString => name;
+
+  static MembershipRoleEnum fromString(String? value) {
+    return MembershipRoleEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => MembershipRoleEnum.None,
+    );
+  }
+}
+
+/// 🔹 Enum cho hành động
+enum MembershipActionEnum {
+  Enroll("Nhập học / Nhận công tác"),
+  Transfer("Chuyển lớp"),
+  Assign("Phân công giảng dạy / làm việc"),
+  Resign("Nghỉ học / Thôi công tác"),
+  None("");
+
+  final String displayName;
+  const MembershipActionEnum(this.displayName);
+
+  String get asString => name;
+
+  static MembershipActionEnum fromString(String? value) {
+    return MembershipActionEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => MembershipActionEnum.None,
+    );
+  }
+}
+
+/// 🔹 Enum cho trạng thái
+enum MembershipStatusEnum {
+  Pending("Chờ duyệt"),
+  Approved("Đã duyệt"),
+  Rejected("Từ chối"),
+  None("");
+
+  final String displayName;
+  const MembershipStatusEnum(this.displayName);
+
+  String get asString => name;
+
+  static MembershipStatusEnum fromString(String? value) {
+    return MembershipStatusEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => MembershipStatusEnum.None,
+    );
   }
 }

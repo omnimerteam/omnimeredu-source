@@ -80,7 +80,7 @@ class ClassService {
 
       await this.logger.log({
         userId: actorId,
-        action: "GET_ALL_CLASSES",
+        action: "GET_ALL_CLASSES_DETAIL_VIEW",
         roleSnapshot: userRole,
         metadata: {
           filter,
@@ -93,7 +93,30 @@ class ClassService {
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GET_ALL_CLASSES_FAILED",
+        action: "GET_ALL_CLASSES_DETAIL_VIEW_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getClassDetailViewById(actorId: string, userRole: string, id: string) {
+    try {
+      const classes = await this.classDetailViewRepository.findById(id);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASS_DETAIL_VIEW_BY_ID",
+        roleSnapshot: userRole,
+        metadata: { classId: id },
+      });
+
+      return classes;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASS_DETAIL_VIEW_BY_ID_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
@@ -129,11 +152,11 @@ class ClassService {
   async createClass(
     actorId: string,
     userRole: string,
-    data: IClass,
+    data: Partial<IClass>,
     schoolId: string
   ) {
     try {
-      const code = generateClassCode(data.name);
+      const code = generateClassCode(data.name!);
 
       const created = await this.classRepository.create({
         ...data,

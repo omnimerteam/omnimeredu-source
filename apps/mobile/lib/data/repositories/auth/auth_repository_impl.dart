@@ -40,7 +40,6 @@ class AuthRepositoryImpl implements AuthRepository {
       _currentUser = userModel;
       return userModel.toEntity();
     } catch (e) {
-      logger.e("Repository Impl: ${e}");
       throw ServerFailure("${e.toString()}");
     }
   }

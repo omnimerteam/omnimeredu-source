@@ -64,7 +64,7 @@ export const sendEmpty = (
   res: Response,
   message: string = "Danh sách trống"
 ) => {
-  return sendSuccess(res, [], message);
+  return sendSuccess(res, null, message);
 };
 
 /* ============================================================

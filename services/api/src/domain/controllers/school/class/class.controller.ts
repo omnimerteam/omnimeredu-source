@@ -82,21 +82,57 @@ class ClassController {
 
     const schoolId = req.user?.schoolId;
 
-    const options = buildQueryOptions(req.query as any);
-
     try {
       const result = await this.classService.getAllClassDetailView(
         actorId,
         userRole,
-        schoolId,
-        options
+        schoolId
       );
 
       if (!result || result.length === 0) {
-        console.log(chalk.yellow("[CLASS] No classes found for user"));
         sendEmpty(res, "Không có lớp học trong hệ thống");
         return;
       }
+
+      sendSuccess(res, result, "Lấy danh sách lớp thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[CLASS] ❌ Get all classes failed"), error);
+      return next(error);
+    }
+  }
+
+  /**
+   * Lấy danh sách View Model DetailClass
+   * @param req
+   * @param res
+   * @param next
+   * @returns
+   */
+  async getClassDetailViewById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+    const id = req.query.id;
+
+    if (!id) {
+      sendBadRequest(res, "Bạn chưa chọn được lớp học");
+      return;
+    }
+
+    try {
+      const result = await this.classService.getClassDetailViewById(
+        actorId,
+        userRole,
+        id.toString()
+      );
 
       sendSuccess(res, result, "Lấy danh sách lớp thành công");
       return;

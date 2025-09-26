@@ -83,7 +83,8 @@ class HomeHeaderWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        DisplayMapper.roleName(user.roleName),
+                        '${DisplayMapper.roleName(user.roleName)}'
+                        '${user.position != null ? ' - ${user.position!.displayName}' : ''}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white,

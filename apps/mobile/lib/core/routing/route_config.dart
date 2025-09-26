@@ -10,6 +10,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/registra
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/registration_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
@@ -20,6 +21,8 @@ import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/membership_request_management_page.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/personnel/bloc/personnel_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/personnel/personel_management_page.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/school_data_schooladmin_screen.dart';
@@ -91,6 +94,17 @@ class RouteConfig {
             ),
           ],
           child: const StudentManagementPage(),
+        );
+
+      case '/school-admin/personnel':
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => sl<PersonnelManagementBloc>()),
+            BlocProvider(create: (_) => sl<ClassBloc>()),
+            BlocProvider(create: (_) => sl<RoleBloc>()),
+          ],
+          child:
+              const PersonnelManagementPage(), // Sử dụng Page, không phải Screen
         );
 
       default:

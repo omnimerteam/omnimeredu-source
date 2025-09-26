@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_state.dart';
@@ -29,8 +29,6 @@ class _StepRoleState extends State<StepRole> {
   late final TextEditingController _guardianNameController;
   late final TextEditingController _guardianPhoneController;
 
-  // Controllers for SchoolAdmin
-  late final TextEditingController _positionController;
   late final TextEditingController _newSchoolNameController;
   late final TextEditingController _newSchoolAddressController;
   late final TextEditingController _newSchoolPhoneController;
@@ -46,7 +44,6 @@ class _StepRoleState extends State<StepRole> {
       text: widget.state.guardianPhone,
     );
 
-    _positionController = TextEditingController(text: widget.state.position);
     _newSchoolNameController = TextEditingController(
       text: widget.state.schoolName,
     );
@@ -65,8 +62,6 @@ class _StepRoleState extends State<StepRole> {
   void dispose() {
     _guardianNameController.dispose();
     _guardianPhoneController.dispose();
-
-    _positionController.dispose();
     _newSchoolNameController.dispose();
     _newSchoolAddressController.dispose();
     _newSchoolPhoneController.dispose();
@@ -337,6 +332,7 @@ class _StepRoleState extends State<StepRole> {
   }
 
   /// Form cho SchoolAdmin
+  /// Form cho SchoolAdmin
   Widget _buildSchoolAdminForm(BuildContext context, RegistrationState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,19 +423,26 @@ class _StepRoleState extends State<StepRole> {
             const SizedBox(height: 16),
           ],
 
-          /// Position in School
-          RegisterTextField(
-            controller: _positionController,
-            label: 'Chức vụ tại trường',
-            hintText:
-                'Nhập chức vụ của bạn (vd: Hiệu trưởng, Phó hiệu trưởng, ...)',
+          /// 🔹 Position in School (Dropdown dùng enum)
+          RegisterDropdown<SchoolAdminPositionEnum>(
+            label: "Chức vụ tại trường",
             requiredInput: true,
-            validator: (v) =>
-                Validators.requiredField(v, name: "Chức vụ") ??
-                Validators.position(v),
-            onChanged: (v) => context.read<RegistrationBloc>().add(
-              UpdateSchoolAdminInfoEvent(position: v),
-            ),
+            value: state.position,
+            items: SchoolAdminPositionEnum.values
+                .map(
+                  (pos) => DropdownMenuItem(
+                    value: pos,
+                    child: Text(pos.displayName),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) {
+              if (value != null) {
+                context.read<RegistrationBloc>().add(
+                  UpdateSchoolAdminInfoEvent(position: value),
+                );
+              }
+            },
           ),
         ],
       ],

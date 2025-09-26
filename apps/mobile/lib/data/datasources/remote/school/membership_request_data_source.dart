@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/data/models/membership_request/membership_request_model.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class MembershipRequestRemoteDataSource {
@@ -89,7 +89,7 @@ class MembershipRequestRemoteDataSource {
     final token = await _getIdToken();
 
     final res = await client.put<void>(
-      Endpoints.membershipRequestId(updateData.id),
+      Endpoints.membershipRequestId(updateData.id!),
       headers: {if (token != null) "Authorization": "Bearer $token"},
       data: updateData.toJson(),
     );

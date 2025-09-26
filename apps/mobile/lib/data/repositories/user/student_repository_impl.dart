@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/user/student_model.dart';
@@ -16,7 +17,7 @@ class StudentRepositoryImpl implements StudentRepository {
       final models = await remote.getAllStudents(query);
       return models.map((m) => m.toEntity()).toList();
     } catch (e) {
-      throw Exception("Không thể lấy danh sách học sinh: $e");
+      throw ServerFailure("Không thể lấy danh sách học sinh: $e");
     }
   }
 
@@ -26,7 +27,7 @@ class StudentRepositoryImpl implements StudentRepository {
       final model = await remote.getStudentById(id);
       return model.toEntity();
     } catch (e) {
-      throw Exception("Không thể lấy thông tin học sinh: $e");
+      throw ServerFailure("Không thể lấy thông tin học sinh: $e");
     }
   }
 
@@ -37,7 +38,7 @@ class StudentRepositoryImpl implements StudentRepository {
       final createdModel = await remote.createStudent(model);
       return createdModel.toEntity();
     } catch (e) {
-      throw Exception("Không thể tạo mới học sinh: $e");
+      throw ServerFailure("Không thể tạo mới học sinh: $e");
     }
   }
 
@@ -49,7 +50,7 @@ class StudentRepositoryImpl implements StudentRepository {
       final updatedModel = await remote.updateStudent(model);
       return updatedModel.toEntity();
     } catch (e) {
-      throw Exception("Không thể cập nhật học sinh: $e");
+      throw ServerFailure("Không thể cập nhật học sinh: $e");
     }
   }
 
@@ -58,7 +59,7 @@ class StudentRepositoryImpl implements StudentRepository {
     try {
       await remote.deleteStudent(id);
     } catch (e) {
-      throw Exception("Xóa học sinh thất bại: $e");
+      throw ServerFailure("Xóa học sinh thất bại: $e");
     }
   }
 }

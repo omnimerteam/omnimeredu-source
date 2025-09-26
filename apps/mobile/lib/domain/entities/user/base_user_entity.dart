@@ -4,6 +4,7 @@ abstract class BaseUserEntity extends Equatable {
   final String? id;
   final String fullName;
   final String? roleId;
+  final String? email;
   final String? gender;
   final DateTime? birthday;
   final String? phone;
@@ -19,6 +20,7 @@ abstract class BaseUserEntity extends Equatable {
     this.id,
     required this.fullName,
     this.roleId,
+    this.email,
     this.gender,
     this.birthday,
     this.phone,
@@ -36,6 +38,7 @@ abstract class BaseUserEntity extends Equatable {
     id,
     fullName,
     roleId,
+    email,
     gender,
     birthday,
     phone,

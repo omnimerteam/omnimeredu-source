@@ -1,12 +1,15 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+
 import 'base_user_entity.dart';
 
 class SchoolAdminEntity extends BaseUserEntity {
-  final String position;
+  final SchoolAdminPositionEnum? position;
 
   const SchoolAdminEntity({
     super.id,
     required super.fullName,
     super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,
@@ -16,7 +19,7 @@ class SchoolAdminEntity extends BaseUserEntity {
     super.avatarUrl,
     super.createdAt,
     super.updatedAt,
-    this.position = "Hiệu trưởng",
+    this.position,
   }) : super(roleKey: 'SchoolAdmin');
 
   @override

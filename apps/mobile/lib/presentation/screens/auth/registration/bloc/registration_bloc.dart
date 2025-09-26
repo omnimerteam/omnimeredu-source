@@ -217,7 +217,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           "qualification": state.qualification?.name,
           "subjects": state.subjects?.map((s) => s.name).toList(),
           // School Admin
-          "position": state.position,
+          "position": state.position?.name,
         },
         schoolData: state.isCreateNewSchool
             ? SchoolDataEntity(

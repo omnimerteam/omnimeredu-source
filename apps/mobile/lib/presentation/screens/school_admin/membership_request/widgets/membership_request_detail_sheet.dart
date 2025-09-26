@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
@@ -64,6 +65,11 @@ class MembershipRequestDetailSheet extends StatelessWidget {
         statusColor = Colors.red;
         statusIcon = Icons.cancel_rounded;
         statusText = 'Đã từ chối';
+        break;
+      case MembershipStatusEnum.None:
+        statusColor = Colors.grey;
+        statusIcon = Icons.blur_circular;
+        statusText = 'Chưa được xử lý';
         break;
     }
 

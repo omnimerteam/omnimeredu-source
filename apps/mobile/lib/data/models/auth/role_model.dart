@@ -1,28 +1,35 @@
-import '../../../domain/entities/auth/role.dart';
+import '../../../domain/entities/auth/role_entity.dart';
 
-class RoleModel extends RoleEntity {
+class RoleModel {
+  final String id;
+  final String name;
+  final String description;
+  final String group;
+
   const RoleModel({
-    required super.id,
-    required super.name,
-    required super.description,
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.group,
   });
 
+  /// Parse JSON -> Model
   factory RoleModel.fromJson(Map<String, dynamic> json) {
     return RoleModel(
       id: json['_id'] ?? '',
       name: json['name'] ?? '',
       description: json['description'] ?? '',
+      group: json['group'] ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    '_id': id,
-    'name': name,
-    'description': description,
-  };
-
-  /// Chuyển RoleModel sang RoleEntity để dùng trong Domain layer / Bloc
+  /// Convert Model -> Entity (Data layer -> Domain layer)
   RoleEntity toEntity() {
-    return RoleEntity(id: id, name: name, description: description);
+    return RoleEntity(
+      id: id,
+      name: name,
+      description: description,
+      group: group,
+    );
   }
 }

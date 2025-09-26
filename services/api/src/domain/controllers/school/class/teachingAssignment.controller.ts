@@ -6,7 +6,9 @@ import {
   sendSuccess,
   sendUnauthorized,
   sendNotFound,
+  sendBadRequest,
 } from "../../../../common/utils/ResponseHelper";
+import { buildQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
 class TeachingAssignmentController {
   private readonly teachingAssignmentService: TeachingAssignmentService;
@@ -19,27 +21,31 @@ class TeachingAssignmentController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolId = req.user?.schoolId;
+
+    const option = buildQueryOptions(req.query as any);
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
       const assignments =
         await this.teachingAssignmentService.getAllTeachingAssignments(
           actorId,
-          userRole
+          userRole,
+          schoolId,
+          option
         );
+
       if (!assignments || assignments.length === 0) {
         sendEmpty(res);
         return;
       }
-      console.log(
-        chalk.green(
-          "[Teaching Asssignment] Get all teaching assignments successfully"
-        )
-      );
+
       sendSuccess(
         res,
         assignments,
@@ -62,17 +68,18 @@ class TeachingAssignmentController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const assignmentId = req.params.id;
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
-      const assginmentId = req.params.id;
       const assignment =
         await this.teachingAssignmentService.getTeachingAssignmentById(
-          assginmentId,
+          assignmentId,
           actorId,
           userRole
         );
@@ -80,15 +87,57 @@ class TeachingAssignmentController {
         sendNotFound(res);
         return;
       }
-      console.log(
-        chalk.green(
-          "[Teaching Asssignment] Get teaching assignments by ID successfully"
-        )
-      );
+
       sendSuccess(
         res,
         assignment,
         "Lấy danh sách phân công giảng dạy theo ID thành công"
+      );
+      return;
+    } catch (error) {
+      console.log(
+        chalk.red(
+          "[Teaching Assignment] Error getting teaching assignments by ID: ",
+          error
+        )
+      );
+      return next(error);
+    }
+  }
+
+  async getTeachingAssignmentByTeacherAndSchoolId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const teacherId = req.params.teacherId;
+    const schoolId = req.params.schoolId;
+    console.log("TeacherID", teacherId);
+    console.log("SchoolId", schoolId);
+    try {
+      const assignment =
+        await this.teachingAssignmentService.getTeachingAssignmentByTeacherIdAndSchoolId(
+          actorId,
+          userRole,
+          teacherId,
+          schoolId
+        );
+
+      if (!assignment) {
+        sendEmpty(res, "Không tìm thấy dữ liệu");
+        return;
+      }
+
+      sendSuccess(
+        res,
+        assignment,
+        "Lấy phân công giảng dạy theo ID thành công"
       );
       return;
     } catch (error) {
@@ -107,16 +156,16 @@ class TeachingAssignmentController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    try {
-      const actorId = req.user?.id;
-      const schoolId = req.user?.schoolId?.toString();
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
+    const actorId = req.user?.id;
+    const schoolId = req.user?.schoolId;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
 
-      const assignmentData = req.body;
+    const assignmentData = req.body;
+    try {
       const assignment =
         await this.teachingAssignmentService.createTeachingAssignment(
           assignmentData,
@@ -125,11 +174,6 @@ class TeachingAssignmentController {
           userRole
         );
 
-      console.log(
-        chalk.green(
-          "[Teaching Asssignment] Create teaching assignments successfully"
-        )
-      );
       sendSuccess(res, assignment, "Thêm một phân công giảng dạy thành công");
       return;
     } catch (error) {
@@ -148,20 +192,22 @@ class TeachingAssignmentController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const schoolId = req.user?.schoolId;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const assignmentId = req.params.id;
+
+    if (!assignmentId) {
+      sendBadRequest(res);
+      return;
+    }
+    const assignmentData = req.body;
+
     try {
-      const actorId = req.user?.id;
-      const schoolId = req.user?.schoolId?.toString();
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
-      const assignmentId = req.params.id;
-      if (!assignmentId) {
-        sendNotFound(res);
-        return;
-      }
-      const assignmentData = req.body;
       const assignment =
         await this.teachingAssignmentService.updateTeachingAssignment(
           assignmentId,
@@ -171,11 +217,6 @@ class TeachingAssignmentController {
           userRole
         );
 
-      console.log(
-        chalk.green(
-          "[Teaching Asssignment] Update teaching assignments successfully"
-        )
-      );
       sendSuccess(res, assignment, "Cập nhật phân công giảng dạy thành công");
       return;
     } catch (error) {
@@ -194,19 +235,20 @@ class TeachingAssignmentController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const schoolId = req.user?.schoolId?.toString();
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const assignmentId = req.params.id;
+    if (!assignmentId) {
+      sendBadRequest(res);
+      return;
+    }
+
     try {
-      const actorId = req.user?.id;
-      const schoolId = req.user?.schoolId?.toString();
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
-      const assignmentId = req.params.id;
-      if (!assignmentId) {
-        sendNotFound(res);
-        return;
-      }
       const assignment =
         await this.teachingAssignmentService.deleteTeachingAssignment(
           assignmentId,
@@ -214,11 +256,7 @@ class TeachingAssignmentController {
           actorId,
           userRole
         );
-      console.log(
-        chalk.green(
-          "[Teaching Asssignment] Delete teaching assignments successfully"
-        )
-      );
+
       sendSuccess(res, assignment, "Xóa phân công giảng dạy thành công");
       return;
     } catch (error) {

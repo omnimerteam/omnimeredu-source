@@ -141,13 +141,15 @@ class ApiClient {
     Response response, {
     T Function(dynamic)? fromJsonT,
   }) {
+    final status = response.statusCode ?? 200;
     final raw = response.data;
 
-    if (raw == null) {
-      return ApiResponse<T>.success(null, message: "Không có thông tin");
+    // ✅ Nếu 204 No Content hoặc body null → thành công nhưng không có data
+    if (status == 204 || raw == null) {
+      return ApiResponse<T>.success(null, message: "Thành công");
     }
 
-    // server trả theo chuẩn wrapper
+    // ✅ Nếu server trả wrapper { success, data, message }
     if (raw is Map && raw.containsKey('success')) {
       try {
         return ApiResponse<T>.fromJson(raw, fromJsonT: fromJsonT);
@@ -158,15 +160,15 @@ class ApiClient {
       }
     }
 
-    // server không dùng wrapper → fallback
+    // ✅ Server không dùng wrapper → fallback
     return ApiResponse<T>.success(raw as T?, message: "Thành công");
   }
 
   ApiResponse<T> _handleError<T>(DioException e) {
     final status = e.response?.statusCode ?? 500;
     String message = "Lỗi không xác định";
+    dynamic data;
 
-    // timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
       message = "Yêu cầu quá thời gian. Vui lòng thử lại";
@@ -174,18 +176,25 @@ class ApiClient {
       message = "Không có kết nối internet";
     } else if (e.response != null) {
       final body = e.response?.data;
-      // Nếu backend trả object { success, message, error }
+
+      if (body is Map && body.containsKey('success')) {
+        // ✅ Backend trả đúng format chuẩn
+        return ApiResponse<T>(
+          success: body['success'] ?? false,
+          message: body['message']?.toString() ?? "Có lỗi xảy ra",
+          data: body['data'],
+        );
+      }
+
+      // fallback nếu backend không theo format chuẩn
       if (body is Map) {
-        final backendMessage = body['message'] != null
-            ? body['message'].toString()
-            : null;
+        final backendMessage = body['message']?.toString();
         final backendDevError =
             body['error'] ?? body['detail'] ?? body['debug'];
 
         if (backendMessage != null && backendMessage.isNotEmpty) {
           message = backendMessage;
         } else {
-          // fallback theo status
           switch (status) {
             case 401:
               message = "Không có quyền truy cập";
@@ -197,15 +206,13 @@ class ApiClient {
               message = "Lỗi hệ thống";
               break;
             default:
-              message = "Lỗi dịch vụ (${status})";
+              message = "Lỗi dịch vụ ($status)";
           }
         }
 
-        // Ghi log chi tiết cho dev (không show cho người dùng)
         if (backendDevError != null) {
           logger.e("Backend error detail: $backendDevError");
         } else {
-          // nếu backend không có 'error' field, log body để debug
           logger.e("Backend error body: $body");
         }
       } else {
@@ -221,7 +228,7 @@ class ApiClient {
             message = "Lỗi hệ thống";
             break;
           default:
-            message = "Lỗi dịch vụ (${status})";
+            message = "Lỗi dịch vụ ($status)";
         }
         logger.e("Backend error (non-map body): ${e.response?.data}");
       }
@@ -229,6 +236,7 @@ class ApiClient {
       message = "Không thể kết nối đến server";
     }
 
-    return ApiResponse<T>.error(message);
+    // ✅ Trả về ApiResponse có success=false thay vì ApiResponse.error
+    return ApiResponse<T>(success: false, message: message, data: data);
   }
 }

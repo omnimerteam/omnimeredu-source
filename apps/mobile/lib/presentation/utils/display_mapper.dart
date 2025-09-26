@@ -12,6 +12,14 @@ class DisplayMapper {
     'Staff': 'Nhân viên',
   };
 
+  static const Map<String, String> personnelNames = {
+    'SchoolAdmin': 'Quản trị trường',
+    'Teacher': 'Giáo viên',
+    'Security': 'Bảo vệ',
+    'Nurse': 'Y tá',
+    'CanteenStaff': 'Nhân viên căng tin',
+  };
+
   static const Map<String, String> gender = {
     'Male': 'Nam',
     'Female': 'Nữ',
@@ -42,6 +50,10 @@ class DisplayMapper {
     if (value.isEmpty) return defaultValue;
     final mapToUse = mapping ?? {};
     return mapToUse[value] ?? value;
+  }
+
+  static String personnelName(String? code) {
+    return fromMapping(value: code ?? '', mapping: personnelNames);
   }
 
   /// Lấy tên vai trò

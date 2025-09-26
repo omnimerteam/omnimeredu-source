@@ -7,6 +7,7 @@ class StaffModel extends BaseUserModel {
     required super.id,
     required super.fullName,
     required super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,
@@ -24,6 +25,7 @@ class StaffModel extends BaseUserModel {
       id: json['_id'] as String,
       fullName: json['fullName'] as String,
       roleId: json['roleId'] as String,
+      email: json['email'] as String?,
       gender: json['gender'] as String?,
       birthday: json['birthday'] != null
           ? AppConstants.toVietnamTime(
@@ -61,6 +63,7 @@ class StaffModel extends BaseUserModel {
       id: id,
       fullName: fullName,
       roleId: roleId,
+      email: email,
       gender: gender,
       birthday: birthday,
       phone: phone,
@@ -77,6 +80,7 @@ class StaffModel extends BaseUserModel {
       id: entity.id,
       fullName: entity.fullName,
       roleId: entity.roleId,
+      email: entity.email,
       gender: entity.gender,
       birthday: entity.birthday,
       phone: entity.phone,

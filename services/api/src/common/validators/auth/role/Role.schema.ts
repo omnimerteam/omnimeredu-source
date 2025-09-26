@@ -1,16 +1,6 @@
 import { z } from "zod";
 import { Types } from "mongoose";
-
-// Định nghĩa enum cho name
-export const NameEnum = [
-  "SuperAdmin",
-  "SchoolAdmin",
-  "Teacher",
-  "Student",
-  "CanteenStaff",
-  "Nurse",
-  "Security",
-] as const;
+import { RoleGroupTuple, RoleTuple } from "../../../enum/role.enum";
 
 export const RoleSchema = z.object({
   _id: z
@@ -20,8 +10,12 @@ export const RoleSchema = z.object({
     })
     .optional(), // MongoDB tự sinh
 
-  name: z.enum(NameEnum, {
-    message: `Tên vai trò phải là một trong: ${NameEnum.join(", ")}`,
+  name: z.enum(RoleTuple, {
+    message: "Vai trò này không nằm trong hệ thống",
+  }),
+
+  group: z.enum(RoleGroupTuple, {
+    message: "Nhóm này không nằm trong hệ thống",
   }),
 
   description: z

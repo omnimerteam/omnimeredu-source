@@ -45,21 +45,23 @@ class MembershipSortView extends StatelessWidget {
                 loadedState.formStatus == MembershipRequestFormStatus.loading &&
                 loadedState.isFormVisible;
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: MembershipRequestItem(
-                request: request,
-                isUpdating: isUpdating,
-                onStatusUpdate: (newStatus) {
-                  context.read<MembershipRequestManagementBloc>().add(
-                    UpdateStatusEvent(
-                      requestId: request.id,
-                      newStatus: newStatus,
+            return (request.id != null && request.id!.isNotEmpty)
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: MembershipRequestItem(
+                      request: request,
+                      isUpdating: isUpdating,
+                      onStatusUpdate: (newStatus) {
+                        context.read<MembershipRequestManagementBloc>().add(
+                          UpdateStatusEvent(
+                            requestId: request.id!,
+                            newStatus: newStatus,
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            );
+                  )
+                : const SizedBox.shrink();
           } else {
             return Padding(
               padding: const EdgeInsets.all(16),

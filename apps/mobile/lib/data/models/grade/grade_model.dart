@@ -1,63 +1,70 @@
-import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
 
-class GradeModel extends GradeEntity {
+/// 🔹 Data Model cho Grade (thuộc Data Layer)
+/// Tách biệt với [GradeEntity] của Domain Layer
+class GradeModel {
+  final String? id;
+  final String schoolId;
+  final String name;
+  final EducationSystemLevelsEnum level;
+  final EducationGradesEnum gradeGroup;
+  final int order;
+  final Map<String, int>? ageRange;
+  final String? description;
+  final bool active;
+  final List<String>? linkedClasses;
+  final Map<String, dynamic>? customFields;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
   const GradeModel({
-    String? id,
-    required String schoolId,
-    required String name,
-    required EducationSystemLevelsEnum level,
-    required EducationGradesEnum gradeGroup,
-    required int order,
-    Map<String, int>? ageRange,
-    String? description,
-    bool active = true,
-    List<String>? linkedClasses,
-    Map<String, dynamic>? customFields,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) : super(
-         id: id,
-         schoolId: schoolId,
-         name: name,
-         level: level,
-         gradeGroup: gradeGroup,
-         order: order,
-         ageRange: ageRange,
-         description: description,
-         active: active,
-         linkedClasses: linkedClasses,
-         customFields: customFields,
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-       );
+    this.id,
+    required this.schoolId,
+    required this.name,
+    required this.level,
+    required this.gradeGroup,
+    required this.order,
+    this.ageRange,
+    this.description,
+    this.active = true,
+    this.linkedClasses,
+    this.customFields,
+    this.createdAt,
+    this.updatedAt,
+  });
 
+  /// 🔹 Parse từ JSON (backend → model)
   factory GradeModel.fromJson(Map<String, dynamic> json) {
     return GradeModel(
-      id: json['_id'] as String,
-      schoolId: json['schoolId'] as String,
-      name: json['name'] as String,
-      level: EducationSystemLevelsEnum.fromString(json['level'] as String),
-      gradeGroup: EducationGradesEnum.fromString(json['gradeGroup'] as String),
-      order: json['order'] as int,
-      ageRange: json['ageRange'] != null
-          ? Map<String, int>.from(json['ageRange'] as Map)
-          : null,
+      id: json['_id'] as String?,
+      schoolId: json['schoolId'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      level: EducationSystemLevelsEnum.fromString(json['level'] as String?),
+      gradeGroup: EducationGradesEnum.fromString(json['gradeGroup'] as String?),
+      order: json['order'] as int? ?? 0,
+      ageRange: (json['ageRange'] as Map?)?.cast<String, int>(),
       description: json['description'] as String?,
       active: json['active'] as bool? ?? true,
       linkedClasses: (json['linkedClasses'] as List?)
-          ?.map((e) => e as String)
+          ?.map((e) => e.toString())
           .toList(),
-      customFields: json['customFields'] as Map<String, dynamic>?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
+      customFields: (json['customFields'] as Map?)?.cast<String, dynamic>(),
+      createdAt: (json['createdAt'] as String?) != null
+          ? AppConstants.toVietnamTime(
+              DateTime.tryParse(json['createdAt'] as String)!,
+            )
           : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'])
+      updatedAt: (json['updatedAt'] as String?) != null
+          ? AppConstants.toVietnamTime(
+              DateTime.tryParse(json['updatedAt'] as String)!,
+            )
           : null,
     );
   }
 
+  /// 🔹 Convert sang JSON (model → backend)
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -71,11 +78,10 @@ class GradeModel extends GradeEntity {
       'active': active,
       'linkedClasses': linkedClasses,
       'customFields': customFields,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 
+  /// 🔹 Model → Entity (dùng trong Domain/Bloc)
   GradeEntity toEntity() {
     return GradeEntity(
       id: id,
@@ -94,6 +100,7 @@ class GradeModel extends GradeEntity {
     );
   }
 
+  /// 🔹 Entity → Model (dùng khi gọi API hoặc DB)
   factory GradeModel.fromEntity(GradeEntity entity) {
     return GradeModel(
       id: entity.id,

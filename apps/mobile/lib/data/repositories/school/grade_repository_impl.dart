@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/grade/grade_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/grade/grade_entity.dart';
@@ -16,7 +17,7 @@ class GradeRepositoryImpl implements GradeRepository {
       final models = await remote.getAllGrades(query);
       return models.map((m) => m.toEntity()).toList();
     } catch (e) {
-      throw Exception("Không thể lấy danh sách grade");
+      throw ServerFailure("Không thể lấy danh sách grade");
     }
   }
 
@@ -26,7 +27,7 @@ class GradeRepositoryImpl implements GradeRepository {
       final model = await remote.getGradeById(id);
       return model.toEntity();
     } catch (e) {
-      throw Exception("Không thể lấy grade: $e");
+      throw ServerFailure("Không thể lấy grade: $e");
     }
   }
 
@@ -36,7 +37,7 @@ class GradeRepositoryImpl implements GradeRepository {
       final model = GradeModel.fromEntity(grade);
       await remote.createGrade(model);
     } catch (e) {
-      throw Exception("Không thể tạo grade: $e");
+      throw ServerFailure("Không thể tạo grade: $e");
     }
   }
 
@@ -46,7 +47,7 @@ class GradeRepositoryImpl implements GradeRepository {
       final model = GradeModel.fromEntity(grade);
       await remote.updateGrade(model);
     } catch (e) {
-      throw Exception("Không thể cập nhật grade: $e");
+      throw ServerFailure("Không thể cập nhật grade: $e");
     }
   }
 
@@ -55,7 +56,7 @@ class GradeRepositoryImpl implements GradeRepository {
     try {
       await remote.deleteGrade(id);
     } catch (e, st) {
-      throw Exception("Xóa grade thất bại: $e\n$st");
+      throw ServerFailure("Xóa grade thất bại: $e\n$st");
     }
   }
 
@@ -65,7 +66,7 @@ class GradeRepositoryImpl implements GradeRepository {
       final models = await remote.getGradesForSelect();
       return models.map((m) => m.toEntity()).toList();
     } catch (e) {
-      throw Exception("Không thể lấy danh sách grade select: $e");
+      throw ServerFailure("Không thể lấy danh sách grade select: $e");
     }
   }
 }

@@ -86,11 +86,6 @@ class AuthService {
       try {
         schema.parse({ ...baseUserInfo, ...(specificInfo || {}) });
       } catch (err) {
-        if (err instanceof ZodError) {
-          throw new Error(
-            `Validation failed: ${err.issues.map((e) => e.message).join(", ")}`
-          );
-        }
         throw err;
       }
 
@@ -104,6 +99,7 @@ class AuthService {
           {
             ...baseUserInfo,
             ...specificInfo,
+            email: email,
             roleId: role._id,
           },
         ],

@@ -70,7 +70,7 @@ class UpdateTeacherInfoEvent extends RegistrationEvent {
 /// update thông tin school admin
 class UpdateSchoolAdminInfoEvent extends RegistrationEvent {
   final bool? isCreateNewSchool;
-  final String? position;
+  final SchoolAdminPositionEnum? position;
   final String? schoolName;
   final String? schoolAddress;
   final String? schoolPhone;

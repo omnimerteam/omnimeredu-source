@@ -28,16 +28,6 @@ class GradeSelectModel extends GradeSelectEntity {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      '_id': id,
-      'name': name,
-      'level': level.name, // convert enum to string
-      'order': order,
-      'ageRange': ageRange,
-    };
-  }
-
   GradeSelectEntity toEntity() {
     return GradeSelectEntity(
       id: id,
@@ -45,16 +35,6 @@ class GradeSelectModel extends GradeSelectEntity {
       level: level,
       order: order,
       ageRange: ageRange,
-    );
-  }
-
-  factory GradeSelectModel.fromEntity(GradeSelectEntity entity) {
-    return GradeSelectModel(
-      id: entity.id,
-      name: entity.name,
-      level: entity.level,
-      order: entity.order,
-      ageRange: entity.ageRange,
     );
   }
 }

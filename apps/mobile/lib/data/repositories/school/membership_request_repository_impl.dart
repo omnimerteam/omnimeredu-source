@@ -1,3 +1,5 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/membership_request/membership_request_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
@@ -16,9 +18,8 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
     try {
       final models = await remote.getAllMembershipRequest(query);
       return models.map((m) => m.toEntity()).toList();
-    } catch (e, st) {
-      print("❌ Lỗi khi lấy danh sách membership request: $e\n$st");
-      throw Exception("Không thể lấy danh sách membership request");
+    } catch (e) {
+      throw ServerFailure("Không thể lấy danh sách membership request");
     }
   }
 
@@ -28,7 +29,7 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
       final model = await remote.getMemberRequestById(id);
       return model.toEntity();
     } catch (e) {
-      throw Exception("Không thể lấy membership request: $e");
+      throw ServerFailure("Không thể lấy membership request: $e");
     }
   }
 
@@ -40,7 +41,7 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
       final model = MembershipRequestModel.fromEntity(createData);
       await remote.createMembershipRequest(model);
     } catch (e) {
-      throw Exception("Không thể tạo membership request: $e");
+      throw ServerFailure("Không thể tạo membership request: $e");
     }
   }
 
@@ -52,7 +53,7 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
       final model = MembershipRequestModel.fromEntity(updateData);
       await remote.updateMembershipRequest(model);
     } catch (e) {
-      throw Exception("Không thể cập nhật membership request: $e");
+      throw ServerFailure("Không thể cập nhật membership request: $e");
     }
   }
 
@@ -61,7 +62,7 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
     try {
       await remote.deleteMembershipRequest(id);
     } catch (e, st) {
-      throw Exception("Xóa membership request thất bại: $e\n$st");
+      throw ServerFailure("Xóa membership request thất bại: $e\n$st");
     }
   }
 
@@ -73,7 +74,7 @@ class MembershipRequestRepositoryImpl implements MembershipRequestRepository {
     try {
       return await remote.updateStatusMemberRequest(id, status);
     } catch (e) {
-      throw Exception("Không thể cập nhật status membership request: $e");
+      throw ServerFailure("Không thể cập nhật status membership request: $e");
     }
   }
 }

@@ -1,50 +1,48 @@
 import 'dart:convert';
-
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 
-class SchoolModel extends SchoolDataEntity {
-  const SchoolModel({
-    String? id,
-    String? name,
-    String? code,
-    String? address,
-    String? phone,
-    String? description,
-    EducationSystemLevelsEnum? level,
-    String? adminId,
-    String? logoUrl,
-    int studentCount = 0,
-    Map<String, dynamic>? customTheme,
-  }) : super(
-         id: id,
-         name: name,
-         code: code,
-         address: address,
-         phone: phone,
-         description: description,
-         level: level,
-         adminId: adminId,
-         logoUrl: logoUrl,
-         studentCount: studentCount,
-         customTheme: customTheme,
-       );
+/// 🔹 Data Model cho School (Data Layer)
+class SchoolModel {
+  final String? id;
+  final String? name;
+  final String? code;
+  final String? address;
+  final String? phone;
+  final String? description;
+  final EducationSystemLevelsEnum? level;
+  final String? adminId;
+  final String? logoUrl;
+  final int studentCount;
+  final Map<String, dynamic>? customTheme;
 
+  const SchoolModel({
+    this.id,
+    this.name,
+    this.code,
+    this.address,
+    this.phone,
+    this.description,
+    this.level,
+    this.adminId,
+    this.logoUrl,
+    this.studentCount = 0,
+    this.customTheme,
+  });
+
+  /// 🔹 Parse từ JSON (backend → app)
   factory SchoolModel.fromJson(Map<String, dynamic> json) {
     // Parse customTheme
-    Map<String, dynamic>? customTheme;
+    Map<String, dynamic>? parsedTheme;
     final rawTheme = json['customTheme'];
     if (rawTheme is Map<String, dynamic>) {
-      customTheme = rawTheme;
+      parsedTheme = rawTheme;
     } else if (rawTheme is String && rawTheme.isNotEmpty) {
-      // Thử parse từ JSON string nếu server trả về string JSON
       try {
-        customTheme = Map<String, dynamic>.from(jsonDecode(rawTheme));
+        parsedTheme = Map<String, dynamic>.from(jsonDecode(rawTheme));
       } catch (_) {
-        customTheme = null;
+        parsedTheme = null;
       }
-    } else {
-      customTheme = null;
     }
 
     return SchoolModel(
@@ -54,14 +52,15 @@ class SchoolModel extends SchoolDataEntity {
       address: json['address'] as String?,
       phone: json['phone'] as String?,
       description: json['description'] as String?,
-      level: (EducationSystemLevelsEnum.fromString(json['level'] as String)),
+      level: EducationSystemLevelsEnum.fromString(json['level'] as String?),
       adminId: json['adminId'] as String?,
       logoUrl: json['logoUrl'] as String?,
       studentCount: json['studentCount'] as int? ?? 0,
-      customTheme: customTheme,
+      customTheme: parsedTheme,
     );
   }
 
+  /// 🔹 Convert sang JSON (app → backend)
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
@@ -70,7 +69,7 @@ class SchoolModel extends SchoolDataEntity {
       'address': address,
       'phone': phone,
       'description': description,
-      'level': level?.name,
+      'level': level?.asString,
       'adminId': adminId,
       'logoUrl': logoUrl,
       'studentCount': studentCount,
@@ -78,7 +77,7 @@ class SchoolModel extends SchoolDataEntity {
     };
   }
 
-  /// Chuyển từ Model sang Entity để dùng trong domain
+  /// 🔹 Model → Entity (dùng trong Domain/Bloc)
   SchoolDataEntity toEntity() {
     return SchoolDataEntity(
       id: id,
@@ -95,6 +94,7 @@ class SchoolModel extends SchoolDataEntity {
     );
   }
 
+  /// 🔹 Entity → Model (dùng trong Data Layer)
   factory SchoolModel.fromEntity(SchoolDataEntity entity) {
     return SchoolModel(
       id: entity.id,

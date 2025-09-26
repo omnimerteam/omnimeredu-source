@@ -85,6 +85,17 @@ router.get(
   (req, res, next) => classController.getAllClassDetailView(req, res, next)
 );
 
+router.get(
+  "/view-model/class-detail/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.getClassDetailViewById(req, res, next)
+);
+
 // ✅ Lấy lớp theo ID
 router.get(
   "/:id",

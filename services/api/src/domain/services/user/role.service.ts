@@ -20,5 +20,16 @@ class RoleService {
       throw error;
     }
   }
+
+  async getRolesPersonnel() {
+    try {
+      const roles = await this.roleRepository.findAll({
+        name: { $nin: ["SuperAdmin", "Student"] },
+      });
+      return roles;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 export default RoleService;

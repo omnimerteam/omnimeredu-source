@@ -17,6 +17,12 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import {
+  objectIdParamSchema,
+  teacherAndSchoolParamsSchema,
+} from "../../validators/common/params/params.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classRepository = new ClassRepository(Class);
@@ -38,27 +44,34 @@ const router = Router();
 
 router.get(
   "/",
+  validateData({ headers: authHeaderSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getAllTeachingAssignments(req, res, next)
 );
 
 router.get(
   "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole([
-    "SuperAdmin",
-    "SchoolAdmin",
-    "Teacher",
-    "Parent",
-    "SchoolStaff",
-    "SchoolManager",
-    "Nurse",
-    "CanteenStaff",
-  ]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getTeachingAssignmentById(req, res, next)
+);
+
+router.get(
+  "/teacherId-schoolId/:teacherId/:schoolId",
+  validateData({
+    headers: authHeaderSchema,
+    params: teacherAndSchoolParamsSchema,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    teachingAssignmentController.getTeachingAssignmentByTeacherAndSchoolId(
+      req,
+      res,
+      next
+    )
 );
 
 router.post(

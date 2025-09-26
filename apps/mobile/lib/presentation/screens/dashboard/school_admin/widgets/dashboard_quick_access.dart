@@ -79,14 +79,12 @@ class DashboardQuickAccess extends StatelessWidget {
               },
             ),
             QuickAccessButton(
-              title: 'Giáo viên',
+              title: 'Nhân sự',
               icon: Icons.person,
               color: Colors.green,
-              onTap: () => _navigateToFeature(
-                context,
-                'Giáo viên',
-                DateTime(2026, 1, 15),
-              ),
+              onTap: () {
+                Navigator.of(context).pushNamed('/school-admin/personnel');
+              },
             ),
             QuickAccessButton(
               title: 'Điểm danh',

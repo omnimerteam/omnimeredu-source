@@ -1,6 +1,7 @@
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/view_model/class_detail_view_entity.dart';
 
 abstract class ClassRepository {
   Future<List<ClassSearchEntity>> getClassesInSchool(String schoolId);
@@ -14,4 +15,6 @@ abstract class ClassRepository {
   Future<ClassEntity> updateClass(ClassEntity updateClassData);
 
   Future<void> deleteClass(String id);
+
+  Future<ClassDetailViewEntity> getClassDetailViewById(String id);
 }

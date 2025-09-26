@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role_entity.dart';
 
 class RegistrationState extends Equatable {
   final bool loading;
@@ -43,7 +43,7 @@ class RegistrationState extends Equatable {
 
   // school admin
   final bool isCreateNewSchool;
-  final String? position;
+  final SchoolAdminPositionEnum? position;
   final String? schoolName;
   final String? schoolAddress;
   final String? schoolPhone;
@@ -91,7 +91,7 @@ class RegistrationState extends Equatable {
     this.qualification,
     this.subjects,
     this.isCreateNewSchool = false,
-    this.position,
+    this.position = SchoolAdminPositionEnum.None,
     this.schoolName,
     this.schoolAddress,
     this.schoolPhone,
@@ -128,7 +128,7 @@ class RegistrationState extends Equatable {
     TeacherQualificationEnum? qualification,
     List<SubjectEnum>? subjects,
     bool? isCreateNewSchool,
-    String? position,
+    SchoolAdminPositionEnum? position,
     String? schoolName,
     String? schoolCode,
     String? schoolAddress,

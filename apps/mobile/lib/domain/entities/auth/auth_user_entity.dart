@@ -11,14 +11,14 @@ class AuthUserEntity extends Equatable {
   final EducationSystemLevelsEnum? schoolLevel;
   final String? avatarUrl;
   // SchoolAdmin
-  final String? position;
+  final SchoolAdminPositionEnum? position;
   // Teacher
   final String? qualification;
   final String? classId;
   // Student
   final String? className;
   final EducationSystemLevelsEnum? educationLevel;
-  final String? grade;
+  final EducationGradesEnum? gradeGroup;
 
   const AuthUserEntity({
     required this.id,
@@ -34,7 +34,7 @@ class AuthUserEntity extends Equatable {
     this.classId,
     this.className,
     this.educationLevel,
-    this.grade,
+    this.gradeGroup,
   });
 
   static const _noChange = Object();
@@ -53,7 +53,7 @@ class AuthUserEntity extends Equatable {
     Object? classId = _noChange,
     Object? className = _noChange,
     Object? educationLevel = _noChange,
-    Object? grade = _noChange,
+    Object? gradeGroup = _noChange,
   }) {
     return AuthUserEntity(
       id: id == _noChange ? this.id : id as String,
@@ -70,7 +70,9 @@ class AuthUserEntity extends Equatable {
           ? this.schoolLevel
           : schoolLevel as EducationSystemLevelsEnum?,
       avatarUrl: avatarUrl == _noChange ? this.avatarUrl : avatarUrl as String?,
-      position: position == _noChange ? this.position : position as String?,
+      position: position == _noChange
+          ? this.position
+          : position as SchoolAdminPositionEnum?,
       qualification: qualification == _noChange
           ? this.qualification
           : qualification as String?,
@@ -79,7 +81,9 @@ class AuthUserEntity extends Equatable {
       educationLevel: educationLevel == _noChange
           ? this.educationLevel
           : educationLevel as EducationSystemLevelsEnum?,
-      grade: grade == _noChange ? this.grade : grade as String?,
+      gradeGroup: gradeGroup == _noChange
+          ? this.gradeGroup
+          : gradeGroup as EducationGradesEnum?,
     );
   }
 
@@ -98,6 +102,6 @@ class AuthUserEntity extends Equatable {
     classId,
     className,
     educationLevel,
-    grade,
+    gradeGroup,
   ];
 }

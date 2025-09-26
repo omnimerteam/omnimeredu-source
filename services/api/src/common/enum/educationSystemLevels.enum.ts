@@ -4,6 +4,7 @@ export enum EducationSystemLevelsEnum {
   Secondary = "Secondary",
   HighSchool = "HighSchool",
   University = "University",
+  None = "None",
 }
 
 // Tuple tự động từ enum TS
@@ -42,6 +43,8 @@ export enum EducationGradesEnum {
   University_3 = "University_3",
   University_4 = "University_4",
   University_5 = "University_5",
+
+  None = "None",
 }
 
 // Tuple cho Mongoose enum
@@ -84,6 +87,8 @@ const GradesByLevel: Record<EducationSystemLevelsEnum, EducationGradesEnum[]> =
       EducationGradesEnum.University_4,
       EducationGradesEnum.University_5,
     ],
+
+    [EducationSystemLevelsEnum.None]: [EducationGradesEnum.None],
   };
 
 // 🔹 Helper lấy danh sách grade theo cấp học

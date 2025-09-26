@@ -8,10 +8,35 @@ class RoleRemoteDataSource {
 
   RoleRemoteDataSource(this.client);
 
-  Future<List<RoleModel>> fetchRoles() async {
+  Future<List<RoleModel>> getAllRoles() async {
     try {
       final response = await client.get<List<RoleModel>>(
         Endpoints.roles,
+        parser: (data) {
+          if (data is List) {
+            return data
+                .map((e) => RoleModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+          throw Exception("API trả về không phải List");
+        },
+      );
+
+      if (response.success) {
+        return response.data ?? [];
+      } else {
+        throw Exception(response.message ?? "Không thể lấy roles");
+      }
+    } catch (e) {
+      logger.e("❌ Exception khi fetch roles: $e");
+      throw Exception("Lỗi khi fetch roles: $e");
+    }
+  }
+
+  Future<List<RoleModel>> getRolesPersonnel() async {
+    try {
+      final response = await client.get<List<RoleModel>>(
+        Endpoints.rolesPersonnel,
         parser: (data) {
           if (data is List) {
             return data

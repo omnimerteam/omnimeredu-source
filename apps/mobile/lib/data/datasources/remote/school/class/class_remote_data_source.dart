@@ -4,6 +4,7 @@ import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/view_model/class_detail_view_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
@@ -77,7 +78,7 @@ class ClassRemoteDataSource {
     }
   }
 
-  /// Danh sác lớp học bằng ClassDetail View Model
+  /// Lấy thông tin lớp học
   Future<ClassModel> getClassById(String id) async {
     final token = await _getIdToken();
 
@@ -87,6 +88,28 @@ class ClassRemoteDataSource {
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return ClassModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu lớp hợp lệ");
+      },
+    );
+
+    if (res.success && res.data != null) {
+      return res.data!;
+    } else {
+      throw Exception(res.message ?? "Không thể lấy danh sách lớp");
+    }
+  }
+
+  /// Lấy thông tin lớp học
+  Future<ClassDetailViewModel> getClassDetailViewById(String id) async {
+    final token = await _getIdToken();
+
+    final res = await client.get<ClassDetailViewModel>(
+      Endpoints.classDetailViewId(id),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return ClassDetailViewModel.fromJson(data);
         }
         throw Exception("API không trả về dữ liệu lớp hợp lệ");
       },

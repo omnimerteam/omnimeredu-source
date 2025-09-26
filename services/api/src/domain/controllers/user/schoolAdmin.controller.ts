@@ -6,7 +6,9 @@ import {
   sendSuccess,
   sendUnauthorized,
   sendEmpty,
+  sendBadRequest,
 } from "../../../common/utils/ResponseHelper";
+import { SchoolAdminPositionEnum } from "../../../common/enum/schoolAdmin.enum";
 
 class SchoolAdminController {
   private readonly schoolAdminService: SchoolAdminService;
@@ -34,13 +36,11 @@ class SchoolAdminController {
         sendEmpty(res);
         return;
       }
-      console.log(
-        chalk.green("[School Admins] Get all school admins successfully")
-      );
+
       sendSuccess(res, schoolAdmins, "Lấy danh sách school Admins thành công");
     } catch (error) {
       console.log(
-        chalk.red("[School Admins] Error getting all school admins:", error)
+        chalk.red("[SCHOOL_ADMIN] Error getting all school admins:", error)
       );
       return next(error);
     }
@@ -68,13 +68,11 @@ class SchoolAdminController {
         sendNotFound(res);
         return;
       }
-      console.log(
-        chalk.green("[School Admins] Get school admins by ID successfully")
-      );
+
       sendSuccess(res, schoolAdmin, "Lấy school Admins theo ID thành công");
     } catch (error) {
       console.log(
-        chalk.red("[School Admins] Error getting school admins by ID:", error)
+        chalk.red("[SCHOOL_ADMIN] Error getting school admins by ID:", error)
       );
       return next(error);
     }
@@ -98,13 +96,11 @@ class SchoolAdminController {
         actorId,
         userRole
       );
-      console.log(
-        chalk.green("[School Admins] Create school admin successfully")
-      );
+
       sendSuccess(res, schoolAdmin, "Thêm mới school Admin thành công");
     } catch (error) {
       console.log(
-        chalk.red("[School Admins] Error creatting school admin:", error)
+        chalk.red("[SCHOOL_ADMIN] Error creatting school admin:", error)
       );
       return next(error);
     }
@@ -130,13 +126,53 @@ class SchoolAdminController {
         actorId,
         userRole
       );
-      console.log(
-        chalk.green("[School Admins] Update school admin successfully")
-      );
+
       sendSuccess(res, schoolAdmin, "Cập nhật school Admin thành công");
     } catch (error) {
       console.log(
-        chalk.red("[School Admins] Error updating school admin:", error)
+        chalk.red("[SCHOOL_ADMIN] Error updating school admin:", error)
+      );
+      return next(error);
+    }
+  }
+
+  async updatePositionSchoolAdmin(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolAdminId = req.params.id;
+    const { position } = req.body;
+
+    if (!schoolAdminId || !position) {
+      sendBadRequest(res, "Thiếu thông tin người dùng và vị trí cần cập nhật");
+      return;
+    }
+
+    try {
+      const schoolAdmin =
+        await this.schoolAdminService.updatePositionSchoolAdmin(
+          actorId,
+          userRole,
+          schoolAdminId,
+          position
+        );
+
+      sendSuccess(
+        res,
+        { position: schoolAdmin?.position },
+        "Cập nhật school Admin thành công"
+      );
+    } catch (error) {
+      console.log(
+        chalk.red("[SCHOOL_ADMIN] Error updating position school admin:", error)
       );
       return next(error);
     }
@@ -160,13 +196,11 @@ class SchoolAdminController {
         actorId,
         userRole
       );
-      console.log(
-        chalk.green("[School Admins] Delete school admin successfully")
-      );
+
       sendSuccess(res, schoolAdmin, "Xóa school Admin thành công");
     } catch (error) {
       console.log(
-        chalk.red("[School Admins] Error deletting school admin:", error)
+        chalk.red("[SCHOOL_ADMIN] Error deletting school admin:", error)
       );
       return next(error);
     }

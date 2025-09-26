@@ -17,6 +17,7 @@ class StudentModel extends BaseUserModel {
     required super.id,
     required super.fullName,
     required super.roleId,
+    super.email,
     super.gender,
     super.birthday,
     super.phone,
@@ -40,6 +41,7 @@ class StudentModel extends BaseUserModel {
       id: json['_id'] as String,
       fullName: json['fullName'] as String,
       roleId: json['roleId'] as String,
+      email: json['email'] as String?,
       gender: json['gender'] as String?,
       birthday: json['birthday'] != null
           ? AppConstants.toVietnamTime(
@@ -99,6 +101,7 @@ class StudentModel extends BaseUserModel {
       id: id,
       fullName: fullName,
       roleId: roleId,
+      email: email,
       gender: gender,
       birthday: birthday,
       phone: phone,
@@ -121,6 +124,7 @@ class StudentModel extends BaseUserModel {
       id: entity.id,
       fullName: entity.fullName,
       roleId: entity.roleId,
+      email: entity.email,
       gender: entity.gender,
       birthday: entity.birthday,
       phone: entity.phone,
