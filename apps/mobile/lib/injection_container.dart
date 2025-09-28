@@ -47,7 +47,7 @@ import 'package:flutter_ios_android_platforms/domain/usecases/student/get_studen
 import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/create_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/delete_teaching_assignment_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_and_school_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
@@ -266,7 +266,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateTeachingAssignmentUseCase(sl()));
   sl.registerLazySingleton(() => DeleteTeachingAssignmentUseCase(sl()));
   sl.registerLazySingleton(
-    () => GetTeachingAssignmentByTeacherAndSchoolIdUseCase(sl()),
+    () => GetTeachingAssignmentByTeacherClassAndSchoolUseCase(sl()),
   );
   sl.registerLazySingleton(() => UpdateTeachingAssignmentUseCase(sl()));
 
@@ -352,7 +352,7 @@ Future<void> init() async {
       getAllPersonnelUseCase: sl(),
       createTeachingAssignmentUseCase: sl(),
       deleteTeachingAssignmentUseCase: sl(),
-      getTeachingAssignmentByTeacherAndSchoolIdUseCase: sl(),
+      getTeachingAssignmentByTeacherClassAndSchoolUseCase: sl(),
       updateTeachingAssignmentUseCase: sl(),
       updateVerifiedUseCase: sl(),
       dismissPersonnelUseCase: sl(),

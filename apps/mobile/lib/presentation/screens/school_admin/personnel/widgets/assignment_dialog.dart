@@ -15,13 +15,8 @@ import '../bloc/personnel_management_state.dart';
 
 class AssignmentDialog extends StatefulWidget {
   final PersonnelEntity personnel;
-  final TeachingAssignmentEntity? teachingAssignmentEntity;
 
-  const AssignmentDialog({
-    super.key,
-    required this.personnel,
-    this.teachingAssignmentEntity,
-  });
+  const AssignmentDialog({super.key, required this.personnel});
 
   @override
   State<AssignmentDialog> createState() => _AssignmentDialogState();
@@ -33,13 +28,15 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
   // SchoolAdmin
   SchoolAdminPositionEnum? _selectedPosition;
 
-  // Teacher assignment
+  // Teacher assignment - Step 1: Select class
   String? _selectedClassId;
+  String? _selectedClassName;
+
+  // Teacher assignment - Step 2: Assignment details (shown after class selection)
   SubjectEnum? _selectedTeachingSubject;
   bool _isMainTeacher = false;
-
-  // Existing assignment (for teacher)
-  TeachingAssignmentEntity? _existingAssignment;
+  TeachingAssignmentEntity? _currentAssignment;
+  bool _showAssignmentForm = false;
 
   // Focus nodes
   final _positionFocusNode = FocusNode();
@@ -49,26 +46,13 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
   // Để track trạng thái submit
   bool _isSubmitting = false;
   bool _showSuccessMessage = false;
+  bool _isLoadingAssignment = false;
 
   @override
   void initState() {
     super.initState();
 
     _selectedPosition = widget.personnel.position;
-
-    // Nếu là teacher, load assignment từ bloc/usecase
-    if (widget.personnel.isTeacher) {
-      final bloc = context.read<PersonnelManagementBloc>();
-      final authState = context.read<AuthenticationBloc>().state;
-      if (authState is AuthenticationAuthenticated) {
-        bloc.add(
-          GetTeachingAssignmentByTeacherAndSchoolEvent(
-            teacherId: widget.personnel.id!,
-            schoolId: authState.user.schoolId!,
-          ),
-        );
-      }
-    }
 
     _positionFocusNode.addListener(() => setState(() {}));
     _classFocusNode.addListener(() => setState(() {}));
@@ -83,8 +67,52 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_isSubmitting) return;
+  void _onClassSelected(String? classId) {
+    if (classId == null) {
+      setState(() {
+        _selectedClassId = null;
+        _selectedClassName = null;
+        _showAssignmentForm = false;
+        _currentAssignment = null;
+        _selectedTeachingSubject = null;
+        _isMainTeacher = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _selectedClassId = classId;
+      _isLoadingAssignment = true;
+      _showAssignmentForm = false;
+      _currentAssignment = null;
+    });
+
+    // Tìm tên lớp để hiển thị
+    final classState = context.read<ClassBloc>().state;
+    if (classState is ClassLoaded) {
+      final selectedClass = classState.classes.firstWhere(
+        (c) => c.id == classId,
+        orElse: () => classState.classes.first,
+      );
+      _selectedClassName = selectedClass.name;
+    }
+
+    // Gọi API tìm phân công của giáo viên với lớp này
+    final bloc = context.read<PersonnelManagementBloc>();
+    final authState = context.read<AuthenticationBloc>().state;
+    if (authState is AuthenticationAuthenticated) {
+      bloc.add(
+        GetTeachingAssignmentByTeacherClassAndSchoolEvent(
+          teacherId: widget.personnel.id!,
+          classId: classId,
+          schoolId: authState.user.schoolId!,
+        ),
+      );
+    }
+  }
+
+  void _submitAssignmentForm() {
+    if (_isSubmitting || _selectedClassId == null) return;
 
     final bloc = context.read<PersonnelManagementBloc>();
     final authState = context.read<AuthenticationBloc>().state;
@@ -96,49 +124,57 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
         _showSuccessMessage = false;
       });
 
-      if (widget.personnel.isSchoolAdmin && _selectedPosition != null) {
-        bloc.add(
-          UpdateSchoolAdminPositionEvent(
-            personnelId: widget.personnel.id!,
-            position: _selectedPosition!,
-          ),
+      if (_selectedTeachingSubject != null) {
+        final assignment = TeachingAssignmentEntity(
+          teacherId: widget.personnel.id!,
+          classId: _selectedClassId!,
+          schoolId: authState.user.schoolId!,
+          subject: _selectedTeachingSubject!,
+          isMain: _isMainTeacher,
+          id: _currentAssignment?.id,
         );
-      }
 
-      if (widget.personnel.isTeacher) {
-        // Teacher: create/update assignment
-        if (_selectedClassId != null && _selectedTeachingSubject != null) {
-          final assignment = TeachingAssignmentEntity(
-            teacherId: widget.personnel.id!,
-            classId: _selectedClassId!,
-            schoolId: authState.user.schoolId!,
-            subject: _selectedTeachingSubject!,
-            isMain: _isMainTeacher,
-            id: _existingAssignment?.id,
-          );
-
-          if (_existingAssignment != null) {
-            bloc.add(UpdateTeachingAssignmentEvent(assignment));
-          } else {
-            bloc.add(CreateTeachingAssignmentEvent(assignment));
-          }
+        if (_currentAssignment != null) {
+          bloc.add(UpdateTeachingAssignmentEvent(assignment));
+        } else {
+          bloc.add(CreateTeachingAssignmentEvent(assignment));
         }
       }
     }
   }
 
-  // void _deleteAssignment() {
-  //   if (_existingAssignment != null && !_isSubmitting) {
-  //     setState(() {
-  //       _isSubmitting = true;
-  //       _showSuccessMessage = false;
-  //     });
+  void _deleteAssignment() {
+    if (_currentAssignment != null && !_isSubmitting) {
+      setState(() {
+        _isSubmitting = true;
+        _showSuccessMessage = false;
+      });
 
-  //     context.read<PersonnelManagementBloc>().add(
-  //       DeleteTeachingAssignmentEvent(_existingAssignment!.id!),
-  //     );
-  //   }
-  // }
+      context.read<PersonnelManagementBloc>().add(
+        DeleteTeachingAssignmentEvent(_currentAssignment!.id!),
+      );
+    }
+  }
+
+  void _submitSchoolAdminPosition() {
+    if (_isSubmitting) return;
+
+    final bloc = context.read<PersonnelManagementBloc>();
+
+    if (_formKey.currentState!.validate() && _selectedPosition != null) {
+      setState(() {
+        _isSubmitting = true;
+        _showSuccessMessage = false;
+      });
+
+      bloc.add(
+        UpdateSchoolAdminPositionEvent(
+          personnelId: widget.personnel.id!,
+          position: _selectedPosition!,
+        ),
+      );
+    }
+  }
 
   void _closeDialog() {
     if (_isSubmitting) return;
@@ -171,6 +207,24 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
     });
   }
 
+  void _handleAssignmentLoaded(TeachingAssignmentEntity? assignment) {
+    setState(() {
+      _isLoadingAssignment = false;
+      _currentAssignment = assignment;
+      _showAssignmentForm = true;
+
+      if (assignment != null) {
+        // Load existing assignment data
+        _selectedTeachingSubject = assignment.subject;
+        _isMainTeacher = assignment.isMain;
+      } else {
+        // Reset for new assignment
+        _selectedTeachingSubject = null;
+        _isMainTeacher = false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PersonnelManagementBloc, PersonnelManagementState>(
@@ -178,22 +232,21 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
         if (state is PersonnelManagementLoaded) {
           if (state.assignmentStatus == PersonnelAssignmentStatus.success) {
             if (state.currentTeachingAssignment != null &&
-                _existingAssignment == null &&
-                !_isSubmitting) {
-              // Đây là lúc load GET assignment
-              setState(() {
-                _existingAssignment = state.currentTeachingAssignment;
-                _selectedClassId = _existingAssignment!.classId;
-                _selectedTeachingSubject = _existingAssignment!.subject;
-                _isMainTeacher = _existingAssignment!.isMain;
-              });
+                _isLoadingAssignment) {
+              // Load assignment thành công
+              _handleAssignmentLoaded(state.currentTeachingAssignment);
+            } else if (state.currentTeachingAssignment == null &&
+                _isLoadingAssignment) {
+              // Không tìm thấy assignment - cho phép tạo mới
+              _handleAssignmentLoaded(null);
             } else if (_isSubmitting) {
-              // Đây là lúc CREATE/UPDATE/DELETE thành công
+              // CREATE/UPDATE/DELETE thành công
               String message = 'Cập nhật thành công';
-              if (widget.personnel.isSchoolAdmin) {
+              if (widget.personnel.isSchoolAdmin &&
+                  !widget.personnel.isTeacher) {
                 message = 'Cập nhật chức vụ thành công';
               } else if (widget.personnel.isTeacher) {
-                if (_existingAssignment != null) {
+                if (_currentAssignment != null) {
                   message = 'Cập nhật phân công thành công';
                 } else {
                   message = 'Tạo phân công thành công';
@@ -203,6 +256,9 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
             }
           } else if (state.assignmentStatus ==
               PersonnelAssignmentStatus.error) {
+            setState(() {
+              _isLoadingAssignment = false;
+            });
             _handleError();
           }
         }
@@ -236,7 +292,8 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
+
                   // Form content
                   Opacity(
                     opacity: _showSuccessMessage ? 0.6 : 1.0,
@@ -279,6 +336,19 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                               ),
                             ),
                             const SizedBox(height: 20),
+
+                            // Submit button for school admin position (only if not teacher)
+                            if (!widget.personnel.isTeacher) ...[
+                              AppButton(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : _submitSchoolAdminPosition,
+                                text: 'Cập nhật chức vụ',
+                                loading: _isSubmitting,
+                                type: AppButtonType.primary,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
                           ],
 
                           // Teacher Assignment
@@ -293,7 +363,7 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                             ),
                             const SizedBox(height: 12),
 
-                            // Class dropdown
+                            // Step 1: Class selection
                             BlocBuilder<ClassBloc, ClassState>(
                               builder: (context, classState) {
                                 if (classState is ClassLoaded) {
@@ -301,7 +371,7 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                                     focusNode: _classFocusNode,
                                     child: PrimaryDropdown<String>(
                                       value: _selectedClassId,
-                                      hintText: 'Chọn lớp học',
+                                      hintText: 'Chọn lớp học để phân công',
                                       prefixIcon: Icons.class_outlined,
                                       isFocused: _classFocusNode.hasFocus,
                                       items: classState.classes
@@ -314,9 +384,7 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                                           .toList(),
                                       onChanged: _isSubmitting
                                           ? null
-                                          : (val) => setState(
-                                              () => _selectedClassId = val,
-                                            ),
+                                          : _onClassSelected,
                                     ),
                                   );
                                 }
@@ -325,45 +393,155 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Subject dropdown
-                            Focus(
-                              focusNode: _subjectFocusNode,
-                              child: PrimaryDropdown<SubjectEnum>(
-                                value: _selectedTeachingSubject,
-                                hintText: 'Môn học',
-                                prefixIcon: Icons.subject_outlined,
-                                isFocused: _subjectFocusNode.hasFocus,
-                                items: widget.personnel.subjects!
-                                    .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s,
-                                        child: Text(s.displayName),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: _isSubmitting
-                                    ? null
-                                    : (val) => setState(
-                                        () => _selectedTeachingSubject = val,
-                                      ),
+                            // Loading indicator when fetching assignment
+                            if (_isLoadingAssignment) ...[
+                              const Center(
+                                child: Column(
+                                  children: [
+                                    CircularProgressIndicator(),
+                                    SizedBox(height: 8),
+                                    Text('Đang tải thông tin phân công...'),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 16),
+                            ],
 
-                            // Main teacher checkbox
-                            CheckboxListTile(
-                              title: const Text('Giáo viên chủ nhiệm'),
-                              value: _isMainTeacher,
-                              onChanged: _isSubmitting
-                                  ? null
-                                  : (val) => setState(
-                                      () => _isMainTeacher = val ?? false,
+                            // Step 2: Assignment form (shown after class selection)
+                            if (_showAssignmentForm) ...[
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.assignment,
+                                          color: _currentAssignment != null
+                                              ? Colors.orange
+                                              : Colors.green,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            _currentAssignment != null
+                                                ? 'Cập nhật phân công lớp $_selectedClassName'
+                                                : 'Tạo phân công mới cho lớp $_selectedClassName',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: _currentAssignment != null
+                                                  ? Colors.orange
+                                                  : Colors.green,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                              controlAffinity: ListTileControlAffinity.leading,
-                            ),
-                            const SizedBox(height: 20),
+                                    const SizedBox(height: 16),
 
-                            // Delete assignment button
+                                    // Subject dropdown
+                                    Focus(
+                                      focusNode: _subjectFocusNode,
+                                      child: PrimaryDropdown<SubjectEnum>(
+                                        value: _selectedTeachingSubject,
+                                        hintText: 'Chọn môn học',
+                                        prefixIcon: Icons.subject_outlined,
+                                        isFocused: _subjectFocusNode.hasFocus,
+                                        items: widget.personnel.subjects!
+                                            .map(
+                                              (s) => DropdownMenuItem(
+                                                value: s,
+                                                child: Text(s.displayName),
+                                              ),
+                                            )
+                                            .toList(),
+                                        onChanged: _isSubmitting
+                                            ? null
+                                            : (val) => setState(
+                                                () => _selectedTeachingSubject =
+                                                    val,
+                                              ),
+                                        validator: (value) {
+                                          if (value == null) {
+                                            return 'Vui lòng chọn môn học';
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Main teacher checkbox
+                                    CheckboxListTile(
+                                      title: const Text('Giáo viên chủ nhiệm'),
+                                      value: _isMainTeacher,
+                                      onChanged: _isSubmitting
+                                          ? null
+                                          : (val) => setState(
+                                              () =>
+                                                  _isMainTeacher = val ?? false,
+                                            ),
+                                      controlAffinity:
+                                          ListTileControlAffinity.leading,
+                                    ),
+                                    const SizedBox(height: 16),
+
+                                    // Action buttons for assignment
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: AppButton(
+                                            onPressed: _isSubmitting
+                                                ? null
+                                                : _submitAssignmentForm,
+                                            text: _currentAssignment != null
+                                                ? 'Cập nhật'
+                                                : 'Tạo phân công',
+                                            loading: _isSubmitting,
+                                            type: AppButtonType.primary,
+                                          ),
+                                        ),
+                                        if (_currentAssignment != null) ...[
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: AppButton(
+                                              onPressed: _isSubmitting
+                                                  ? null
+                                                  : _deleteAssignment,
+                                              text: 'Xóa phân công',
+                                              type: AppButtonType.danger,
+                                              loading: _isSubmitting,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+
+                          // Submit button for school admin + teacher combination
+                          if (widget.personnel.isSchoolAdmin &&
+                              widget.personnel.isTeacher) ...[
+                            const SizedBox(height: 20),
+                            AppButton(
+                              onPressed: _isSubmitting
+                                  ? null
+                                  : _submitSchoolAdminPosition,
+                              text: 'Cập nhật chức vụ quản trị',
+                              loading:
+                                  _isSubmitting && _selectedClassId == null,
+                              type: AppButtonType.secondary,
+                            ),
                           ],
                         ],
                       ),
@@ -372,48 +550,21 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
 
                   const SizedBox(height: 24),
 
-                  // Action buttons
+                  // Close button
                   if (!_showSuccessMessage)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppButton(
-                            onPressed: _isSubmitting ? null : _closeDialog,
-                            text: 'Hủy',
-                            type: AppButtonType.cancel,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: AppButton(
-                            onPressed: _isSubmitting ? null : _submitForm,
-                            text: 'Cập nhật',
-                            loading: _isSubmitting,
-                            type: AppButtonType.primary,
-                          ),
-                        ),
-                        // const SizedBox(width: 16),
-                        // if (_existingAssignment != null)
-                        //   Expanded(
-                        //     child: AppButton(
-                        //       onPressed: _isSubmitting
-                        //           ? null
-                        //           : _deleteAssignment,
-                        //       text: 'Xóa phân công',
-                        //       type: AppButtonType.danger,
-                        //       loading: _isSubmitting,
-                        //     ),
-                        //   ),
-                      ],
+                    AppButton(
+                      onPressed: _isSubmitting ? null : _closeDialog,
+                      text: 'Đóng',
+                      type: AppButtonType.cancel,
                     ),
 
-                  // Loading indicator when showing success
+                  // Success message indicator
                   if (_showSuccessMessage) ...[
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 16,
                           height: 16,
                           child: CircularProgressIndicator(

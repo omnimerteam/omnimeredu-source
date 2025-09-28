@@ -60,14 +60,14 @@ router.get(
 );
 
 router.get(
-  "/teacherId-schoolId/:teacherId/:schoolId",
+  "/teacherId-schoolId-classId/:teacherId/:schoolId/:classId",
   validateData({
     headers: authHeaderSchema,
     params: teacherAndSchoolParamsSchema,
   }),
   verifyFirebaseToken,
   async (req: Request, res: Response, next: NextFunction) =>
-    teachingAssignmentController.getTeachingAssignmentByTeacherAndSchoolId(
+    teachingAssignmentController.getTeachingAssignmentByTeacherClassAndSchool(
       req,
       res,
       next
@@ -96,6 +96,21 @@ router.delete(
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.deleteTeachingAssignment(req, res, next)
+);
+
+router.get(
+  "/teacherId-schoolId/:teacherId/:schoolId",
+  validateData({
+    headers: authHeaderSchema,
+    params: teacherAndSchoolParamsSchema,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    teachingAssignmentController.getTeachingAssignmentByTeacherClassAndSchool(
+      req,
+      res,
+      next
+    )
 );
 
 export default router;

@@ -105,7 +105,7 @@ class TeachingAssignmentController {
     }
   }
 
-  async getTeachingAssignmentByTeacherAndSchoolId(
+  async getTeachingAssignmentByTeacherClassAndSchool(
     req: Request,
     res: Response,
     next: NextFunction
@@ -118,15 +118,15 @@ class TeachingAssignmentController {
     }
     const teacherId = req.params.teacherId;
     const schoolId = req.params.schoolId;
-    console.log("TeacherID", teacherId);
-    console.log("SchoolId", schoolId);
+    const classId = req.params.classId;
     try {
       const assignment =
-        await this.teachingAssignmentService.getTeachingAssignmentByTeacherIdAndSchoolId(
+        await this.teachingAssignmentService.getTeachingAssignmentByTeacherClassAndSchool(
           actorId,
           userRole,
           teacherId,
-          schoolId
+          schoolId,
+          classId
         );
 
       if (!assignment) {
@@ -263,6 +263,52 @@ class TeachingAssignmentController {
       console.log(
         chalk.red(
           "[Teaching Assignment] Error deletting teaching assignments: ",
+          error
+        )
+      );
+      return next(error);
+    }
+  }
+
+  async getTeachingAssignmentByTeacherAndSchoolId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const teacherId = req.params.teacherId;
+    const schoolId = req.params.schoolId;
+    const classId = req.params.classId;
+    try {
+      const assignment =
+        await this.teachingAssignmentService.getTeachingAssignmentByTeacherClassAndSchool(
+          actorId,
+          userRole,
+          teacherId,
+          schoolId,
+          classId
+        );
+
+      if (!assignment) {
+        sendEmpty(res, "Không tìm thấy dữ liệu");
+        return;
+      }
+
+      sendSuccess(
+        res,
+        assignment,
+        "Lấy phân công giảng dạy theo ID thành công"
+      );
+      return;
+    } catch (error) {
+      console.log(
+        chalk.red(
+          "[Teaching Assignment] Error getting teaching assignments by ID: ",
           error
         )
       );

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/personnel_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/personnel/dismiss_personnel_usecase.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_ios_android_platforms/domain/usecases/personnel/update_v
 import 'package:flutter_ios_android_platforms/domain/usecases/school_admin/update_position_school_admin_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/create_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/delete_teaching_assignment_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_and_school_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
 
 import 'personnel_management_event.dart';
@@ -20,15 +21,15 @@ class PersonnelManagementBloc
   final CreateTeachingAssignmentUseCase createTeachingAssignmentUseCase;
   final UpdateTeachingAssignmentUseCase updateTeachingAssignmentUseCase;
   final DeleteTeachingAssignmentUseCase deleteTeachingAssignmentUseCase;
-  final GetTeachingAssignmentByTeacherAndSchoolIdUseCase
-  getTeachingAssignmentByTeacherAndSchoolIdUseCase;
+  final GetTeachingAssignmentByTeacherClassAndSchoolUseCase
+  getTeachingAssignmentByTeacherClassAndSchoolUseCase;
   final UpdateVerifiedUseCase updateVerifiedUseCase;
   final DismissPersonnelUseCase dismissPersonnelUseCase;
   final UpdatePositionSchoolAdminUseCase updatePositionSchoolAdminUseCase;
 
   PersonnelManagementBloc({
     required this.getAllPersonnelUseCase,
-    required this.getTeachingAssignmentByTeacherAndSchoolIdUseCase,
+    required this.getTeachingAssignmentByTeacherClassAndSchoolUseCase,
     required this.createTeachingAssignmentUseCase,
     required this.deleteTeachingAssignmentUseCase,
     required this.updateTeachingAssignmentUseCase,
@@ -57,8 +58,8 @@ class PersonnelManagementBloc
     on<CreateTeachingAssignmentEvent>(_onCreateTeachingAssignment);
     on<UpdateTeachingAssignmentEvent>(_onUpdateTeachingAssignment);
     on<DeleteTeachingAssignmentEvent>(_onDeleteTeachingAssignment);
-    on<GetTeachingAssignmentByTeacherAndSchoolEvent>(
-      _onGetTeachingAssignmentByTeacherAndSchool,
+    on<GetTeachingAssignmentByTeacherClassAndSchoolEvent>(
+      _onGetTeachingAssignmentByTeacherClassAndSchool,
     );
 
     // Suspend / Reinstate personnel
@@ -99,6 +100,7 @@ class PersonnelManagementBloc
 
       try {
         final res = await call();
+        logger.i("Res: ${res.data}");
         if (res.success) {
           onSuccess(current, res);
         } else {
@@ -278,12 +280,7 @@ class PersonnelManagementBloc
   ) async {
     if (state is PersonnelManagementLoaded) {
       final current = state as PersonnelManagementLoaded;
-      emit(
-        current.copyWith(
-          isLoadingDetails: true,
-          clearDetailsErrorMessage: true,
-        ),
-      );
+      emit(current.copyWith(isLoadingDetails: true));
 
       try {
         final personnelDetails = current.personnel.firstWhere(
@@ -317,7 +314,6 @@ class PersonnelManagementBloc
         current.copyWith(
           selectedPersonnelDetails: event.personnel,
           isDetailsVisible: true,
-          clearDetailsErrorMessage: true,
         ),
       );
     }
@@ -329,13 +325,7 @@ class PersonnelManagementBloc
   ) {
     if (state is PersonnelManagementLoaded) {
       final current = state as PersonnelManagementLoaded;
-      emit(
-        current.copyWith(
-          isDetailsVisible: false,
-          clearSelectedPersonnelDetails: true,
-          clearDetailsErrorMessage: true,
-        ),
-      );
+      emit(current.copyWith(isDetailsVisible: false));
     }
   }
 
@@ -351,7 +341,6 @@ class PersonnelManagementBloc
           selectedPersonnelForAssignment: event.personnel,
           isAssignmentDialogVisible: true,
           assignmentStatus: PersonnelAssignmentStatus.initial,
-          clearAssignmentErrorMessage: true,
         ),
       );
     }
@@ -366,9 +355,7 @@ class PersonnelManagementBloc
       emit(
         current.copyWith(
           isAssignmentDialogVisible: false,
-          clearSelectedPersonnelForAssignment: true,
           assignmentStatus: PersonnelAssignmentStatus.initial,
-          clearAssignmentErrorMessage: true,
         ),
       );
     }
@@ -389,7 +376,7 @@ class PersonnelManagementBloc
             lastActionSuccess: true,
             assignmentErrorMessage: null,
             isAssignmentDialogVisible: false,
-            clearSelectedPersonnelForAssignment: true,
+            currentTeachingAssignment: null,
           ),
         );
       },
@@ -409,6 +396,7 @@ class PersonnelManagementBloc
             assignmentStatus: PersonnelAssignmentStatus.success,
             lastActionSuccess: true,
             assignmentErrorMessage: null,
+            currentTeachingAssignment: null,
           ),
         );
       },
@@ -434,14 +422,15 @@ class PersonnelManagementBloc
     );
   }
 
-  Future<void> _onGetTeachingAssignmentByTeacherAndSchool(
-    GetTeachingAssignmentByTeacherAndSchoolEvent event,
+  Future<void> _onGetTeachingAssignmentByTeacherClassAndSchool(
+    GetTeachingAssignmentByTeacherClassAndSchoolEvent event,
     Emitter<PersonnelManagementState> emit,
   ) async {
     await _handleUseCaseCall(
-      call: () => getTeachingAssignmentByTeacherAndSchoolIdUseCase.call(
+      call: () => getTeachingAssignmentByTeacherClassAndSchoolUseCase.call(
         event.teacherId,
         event.schoolId,
+        event.classId,
       ),
       emit: emit,
       onSuccess: (current, res) {

@@ -70,10 +70,12 @@ class Endpoints {
   static const String teachingAssignment = "/v1/teaching-assignment";
   static String teachingAssignmentId(String id) =>
       "/v1/teaching-assignment/$id";
-  static String teachingAssignmentByTeacherIdAndSchoolId(
+  static String getTeachingAssignmentByTeacherClassAndSchool(
     String teacherId,
     String schoolId,
-  ) => "/v1/teaching-assignment/teacherId-schoolId/${teacherId}/${schoolId}";
+    String classId,
+  ) =>
+      "/v1/teaching-assignment/teacherId-schoolId-classId/${teacherId}/${schoolId}/${classId}";
 
   // ================== SCHOOL ADMIN ==================
   static String updatePositionSchoolAdmin(String id) =>

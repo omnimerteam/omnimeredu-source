@@ -13,19 +13,21 @@ class TeachingAssignmentRepositoryImpl implements TeachingAssignmentRepository {
   /// 🔹 Lấy danh sách teaching assignment theo teacherId + schoolId
   @override
   Future<ApiResponse<TeachingAssignmentEntity?>>
-  getTeachingAssignmentByTeacherAndSchoolId(
+  getTeachingAssignmentByTeacherClassAndSchool(
     String teacherId,
     String schoolId,
+    String classId,
   ) async {
     try {
-      final res = await remote.getTeachingAssignmentByTeacherAndSchoolId(
+      final res = await remote.getTeachingAssignmentByTeacherClassAndSchool(
         teacherId,
         schoolId,
+        classId,
       );
       return ApiResponse<TeachingAssignmentEntity>(
         success: res.success,
         message: res.message,
-        data: res.data!.toEntity(),
+        data: res.data?.toEntity(),
       );
     } catch (e) {
       throw ServerFailure(e.toString());

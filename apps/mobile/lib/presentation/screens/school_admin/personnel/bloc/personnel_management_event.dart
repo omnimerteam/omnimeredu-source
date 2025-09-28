@@ -74,12 +74,16 @@ class DeleteTeachingAssignmentEvent extends PersonnelManagementEvent {
   DeleteTeachingAssignmentEvent(this.assignmentId);
 }
 
-class GetTeachingAssignmentByTeacherAndSchoolEvent
+/// Event mới - Tìm kiếm phân công theo teacher, class và school
+class GetTeachingAssignmentByTeacherClassAndSchoolEvent
     extends PersonnelManagementEvent {
   final String teacherId;
+  final String classId;
   final String schoolId;
-  GetTeachingAssignmentByTeacherAndSchoolEvent({
+
+  GetTeachingAssignmentByTeacherClassAndSchoolEvent({
     required this.teacherId,
+    required this.classId,
     required this.schoolId,
   });
 }

@@ -120,7 +120,7 @@ class ClassController {
       sendUnauthorized(res);
       return;
     }
-    const id = req.query.id;
+    const id = req.params.id;
 
     if (!id) {
       sendBadRequest(res, "Bạn chưa chọn được lớp học");
@@ -131,7 +131,7 @@ class ClassController {
       const result = await this.classService.getClassDetailViewById(
         actorId,
         userRole,
-        id.toString()
+        id
       );
 
       sendSuccess(res, result, "Lấy danh sách lớp thành công");

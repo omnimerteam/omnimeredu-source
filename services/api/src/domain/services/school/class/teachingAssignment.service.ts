@@ -89,16 +89,18 @@ class TeachingAssignmentService {
     }
   }
 
-  async getTeachingAssignmentByTeacherIdAndSchoolId(
+  async getTeachingAssignmentByTeacherClassAndSchool(
     actorId: string,
     userRole: string,
     teacherId: string,
-    schoolId: string
+    schoolId: string,
+    classId: string
   ) {
     try {
       const assignment = await this.teachingAssignmentRepository.findOne({
         teacherId,
         schoolId,
+        classId,
       });
 
       await this.logger.log({

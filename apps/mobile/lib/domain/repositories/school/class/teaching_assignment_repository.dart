@@ -3,7 +3,11 @@ import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignmen
 
 abstract class TeachingAssignmentRepository {
   Future<ApiResponse<TeachingAssignmentEntity?>>
-  getTeachingAssignmentByTeacherAndSchoolId(String teacherId, String schoolId);
+  getTeachingAssignmentByTeacherClassAndSchool(
+    String teacherId,
+    String schoolId,
+    String classId,
+  );
 
   Future<ApiResponse<TeachingAssignmentEntity>> createTeachingAssignment(
     TeachingAssignmentEntity data,

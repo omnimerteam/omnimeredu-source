@@ -22,7 +22,7 @@ class PersonnelManagementLoading extends PersonnelManagementState {
 
 /// 🔹 State loading khi loadMore
 class PersonnelManagementLoadingMore extends PersonnelManagementState {
-  final List<PersonnelEntity> personnel; // List<PersonnelEntity>
+  final List<PersonnelEntity> personnel;
   final DefaultQueryEntity currentQuery;
 
   const PersonnelManagementLoadingMore({
@@ -31,22 +31,25 @@ class PersonnelManagementLoadingMore extends PersonnelManagementState {
   });
 }
 
+/// Sentinel marker để phân biệt "không truyền gì" với "truyền null"
+const _sentinel = Object();
+
 /// 🔹 State đã load đầy đủ danh sách & các thông tin chi tiết
 class PersonnelManagementLoaded extends PersonnelManagementState {
-  final List<PersonnelEntity> personnel; // List<PersonnelEntity>
+  final List<PersonnelEntity> personnel;
   final bool hasReachedMax;
   final DefaultQueryEntity currentQuery;
   final String? message;
   final bool lastActionSuccess;
 
   // 🔸 Chi tiết nhân sự
-  final dynamic selectedPersonnelDetails; // PersonnelEntity?
+  final PersonnelEntity? selectedPersonnelDetails;
   final bool isDetailsVisible;
   final bool isLoadingDetails;
   final String? detailsErrorMessage;
 
   // 🔸 Phân công
-  final dynamic selectedPersonnelForAssignment; // PersonnelEntity?
+  final PersonnelEntity? selectedPersonnelForAssignment;
   final bool isAssignmentDialogVisible;
   final PersonnelAssignmentStatus assignmentStatus;
   final String? assignmentErrorMessage;
@@ -75,62 +78,53 @@ class PersonnelManagementLoaded extends PersonnelManagementState {
     List<PersonnelEntity>? personnel,
     bool? hasReachedMax,
     DefaultQueryEntity? currentQuery,
-    String? message,
+    Object? message = _sentinel,
     bool? lastActionSuccess,
 
     // details
-    dynamic selectedPersonnelDetails,
+    Object? selectedPersonnelDetails = _sentinel,
     bool? isDetailsVisible,
     bool? isLoadingDetails,
-    String? detailsErrorMessage,
+    Object? detailsErrorMessage = _sentinel,
 
     // assignment
-    dynamic selectedPersonnelForAssignment,
+    Object? selectedPersonnelForAssignment = _sentinel,
     bool? isAssignmentDialogVisible,
     PersonnelAssignmentStatus? assignmentStatus,
-    String? assignmentErrorMessage,
-    TeachingAssignmentEntity? currentTeachingAssignment,
-
-    // clear flags
-    bool clearDetailsErrorMessage = false,
-    bool clearSelectedPersonnelDetails = false,
-    bool clearSelectedPersonnelForAssignment = false,
-    bool clearAssignmentErrorMessage = false,
-    bool clearCurrentTeachingAssignment = false,
+    Object? assignmentErrorMessage = _sentinel,
+    Object? currentTeachingAssignment = _sentinel,
   }) {
     return PersonnelManagementLoaded(
       personnel: personnel ?? this.personnel,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       currentQuery: currentQuery ?? this.currentQuery,
-      message: message ?? this.message,
+      message: message == _sentinel ? this.message : message as String?,
       lastActionSuccess: lastActionSuccess ?? this.lastActionSuccess,
 
       // details
-      selectedPersonnelDetails: clearSelectedPersonnelDetails
-          ? null
-          : selectedPersonnelDetails ?? this.selectedPersonnelDetails,
+      selectedPersonnelDetails: selectedPersonnelDetails == _sentinel
+          ? this.selectedPersonnelDetails
+          : selectedPersonnelDetails as PersonnelEntity?,
       isDetailsVisible: isDetailsVisible ?? this.isDetailsVisible,
       isLoadingDetails: isLoadingDetails ?? this.isLoadingDetails,
-      detailsErrorMessage: clearDetailsErrorMessage
-          ? null
-          : detailsErrorMessage ?? this.detailsErrorMessage,
+      detailsErrorMessage: detailsErrorMessage == _sentinel
+          ? this.detailsErrorMessage
+          : detailsErrorMessage as String?,
 
       // assignment
-      selectedPersonnelForAssignment: clearSelectedPersonnelForAssignment
-          ? null
-          : selectedPersonnelForAssignment ??
-                this.selectedPersonnelForAssignment,
+      selectedPersonnelForAssignment:
+          selectedPersonnelForAssignment == _sentinel
+          ? this.selectedPersonnelForAssignment
+          : selectedPersonnelForAssignment as PersonnelEntity?,
       isAssignmentDialogVisible:
           isAssignmentDialogVisible ?? this.isAssignmentDialogVisible,
       assignmentStatus: assignmentStatus ?? this.assignmentStatus,
-      assignmentErrorMessage: clearAssignmentErrorMessage
-          ? null
-          : assignmentErrorMessage ?? this.assignmentErrorMessage,
-
-      // current assignment
-      currentTeachingAssignment: clearCurrentTeachingAssignment
-          ? null
-          : currentTeachingAssignment ?? this.currentTeachingAssignment,
+      assignmentErrorMessage: assignmentErrorMessage == _sentinel
+          ? this.assignmentErrorMessage
+          : assignmentErrorMessage as String?,
+      currentTeachingAssignment: currentTeachingAssignment == _sentinel
+          ? this.currentTeachingAssignment
+          : currentTeachingAssignment as TeachingAssignmentEntity?,
     );
   }
 }

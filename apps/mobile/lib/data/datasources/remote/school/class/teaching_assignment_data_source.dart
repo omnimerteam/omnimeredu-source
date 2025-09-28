@@ -16,14 +16,19 @@ class TeachingAssignmentRemoteDataSource {
 
   /// 🔹 Lấy danh sách teaching assignment theo teacherId + schoolId
   Future<ApiResponse<TeachingAssignmentModel?>>
-  getTeachingAssignmentByTeacherAndSchoolId(
+  getTeachingAssignmentByTeacherClassAndSchool(
     String teacherId,
     String schoolId,
+    String classId,
   ) async {
     final token = await _getIdToken();
 
     final res = await client.get<TeachingAssignmentModel?>(
-      Endpoints.teachingAssignmentByTeacherIdAndSchoolId(teacherId, schoolId),
+      Endpoints.getTeachingAssignmentByTeacherClassAndSchool(
+        teacherId,
+        schoolId,
+        classId,
+      ),
       headers: {if (token != null) "Authorization": "Bearer $token"},
       parser: (data) {
         if (data is Map<String, dynamic>) {
