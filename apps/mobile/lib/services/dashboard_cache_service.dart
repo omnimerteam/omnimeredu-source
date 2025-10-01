@@ -31,7 +31,7 @@ class DashboardCacheService {
       final decoded = jsonDecode(cacheString);
 
       switch (role) {
-        case 'schoolAdmin':
+        case 'SchoolAdmin':
           final entity = SchoolAdminDashboardDataEntity.fromJson(decoded);
           return entity.isExpired ? null : entity;
         // TODO: case 'teacher', 'student' ...

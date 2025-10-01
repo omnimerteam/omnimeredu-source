@@ -24,6 +24,7 @@ export { default as ClassDetailViewRepository } from "./school/class/classDetail
 
 export { default as AttendanceRepository } from "./school/attendance/attendance.repository";
 export { default as DetailsRecordRepository } from "./school/attendance/detailsRecord.repository";
+export { default as AttendanceRecordViewRepository } from "./school/attendance/attendanceRecord.repository";
 
 // ======================
 // Payment Module

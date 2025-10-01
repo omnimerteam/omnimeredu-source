@@ -1,22 +1,26 @@
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/attendance_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/teaching_assignment_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/personnel_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/school_admin_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/attendance/attendance_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/class/teaching_assignment_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/grade_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/personnel_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/school_admin_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/student_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/attendance/attendance_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/teaching_assignment_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/personnel_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/school_admin_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_roles_personnel_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
@@ -47,9 +51,11 @@ import 'package:flutter_ios_android_platforms/domain/usecases/student/get_studen
 import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/create_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/delete_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_class_teacher_assignments_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
@@ -174,6 +180,9 @@ Future<void> init() async {
   sl.registerLazySingleton<SchoolAdminRemoteDataSource>(
     () => SchoolAdminRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<AttendanceRemoteDataSource>(
+    () => AttendanceRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -200,6 +209,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<SchoolAdminRepository>(
     () => SchoolAdminRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<AttendanceRepository>(
+    () => AttendanceRepositoryImpl(sl()),
   );
 
   // ======================
@@ -269,9 +281,13 @@ Future<void> init() async {
     () => GetTeachingAssignmentByTeacherClassAndSchoolUseCase(sl()),
   );
   sl.registerLazySingleton(() => UpdateTeachingAssignmentUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassTeacherAssignmentsUseCase(sl()));
 
   // School Admin
   sl.registerLazySingleton(() => UpdatePositionSchoolAdminUseCase(sl()));
+
+  // Attendance
+  sl.registerLazySingleton(() => InitializeClassAttendanceUseCase(sl()));
 
   // ======================
   // Blocs / Cubits
@@ -297,7 +313,12 @@ Future<void> init() async {
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
   sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
   sl.registerFactory(
-    () => DashboardCubit(schoolAdminRepo: sl(), cacheService: sl()),
+    () => DashboardCubit(
+      schoolAdminRepo: sl(),
+      getClassTeacherAssignmentsUseCase: sl(),
+      cacheService: sl(),
+      authBloc: sl(),
+    ),
   );
 
   sl.registerFactory(
@@ -362,5 +383,9 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => RoleBloc(getAllRolesUseCase: sl(), getRolesPersonnelUseCase: sl()),
+  );
+
+  sl.registerFactory(
+    () => TeacherClassesCubit(initializeClassAttendanceUseCase: sl()),
   );
 }

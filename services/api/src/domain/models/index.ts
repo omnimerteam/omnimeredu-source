@@ -76,3 +76,9 @@ export {
   default as ClassDetailView,
   IClassDetailView,
 } from "./viewModel/ClassDetail";
+
+export {
+  default as AttendanceRecordView,
+  IAttendanceRecordView,
+  IStudentAttendance,
+} from "./viewModel/AttendanceRecord";

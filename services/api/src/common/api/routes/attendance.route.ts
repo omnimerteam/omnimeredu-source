@@ -5,6 +5,8 @@ import {
   SchoolAdmin,
   Class,
   Teacher,
+  DetailsRecord,
+  AttendanceRecordView,
 } from "../../../domain/models";
 
 import {
@@ -13,6 +15,7 @@ import {
   ClassRepository,
   TeacherRepository,
   ActivityLogRepository,
+  AttendanceRecordViewRepository,
 } from "../../../domain/repositories";
 
 import { AttendanceService } from "../../../domain/services";
@@ -24,17 +27,32 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import {
+  createAttendanceBodySchema,
+  updateAttendanceBodySchema,
+} from "../../validators/app/attendance/attendance.validator";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import {
+  getClassAttendanceRecordView,
+  getSchoolAttendanceStatsSchema,
+} from "../../validators/common/query/query.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
-const schoolAdminRepository = new SchoolAdminRepository(SchoolAdmin);
 const classRepository = new ClassRepository(Class);
-const teacherRepository = new TeacherRepository(Teacher);
-const attendanceRepository = new AttendanceRepository(Attendance);
+const attendanceRecordViewRepository = new AttendanceRecordViewRepository(
+  AttendanceRecordView
+);
+const attendanceRepository = new AttendanceRepository(
+  Attendance,
+  DetailsRecord,
+  Class
+);
 const attendanceService = new AttendanceService(
   attendanceRepository,
-  schoolAdminRepository,
   classRepository,
-  teacherRepository,
+  attendanceRecordViewRepository,
   logger
 );
 const attendanceController = new AttendanceController(attendanceService);
@@ -43,46 +61,71 @@ const router = Router();
 
 router.get(
   "/",
+  validateData({
+    headers: authHeaderSchema,
+    query: getSchoolAttendanceStatsSchema,
+  }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAllAttendances(req, res, next)
 );
 
 router.get(
   "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAttendanceById(req, res, next)
 );
 
 router.get(
-  "/school/:schoolId",
+  "/attendance-record-view/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    attendanceController.getAttendancesBySchoolId(req, res, next)
+    attendanceController.getAttendanceRecordViewById(req, res, next)
 );
 
 router.get(
-  "/class/:classId",
+  "/class-attendance-record/view",
+  validateData({
+    headers: authHeaderSchema,
+    query: getClassAttendanceRecordView,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
-    attendanceController.getAttendancesByClassId(req, res, next)
+    attendanceController.getClassAttendanceRecordView(req, res, next)
 );
 
+// Tạo mới một bản điểm danh
 router.post(
   "/",
+  validateData({ headers: authHeaderSchema, body: createAttendanceBodySchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.createAttendance(req, res, next)
 );
 
+// Khởi tạo điểm danh cho một lớp vào một ngày cụ thể và các bản ghi mặc định
+router.post(
+  "/initialize-class-attendance",
+  validateData({ headers: authHeaderSchema, body: createAttendanceBodySchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.initializeClassAttendance(req, res, next)
+);
+
 router.put(
   "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    body: updateAttendanceBodySchema,
+    params: objectIdParamSchema,
+  }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
@@ -91,6 +134,7 @@ router.put(
 
 router.delete(
   "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>

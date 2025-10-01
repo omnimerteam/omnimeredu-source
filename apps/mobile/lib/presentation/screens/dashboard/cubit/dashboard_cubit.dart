@@ -1,17 +1,27 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/dashboard_data_base_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/school_admin_dashboard_data_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/dashboard/school_admin_dashboard_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_class_teacher_assignments_usecase.dart';
 import 'package:flutter_ios_android_platforms/services/dashboard_cache_service.dart';
 import 'dashboard_state.dart';
 
 class DashboardCubit extends Cubit<DashboardState> {
   final SchoolAdminDashboardRepository schoolAdminRepo;
+  final GetClassTeacherAssignmentsUseCase getClassTeacherAssignmentsUseCase;
   final DashboardCacheService cacheService;
+  final AuthenticationBloc authBloc;
 
-  DashboardCubit({required this.schoolAdminRepo, required this.cacheService})
-    : super(DashboardInitial());
+  DashboardCubit({
+    required this.schoolAdminRepo,
+    required this.getClassTeacherAssignmentsUseCase,
+    required this.cacheService,
+    required this.authBloc,
+  }) : super(DashboardInitial());
 
   /// Load dashboard (sử dụng cache nếu còn hạn)
   Future<void> loadDashboard(String role) async {
@@ -65,11 +75,23 @@ class DashboardCubit extends Cubit<DashboardState> {
           cachedAt: DateTime.now(),
         );
 
-      // case "Teacher":
-      //   return TeacherDashboardDataEntity(...);
+      case "Teacher":
+        // 🔹 Lấy user từ AuthenticationBloc
+        final authState = authBloc.state;
+        if (authState is! AuthenticationAuthenticated) {
+          throw Exception("Không xác thực được teacher");
+        }
+        final user = authState.user;
 
-      // case "Student":
-      //   return StudentDashboardDataEntity(...);
+        final classes = await getClassTeacherAssignmentsUseCase.call(
+          user.id, // teacherId
+          user.schoolId!, // schoolId
+        );
+
+        return TeacherDashboardDataEntity(
+          classAssignment: classes.data,
+          cachedAt: DateTime.now(),
+        );
 
       default:
         throw Exception("Role không hỗ trợ: $role");

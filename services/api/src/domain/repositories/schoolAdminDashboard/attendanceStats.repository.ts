@@ -1,7 +1,7 @@
 // repositories/attendanceStats.repository.ts
 import { Model, Types } from "mongoose";
 import { IDetailsRecord } from "../../models";
-import { DateUtils } from "../../../common/utils/DateUtils";
+import DateUtils from "../../../common/utils/DateUtils";
 
 class AttendanceStatsRepository {
   private readonly detailsRecordModel: Model<IDetailsRecord>;
@@ -20,11 +20,9 @@ class AttendanceStatsRepository {
 
     // luôn mặc định là hôm nay (theo VN) nếu không truyền date
     const targetDate = date ?? new Date();
-    console.log("Ngày hôm nay UTC + 7:", targetDate);
 
     // VN = UTC+7, cần convert sang UTC để query trên Mongo Atlas
     const { start, end } = DateUtils.getUtcDayRange(targetDate);
-    console.log(`Ngày hôm nay UTC + 0: ${start} - ${end}`);
 
     match["attendance.date"] = { $gte: start, $lte: end };
 

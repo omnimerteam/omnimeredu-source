@@ -26,15 +26,15 @@ import {
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classRepository = new ClassRepository(Class);
-const teacherRepository = new TeacherRepository(Teacher);
+// const teacherRepository = new TeacherRepository(Teacher);
 const teachingAssignmentRepository = new TeachingAssignmentRepository(
   TeachingAssignment
 );
 const teachingAssignmentService = new TeachingAssignmentService(
   logger,
   teachingAssignmentRepository,
-  classRepository,
-  teacherRepository
+  classRepository
+  // teacherRepository
 );
 const teachingAssignmentController = new TeachingAssignmentController(
   teachingAssignmentService
@@ -106,7 +106,7 @@ router.get(
   }),
   verifyFirebaseToken,
   async (req: Request, res: Response, next: NextFunction) =>
-    teachingAssignmentController.getTeachingAssignmentByTeacherClassAndSchool(
+    teachingAssignmentController.getAllAssignmentForTeacherInSchool(
       req,
       res,
       next

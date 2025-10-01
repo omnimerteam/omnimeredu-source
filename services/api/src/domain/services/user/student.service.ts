@@ -1,5 +1,9 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger.js";
-import { RoleRepository, StudentRepository } from "../../repositories";
+import {
+  ClassRepository,
+  RoleRepository,
+  StudentRepository,
+} from "../../repositories";
 import { IStudent } from "../../models";
 import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
 import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
@@ -9,15 +13,18 @@ class StudentService {
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
   private readonly roleRepository: RoleRepository;
+  private readonly classRepository: ClassRepository;
 
   constructor(
     studentRepository: StudentRepository,
     roleRepository: RoleRepository,
+    classRepository: ClassRepository,
     DefaultLogger: DefaultLogger
   ) {
     this.logger = DefaultLogger;
     this.roleRepository = roleRepository;
     this.studentRepository = studentRepository;
+    this.classRepository = classRepository;
   }
 
   async getAllStudents(
@@ -98,6 +105,10 @@ class StudentService {
       }
 
       const newStudent = await this.studentRepository.create(studentData);
+      await this.classRepository.addStudentsToClass(
+        studentData.classId!.toString(),
+        [newStudent._id.toString()]
+      );
 
       await this.logger.log({
         userId: actorId,
@@ -125,13 +136,26 @@ class StudentService {
     userRole: string
   ) {
     try {
+      const oldClassId = (await this.studentRepository.findById(id))?.classId;
       const updatedStudent = await this.studentRepository.update(
         id,
         studentData
       );
+
       if (!updatedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }
+
+      await this.classRepository.addStudentsToClass(
+        studentData.classId!.toString(),
+        [updatedStudent._id.toString()]
+      );
+
+      await this.classRepository.removeStudentsFromClass(
+        oldClassId!.toString(),
+        [updatedStudent._id.toString()]
+      );
+
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_STUDENT",
@@ -154,7 +178,14 @@ class StudentService {
 
   async deleteStudent(id: string, actorId: string, userRole: string) {
     try {
+      const oldClassId = (await this.studentRepository.findById(id))?.classId;
       const deletedStudent = await this.studentRepository.delete(id);
+
+      await this.classRepository.removeStudentsFromClass(
+        oldClassId!.toString(),
+        [id.toString()]
+      );
+
       if (!deletedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }

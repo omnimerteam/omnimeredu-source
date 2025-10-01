@@ -4,7 +4,7 @@ enum EducationSystemLevelsEnum {
   Secondary("Trung học cơ sở"),
   HighSchool("Trung học phổ thông"),
   University("Đại học"),
-  None("");
+  None("Chưa đăng ký");
 
   final String displayName;
   const EducationSystemLevelsEnum(this.displayName);
@@ -40,7 +40,7 @@ enum TeacherQualificationEnum {
   ChuaQuaDaoTaoSP("Chưa qua đào tạo sư phạm"),
   CoChungChiNghe("Có chứng chỉ nghề"),
   TrinhDoKhac("Trình độ khác"),
-  None("Chưa đăng ký trình độ");
+  None("Chưa đăng ký");
 
   final String displayName;
   const TeacherQualificationEnum(this.displayName);
@@ -220,7 +220,7 @@ enum MembershipRoleEnum {
   Teacher("Giáo viên"),
   Staff("Nhân viên"),
   SchoolAdmin("Quản trị trường"),
-  None("");
+  None("Chưa đăng ký");
 
   final String displayName;
   const MembershipRoleEnum(this.displayName);

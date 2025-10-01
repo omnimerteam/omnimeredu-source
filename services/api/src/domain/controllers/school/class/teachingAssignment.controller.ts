@@ -55,7 +55,7 @@ class TeachingAssignmentController {
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error getting all teaching assignments: ",
+          "[TEACHING ASSIGNMENT] Error getting all teaching assignments: ",
           error
         )
       );
@@ -91,13 +91,13 @@ class TeachingAssignmentController {
       sendSuccess(
         res,
         assignment,
-        "Lấy danh sách phân công giảng dạy theo ID thành công"
+        "Lấy danh sách phân công giảng dạy thành công"
       );
       return;
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error getting teaching assignments by ID: ",
+          "[TEACHING ASSIGNMENT] Error getting teaching assignments by ID: ",
           error
         )
       );
@@ -134,16 +134,12 @@ class TeachingAssignmentController {
         return;
       }
 
-      sendSuccess(
-        res,
-        assignment,
-        "Lấy phân công giảng dạy theo ID thành công"
-      );
+      sendSuccess(res, assignment, "Lấy phân công giảng dạy thành công");
       return;
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error getting teaching assignments by ID: ",
+          "[TEACHING ASSIGNMENT] Error getting teaching assignments by teacher, school, class ID: ",
           error
         )
       );
@@ -179,7 +175,7 @@ class TeachingAssignmentController {
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error creatting teaching assignments: ",
+          "[TEACHING ASSIGNMENT] Error creatting teaching assignments: ",
           error
         )
       );
@@ -222,7 +218,7 @@ class TeachingAssignmentController {
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error updatting teaching assignments: ",
+          "[TEACHING ASSIGNMENT] Error updatting teaching assignments: ",
           error
         )
       );
@@ -262,7 +258,7 @@ class TeachingAssignmentController {
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error deletting teaching assignments: ",
+          "[TEACHING ASSIGNMENT] Error deletting teaching assignments: ",
           error
         )
       );
@@ -270,7 +266,7 @@ class TeachingAssignmentController {
     }
   }
 
-  async getTeachingAssignmentByTeacherAndSchoolId(
+  async getAllAssignmentForTeacherInSchool(
     req: Request,
     res: Response,
     next: NextFunction
@@ -283,15 +279,13 @@ class TeachingAssignmentController {
     }
     const teacherId = req.params.teacherId;
     const schoolId = req.params.schoolId;
-    const classId = req.params.classId;
     try {
       const assignment =
-        await this.teachingAssignmentService.getTeachingAssignmentByTeacherClassAndSchool(
+        await this.teachingAssignmentService.getAllAssignmentForTeacherInSchool(
           actorId,
           userRole,
           teacherId,
-          schoolId,
-          classId
+          schoolId
         );
 
       if (!assignment) {
@@ -299,16 +293,12 @@ class TeachingAssignmentController {
         return;
       }
 
-      sendSuccess(
-        res,
-        assignment,
-        "Lấy phân công giảng dạy theo ID thành công"
-      );
+      sendSuccess(res, assignment, "Lấy phân công giảng dạy thành công");
       return;
     } catch (error) {
       console.log(
         chalk.red(
-          "[Teaching Assignment] Error getting teaching assignments by ID: ",
+          "[TEACHING ASSIGNMENT] Error getting ALL teaching assignments for teacher in school: ",
           error
         )
       );

@@ -1,100 +1,134 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/school_admin/widgets/dashboard_quick_access.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/widgets/teacher_classes_section.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 
 class TeacherDashboard extends StatelessWidget {
   final AuthUserEntity user;
+  final TeacherDashboardDataEntity? data;
+  final bool isLoading;
 
-  const TeacherDashboard({super.key, required this.user});
+  const TeacherDashboard({
+    Key? key,
+    required this.user,
+    required this.data,
+    required this.isLoading,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionTitle(title: 'Lớp học của bạn'),
-        const SizedBox(height: 12),
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                _buildClassItem(
-                  context,
-                  icon: Icons.class_,
-                  title: 'Lớp 10A1',
-                  subtitle: '32 học sinh',
-                  color: AppColors.blue,
-                  onTap: () {
-                    // Navigate to class details
-                  },
-                ),
-                _buildClassItem(
-                  context,
-                  icon: Icons.assignment,
-                  title: 'Bài tập chưa chấm',
-                  subtitle: '15 bài',
-                  color: Colors.green,
-                  onTap: () {
-                    // Navigate to assignments
-                  },
-                ),
-                _buildClassItem(
-                  context,
-                  icon: Icons.schedule,
-                  title: 'Lịch dạy hôm nay',
-                  subtitle: '5 tiết',
-                  color: Colors.orange,
-                  onTap: () {
-                    // Navigate to schedule
-                  },
-                  isLast: true,
-                ),
-              ],
+    return BlocConsumer<TeacherClassesCubit, TeacherClassesState>(
+      listener: (context, state) {
+        if (state is AttendanceInitialized) {
+          _showSnack(context, state.message, Colors.green);
+        }
+        if (state is AttendanceInitializationError) {
+          _showSnack(context, state.message, Colors.red);
+        }
+      },
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 24),
+            TeacherClassesSection(
+              isLoading: isLoading,
+              state: state,
+              classes: data?.classAssignment ?? [],
+              onInitializeAttendance: (assignment) =>
+                  _showInitializeAttendanceConfirmation(context, assignment),
+              onViewAttendance: (assignment) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Chức năng xem điểm danh sẽ được phát triển sau',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              onViewStudents: (assignment) =>
+                  _navigateToStudentsList(context, assignment),
             ),
-          ),
-        ),
-      ],
+            const SizedBox(height: 32),
+            DashboardQuickAccess(roleName: user.roleName),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildClassItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-    bool isLast = false,
-  }) {
-    return Column(
-      children: [
-        ListTile(
-          leading: CircleAvatar(
-            backgroundColor: color.withOpacity(0.2),
-            child: Icon(icon, color: color),
-          ),
-          title: Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-          ),
-          trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: onTap,
+  void _showSnack(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showInitializeAttendanceConfirmation(
+    BuildContext context,
+    ClassTeacherAssignEntity assignment,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Xác nhận tạo bảng điểm danh'),
+        content: Text(
+          'Bạn có chắc chắn muốn tạo bảng điểm danh cho lớp "${assignment.classEntity.name}"?',
         ),
-        if (!isLast) const Divider(height: 1),
-      ],
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  text: 'Hủy',
+                  type: AppButtonType.cancel,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: AppButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                    context.read<TeacherClassesCubit>().initializeAttendance(
+                      classId: assignment.classEntity.id,
+                      schoolId: assignment.schoolId,
+                    );
+                  },
+                  text: 'Xác nhận',
+                  type: AppButtonType.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToStudentsList(
+    BuildContext context,
+    ClassTeacherAssignEntity assignment,
+  ) {
+    Navigator.pushNamed(
+      context,
+      '/students-list',
+      arguments: {
+        'classId': assignment.classEntity.id,
+        'className': assignment.classEntity.name,
+      },
     );
   }
 }

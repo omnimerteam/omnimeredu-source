@@ -15,10 +15,9 @@ export const BaseUserSchema = z.object({
   fullName: z
     .string()
     .min(2, { message: "Họ tên phải có ít nhất 2 ký tự" })
-    .max(100, { message: "Họ tên không vượt quá 100 ký tự" })
-    .regex(/^[a-zA-ZÀ-ỹ\s.-]+$/, {
-      message:
-        "Họ tên chỉ được chứa chữ cái, khoảng trắng, dấu gạch ngang hoặc dấu chấm",
+    .max(50, { message: "Họ tên không vượt quá 50 ký tự" })
+    .regex(/^[^!@#$%^&*()_+=\[\]{};:'"\\|<>?/`~]+$/, {
+      message: "Họ tên không được chứa ký tự đặc biệt",
     }),
 
   roleId: z.string().refine((val) => Types.ObjectId.isValid(val), {
@@ -40,7 +39,7 @@ export const BaseUserSchema = z.object({
 
   birthday: z
     .string()
-    .datetime({ message: "Ngày sinh phải đúng định dạng ISO" })
+    .datetime({ message: "Ngày sinh phải đúng định dạng" })
     .optional()
     .nullable(),
 

@@ -92,6 +92,7 @@ class _GradeFormDialogState extends State<GradeFormDialog> {
       _descriptionController.text = grade.description ?? '';
       _selectedLevel = grade.level;
       _isActive = grade.active;
+      _selectedGradeGroup = grade.gradeGroup;
 
       if (grade.ageRange != null) {
         _minAgeController.text = grade.ageRange!['min']?.toString() ?? '';

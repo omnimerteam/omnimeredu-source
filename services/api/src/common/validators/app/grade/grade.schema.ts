@@ -27,7 +27,6 @@ export const GradeSchema = z.object({
   description: z.string().optional(),
   customFields: z.record(z.string(), z.any()).optional(),
   active: z.boolean().optional().default(true),
-  linkedClasses: z.array(z.string()).optional(), // Array ObjectId dạng string
 });
 
 export type GradeInput = z.infer<typeof GradeSchema>;

@@ -33,8 +33,8 @@ class ClassRemoteDataSource {
                   code: e["code"].toString(),
                   schoolId: e["schoolId"].toString(),
                   gradeId: e["gradeId"].toString(),
-                  groupGrade: EducationGradesEnum.fromString(
-                    e['groupGrade'].toString(),
+                  gradeGroup: EducationGradesEnum.fromString(
+                    e['gradeGroup'] as String?,
                   ),
                 ),
               )

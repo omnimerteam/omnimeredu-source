@@ -76,8 +76,16 @@ class Endpoints {
     String classId,
   ) =>
       "/v1/teaching-assignment/teacherId-schoolId-classId/${teacherId}/${schoolId}/${classId}";
+  static String getAllAssignmentForTeacherInSchool(
+    String teacherId,
+    String schoolId,
+  ) => "/v1/teaching-assignment/teacherId-schoolId/${teacherId}/${schoolId}";
 
   // ================== SCHOOL ADMIN ==================
   static String updatePositionSchoolAdmin(String id) =>
       "/v1/school-admins/update-position/${id}";
+
+  // ================== SCHOOL ADMIN ==================
+  static const String initializeClassAttendance =
+      "/v1/attendances//initialize-class-attendance";
 }

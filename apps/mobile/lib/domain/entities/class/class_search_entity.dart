@@ -7,7 +7,7 @@ class ClassSearchEntity extends Equatable {
   final String code;
   final String schoolId;
   final String gradeId;
-  final EducationGradesEnum groupGrade;
+  final EducationGradesEnum gradeGroup;
 
   const ClassSearchEntity({
     required this.id,
@@ -15,9 +15,9 @@ class ClassSearchEntity extends Equatable {
     required this.code,
     required this.schoolId,
     required this.gradeId,
-    required this.groupGrade,
+    required this.gradeGroup,
   });
 
   @override
-  List<Object?> get props => [id, name, code, schoolId, gradeId, groupGrade];
+  List<Object?> get props => [id, name, code, schoolId, gradeId, gradeGroup];
 }

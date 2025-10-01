@@ -5,11 +5,18 @@ import 'package:flutter_ios_android_platforms/presentation/widgets/button/quick_
 
 class DashboardQuickAccess extends StatelessWidget {
   final bool highlightSchool;
-  const DashboardQuickAccess({Key? key, this.highlightSchool = false})
-    : super(key: key);
+  final String? roleName;
+
+  const DashboardQuickAccess({
+    Key? key,
+    this.highlightSchool = false,
+    this.roleName,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final features = _getFeaturesByRole(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -27,121 +34,155 @@ class DashboardQuickAccess extends StatelessWidget {
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
           childAspectRatio: 1.1,
-          children: [
-            DecoratedBox(
-              decoration: highlightSchool
-                  ? BoxDecoration(
-                      border: Border.all(color: Colors.redAccent, width: 3),
-                      borderRadius: BorderRadius.circular(16),
-                    )
-                  : const BoxDecoration(),
-              child: QuickAccessButton(
-                title: 'Trường',
-                icon: Icons.school,
-                color: AppColors.primary,
-                onTap: () {
-                  Navigator.of(context).pushNamed('/school-admin/school');
-                },
-              ),
-            ),
-            QuickAccessButton(
-              title: 'Khối',
-              icon: Icons.roofing,
-              color: Colors.cyan,
-              onTap: () {
-                Navigator.of(context).pushNamed('/school-admin/grades');
-              },
-            ),
-            QuickAccessButton(
-              title: 'Lớp',
-              icon: Icons.class_,
-              color: Colors.orange,
-              onTap: () {
-                Navigator.of(context).pushNamed('/school-admin/classes');
-              },
-            ),
-            QuickAccessButton(
-              title: 'Yêu cầu',
-              icon: Icons.person_add,
-              color: Colors.purple,
-              onTap: () {
-                Navigator.of(
-                  context,
-                ).pushNamed('/school-admin/membership-requests');
-              },
-            ),
-            QuickAccessButton(
-              title: 'Học sinh',
-              icon: Icons.people,
-              color: Colors.blue,
-              onTap: () {
-                Navigator.of(context).pushNamed('/school-admin/students');
-              },
-            ),
-            QuickAccessButton(
-              title: 'Nhân sự',
-              icon: Icons.person,
-              color: Colors.green,
-              onTap: () {
-                Navigator.of(context).pushNamed('/school-admin/personnel');
-              },
-            ),
-            QuickAccessButton(
-              title: 'Điểm danh',
-              icon: Icons.fact_check,
-              color: Colors.teal,
-              onTap: () => _navigateToFeature(
-                context,
-                'Điểm danh',
-                DateTime(2026, 1, 20),
-              ),
-            ),
-            QuickAccessButton(
-              title: 'Học phí',
-              icon: Icons.payment,
-              color: Colors.red,
-              badge: '12',
-              onTap: () =>
-                  _navigateToFeature(context, 'Học phí', DateTime(2026, 2, 1)),
-            ),
-            QuickAccessButton(
-              title: 'Bài viết',
-              icon: Icons.article,
-              color: Colors.indigo,
-              onTap: () => _navigateToFeature(
-                context,
-                'Bài viết',
-                DateTime(2026, 2, 15),
-              ),
-            ),
-            QuickAccessButton(
-              title: 'Thông báo',
-              icon: Icons.notifications,
-              color: Colors.amber,
-              onTap: () => _navigateToFeature(
-                context,
-                'Thông báo',
-                DateTime(2026, 3, 1),
-              ),
-            ),
-            QuickAccessButton(
-              title: 'Báo cáo',
-              icon: Icons.analytics,
-              color: Colors.purple,
-              onTap: () =>
-                  _navigateToFeature(context, 'Báo cáo', DateTime(2026, 3, 15)),
-            ),
-            QuickAccessButton(
-              title: 'Cài đặt',
-              icon: Icons.settings,
-              color: Colors.grey,
-              onTap: () =>
-                  _navigateToFeature(context, 'Cài đặt', DateTime(2026, 4, 1)),
-            ),
-          ],
+          children: features,
         ),
       ],
     );
+  }
+
+  /// Lấy danh sách QuickAccessButton theo role
+  List<Widget> _getFeaturesByRole(BuildContext context) {
+    switch (roleName) {
+      case "SchoolAdmin":
+        return [
+          DecoratedBox(
+            decoration: highlightSchool
+                ? BoxDecoration(
+                    border: Border.all(color: Colors.redAccent, width: 3),
+                    borderRadius: BorderRadius.circular(16),
+                  )
+                : const BoxDecoration(),
+            child: QuickAccessButton(
+              title: 'Trường',
+              icon: Icons.school,
+              color: AppColors.primary,
+              onTap: () =>
+                  Navigator.of(context).pushNamed('/school-admin/school'),
+            ),
+          ),
+          QuickAccessButton(
+            title: 'Khối',
+            icon: Icons.roofing,
+            color: Colors.cyan,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/grades'),
+          ),
+          QuickAccessButton(
+            title: 'Lớp',
+            icon: Icons.class_,
+            color: Colors.orange,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/classes'),
+          ),
+          QuickAccessButton(
+            title: 'Yêu cầu',
+            icon: Icons.person_add,
+            color: Colors.purple,
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamed('/school-admin/membership-requests'),
+          ),
+          QuickAccessButton(
+            title: 'Học sinh',
+            icon: Icons.people,
+            color: Colors.blue,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/students'),
+          ),
+          QuickAccessButton(
+            title: 'Nhân sự',
+            icon: Icons.person,
+            color: Colors.green,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/personnel'),
+          ),
+          QuickAccessButton(
+            title: 'Điểm danh',
+            icon: Icons.fact_check,
+            color: Colors.teal,
+            onTap: () =>
+                _navigateToFeature(context, 'Điểm danh', DateTime(2026, 1, 20)),
+          ),
+          QuickAccessButton(
+            title: 'Học phí',
+            icon: Icons.payment,
+            color: Colors.red,
+            badge: '12',
+            onTap: () =>
+                _navigateToFeature(context, 'Học phí', DateTime(2026, 2, 1)),
+          ),
+          QuickAccessButton(
+            title: 'Bài viết',
+            icon: Icons.article,
+            color: Colors.indigo,
+            onTap: () =>
+                _navigateToFeature(context, 'Bài viết', DateTime(2026, 2, 15)),
+          ),
+          QuickAccessButton(
+            title: 'Thông báo',
+            icon: Icons.notifications,
+            color: Colors.amber,
+            onTap: () =>
+                _navigateToFeature(context, 'Thông báo', DateTime(2026, 3, 1)),
+          ),
+          QuickAccessButton(
+            title: 'Báo cáo',
+            icon: Icons.analytics,
+            color: Colors.purple,
+            onTap: () =>
+                _navigateToFeature(context, 'Báo cáo', DateTime(2026, 3, 15)),
+          ),
+          QuickAccessButton(
+            title: 'Cài đặt',
+            icon: Icons.settings,
+            color: Colors.grey,
+            onTap: () =>
+                _navigateToFeature(context, 'Cài đặt', DateTime(2026, 4, 1)),
+          ),
+        ];
+
+      case "Teacher":
+        return [
+          QuickAccessButton(
+            title: 'Lớp',
+            icon: Icons.class_,
+            color: Colors.orange,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/classes'),
+          ),
+          QuickAccessButton(
+            title: 'Học sinh',
+            icon: Icons.people,
+            color: Colors.blue,
+            onTap: () =>
+                Navigator.of(context).pushNamed('/school-admin/students'),
+          ),
+          QuickAccessButton(
+            title: 'Điểm danh',
+            icon: Icons.fact_check,
+            color: Colors.teal,
+            onTap: () =>
+                _navigateToFeature(context, 'Điểm danh', DateTime(2026, 1, 20)),
+          ),
+          QuickAccessButton(
+            title: 'Bài viết',
+            icon: Icons.article,
+            color: Colors.indigo,
+            onTap: () =>
+                _navigateToFeature(context, 'Bài viết', DateTime(2026, 2, 15)),
+          ),
+          QuickAccessButton(
+            title: 'Thông báo',
+            icon: Icons.notifications,
+            color: Colors.amber,
+            onTap: () =>
+                _navigateToFeature(context, 'Thông báo', DateTime(2026, 3, 1)),
+          ),
+        ];
+
+      default:
+        return [];
+    }
   }
 
   void _navigateToFeature(

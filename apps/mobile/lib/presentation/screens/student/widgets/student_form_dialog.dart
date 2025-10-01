@@ -16,7 +16,6 @@ import '../bloc/student_management_bloc.dart';
 import '../bloc/student_management_event.dart';
 import '../bloc/student_management_state.dart';
 
-// ... import giữ nguyên
 class StudentFormDialog extends StatefulWidget {
   final StudentEntity? studentToEdit;
 
@@ -56,6 +55,10 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
   String? _selectedClassId;
   DateTime? _selectedBirthday;
   EducationSystemLevelsEnum? _selectedEducationLevel;
+
+  // Track submit state
+  bool _isSubmitting = false;
+  bool _showSuccessMessage = false;
 
   bool get isEditMode => widget.studentToEdit != null;
 
@@ -100,6 +103,15 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
     _selectedClassId = null;
     _selectedBirthday = null;
 
+    final authState = context.read<AuthenticationBloc>().state;
+    _selectedEducationLevel =
+        (authState is AuthenticationAuthenticated
+            ? authState.user.schoolLevel
+            : null) ??
+        EducationSystemLevelsEnum.None;
+    _selectedGrade = null;
+    _selectedClassId = null;
+
     if (isEditMode && widget.studentToEdit != null) {
       final student = widget.studentToEdit!;
       _nameController.text = student.fullName;
@@ -110,15 +122,9 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
       _guardianNameController.text = student.guardianName ?? '';
       _guardianPhoneController.text = student.guardianPhone ?? '';
       _selectedEducationLevel = student.educationLevel;
-
-      // gradeGroup
-      if (student.gradeGroup != null) {
-        try {
-          _selectedGrade = EducationGradesEnum.fromString(
-            student.gradeGroup!.displayName,
-          );
-        } catch (_) {}
-      }
+      _selectedGrade =
+          widget.studentToEdit?.gradeGroup ??
+          _selectedEducationLevel!.grades.first;
 
       // birthday
       if (student.birthday != null) {
@@ -137,24 +143,29 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
     _birthdayController.dispose();
+    _guardianNameController.dispose();
+    _guardianPhoneController.dispose();
+
     _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
     _phoneFocusNode.dispose();
     _addressFocusNode.dispose();
     _birthdayFocusNode.dispose();
     _genderFocusNode.dispose();
     _gradeFocusNode.dispose();
     _classFocusNode.dispose();
-    _guardianNameController.dispose();
-    _guardianPhoneController.dispose();
     _guardianNameFocusNode.dispose();
     _guardianPhoneFocusNode.dispose();
     super.dispose();
   }
 
-  void _submitForm(BuildContext context) {
+  void _submitForm() {
+    if (_isSubmitting) return;
+
     if (_formKey.currentState!.validate()) {
       final authState = context.read<AuthenticationBloc>().state;
       if (authState is! AuthenticationAuthenticated) {
@@ -166,6 +177,11 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
         return;
       }
 
+      setState(() {
+        _isSubmitting = true;
+        _showSuccessMessage = false;
+      });
+
       final studentEntity = StudentEntity(
         id: isEditMode ? widget.studentToEdit!.id : null,
         fullName: _nameController.text.trim(),
@@ -176,7 +192,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
         address: _addressController.text.trim().isEmpty
             ? null
             : _addressController.text.trim(),
-        educationLevel: authState.user.educationLevel!,
+        educationLevel: _selectedEducationLevel!,
         birthday: _selectedBirthday,
         gender: _selectedGender,
         gradeGroup: _selectedGrade,
@@ -202,9 +218,33 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
     }
   }
 
-  void _closeDialog(BuildContext context) {
+  void _closeDialog() {
+    if (_isSubmitting) return;
+
     context.read<StudentManagementBloc>().add(HideFormEvent());
     Navigator.of(context).pop();
+  }
+
+  void _handleSuccess(String message) {
+    setState(() {
+      _isSubmitting = false;
+      _showSuccessMessage = true;
+    });
+
+    // Wait 1.5 seconds to show success message then close dialog
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        context.read<StudentManagementBloc>().add(HideFormEvent());
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  void _handleError() {
+    setState(() {
+      _isSubmitting = false;
+      _showSuccessMessage = false;
+    });
   }
 
   Future<void> _selectBirthday(BuildContext context) async {
@@ -227,58 +267,33 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<StudentManagementBloc, StudentManagementState>(
-      // listenWhen: (previous, current) {
-      //   if (previous is StudentManagementLoaded &&
-      //       current is StudentManagementLoaded) {
-      //     return previous.formStatus != current.formStatus;
-      //   }
-      //   return false;
-      // },
-      listenWhen: (previous, current) {
-        // Lắng nghe khi trạng thái form thay đổi
-        if (current is StudentManagementLoaded) {
-          return current.formStatus != StudentManagementFormStatus.initial;
-        }
-        return false;
-      },
       listener: (context, state) {
-        if (state is StudentManagementLoaded &&
-            state.formStatus == StudentManagementFormStatus.success) {
-          // Hiển thị thông báo thành công
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isEditMode
-                    ? 'Cập nhật học sinh thành công!'
-                    : 'Tạo học sinh thành công!',
-              ),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          // Đóng form sau khi thành công
-          Navigator.of(context).pop();
+        if (state is StudentManagementLoaded) {
+          if (state.formStatus == StudentManagementFormStatus.success) {
+            _handleSuccess(
+              (isEditMode
+                  ? 'Cập nhật học sinh thành công!'
+                  : 'Tạo học sinh thành công!'),
+            );
+          } else if (state.formStatus == StudentManagementFormStatus.error) {
+            _handleError();
+          }
         }
       },
       builder: (context, state) {
-        final isFormLoading =
-            state is StudentManagementFormLoading ||
-            (state is StudentManagementLoaded &&
-                state.formStatus == StudentManagementFormStatus.loading);
-
         return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
-            constraints: const BoxConstraints(maxWidth: 500),
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
             padding: const EdgeInsets.all(24),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Header with close button
                   Row(
                     children: [
                       Expanded(
@@ -291,294 +306,287 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
                         ),
                       ),
                       IconButton(
-                        onPressed: () => _closeDialog(context),
+                        onPressed: _isSubmitting ? null : _closeDialog,
                         icon: const Icon(Icons.close),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  /// Form
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // --- THÔNG TIN CÁ NHÂN ---
-                        Text(
-                          "Thông tin cá nhân",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Họ tên
-                        PrimaryTextField(
-                          controller: _nameController,
-                          focusNode: _nameFocusNode,
-                          hintText: 'Họ và tên học sinh',
-                          prefixIcon: Icons.person_outline,
-                          isFocused: _nameFocusNode.hasFocus,
-                          validator: (value) => Validators.requiredField(
-                            value,
-                            name: 'Họ và tên',
+                  // Form content
+                  Opacity(
+                    opacity: _showSuccessMessage ? 0.6 : 1.0,
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // === PERSONAL INFO ===
+                          Text(
+                            "Thông tin cá nhân",
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
+                                ),
                           ),
-                          required: true,
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 12),
 
-                        PrimaryTextField(
-                          controller: _emailController,
-                          focusNode: _emailFocusNode,
-                          hintText: 'Email học sinh',
-                          prefixIcon: Icons.person_outline,
-                          isFocused: _emailFocusNode.hasFocus,
-                          validator: (value) {
-                            if (value?.trim().isNotEmpty == true) {
-                              return Validators.email(value);
-                            }
-                            return null;
-                          },
-                          required: true,
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Ngày sinh
-                        PrimaryTextField(
-                          controller: _birthdayController,
-                          focusNode: _birthdayFocusNode,
-                          hintText: 'Ngày sinh',
-                          prefixIcon: Icons.cake_outlined,
-                          isFocused: _birthdayFocusNode.hasFocus,
-                          readOnly: true,
-                          onTap: () => _selectBirthday(context),
-                          suffixIcon: _birthdayController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedBirthday = null;
-                                      _birthdayController.clear();
-                                    });
-                                  },
-                                )
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Giới tính
-                        Focus(
-                          focusNode: _genderFocusNode,
-                          child: PrimaryDropdown<String>(
-                            value: _selectedGender,
-                            hintText: 'Giới tính',
+                          // Full name
+                          PrimaryTextField(
+                            controller: _nameController,
+                            focusNode: _nameFocusNode,
+                            hintText: 'Họ và tên học sinh',
                             prefixIcon: Icons.person_outline,
-                            isFocused: _genderFocusNode.hasFocus,
-                            items: DisplayMapper.gender.entries.map((entry) {
-                              return DropdownMenuItem<String>(
-                                value: entry.key,
-                                child: Text(entry.value),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedGender = value;
-                              });
+                            isFocused: _nameFocusNode.hasFocus,
+                            validator: (value) => Validators.requiredField(
+                              value,
+                              name: 'Họ và tên',
+                            ),
+                            required: true,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Email
+                          PrimaryTextField(
+                            controller: _emailController,
+                            focusNode: _emailFocusNode,
+                            hintText: 'Email học sinh',
+                            prefixIcon: Icons.email_outlined,
+                            isFocused: _emailFocusNode.hasFocus,
+                            validator: (value) {
+                              if (value?.trim().isNotEmpty == true) {
+                                return Validators.email(value);
+                              }
+                              return null;
                             },
                           ),
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        // Số điện thoại
-                        PrimaryTextField(
-                          controller: _phoneController,
-                          focusNode: _phoneFocusNode,
-                          hintText: 'Số điện thoại',
-                          prefixIcon: Icons.phone_outlined,
-                          isFocused: _phoneFocusNode.hasFocus,
-                          keyboardType: TextInputType.phone,
-                          validator: (value) {
-                            if (value?.trim().isNotEmpty == true) {
-                              return Validators.phone(value);
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Địa chỉ
-                        PrimaryTextField(
-                          controller: _addressController,
-                          focusNode: _addressFocusNode,
-                          hintText: 'Địa chỉ (không bắt buộc)',
-                          prefixIcon: Icons.location_on_outlined,
-                          isFocused: _addressFocusNode.hasFocus,
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // --- THÔNG TIN GIA ĐÌNH ---
-                        Text(
-                          "Thông tin gia đình",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Tên phụ huynh
-                        PrimaryTextField(
-                          controller: _guardianNameController,
-                          focusNode: _guardianNameFocusNode,
-                          hintText: 'Tên phụ huynh',
-                          prefixIcon: Icons.person,
-                          isFocused: _guardianNameFocusNode.hasFocus,
-                          validator: (value) => Validators.requiredField(
-                            value,
-                            name: 'Tên phụ huynh',
+                          // Birthday
+                          PrimaryTextField(
+                            controller: _birthdayController,
+                            focusNode: _birthdayFocusNode,
+                            hintText: 'Ngày sinh',
+                            prefixIcon: Icons.cake_outlined,
+                            isFocused: _birthdayFocusNode.hasFocus,
+                            readOnly: true,
+                            onTap: () => _selectBirthday(context),
+                            suffixIcon: _birthdayController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedBirthday = null;
+                                        _birthdayController.clear();
+                                      });
+                                    },
+                                  )
+                                : null,
                           ),
-                          required: true,
-                        ),
-                        const SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
-                        // SĐT phụ huynh
-                        PrimaryTextField(
-                          controller: _guardianPhoneController,
-                          focusNode: _guardianPhoneFocusNode,
-                          hintText: 'Số điện thoại phụ huynh',
-                          prefixIcon: Icons.phone,
-                          isFocused: _guardianPhoneFocusNode.hasFocus,
-                          keyboardType: TextInputType.phone,
-                          validator: (value) => Validators.requiredField(
-                            value,
-                            name: 'Số điện thoại phụ huynh',
+                          // Gender
+                          Focus(
+                            focusNode: _genderFocusNode,
+                            child: PrimaryDropdown<String>(
+                              value: _selectedGender,
+                              hintText: 'Giới tính',
+                              prefixIcon: Icons.person_outline,
+                              isFocused: _genderFocusNode.hasFocus,
+                              items: DisplayMapper.gender.entries.map((entry) {
+                                return DropdownMenuItem<String>(
+                                  value: entry.key,
+                                  child: Text(entry.value),
+                                );
+                              }).toList(),
+                              onChanged: _isSubmitting
+                                  ? null
+                                  : (value) {
+                                      setState(() {
+                                        _selectedGender = value;
+                                      });
+                                    },
+                            ),
                           ),
-                          required: true,
-                        ),
+                          const SizedBox(height: 16),
 
-                        const SizedBox(height: 24),
+                          // Phone
+                          PrimaryTextField(
+                            controller: _phoneController,
+                            focusNode: _phoneFocusNode,
+                            hintText: 'Số điện thoại',
+                            prefixIcon: Icons.phone_outlined,
+                            isFocused: _phoneFocusNode.hasFocus,
+                            keyboardType: TextInputType.phone,
+                            validator: (value) {
+                              if (value?.trim().isNotEmpty == true) {
+                                return Validators.phone(value);
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
 
-                        // --- THÔNG TIN HỌC TẬP ---
-                        Text(
-                          "Thông tin học tập",
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey,
-                              ),
-                        ),
-                        const SizedBox(height: 12),
+                          // Address
+                          PrimaryTextField(
+                            controller: _addressController,
+                            focusNode: _addressFocusNode,
+                            hintText: 'Địa chỉ (không bắt buộc)',
+                            prefixIcon: Icons.location_on_outlined,
+                            isFocused: _addressFocusNode.hasFocus,
+                          ),
 
-                        // Cấp học
-                        BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                          builder: (context, authState) {
-                            if (authState is AuthenticationAuthenticated) {
-                              _selectedEducationLevel ??=
-                                  authState.user.educationLevel;
-                              return PrimaryDropdown<EducationSystemLevelsEnum>(
-                                required: true,
-                                value: _selectedEducationLevel,
-                                hintText: 'Chọn cấp học',
-                                prefixIcon: Icons.school,
-                                isFocused: _gradeFocusNode.hasFocus,
-                                items: EducationSystemLevelsEnum.values.map((
-                                  level,
-                                ) {
-                                  return DropdownMenuItem(
-                                    value: level,
-                                    child: Text(level.displayName),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedEducationLevel = value;
-                                  });
-                                },
-                                validator: (value) => Validators.requiredField(
-                                  value?.name,
-                                  name: 'Cấp học',
+                          const SizedBox(height: 24),
+
+                          // === FAMILY INFO ===
+                          Text(
+                            "Thông tin gia đình",
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const SizedBox(height: 16),
+                          ),
+                          const SizedBox(height: 12),
 
-                        // Khối lớp
-                        BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                          builder: (context, authState) {
-                            if (authState is AuthenticationAuthenticated &&
-                                authState.user.schoolLevel != null) {
-                              return PrimaryDropdown<EducationGradesEnum>(
-                                required: true,
-                                value: _selectedGrade,
-                                hintText: 'Chọn khối lớp *',
-                                prefixIcon: Icons.school_outlined,
-                                isFocused: _gradeFocusNode.hasFocus,
-                                items: authState.user.schoolLevel!.grades.map((
-                                  gradeGroup,
-                                ) {
-                                  return DropdownMenuItem(
-                                    value: gradeGroup,
-                                    child: Text(gradeGroup.displayName),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedGrade = value;
-                                  });
-                                },
-                                validator: (value) => Validators.requiredField(
-                                  value?.name,
-                                  name: 'Khối lớp',
+                          // Guardian name
+                          PrimaryTextField(
+                            controller: _guardianNameController,
+                            focusNode: _guardianNameFocusNode,
+                            hintText: 'Tên phụ huynh',
+                            prefixIcon: Icons.person,
+                            isFocused: _guardianNameFocusNode.hasFocus,
+                            validator: (value) => Validators.requiredField(
+                              value,
+                              name: 'Tên phụ huynh',
+                            ),
+                            required: true,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Guardian phone
+                          PrimaryTextField(
+                            controller: _guardianPhoneController,
+                            focusNode: _guardianPhoneFocusNode,
+                            hintText: 'Số điện thoại phụ huynh',
+                            prefixIcon: Icons.phone,
+                            isFocused: _guardianPhoneFocusNode.hasFocus,
+                            keyboardType: TextInputType.phone,
+                            validator: (value) => Validators.requiredField(
+                              value,
+                              name: 'Số điện thoại phụ huynh',
+                            ),
+                            required: true,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // === EDUCATION INFO ===
+                          Text(
+                            "Thông tin học tập",
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey,
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                        const SizedBox(height: 16),
+                          ),
+                          const SizedBox(height: 12),
 
-                        // Lớp học
-                        BlocBuilder<AuthenticationBloc, AuthenticationState>(
-                          builder: (context, authState) {
-                            if (authState is AuthenticationAuthenticated &&
-                                authState.user.schoolId != null) {
-                              return BlocProvider.value(
-                                value: context.read<ClassBloc>(),
-                                child: ClassSelector(
-                                  schoolId: authState.user.schoolId!,
-                                  gradeGroup: _selectedGrade,
-                                  initialClassId: _selectedClassId,
-                                  autoLoad: false,
-                                  onClassSelected: (classEntity) {
+                          // Education Level
+                          PrimaryDropdown<EducationSystemLevelsEnum>(
+                            required: true,
+                            value: _selectedEducationLevel,
+                            hintText: 'Chọn cấp học',
+                            prefixIcon: Icons.school,
+                            isFocused: _gradeFocusNode.hasFocus,
+                            items: EducationSystemLevelsEnum.values.map((
+                              level,
+                            ) {
+                              return DropdownMenuItem(
+                                value: level,
+                                child: Text(level.displayName),
+                              );
+                            }).toList(),
+                            onChanged: _isSubmitting
+                                ? null
+                                : (value) {
                                     setState(() {
-                                      _selectedClassId = classEntity?.id;
+                                      _selectedEducationLevel = value;
                                     });
                                   },
-                                ),
+                            validator: (value) => Validators.requiredField(
+                              value?.name,
+                              name: 'Cấp học',
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Grade
+                          PrimaryDropdown<EducationGradesEnum>(
+                            required: true,
+                            value: _selectedGrade,
+                            hintText: 'Chọn khối lớp *',
+                            prefixIcon: Icons.school_outlined,
+                            isFocused: _gradeFocusNode.hasFocus,
+                            items: _selectedEducationLevel!.grades.map((
+                              gradeGroup,
+                            ) {
+                              return DropdownMenuItem(
+                                value: gradeGroup,
+                                child: Text(gradeGroup.displayName),
                               );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                      ],
+                            }).toList(),
+                            onChanged: _isSubmitting
+                                ? null
+                                : (value) {
+                                    setState(() {
+                                      _selectedGrade = value;
+                                    });
+                                  },
+                            validator: (value) => Validators.requiredField(
+                              value?.name,
+                              name: 'Khối lớp',
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Class selector
+                          BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                            builder: (context, authState) {
+                              if (authState is AuthenticationAuthenticated &&
+                                  authState.user.schoolId != null) {
+                                return BlocProvider.value(
+                                  value: context.read<ClassBloc>(),
+                                  child: ClassSelector(
+                                    schoolId: authState.user.schoolId!,
+                                    gradeGroup: _selectedGrade,
+                                    initialClassId: _selectedClassId,
+                                    autoLoad: false,
+                                    onClassSelected: (classEntity) {
+                                      setState(() {
+                                        _selectedClassId = classEntity?.id;
+                                      });
+                                    },
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
+
                   // Error message
                   if (state is StudentManagementLoaded &&
                       state.formStatus == StudentManagementFormStatus.error &&
                       state.formErrorMessage != null)
                     Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
+                      padding: const EdgeInsets.only(bottom: 16.0),
                       child: Text(
                         state.formErrorMessage!,
                         style: TextStyle(
@@ -588,31 +596,55 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  const SizedBox(height: 10),
-                  // Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          onPressed: isFormLoading
-                              ? null
-                              : () => _closeDialog(context),
-                          text: 'Hủy',
-                          type: AppButtonType.danger,
+
+                  // Action buttons
+                  if (!_showSuccessMessage)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton(
+                            onPressed: _isSubmitting ? null : _closeDialog,
+                            text: 'Hủy',
+                            type: AppButtonType.cancel,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: AppButton(
-                          onPressed: isFormLoading
-                              ? null
-                              : () => _submitForm(context),
-                          text: isEditMode ? 'Cập nhật' : 'Tạo mới',
-                          loading: isFormLoading,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: AppButton(
+                            onPressed: _isSubmitting ? null : _submitForm,
+                            text: isEditMode ? 'Cập nhật' : 'Tạo mới',
+                            loading: _isSubmitting,
+                            type: AppButtonType.primary,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+
+                  // Success message indicator
+                  if (_showSuccessMessage) ...[
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Đang đóng dialog...',
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

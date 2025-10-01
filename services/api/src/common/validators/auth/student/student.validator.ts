@@ -19,5 +19,5 @@ export const updateStudentBodySchema = StudentSchema.partial({
   guardianName: true,
   guardianPhone: true,
   educationLevel: true,
-  grade: true,
+  gradeGroup: true,
 });

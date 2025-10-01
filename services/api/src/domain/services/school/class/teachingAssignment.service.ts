@@ -8,25 +8,23 @@ import { ITeachingAssignment } from "../../../models";
 import {
   TeachingAssignmentRepository,
   ClassRepository,
-  TeacherRepository,
 } from "../../../repositories";
-import { Types } from "mongoose";
 
 class TeachingAssignmentService {
   private readonly logger: DefaultLogger;
   private readonly teachingAssignmentRepository: TeachingAssignmentRepository;
   private readonly classRepository: ClassRepository;
-  private readonly teacherRepository: TeacherRepository;
+  // private readonly teacherRepository: TeacherRepository;
   constructor(
     logger: DefaultLogger,
     TeachingAssignmentModel: TeachingAssignmentRepository,
-    ClassModel: ClassRepository,
-    TeacherModel: TeacherRepository
+    ClassModel: ClassRepository
+    // TeacherModel: TeacherRepository
   ) {
     this.logger = logger;
     this.teachingAssignmentRepository = TeachingAssignmentModel;
     this.classRepository = ClassModel;
-    this.teacherRepository = TeacherModel;
+    // this.teacherRepository = TeacherModel;
   }
   async getAllTeachingAssignments(
     actorId: string,
@@ -105,7 +103,7 @@ class TeachingAssignmentService {
 
       await this.logger.log({
         userId: actorId,
-        action: "GET_TEACHING_ASSIGNMENTS_BY_TEACHER_SCHOOL_ID",
+        action: "GET_TEACHING_ASSIGNMENTS_BY_TEACHER_SCHOOL_CLASS_ID",
         roleSnapshot: userRole,
         targetId: assignment?.id,
         metadata: { found: !!assignment },
@@ -114,7 +112,7 @@ class TeachingAssignmentService {
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GGET_TEACHING_ASSIGNMENTS_BY_TEACHER_SCHOOL_ID_FAILED",
+        action: "GET_TEACHING_ASSIGNMENTS_BY_TEACHER_SCHOOL_CLASS_ID_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
@@ -261,6 +259,37 @@ class TeachingAssignmentService {
         action: "DELETE_TEACHING_ASSIGNMENTS_FAILED",
         roleSnapshot: userRole,
         targetId: id,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getAllAssignmentForTeacherInSchool(
+    actorId: string,
+    userRole: string,
+    teacherId: string,
+    schoolId: string
+  ) {
+    try {
+      const assignment =
+        await this.teachingAssignmentRepository.findClassesByTeacher(
+          teacherId,
+          schoolId
+        );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_TEACHING_ASSIGNMENTS_FOR_TEACHER_IN_SCHOOL",
+        roleSnapshot: userRole,
+        metadata: { found: !!assignment },
+      });
+      return assignment;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ALL_TEACHING_ASSIGNMENTS_FOR_TEACHER_IN_SCHOOL_FAILED",
+        roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
       throw error;

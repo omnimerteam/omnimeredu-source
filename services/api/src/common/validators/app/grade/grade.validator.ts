@@ -11,7 +11,6 @@ export const createGradeBodySchema = GradeSchema.pick({
   ageRange: true,
   description: true,
   customFields: true,
-  linkedClasses: true,
   active: true,
 });
 

@@ -87,7 +87,7 @@ class _ClassSelectorState extends State<ClassSelector> {
           // lọc theo gradeGroup
           var filtered = state.classes.where((c) {
             if (widget.gradeGroup != null &&
-                c.groupGrade != widget.gradeGroup) {
+                c.gradeGroup != widget.gradeGroup) {
               return false;
             }
             return true;

@@ -27,7 +27,12 @@ export interface IGrade extends Document {
 const GradeSchema = new Schema<IGrade>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
+    schoolId: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      required: true,
+      index: true,
+    },
     name: { type: String, required: true },
     level: {
       type: String,
@@ -49,7 +54,6 @@ const GradeSchema = new Schema<IGrade>(
     description: { type: String, required: false },
     customFields: { type: Object, default: {} },
     active: { type: Boolean, default: true },
-    linkedClasses: [{ type: Schema.Types.ObjectId, ref: "Class" }],
   },
   { timestamps: true }
 );

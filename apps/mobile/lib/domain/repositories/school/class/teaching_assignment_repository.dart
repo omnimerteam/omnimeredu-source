@@ -1,4 +1,5 @@
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/teaching_assignment_entity.dart';
 
 abstract class TeachingAssignmentRepository {
@@ -9,13 +10,16 @@ abstract class TeachingAssignmentRepository {
     String classId,
   );
 
-  Future<ApiResponse<TeachingAssignmentEntity>> createTeachingAssignment(
+  Future<ApiResponse<TeachingAssignmentEntity?>> createTeachingAssignment(
     TeachingAssignmentEntity data,
   );
 
-  Future<ApiResponse<TeachingAssignmentEntity>> updateTeachingAssignment(
+  Future<ApiResponse<TeachingAssignmentEntity?>> updateTeachingAssignment(
     TeachingAssignmentEntity data,
   );
 
   Future<ApiResponse<void>> deleteTeachingAssignment(String id);
+
+  Future<ApiResponse<List<ClassTeacherAssignEntity>?>>
+  getClassTeacherAssignments(String teacherId, String schoolId);
 }

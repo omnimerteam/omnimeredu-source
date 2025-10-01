@@ -120,6 +120,13 @@ export const getSchoolAttendanceStatsSchema = z.object({
   date: z.coerce.date().optional().nullable(),
 });
 
+export const getClassAttendanceRecordView = z.object({
+  date: z.coerce.date().optional().default(new Date()),
+  classId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Dữ liệu lớp học không hợp lệ",
+  }),
+});
+
 /**
  * Hàm tạo schema pagination + sort + filter + search
  * @param allowedSortFields Các field được phép sort

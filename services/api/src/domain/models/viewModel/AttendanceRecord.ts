@@ -8,6 +8,12 @@ import {
 export interface IStudentAttendance {
   _id: Types.ObjectId; // chắc chắn ObjectId
   name: string;
+  phone?: string;
+  guardianName: string;
+  guardianPhone: string;
+  gender?: string;
+  birthday?: Date;
+  detailRecordId: Types.ObjectId;
   status: AttendanceStatusEnum;
   note?: string;
 }
@@ -15,6 +21,8 @@ export interface IStudentAttendance {
 // Document AttendanceRecord (view)
 export interface IAttendanceRecordView extends Document {
   _id: Types.ObjectId; // _id của attendance gốc
+  classId: Types.ObjectId;
+  schoolId: Types.ObjectId;
   class: {
     _id: Types.ObjectId;
     name: string;
@@ -33,6 +41,16 @@ const StudentAttendanceSchema = new Schema<IStudentAttendance>(
   {
     _id: { type: Schema.Types.ObjectId, required: true, ref: "BaseUser" }, // ObjectId của học sinh
     name: { type: String, required: true },
+    phone: { type: String, required: false },
+    guardianName: { type: String, required: true },
+    guardianPhone: { type: String, required: true },
+    gender: { type: String, required: false },
+    birthday: { type: Date, required: false },
+    detailRecordId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "DetailsRecord",
+    },
     status: {
       type: String,
       enum: AttendanceStatusTuple,
@@ -45,7 +63,9 @@ const StudentAttendanceSchema = new Schema<IStudentAttendance>(
 
 const AttendanceRecordSchema = new Schema<IAttendanceRecordView>(
   {
-    _id: Types.ObjectId,
+    _id: { type: Schema.Types.ObjectId, required: true },
+    classId: { type: Schema.Types.ObjectId, required: true, ref: "Class" },
+    schoolId: { type: Schema.Types.ObjectId, required: true, ref: "School" },
     class: {
       _id: { type: Schema.Types.ObjectId, required: true, ref: "Class" },
       name: { type: String, required: true },

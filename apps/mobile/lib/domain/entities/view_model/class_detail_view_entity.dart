@@ -1,24 +1,25 @@
 import 'package:equatable/equatable.dart';
 
+/// 🔹 Entity chính: ClassDetailView
 class ClassDetailViewEntity extends Equatable {
-  final String? id;
-  final String? name;
-  final String? code;
+  final String id;
+  final String name;
+  final String code;
   final int? baseFee;
 
-  final SchoolClassDetailView? school;
-  final GradeClassDetailView? grade;
-  final MainTeacherClassDetailView? mainTeacher;
-  final List<StudentClassDetailView>? students;
+  final SchoolClassDetailEntity? school;
+  final GradeClassDetailEntity? grade;
+  final List<TeacherClassDetailEntity>? teachers;
+  final List<StudentClassDetailEntity>? students;
 
   const ClassDetailViewEntity({
-    this.id,
-    this.name,
-    this.code,
+    required this.id,
+    required this.name,
+    required this.code,
     this.baseFee,
     this.school,
     this.grade,
-    this.mainTeacher,
+    this.teachers,
     this.students,
   });
 
@@ -30,64 +31,81 @@ class ClassDetailViewEntity extends Equatable {
     baseFee,
     school,
     grade,
-    mainTeacher,
+    teachers,
     students,
   ];
 }
 
-class SchoolClassDetailView extends Equatable {
-  final String? id;
-  final String? name;
-  final String? code;
-  final String? level;
+/// 🔹 Thông tin trường
+class SchoolClassDetailEntity extends Equatable {
+  final String id;
+  final String name;
+  final String code;
+  final String level;
 
-  const SchoolClassDetailView({this.id, this.name, this.code, this.level});
+  const SchoolClassDetailEntity({
+    required this.id,
+    required this.name,
+    required this.code,
+    required this.level,
+  });
 
   @override
   List<Object?> get props => [id, name, code, level];
 }
 
-class GradeClassDetailView extends Equatable {
-  final String? id;
-  final String? name;
-  final String? level;
+/// 🔹 Thông tin khối (Grade)
+class GradeClassDetailEntity extends Equatable {
+  final String id;
+  final String name;
+  final String level;
 
-  const GradeClassDetailView({this.id, this.name, this.level});
+  const GradeClassDetailEntity({
+    required this.id,
+    required this.name,
+    required this.level,
+  });
 
   @override
   List<Object?> get props => [id, name, level];
 }
 
-class MainTeacherClassDetailView extends Equatable {
-  final String? id;
-  final String? fullName;
-  final String? literacy;
+/// 🔹 Thông tin giáo viên (có thể nhiều, có cờ isMain)
+class TeacherClassDetailEntity extends Equatable {
+  final String id;
+  final String fullName;
+  final String? subject;
   final String? qualification;
+  final bool isMain;
 
-  const MainTeacherClassDetailView({
-    this.id,
-    this.fullName,
-    this.literacy,
+  const TeacherClassDetailEntity({
+    required this.id,
+    required this.fullName,
+    this.subject,
     this.qualification,
+    required this.isMain,
   });
 
   @override
-  List<Object?> get props => [id, fullName, literacy, qualification];
+  List<Object?> get props => [id, fullName, subject, qualification, isMain];
 }
 
-class StudentClassDetailView extends Equatable {
-  final String? id;
-  final String? fullName;
+/// 🔹 Thông tin học sinh
+class StudentClassDetailEntity extends Equatable {
+  final String id;
+  final String fullName;
   final String? gender;
   final String? phone;
+  final String? address;
   final String? guardianName;
   final String? guardianPhone;
 
-  const StudentClassDetailView({
-    this.id,
-    this.fullName,
+  const StudentClassDetailEntity({
+    required this.id,
+    required this.fullName,
     this.gender,
     this.phone,
+    this.address,
     this.guardianName,
     this.guardianPhone,
   });
@@ -98,6 +116,7 @@ class StudentClassDetailView extends Equatable {
     fullName,
     gender,
     phone,
+    address,
     guardianName,
     guardianPhone,
   ];
