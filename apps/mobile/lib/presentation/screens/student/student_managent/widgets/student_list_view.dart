@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
-import '../bloc/student_management_bloc.dart';
-import '../bloc/student_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
 import 'student_list_item.dart';
 
 class StudentListView extends StatelessWidget {

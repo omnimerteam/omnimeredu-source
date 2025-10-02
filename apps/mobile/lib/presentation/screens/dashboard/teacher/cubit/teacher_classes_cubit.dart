@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/attendance/attendance_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_class_teacher_assignments_usecase.dart';
 import 'teacher_classes_state.dart';
 
 class TeacherClassesCubit extends Cubit<TeacherClassesState> {

@@ -2,6 +2,7 @@ import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/teaching_assignment_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/teaching_assignment/teaching_assignment_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/teaching_assignment_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/teaching_assignment_repository.dart';
@@ -94,6 +95,21 @@ class TeachingAssignmentRepositoryImpl implements TeachingAssignmentRepository {
     try {
       final res = await remote.getClassTeacherAssignments(teacherId, schoolId);
       return ApiResponse<List<ClassTeacherAssignEntity>?>(
+        success: res.success,
+        message: res.message,
+        data: res.data?.map((e) => e.toEntity()).toList(),
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<ApiResponse<List<ClassSearchEntity>?>>
+  getClassesTeacherAssignByTeacherId(String teacherId) async {
+    try {
+      final res = await remote.getClassesTeacherAssignByTeacherId(teacherId);
+      return ApiResponse<List<ClassSearchEntity>?>(
         success: res.success,
         message: res.message,
         data: res.data?.map((e) => e.toEntity()).toList(),

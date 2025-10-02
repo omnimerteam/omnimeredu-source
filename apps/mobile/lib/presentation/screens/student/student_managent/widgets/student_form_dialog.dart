@@ -3,18 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/student_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/widgets/class_selector.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/class_selector.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
-import '../bloc/student_management_bloc.dart';
-import '../bloc/student_management_event.dart';
-import '../bloc/student_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
 
 class StudentFormDialog extends StatefulWidget {
   final StudentEntity? studentToEdit;
@@ -557,7 +557,7 @@ class _StudentFormDialogState extends State<StudentFormDialog> {
                               if (authState is AuthenticationAuthenticated &&
                                   authState.user.schoolId != null) {
                                 return BlocProvider.value(
-                                  value: context.read<ClassBloc>(),
+                                  value: context.read<ClassSelectorBloc>(),
                                   child: ClassSelector(
                                     schoolId: authState.user.schoolId!,
                                     gradeGroup: _selectedGrade,

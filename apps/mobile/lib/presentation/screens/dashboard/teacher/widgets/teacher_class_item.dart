@@ -208,7 +208,7 @@ class TeacherClassItem extends StatelessWidget {
           value: 'view_students',
           icon: Icons.people_outline,
           color: Colors.orange.shade700,
-          text: 'Xem chi tiết học sinh',
+          text: 'Chi tiết lớp học',
         ),
       ],
       onSelected: (value) {

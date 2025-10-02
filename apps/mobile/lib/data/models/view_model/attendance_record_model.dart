@@ -1,4 +1,5 @@
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/view_model/attendance_record_view_entity.dart';
 
 /// 🔹 Model cho StudentAttendanceEntity
@@ -11,7 +12,7 @@ class StudentAttendanceModel {
   final String? gender;
   final DateTime? birthday;
   final String detailRecordId;
-  final String status;
+  final AttendanceStatusEnum status;
   final String? note;
 
   const StudentAttendanceModel({
@@ -41,7 +42,7 @@ class StudentAttendanceModel {
             )
           : null,
       detailRecordId: json['detailRecordId'] as String,
-      status: json['status'] as String,
+      status: AttendanceStatusEnum.fromString(json['status'] as String?),
       note: json['note'] as String?,
     );
   }
@@ -56,7 +57,7 @@ class StudentAttendanceModel {
       'gender': gender,
       'birthday': birthday?.toUtc().toIso8601String(),
       'detailRecordId': detailRecordId,
-      'status': status,
+      'status': status.name,
       'note': note,
     };
   }
@@ -191,8 +192,8 @@ class AttendanceRecordViewModel {
       id: json['_id'] as String,
       classId: json['classId'] as String,
       schoolId: json['schoolId'] as String,
-      classInfo: AttendanceClassInfoModel.fromJson(json['classInfo']),
-      schoolInfo: AttendanceSchoolInfoModel.fromJson(json['schoolInfo']),
+      classInfo: AttendanceClassInfoModel.fromJson(json['class']),
+      schoolInfo: AttendanceSchoolInfoModel.fromJson(json['school']),
       date: AppConstants.toVietnamTime(DateTime.parse(json['date'] as String))!,
       students: (json['students'] as List<dynamic>)
           .map(

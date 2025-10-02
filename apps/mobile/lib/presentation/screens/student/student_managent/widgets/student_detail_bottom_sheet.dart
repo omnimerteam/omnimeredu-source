@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/student_entity.dart';
-import '../bloc/student_management_bloc.dart';
-import '../bloc/student_management_event.dart';
-import '../bloc/student_management_state.dart';
 
 class StudentDetailsBottomSheet extends StatelessWidget {
   const StudentDetailsBottomSheet({super.key});

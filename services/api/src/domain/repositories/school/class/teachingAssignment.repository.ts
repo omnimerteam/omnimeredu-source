@@ -100,6 +100,65 @@ class TeachingAssignmentRepository extends BaseRepository<ITeachingAssignment> {
       },
     ]);
   }
+
+  async getClassesTeacherAssignByTeacherId(
+    teacherId: string,
+    schoolId: string
+  ) {
+    try {
+      const classes = await this.model
+        .aggregate([
+          {
+            $match: {
+              teacherId: new Types.ObjectId(teacherId),
+              schoolId: new Types.ObjectId(schoolId),
+            },
+          },
+          {
+            $lookup: {
+              from: "classes",
+              localField: "classId",
+              foreignField: "_id",
+              as: "class",
+              pipeline: [
+                {
+                  $lookup: {
+                    from: "grades",
+                    localField: "gradeId",
+                    foreignField: "_id",
+                    as: "grade",
+                  },
+                },
+                {
+                  $unwind: { path: "$grade", preserveNullAndEmptyArrays: true },
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    name: 1,
+                    code: 1,
+                    schoolId: 1,
+                    gradeId: 1,
+                    gradeGroup: "$grade.gradeGroup",
+                  },
+                },
+              ],
+            },
+          },
+          { $unwind: "$class" },
+          {
+            $replaceRoot: { newRoot: "$class" }, // lấy thẳng class làm root output
+          },
+          { $sort: { name: 1 } },
+        ])
+        .exec();
+
+      return classes;
+    } catch (err) {
+      console.error("Error searching classes by teacher:", err);
+      throw err;
+    }
+  }
 }
 
 export default TeachingAssignmentRepository;

@@ -5,8 +5,8 @@ import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentic
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/teaching_assignment_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/personnel_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 import '../bloc/personnel_management_bloc.dart';
@@ -88,8 +88,8 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
     });
 
     // Tìm tên lớp để hiển thị
-    final classState = context.read<ClassBloc>().state;
-    if (classState is ClassLoaded) {
+    final classState = context.read<ClassSelectorBloc>().state;
+    if (classState is ClassSelectorLoaded) {
       final selectedClass = classState.classes.firstWhere(
         (c) => c.id == classId,
         orElse: () => classState.classes.first,
@@ -364,9 +364,9 @@ class _AssignmentDialogState extends State<AssignmentDialog> {
                             const SizedBox(height: 12),
 
                             // Step 1: Class selection
-                            BlocBuilder<ClassBloc, ClassState>(
+                            BlocBuilder<ClassSelectorBloc, ClassSelectorState>(
                               builder: (context, classState) {
-                                if (classState is ClassLoaded) {
+                                if (classState is ClassSelectorLoaded) {
                                   return Focus(
                                     focusNode: _classFocusNode,
                                     child: PrimaryDropdown<String>(

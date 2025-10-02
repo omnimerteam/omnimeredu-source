@@ -52,7 +52,7 @@ router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: studentQuerySchema }),
   verifyFirebaseToken,
-  verifyRole(["Teacher", "SchoolAdmin"]),
+  verifyRole(["Teacher", "SchoolAdmin", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.getAllStudents(req, res, next)
 );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
@@ -45,7 +45,7 @@ class _StudentFilterControlsState extends State<StudentFilterControls> {
       builder: (_) {
         return MultiBlocProvider(
           providers: [
-            BlocProvider.value(value: context.read<ClassBloc>()),
+            BlocProvider.value(value: context.read<ClassSelectorBloc>()),
             BlocProvider.value(value: context.read<AuthenticationBloc>()),
           ],
           child: _FilterBottomSheetContent(
@@ -214,12 +214,12 @@ class _FilterBottomSheetContentState extends State<_FilterBottomSheetContent> {
   Widget _buildClassSection(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocBuilder<ClassBloc, ClassState>(
+    return BlocBuilder<ClassSelectorBloc, ClassSelectorState>(
       builder: (context, state) {
-        if (state is ClassLoading) {
+        if (state is ClassSelectorLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (state is ClassLoaded) {
+        if (state is ClassSelectorLoaded) {
           final classes = state.classes;
           final String? selectedClassId = _tempFilterData['classId'] as String?;
 

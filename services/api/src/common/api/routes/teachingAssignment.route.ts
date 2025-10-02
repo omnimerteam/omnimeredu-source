@@ -22,6 +22,7 @@ import { authHeaderSchema } from "../../validators/common/header/header.validato
 import {
   objectIdParamSchema,
   teacherAndSchoolParamsSchema,
+  teacherParamsSchema,
 } from "../../validators/common/params/params.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
@@ -107,6 +108,21 @@ router.get(
   verifyFirebaseToken,
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getAllAssignmentForTeacherInSchool(
+      req,
+      res,
+      next
+    )
+);
+
+router.get(
+  "/teacherId/:teacherId",
+  validateData({
+    headers: authHeaderSchema,
+    params: teacherParamsSchema,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    teachingAssignmentController.getClassesTeacherAssignByTeacherId(
       req,
       res,
       next

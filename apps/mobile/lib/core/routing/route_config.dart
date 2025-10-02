@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/registration_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/class_detail_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
@@ -26,14 +29,18 @@ import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/school_data_schooladmin_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/student_management_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/student_management_screen.dart';
 
 import 'role_guard.dart';
 
 class RouteConfig {
-  static Widget buildPage({required String routeName, required String role}) {
+  static Widget buildPage({
+    required String routeName,
+    required String role,
+    Map<String, dynamic>? arguments,
+  }) {
     if (!RoleGuard.canAccess(role, routeName)) {
       return const _ForbiddenPage();
     }
@@ -54,6 +61,17 @@ class RouteConfig {
           create: (_) =>
               sl<ClassManagementBloc>()..add(const LoadClassesEvent()),
           child: const ClassManagementPage(),
+        );
+
+      case '/school-admin/classes/detail':
+        logger.i("argument: ${arguments}");
+        final classId = arguments?['classId'] as String?;
+        if (classId == null) {
+          return const _ErrorPage(message: 'Class ID is required');
+        }
+        return BlocProvider(
+          create: (_) => sl<ClassDetailCubit>(),
+          child: ClassDetailScreen(classId: classId),
         );
 
       case '/school-admin/membership-requests':
@@ -85,7 +103,7 @@ class RouteConfig {
                 if (authState is AuthenticationAuthenticated) {
                   schoolId = authState.user.schoolId ?? '';
                 }
-                final bloc = sl<ClassBloc>();
+                final bloc = sl<ClassSelectorBloc>();
                 if (schoolId.isNotEmpty) {
                   bloc.add(LoadClassesBySchool(schoolId));
                 }
@@ -100,7 +118,7 @@ class RouteConfig {
         return MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => sl<PersonnelManagementBloc>()),
-            BlocProvider(create: (_) => sl<ClassBloc>()),
+            BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
             BlocProvider(create: (_) => sl<RoleBloc>()),
           ],
           child:
@@ -118,7 +136,7 @@ class RouteConfig {
         providers: [
           BlocProvider(create: (_) => sl<RegistrationBloc>()),
           BlocProvider(create: (_) => sl<SchoolBloc>()),
-          BlocProvider(create: (_) => sl<ClassBloc>()),
+          BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
         ],
         child: const RegistrationScreen(),
       );
@@ -139,6 +157,35 @@ class _ForbiddenPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(child: Text("Bạn không có quyền truy cập trang này")),
+    );
+  }
+}
+
+class _ErrorPage extends StatelessWidget {
+  final String message;
+
+  const _ErrorPage({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Lỗi', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Text(message),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Quay lại'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
@@ -37,7 +36,7 @@ class TeacherDashboard extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             TeacherClassesSection(
               isLoading: isLoading,
               state: state,
@@ -55,7 +54,7 @@ class TeacherDashboard extends StatelessWidget {
                 );
               },
               onViewStudents: (assignment) =>
-                  _navigateToStudentsList(context, assignment),
+                  _navigateToClassDetail(context, assignment),
             ),
             const SizedBox(height: 32),
             DashboardQuickAccess(roleName: user.roleName),
@@ -118,17 +117,14 @@ class TeacherDashboard extends StatelessWidget {
     );
   }
 
-  void _navigateToStudentsList(
+  void _navigateToClassDetail(
     BuildContext context,
     ClassTeacherAssignEntity assignment,
   ) {
     Navigator.pushNamed(
       context,
-      '/students-list',
-      arguments: {
-        'classId': assignment.classEntity.id,
-        'className': assignment.classEntity.name,
-      },
+      '/school-admin/classes/detail',
+      arguments: {'classId': assignment.classEntity.id},
     );
   }
 }

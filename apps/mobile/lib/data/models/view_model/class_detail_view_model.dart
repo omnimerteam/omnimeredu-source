@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/view_model/class_detail_view_entity.dart';
 
 /// 🔹 Model chính: ClassDetailViewModel
@@ -34,14 +35,21 @@ class ClassDetailViewModel {
               id: json['school']['_id'] as String,
               name: json['school']['name'] as String,
               code: json['school']['code'] as String,
-              level: json['school']['level'] as String,
+              level: EducationSystemLevelsEnum.fromString(
+                json['school']['level'] as String?,
+              ),
             )
           : null,
       grade: json['grade'] != null
           ? GradeClassDetailEntity(
               id: json['grade']['_id'] as String,
               name: json['grade']['name'] as String,
-              level: json['grade']['level'] as String,
+              level: EducationSystemLevelsEnum.fromString(
+                json['grade']['level'] as String?,
+              ),
+              gradeGroup: EducationGradesEnum.fromString(
+                json['grade']['gradeGroup'] as String?,
+              ),
             )
           : null,
       teachers: (json['teachers'] as List<dynamic>?)
@@ -49,8 +57,10 @@ class ClassDetailViewModel {
             (t) => TeacherClassDetailEntity(
               id: t['_id'] as String,
               fullName: t['fullName'] as String,
-              subject: t['subject'] as String?,
-              qualification: t['qualification'] as String?,
+              subject: SubjectEnum.fromString(t['subject'] as String?),
+              qualification: TeacherQualificationEnum.fromString(
+                t['qualification'] as String?,
+              ),
               isMain: t['isMain'] as bool? ?? false,
             ),
           )

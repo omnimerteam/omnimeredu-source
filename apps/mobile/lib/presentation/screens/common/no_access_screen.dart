@@ -38,7 +38,7 @@ class NoAccessScreen extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.of(context).pop(); // hoặc chuyển về Home/Login
+                  Navigator.of(context).pushNamed("/main");
                 },
                 icon: const Icon(Icons.home),
                 label: const Text('Quay về trang chủ'),

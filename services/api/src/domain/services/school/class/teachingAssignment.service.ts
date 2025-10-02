@@ -295,6 +295,37 @@ class TeachingAssignmentService {
       throw error;
     }
   }
+
+  async getClassesTeacherAssignByTeacherId(
+    actorId: string,
+    userRole: string,
+    teacherId: string,
+    schoolId: string
+  ) {
+    try {
+      const assignments =
+        await this.teachingAssignmentRepository.getClassesTeacherAssignByTeacherId(
+          teacherId,
+          schoolId
+        );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASSES_TEACHER_ASSIGN",
+        roleSnapshot: userRole,
+        metadata: { found: !!assignments },
+      });
+      return assignments;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASSES_TEACHER_ASSIGN_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
 }
 
 export default TeachingAssignmentService;

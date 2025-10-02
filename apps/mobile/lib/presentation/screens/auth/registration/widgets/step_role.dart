@@ -13,7 +13,7 @@ import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/regi
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/register_text_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-import 'class_selector.dart';
+import '../../../common/class_selector/class_selector.dart';
 
 class StepRole extends StatefulWidget {
   final RegistrationState state;

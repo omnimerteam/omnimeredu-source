@@ -275,3 +275,24 @@ enum MembershipStatusEnum {
     );
   }
 }
+
+enum AttendanceStatusEnum {
+  Present("Có mặt"),
+  AbsentWithLeave("Vắng có phép"),
+  Absent("Vắng không phép"),
+  Late("Đi học trễ"),
+  LeftEarly("Về sớm"),
+  None("Chưa điểm danh");
+
+  final String displayName;
+  const AttendanceStatusEnum(this.displayName);
+
+  String get asString => name;
+
+  static AttendanceStatusEnum fromString(String? value) {
+    return AttendanceStatusEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => AttendanceStatusEnum.None,
+    );
+  }
+}

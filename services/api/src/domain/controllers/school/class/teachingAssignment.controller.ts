@@ -305,5 +305,45 @@ class TeachingAssignmentController {
       return next(error);
     }
   }
+
+  async getClassesTeacherAssignByTeacherId(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const schoolId = req.user?.schoolId;
+    const teacherId = req.params.teacherId;
+    try {
+      const assignment =
+        await this.teachingAssignmentService.getClassesTeacherAssignByTeacherId(
+          actorId,
+          userRole,
+          teacherId,
+          schoolId
+        );
+
+      if (!assignment) {
+        sendEmpty(res, "Không tìm thấy dữ liệu");
+        return;
+      }
+
+      sendSuccess(res, assignment, "Lấy phân công giảng dạy thành công");
+      return;
+    } catch (error) {
+      console.log(
+        chalk.red(
+          "[TEACHING ASSIGNMENT] Error getting ALL teaching assignments for teacher in school: ",
+          error
+        )
+      );
+      return next(error);
+    }
+  }
 }
 export default TeachingAssignmentController;

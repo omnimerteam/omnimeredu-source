@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/widgets/student_detail_bottom_sheet.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/widgets/student_sort_control.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/widgets/student_detail_bottom_sheet.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/widgets/student_sort_control.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
-import 'bloc/student_management_bloc.dart';
-import 'bloc/student_management_state.dart';
 import 'widgets/student_list_view.dart';
 import 'widgets/student_form_dialog.dart';
 
@@ -66,7 +66,9 @@ class StudentManagementView extends StatelessWidget {
                         BlocProvider.value(
                           value: context.read<AuthenticationBloc>(),
                         ),
-                        BlocProvider.value(value: context.read<ClassBloc>()),
+                        BlocProvider.value(
+                          value: context.read<ClassSelectorBloc>(),
+                        ),
                       ],
                       child: StudentFormDialog(
                         studentToEdit: state.studentToEdit,
@@ -115,7 +117,9 @@ class StudentManagementView extends StatelessWidget {
                         BlocProvider.value(
                           value: context.read<StudentManagementBloc>(),
                         ),
-                        BlocProvider.value(value: context.read<ClassBloc>()),
+                        BlocProvider.value(
+                          value: context.read<ClassSelectorBloc>(),
+                        ),
                       ],
                       child: StudentSortControls(),
                     ),

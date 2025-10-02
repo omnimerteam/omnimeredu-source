@@ -143,7 +143,7 @@ class AttendanceController {
         );
 
       if (!attendance) {
-        sendNotFound(res, "Không tìm thấy bảng điểm danh cho lớp này");
+        sendEmpty(res, "Không tìm thấy bảng điểm danh cho lớp này");
         return;
       }
 

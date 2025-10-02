@@ -11,9 +11,7 @@ import {
 
 import {
   AttendanceRepository,
-  SchoolAdminRepository,
   ClassRepository,
-  TeacherRepository,
   ActivityLogRepository,
   AttendanceRecordViewRepository,
 } from "../../../domain/repositories";

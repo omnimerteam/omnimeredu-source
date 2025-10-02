@@ -41,6 +41,7 @@ class AppView extends StatelessWidget {
               builder: (_) => RouteConfig.buildPage(
                 routeName: settings.name ?? '/main',
                 role: authState.user.roleName,
+                arguments: settings.arguments as Map<String, dynamic>?,
               ),
               settings: settings,
             );

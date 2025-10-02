@@ -5,9 +5,9 @@ import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/class/class_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 
 class ClassSelector extends StatefulWidget {
@@ -42,7 +42,9 @@ class _ClassSelectorState extends State<ClassSelector> {
   void initState() {
     super.initState();
     if (widget.autoLoad && widget.schoolId.isNotEmpty) {
-      context.read<ClassBloc>().add(LoadClassesBySchool(widget.schoolId));
+      context.read<ClassSelectorBloc>().add(
+        LoadClassesBySchool(widget.schoolId),
+      );
     }
   }
 
@@ -63,7 +65,9 @@ class _ClassSelectorState extends State<ClassSelector> {
       });
 
       if (widget.schoolId.isNotEmpty) {
-        context.read<ClassBloc>().add(LoadClassesBySchool(widget.schoolId));
+        context.read<ClassSelectorBloc>().add(
+          LoadClassesBySchool(widget.schoolId),
+        );
       }
     }
     // 👉 Nếu chỉ đổi gradeGroup => reset selected nhưng không reload
@@ -79,11 +83,11 @@ class _ClassSelectorState extends State<ClassSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ClassBloc, ClassState>(
+    return BlocBuilder<ClassSelectorBloc, ClassSelectorState>(
       builder: (context, state) {
-        if (state is ClassLoading) {
+        if (state is ClassSelectorLoading) {
           return _loadingDropdown(context);
-        } else if (state is ClassLoaded) {
+        } else if (state is ClassSelectorLoaded) {
           // lọc theo gradeGroup
           var filtered = state.classes.where((c) {
             if (widget.gradeGroup != null &&
@@ -150,7 +154,7 @@ class _ClassSelectorState extends State<ClassSelector> {
               },
             ),
           );
-        } else if (state is ClassError) {
+        } else if (state is ClassSelectorError) {
           logger.e("Load Error: ${state.message}");
           return _errorDropdown(context, state.message);
         }

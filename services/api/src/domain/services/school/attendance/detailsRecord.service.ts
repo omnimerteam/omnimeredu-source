@@ -204,6 +204,9 @@ class DetailsRecordService {
       const existingRecord = await this.detailsRecordRepository.findById(
         recordId
       );
+
+      console.log("exs", existingRecord);
+
       if (!existingRecord)
         throw new HttpError(404, "Không tìm thấy bản ghi theo ID");
 

@@ -6,7 +6,10 @@ import {
 } from "../../repositories";
 import { IStudent } from "../../models";
 import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
-import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
+import {
+  buildPermissionFilterForClass,
+  buildPermissionFilterForStudent,
+} from "../../../common/utils/permissionFilter";
 import { HttpError } from "../../../common/utils/HttpError";
 import { RoleEnum } from "../../../common/enum/role.enum";
 class StudentService {
@@ -34,7 +37,7 @@ class StudentService {
     options?: PaginationQueryOptions
   ) {
     try {
-      const filter = buildPermissionFilter(userRole, schoolId);
+      const filter = buildPermissionFilterForStudent(userRole, schoolId);
 
       const students = await this.studentRepository.findAllStudent(
         filter,

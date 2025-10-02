@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/filter/student_filter_widgter.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/sort/multi_sort_bottom_sheet.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/search_text_field.dart';
-import '../bloc/student_management_bloc.dart';
-import '../bloc/student_management_event.dart';
-import '../bloc/student_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
 
 class StudentSortControls extends StatefulWidget {
   const StudentSortControls({super.key});

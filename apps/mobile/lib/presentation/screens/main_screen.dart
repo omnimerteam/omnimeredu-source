@@ -107,7 +107,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
                       children: [
                         const KeepAliveWrapper(child: DashboardScreenWrapper()),
-                        MainFeatureScreen(user: user),
+                        KeepAliveWrapper(child: MainFeatureScreen(user: user)),
                         const MoreScreen(),
                       ],
                     ),

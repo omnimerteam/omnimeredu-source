@@ -5,6 +5,12 @@ import {
   TeacherQualificationEnum,
   TeacherQualificationTuple,
 } from "../../../common/enum/teacher.enum";
+import {
+  EducationGradesEnum,
+  EducationGradesTuple,
+  EducationSystemLevelsEnum,
+  EducationSystemLevelsTuple,
+} from "../../../common/enum/educationSystemLevels.enum";
 
 export interface IClassDetailView extends Document {
   _id: Types.ObjectId;
@@ -22,7 +28,8 @@ export interface IClassDetailView extends Document {
   grade: {
     _id: Types.ObjectId;
     name: string;
-    level: string;
+    level: EducationSystemLevelsEnum;
+    gradeGroup: EducationGradesEnum;
   } | null;
 
   teachers:
@@ -71,7 +78,8 @@ const ClassDetailSchema = new Schema<IClassDetailView>(
     grade: {
       _id: { type: Schema.Types.ObjectId, ref: "Grade" },
       name: { type: String },
-      level: { type: String },
+      level: { type: String, enum: EducationSystemLevelsTuple },
+      gradeGroup: { type: String, enum: EducationGradesTuple },
     },
 
     // main teacher info

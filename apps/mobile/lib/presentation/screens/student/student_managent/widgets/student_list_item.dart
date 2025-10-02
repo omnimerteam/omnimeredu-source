@@ -4,8 +4,8 @@ import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.
 import 'package:intl/intl.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/student_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/delete_confirm_dialog.dart';
-import '../bloc/student_management_bloc.dart';
-import '../bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
 
 class StudentListItem extends StatelessWidget {
   final StudentEntity student;

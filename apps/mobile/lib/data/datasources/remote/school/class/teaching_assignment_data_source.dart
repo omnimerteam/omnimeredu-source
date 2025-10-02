@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
+import 'package:flutter_ios_android_platforms/data/models/class/class_search_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_teacher_assign_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/teaching_assignment/teaching_assignment_model.dart';
 
@@ -35,7 +36,7 @@ class TeachingAssignmentRemoteDataSource {
         if (data is Map<String, dynamic>) {
           return TeachingAssignmentModel.fromJson(data);
         }
-        throw Exception("API không trả về dữ liệu teaching assignment hợp lệ");
+        throw Exception("API không trả về dữ liệu hợp lệ");
       },
     );
 
@@ -56,7 +57,7 @@ class TeachingAssignmentRemoteDataSource {
         if (data is Map<String, dynamic>) {
           return TeachingAssignmentModel.fromJson(data);
         }
-        throw Exception("API không trả về dữ liệu teaching assignment hợp lệ");
+        throw Exception("API không trả về dữ liệu hợp lệ");
       },
     );
 
@@ -77,7 +78,7 @@ class TeachingAssignmentRemoteDataSource {
         if (data is Map<String, dynamic>) {
           return TeachingAssignmentModel.fromJson(data);
         }
-        throw Exception("API không trả về dữ liệu teaching assignment hợp lệ");
+        throw Exception("API không trả về dữ liệu hợp lệ");
       },
     );
 
@@ -113,7 +114,28 @@ class TeachingAssignmentRemoteDataSource {
               )
               .toList();
         }
-        throw Exception("API không trả về dữ liệu teaching assignment hợp lệ");
+        throw Exception("API không trả về dữ liệu hợp lệ");
+      },
+    );
+
+    return res;
+  }
+
+  // Lấy danh sách lớp cô giáo quản lý cho selectors
+  Future<ApiResponse<List<ClassSearchModel>?>>
+  getClassesTeacherAssignByTeacherId(String teacherId) async {
+    final token = await _getIdToken();
+
+    final res = await client.get<List<ClassSearchModel>?>(
+      Endpoints.getClassesTeacherAssignByTeacherId(teacherId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      parser: (data) {
+        if (data is List) {
+          return data
+              .map((e) => ClassSearchModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+        throw Exception("API không trả về dữ liệu hợp lệ");
       },
     );
 

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 /// 🔹 Entity cho từng học sinh trong attendance
 class StudentAttendanceEntity extends Equatable {
@@ -10,7 +11,7 @@ class StudentAttendanceEntity extends Equatable {
   final String? gender;
   final DateTime? birthday;
   final String detailRecordId;
-  final String status;
+  final AttendanceStatusEnum status;
   final String? note;
 
   const StudentAttendanceEntity({

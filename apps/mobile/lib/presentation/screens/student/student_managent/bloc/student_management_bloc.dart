@@ -6,8 +6,8 @@ import 'package:flutter_ios_android_platforms/domain/usecases/student/delete_stu
 import 'package:flutter_ios_android_platforms/domain/usecases/student/get_all_students_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/student/get_student_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_event.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/student/bloc/student_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_state.dart';
 
 class StudentManagementBloc
     extends Bloc<StudentManagementEvent, StudentManagementState> {

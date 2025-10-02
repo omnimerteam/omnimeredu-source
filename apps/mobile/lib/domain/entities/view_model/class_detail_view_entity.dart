@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 /// 🔹 Entity chính: ClassDetailView
 class ClassDetailViewEntity extends Equatable {
@@ -41,7 +42,7 @@ class SchoolClassDetailEntity extends Equatable {
   final String id;
   final String name;
   final String code;
-  final String level;
+  final EducationSystemLevelsEnum level;
 
   const SchoolClassDetailEntity({
     required this.id,
@@ -58,24 +59,26 @@ class SchoolClassDetailEntity extends Equatable {
 class GradeClassDetailEntity extends Equatable {
   final String id;
   final String name;
-  final String level;
+  final EducationSystemLevelsEnum level;
+  final EducationGradesEnum gradeGroup;
 
   const GradeClassDetailEntity({
     required this.id,
     required this.name,
     required this.level,
+    required this.gradeGroup,
   });
 
   @override
-  List<Object?> get props => [id, name, level];
+  List<Object?> get props => [id, name, level, gradeGroup];
 }
 
 /// 🔹 Thông tin giáo viên (có thể nhiều, có cờ isMain)
 class TeacherClassDetailEntity extends Equatable {
   final String id;
   final String fullName;
-  final String? subject;
-  final String? qualification;
+  final SubjectEnum? subject;
+  final TeacherQualificationEnum? qualification;
   final bool isMain;
 
   const TeacherClassDetailEntity({
