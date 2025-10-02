@@ -1,36 +1,53 @@
+import { Types } from "mongoose";
+import DateUtils from "../../../../common/utils/DateUtils";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
+import { HttpError } from "../../../../common/utils/HttpError";
+import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
 import { IAttendance } from "../../../models";
 import {
   AttendanceRepository,
   SchoolAdminRepository,
   ClassRepository,
   TeacherRepository,
+  AttendanceRecordViewRepository,
 } from "../../../repositories";
 
 class AttendanceService {
   private readonly attendanceRepository: AttendanceRepository;
-  private readonly schoolAdminRepository: SchoolAdminRepository;
   private readonly classRepository: ClassRepository;
-  private readonly teacherRepository: TeacherRepository;
   private readonly logger: DefaultLogger;
+  private readonly attendanceRecordViewRepository: AttendanceRecordViewRepository;
 
   constructor(
     attendanceRepository: AttendanceRepository,
-    schoolAdminRepository: SchoolAdminRepository,
     classRepository: ClassRepository,
-    teacherRepository: TeacherRepository,
+    attendanceRecordViewRepository: AttendanceRecordViewRepository,
     logger: DefaultLogger
   ) {
     this.attendanceRepository = attendanceRepository;
-    this.schoolAdminRepository = schoolAdminRepository;
     this.classRepository = classRepository;
-    this.teacherRepository = teacherRepository;
+    this.attendanceRecordViewRepository = attendanceRecordViewRepository;
     this.logger = logger;
   }
 
-  async getAllAttendances(actorId: string, userRole: string) {
+  async getAllAttendances(
+    actorId: string,
+    userRole: string,
+    schoolId?: string,
+    date?: Date,
+    timezone: string = "Asia/Ho_Chi_Minh"
+  ) {
     try {
-      const attendances = await this.attendanceRepository.findAll();
+      let filter: any = {};
+
+      filter = buildPermissionFilter(userRole, schoolId);
+
+      if (date) {
+        const { start, end } = DateUtils.getUtcDayRange(date, timezone);
+        filter.date = { $gte: start, $lte: end };
+      }
+
+      const attendances = await this.attendanceRepository.findAll({ filter });
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_ATTENDANCES",
@@ -58,14 +75,15 @@ class AttendanceService {
     try {
       const attendance = await this.attendanceRepository.findById(id);
       if (!attendance) {
-        throw new Error("Không tìm thấy buổi điểm danh");
+        throw new HttpError(404, "Không tìm thấy buổi điểm danh");
       }
 
-      const attendanceSchoolId = attendance.schoolId?.toString();
-
       // Chỉ kiểm tra khi không phải SuperAdmin
-      if (userRole === "SchoolAdmin" && actorSchoolId !== attendanceSchoolId) {
-        throw new Error("Tài khoản không có quyền truy cập");
+      if (
+        userRole === "SchoolAdmin" &&
+        actorSchoolId != attendance.schoolId?.toString()
+      ) {
+        throw new HttpError(403, "Tài khoản không có quyền truy cập");
       }
 
       await this.logger.log({
@@ -89,86 +107,97 @@ class AttendanceService {
     }
   }
 
-  async getAttendancesBySchoolId(
-    schoolId: string,
+  async getAttendanceRecordViewById(
+    id: string,
     actorSchoolId: string,
     actorId: string,
     userRole: string
   ) {
     try {
-      if (userRole === "SchoolAdmin" && actorSchoolId !== schoolId) {
-        throw new Error("Tài khoản không có quyền truy cập");
+      const attendance = await this.attendanceRecordViewRepository.findById(id);
+      if (!attendance) {
+        throw new HttpError(404, "Không tìm thấy bảng điểm danh");
       }
 
-      const attendances = await this.attendanceRepository.findBySchoolId(
-        schoolId
-      );
+      // Chỉ kiểm tra khi không phải SuperAdmin
+      if (
+        userRole === "SchoolAdmin" &&
+        actorSchoolId != attendance.schoolId?.toString()
+      ) {
+        throw new HttpError(403, "Tài khoản không có quyền truy cập");
+      }
 
       await this.logger.log({
         userId: actorId,
-        action: "GET_ATTENDANCES_BY_SCHOOL_ID",
+        action: "GET_ATTENDANCE_RECORD_VIEW_BY_ID",
         roleSnapshot: userRole,
-        targetId: schoolId,
-        metadata: { count: attendances.length },
+        targetId: id,
+        metadata: { attendance },
       });
 
-      return attendances;
+      return attendance;
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GET_ATTENDACENCES_BY_SCHOOL_ID_FAILED",
+        action: "GET_ATTENDANCE_RECORD_VIEW_BY_ID_FAILED",
         roleSnapshot: userRole,
-        targetId: schoolId,
+        targetId: id,
         metadata: { error: (error as Error).message },
       });
       throw error;
     }
   }
 
-  async getAttendancesByClassId(
+  async getClassAttendanceRecordView(
     classId: string,
     actorId: string,
     actorSchoolId: string,
-    userRole: string
+    userRole: string,
+    date: Date,
+    timezone: string = "Asia/Ho_Chi_Minh" // default múi giờ VN
   ) {
     try {
       if (userRole !== "SuperAdmin") {
-        const currentClass = await this.classRepository.findById(
-          classId.toString()
-        );
-
-        //Kiem tra currentClass có tồn tại hay không
+        const currentClass = await this.classRepository.findById(classId);
         if (!currentClass) {
-          throw new Error("class not found");
+          throw new HttpError(
+            400,
+            "Không tìm thấy thông tin của lớp điểm danh"
+          );
         }
 
-        //schoolId from currentClass
-        const classSchoolId = currentClass?.schoolId.toString();
-
-        // So sánh schoolId
-        if (userRole === "SchoolAdmin" && actorSchoolId !== classSchoolId) {
-          throw new Error(
-            "Bạn không có quyền truy cập bảng điểm danh của lớp này"
+        if (actorSchoolId != currentClass.schoolId.toString()) {
+          throw new HttpError(
+            403,
+            "Bạn không có quyền xem bảng điểm danh của lớp này"
           );
         }
       }
 
-      const attendances = await this.attendanceRepository.findByClassId(
-        classId
+      // 🔹 Convert date sang start/end UTC theo timezone
+      let filter: any = { classId };
+      const { start, end } = DateUtils.getUtcDayRange(date, timezone);
+      filter.date = { $gte: start, $lte: end };
+
+      console.log("Filter for getAttendancesByClassId:", filter);
+
+      const attendance = await this.attendanceRecordViewRepository.findOne(
+        filter
       );
 
       await this.logger.log({
         userId: actorId,
-        action: "GET_ATTENDANCE_BY_CLASS_ID",
+        action: "GET_ATTENDANCE_RECORD_VIEW",
         roleSnapshot: userRole,
         targetId: classId,
-        metadata: { count: attendances.length },
+        metadata: { attendance },
       });
-      return attendances;
+
+      return attendance;
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GET_ATTENDANCE_BY_CLASS_ID_FAILED",
+        action: "GET_ATTENDANCE_RECORD_VIEW_FAILED",
         roleSnapshot: userRole,
         targetId: classId,
         metadata: { error: (error as Error).message },
@@ -185,24 +214,23 @@ class AttendanceService {
   ) {
     try {
       if (userRole !== "SuperAdmin") {
-        const classId = AttendanceData.classId;
-        if (!classId) {
-          throw new Error("ID của lớp điểm danh không được cung cấp");
-        }
-
         // Tìm class và populate schoolId (nếu cần)
         const currentClass = await this.classRepository.findById(
-          classId.toString()
+          AttendanceData.classId!.toString()
         );
 
         if (!currentClass) {
-          throw new Error("Không tìm thấy thông tin của lớp điểm danh");
+          throw new HttpError(
+            400,
+            "Không tìm thấy thông tin của lớp điểm danh"
+          );
         }
 
-        const classSchoolId = currentClass.schoolId?.toString();
-
-        if (userRole === "SchoolAdmin" && actorSchoolId !== classSchoolId) {
-          throw new Error("Bạn không có quyền tạo bảng điểm danh cho trường");
+        if (actorSchoolId != currentClass.schoolId.toString()) {
+          throw new HttpError(
+            403,
+            "Bạn không có quyền tạo bảng điểm danh cho trường"
+          );
         }
       }
 
@@ -220,6 +248,58 @@ class AttendanceService {
       await this.logger.log({
         userId: actorId,
         action: "CREATE_ATTENDANCE_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async initializeClassAttendance(
+    AttendanceData: Partial<IAttendance>,
+    actorSchoolId: string,
+    actorId: string,
+    userRole: string
+  ) {
+    try {
+      if (userRole !== "SuperAdmin") {
+        // Tìm class và populate schoolId (nếu cần)
+        const currentClass = await this.classRepository.findById(
+          AttendanceData.classId!.toString()
+        );
+
+        if (!currentClass) {
+          throw new HttpError(
+            400,
+            "Không tìm thấy thông tin của lớp điểm danh"
+          );
+        }
+
+        if (actorSchoolId != currentClass.schoolId.toString()) {
+          throw new HttpError(
+            403,
+            "Bạn không có quyền tạo bảng điểm danh cho trường"
+          );
+        }
+      }
+
+      const attendance =
+        await this.attendanceRepository.getOrInitializeTodayAttendance(
+          AttendanceData
+        );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "INITIALIZE_CLASS_ATTENDANCE",
+        roleSnapshot: userRole,
+        metadata: { attendance },
+      });
+
+      return attendance;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "INITIALIZE_CLASS_ATTENDANCE_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });

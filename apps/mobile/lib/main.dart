@@ -9,6 +9,8 @@ import 'presentation/app.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
+  const env = String.fromEnvironment("ENV", defaultValue: "DEV");
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await initializeDateFormatting('vi_VN', null);
@@ -17,7 +19,9 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Load .env
-  await dotenv.load();
+  await dotenv.load(
+    fileName: env == "PROD" ? ".env.production" : ".env.development",
+  );
 
   // Khởi tạo DI
   await di.init();

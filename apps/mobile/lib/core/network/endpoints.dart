@@ -1,7 +1,7 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_ios_android_platforms/core/network/app_config.dart';
 
 class Endpoints {
-  static final String baseUrl = "${dotenv.env['API_BASE_URL']}/api";
+  static String get baseUrl => AppConfig.baseUrl;
 
   // ================== AUTH ==================
   static const String login = "/v1/auth/login";
@@ -18,7 +18,9 @@ class Endpoints {
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
   static String classId(String id) => "/v1/classes/$id";
-  static const classDetailView = "v1/classes/class-detail-view";
+  static const classDetailView = "/v1/classes/view-model/class-detail";
+  static String classDetailViewId(String id) =>
+      "/v1/classes/view-model/class-detail/$id";
   static const String searchClassesInSchool = "/v1/classes/schools/search";
 
   // ================== SCHOOLS ==================
@@ -30,6 +32,7 @@ class Endpoints {
 
   // ================== ROLES ==================
   static const String roles = "/v1/roles";
+  static const String rolesPersonnel = "/v1/roles/roles-personnel";
 
   // ================== SCHOOLADMIN DASHBOARD ==================
   static const String getSummary = "/v1/school-admin-dashboard/get-summary";
@@ -41,4 +44,56 @@ class Endpoints {
   static String membershipRequestId(String id) => "/v1/membership-request/$id";
   static String membershipRequestStatus(String id) =>
       "/v1/membership-request/$id/status";
+
+  // ================== SCHOOLS ==================
+  static const String grades = "/v1/grades";
+  static String gradeId(String id) => "/v1/grades/$id";
+  static const String gradeSelect = "/v1/grades/select/box";
+
+  // ================== STUDENTS ==================
+  static const String students = "/v1/students";
+  static String studentId(String id) => "/v1/students/$id";
+
+  // ================== PERSONNEL ==================
+  static const String personnel = "/v1/personnel";
+  static String updateRoleIdForPersonnel(String id) =>
+      "/v1/personnel/update-role/${id}";
+  static String updateVerified(String id) =>
+      "/v1/personnel/update-verified/${id}";
+  static String dismissPersonnel(String id) => "/v1/personnel/dismiss/${id}";
+
+  // ================== TEACHER ==================
+  static const String teachers = "/v1/teachers";
+  static String teacherId(String id) => "/v1/teachers/$id";
+
+  // ================== MEMBERSHIP REQUEST ==================
+  static const String teachingAssignment = "/v1/teaching-assignment";
+  static String teachingAssignmentId(String id) =>
+      "/v1/teaching-assignment/$id";
+  static String getTeachingAssignmentByTeacherClassAndSchool(
+    String teacherId,
+    String schoolId,
+    String classId,
+  ) =>
+      "/v1/teaching-assignment/teacherId-schoolId-classId/${teacherId}/${schoolId}/${classId}";
+  static String getAllAssignmentForTeacherInSchool(
+    String teacherId,
+    String schoolId,
+  ) => "/v1/teaching-assignment/teacherId-schoolId/${teacherId}/${schoolId}";
+  static String getClassesTeacherAssignByTeacherId(String teacherId) =>
+      "/v1/teaching-assignment/teacherId/${teacherId}";
+
+  // ================== SCHOOL ADMIN ==================
+  static String updatePositionSchoolAdmin(String id) =>
+      "/v1/school-admins/update-position/${id}";
+
+  // ================== ATTENDANCE ==================
+  static const String initializeClassAttendance =
+      "/v1/attendances/initialize-class-attendance";
+  static const String getClassAttendanceRecordView =
+      "/v1/attendances/class-attendance-record/view";
+
+  // ================== DETAIL RECORD ==================
+  static String updateStatusDetailRecord(String id) =>
+      "/v1/details-records/update-status/${id}";
 }

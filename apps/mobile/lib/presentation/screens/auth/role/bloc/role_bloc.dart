@@ -1,22 +1,52 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_all_roles_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_roles_personnel_usecase.dart';
 
 part 'role_event.dart';
 part 'role_state.dart';
 
+/// Bloc quản lý danh sách Role (tất cả & role nhân sự).
 class RoleBloc extends Bloc<RoleEvent, RoleState> {
-  final GetAllRolesUseCase getAllRolesUseCase;
+  final GetAllRolesUseCase _getAllRolesUseCase;
+  final GetRolesPersonnelUseCase _getRolesPersonnelUseCase;
 
-  RoleBloc(this.getAllRolesUseCase) : super(RoleInitial()) {
-    on<FetchRolesEvent>((event, emit) async {
-      emit(RoleLoading());
-      try {
-        final roles = await getAllRolesUseCase();
-        emit(RoleLoaded(roles));
-      } catch (e) {
-        emit(RoleError("Không thể tải danh sách vai trò"));
-      }
-    });
+  RoleBloc({
+    required GetAllRolesUseCase getAllRolesUseCase,
+    required GetRolesPersonnelUseCase getRolesPersonnelUseCase,
+  }) : _getAllRolesUseCase = getAllRolesUseCase,
+       _getRolesPersonnelUseCase = getRolesPersonnelUseCase,
+       super(RoleInitial()) {
+    // --- Lấy tất cả roles ---
+    on<FetchRolesEvent>(_onFetchRoles);
+
+    // --- Lấy roles nhân sự ---
+    on<FetchRolePersonnelEvent>(_onFetchRolePersonnel);
+  }
+
+  Future<void> _onFetchRoles(
+    FetchRolesEvent event,
+    Emitter<RoleState> emit,
+  ) async {
+    emit(RoleLoading());
+    try {
+      final roles = await _getAllRolesUseCase();
+      emit(RoleLoaded(roles));
+    } catch (e) {
+      emit(RoleError('Không thể tải danh sách vai trò: $e'));
+    }
+  }
+
+  Future<void> _onFetchRolePersonnel(
+    FetchRolePersonnelEvent event,
+    Emitter<RoleState> emit,
+  ) async {
+    emit(RoleLoading());
+    try {
+      final roles = await _getRolesPersonnelUseCase();
+      emit(RolePersonnelLoaded(roles));
+    } catch (e) {
+      emit(RoleError('Không thể tải danh sách vai trò nhân sự: $e'));
+    }
   }
 }

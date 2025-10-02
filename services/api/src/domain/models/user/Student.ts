@@ -2,6 +2,8 @@ import { Schema, Types } from "mongoose";
 import { IBaseUser } from "./BaseUser";
 import BaseUser from "./BaseUser";
 import {
+  EducationGradesEnum,
+  EducationGradesTuple,
   EducationSystemLevelsEnum,
   EducationSystemLevelsTuple,
 } from "../../../common/enum/educationSystemLevels.enum";
@@ -11,10 +13,11 @@ import {
  */
 export interface IStudent extends IBaseUser {
   classId?: Types.ObjectId;
+  educationLevel: EducationSystemLevelsEnum;
+  gradeGroup: EducationGradesEnum;
+
   guardianName?: string;
   guardianPhone?: string;
-  educationLevel: EducationSystemLevelsEnum;
-  grade?: string;
   registeredExtraFees?: {
     extraFeeId: Types.ObjectId;
     amount: number; // số tiền áp dụng cho học sinh này
@@ -49,13 +52,20 @@ const StudentSchema = new Schema<IStudent>({
   },
   guardianName: { type: String },
   guardianPhone: { type: String },
+
   educationLevel: {
     type: String,
     enum: EducationSystemLevelsTuple,
     required: true,
     index: true,
   },
-  grade: { type: String },
+
+  gradeGroup: {
+    type: String,
+    enum: EducationGradesTuple,
+    required: true,
+    index: true,
+  },
 
   // phí đăng ký (có amount riêng cho từng học sinh)
   registeredExtraFees: [RegisteredExtraFeeSchema],

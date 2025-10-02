@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/theme_cubit.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/app_view.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 
 class App extends StatelessWidget {
@@ -17,6 +17,13 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => sl<AuthenticationBloc>()..add(AuthenticationStarted()),
         ),
+        BlocProvider(
+          create: (_) => LoginBloc(
+            loginUseCase: sl(),
+            authenticationBloc: sl<AuthenticationBloc>(),
+          ),
+        ),
+        // thêm các bloc khác nếu cần
         BlocProvider(create: (_) => ThemeCubit()),
       ],
       child: const AppView(),

@@ -19,22 +19,24 @@ class AttendanceController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const actorSchoolId = req.user?.schoolId?.toString();
+
     try {
-      const actorId = req.user?.id;
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
-        return;
-      }
       const attendances = await this.attendanceService.getAllAttendances(
         actorId,
-        userRole
+        userRole,
+        actorSchoolId
       );
       if (!attendances || attendances.length === 0) {
         sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[Attendance] Get all attendances successfully"));
       sendSuccess(res, attendances, "Lấy tất cả attendances thành công");
       return;
     } catch (error) {
@@ -69,10 +71,7 @@ class AttendanceController {
         sendNotFound(res);
         return;
       }
-      console.log(
-        chalk.green("[Attendance] Get attendance by ID successfully")
-      );
-      sendSuccess(res, attendance, "Lấy attendance bằng ID thành công");
+      sendSuccess(res, attendance, "Lấy bảng điểm danh thành công");
       return;
     } catch (error) {
       console.log(
@@ -82,14 +81,14 @@ class AttendanceController {
     }
   }
 
-  async getAttendancesBySchoolId(
+  async getAttendanceRecordViewById(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
       const actorId = req.user?.id;
-      const actorSchoolId = req.user?.schoolId?.toString();
+      const actorSchoolId = req.user?.schoolId;
       const userRole = req.role;
 
       if (!actorId || !userRole) {
@@ -97,69 +96,58 @@ class AttendanceController {
         return;
       }
 
-      if (!actorSchoolId) {
-        sendError(res, "Người dùng chưa tham gia trường nào", 400);
-      }
-
-      const schoolId = req.params.schoolId;
-      const attendances = await this.attendanceService.getAttendancesBySchoolId(
-        schoolId,
-        actorSchoolId,
-        actorId,
-        userRole
-      );
-      if (!attendances || attendances.length === 0) {
-        sendEmpty(res);
+      const attendanceId = req.params.id;
+      const attendance =
+        await this.attendanceService.getAttendanceRecordViewById(
+          attendanceId,
+          actorSchoolId,
+          actorId,
+          userRole
+        );
+      if (!attendance) {
+        sendNotFound(res);
         return;
       }
-      console.log(
-        chalk.green("[Attendance] Get attendances by school ID successfully")
-      );
-      sendSuccess(
-        res,
-        attendances,
-        "Lấy tất cả attendances theo school ID thành công"
-      );
+      sendSuccess(res, attendance, "Lấy bảng điểm danh thành công");
+      return;
     } catch (error) {
       console.log(
-        chalk.red("[Attendance] Error getting attendances by school ID:", error)
+        chalk.red("[Attendance] Error getting attendance by ID:", error)
       );
       return next(error);
     }
   }
 
-  async getAttendancesByClassId(
+  async getClassAttendanceRecordView(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<void> {
+    const actorId = req.user?.id;
+    const actorSchoolId = req.user?.schoolId;
+    const userRole = req.role;
+    if (!actorId || !userRole) {
+      sendUnauthorized(res);
+      return;
+    }
+    const classId = req.query.classId as string;
+    const date = req.query.date as Date | undefined;
     try {
-      const actorId = req.user?.id;
-      const actorSchoolId = req.user?.schoolId?.toString();
-      const userRole = req.role;
-      if (!actorId || !userRole) {
-        sendUnauthorized(res);
+      const attendance =
+        await this.attendanceService.getClassAttendanceRecordView(
+          classId,
+          actorId,
+          actorSchoolId,
+          userRole,
+          date ? new Date(date) : new Date()
+        );
+
+      if (!attendance) {
+        sendEmpty(res, "Không tìm thấy bảng điểm danh cho lớp này");
         return;
       }
-      const classId = req.params.classId;
-      const attendances = await this.attendanceService.getAttendancesByClassId(
-        classId,
-        actorId,
-        actorSchoolId,
-        userRole
-      );
-      if (!attendances || attendances.length === 0) {
-        sendEmpty(res);
-        return;
-      }
-      console.log(
-        chalk.green("[Attendance] Get attendances by class ID successfully")
-      );
-      sendSuccess(
-        res,
-        attendances,
-        "Lấy tất cả attendances theo class ID thành công"
-      );
+
+      sendSuccess(res, attendance, "Lấy bảng điểm danh thành công");
     } catch (error) {
       console.log(
         chalk.red("[Attendance] Error getting attendances by class ID:", error)
@@ -199,6 +187,38 @@ class AttendanceController {
         return;
       }
       console.log(chalk.green("[Attendance] Create attendance successfully"));
+      sendSuccess(res, attendance, "Tạo attendance thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error creatting attendance:", error));
+      return next(error);
+    }
+  }
+
+  async initializeClassAttendance(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      const userRole = req.role;
+      const actorSchoolId = req.user?.schoolId;
+
+      if (!actorId || !userRole) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const attendanceData = req.body;
+
+      const attendance = await this.attendanceService.initializeClassAttendance(
+        attendanceData,
+        actorSchoolId,
+        actorId,
+        userRole
+      );
+
       sendSuccess(res, attendance, "Tạo attendance thành công");
       return;
     } catch (error) {

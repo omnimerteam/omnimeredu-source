@@ -1,18 +1,26 @@
 import { z } from "zod";
 import { BaseUserSchema } from "../baseUser/BaseUser.schema";
+import {
+  SubjectTuple,
+  TeacherQualificationTuple,
+} from "../../../enum/teacher.enum";
 
 // Schema cho Teacher kế thừa từ BaseUserSchema
 export const TeacherSchema = BaseUserSchema.extend({
-  literacy: z
-    .string()
-    .max(200, { message: "Trình độ học vấn không được vượt quá 200 ký tự" })
+  /**
+   * Trình độ học vấn của giáo viên (enum)
+   */
+  qualification: z
+    .enum(TeacherQualificationTuple, {
+      message: "Dữ liệu không hợp lệ",
+    })
     .optional(),
+
+  /**
+   * Các môn mà giáo viên giảng dạy (enum array)
+   */
   subjects: z
-    .array(
-      z
-        .string()
-        .max(100, { message: "Mỗi môn học không được vượt quá 100 ký tự" })
-    )
+    .array(z.enum([...SubjectTuple] as [string, ...string[]]))
     .optional(),
 });
 

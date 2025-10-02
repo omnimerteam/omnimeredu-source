@@ -53,3 +53,30 @@ export const schoolAndClassParamsSchema = z.object({
     message: "Invalid ClassId format",
   }),
 });
+
+export const teacherParamsSchema = z.object({
+  teacherId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Invalid SchoolId format",
+  }),
+});
+
+export const teacherAndSchoolParamsSchema = z.object({
+  teacherId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Invalid TeacherId format",
+  }),
+  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Invalid SchoolId format",
+  }),
+  classId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Invalid ClassId format",
+    })
+    .optional(),
+});
+
+export const attendanceIdSchema = z.object({
+  attendanceId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Invalid AttendanceId format",
+  }),
+});

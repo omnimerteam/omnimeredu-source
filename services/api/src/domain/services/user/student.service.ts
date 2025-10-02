@@ -1,18 +1,33 @@
 import { DefaultLogger } from "../../../common/utils/DefaultLogger.js";
-import { StudentRepository } from "../../repositories";
+import {
+  ClassRepository,
+  RoleRepository,
+  StudentRepository,
+} from "../../repositories";
 import { IStudent } from "../../models";
 import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
-import { buildPermissionFilter } from "../../../common/utils/permissionFilter";
+import {
+  buildPermissionFilterForClass,
+  buildPermissionFilterForStudent,
+} from "../../../common/utils/permissionFilter";
+import { HttpError } from "../../../common/utils/HttpError";
+import { RoleEnum } from "../../../common/enum/role.enum";
 class StudentService {
   private readonly logger: DefaultLogger;
   private readonly studentRepository: StudentRepository;
+  private readonly roleRepository: RoleRepository;
+  private readonly classRepository: ClassRepository;
 
   constructor(
     studentRepository: StudentRepository,
+    roleRepository: RoleRepository,
+    classRepository: ClassRepository,
     DefaultLogger: DefaultLogger
   ) {
     this.logger = DefaultLogger;
+    this.roleRepository = roleRepository;
     this.studentRepository = studentRepository;
+    this.classRepository = classRepository;
   }
 
   async getAllStudents(
@@ -22,9 +37,12 @@ class StudentService {
     options?: PaginationQueryOptions
   ) {
     try {
-      const filter = buildPermissionFilter(userRole, schoolId);
+      const filter = buildPermissionFilterForStudent(userRole, schoolId);
 
-      const students = await this.studentRepository.findAll(filter, options);
+      const students = await this.studentRepository.findAllStudent(
+        filter,
+        options
+      );
 
       await this.logger.log({
         userId: actorId,
@@ -49,7 +67,7 @@ class StudentService {
     try {
       const student = await this.studentRepository.findById(id);
       if (!student) {
-        throw new Error(`Student with ID ${id} not found`);
+        throw new HttpError(400, `Student with ID ${id} not found`);
       }
       await this.logger.log({
         userId: actorId,
@@ -77,7 +95,23 @@ class StudentService {
     userRole: string
   ) {
     try {
+      if (!studentData.roleId) {
+        const studentRole = await this.roleRepository.findByRoleName(
+          RoleEnum.Student
+        );
+
+        if (!studentRole) {
+          throw new HttpError(500, "Vai trò này không thuộc hệ thống");
+        }
+
+        studentData.roleId = studentRole._id;
+      }
+
       const newStudent = await this.studentRepository.create(studentData);
+      await this.classRepository.addStudentsToClass(
+        studentData.classId!.toString(),
+        [newStudent._id.toString()]
+      );
 
       await this.logger.log({
         userId: actorId,
@@ -85,6 +119,7 @@ class StudentService {
         roleSnapshot: userRole,
         metadata: { found: !!newStudent },
       });
+
       return newStudent;
     } catch (error) {
       await this.logger.log({
@@ -104,13 +139,26 @@ class StudentService {
     userRole: string
   ) {
     try {
+      const oldClassId = (await this.studentRepository.findById(id))?.classId;
       const updatedStudent = await this.studentRepository.update(
         id,
         studentData
       );
+
       if (!updatedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }
+
+      await this.classRepository.addStudentsToClass(
+        studentData.classId!.toString(),
+        [updatedStudent._id.toString()]
+      );
+
+      await this.classRepository.removeStudentsFromClass(
+        oldClassId!.toString(),
+        [updatedStudent._id.toString()]
+      );
+
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_STUDENT",
@@ -133,7 +181,14 @@ class StudentService {
 
   async deleteStudent(id: string, actorId: string, userRole: string) {
     try {
+      const oldClassId = (await this.studentRepository.findById(id))?.classId;
       const deletedStudent = await this.studentRepository.delete(id);
+
+      await this.classRepository.removeStudentsFromClass(
+        oldClassId!.toString(),
+        [id.toString()]
+      );
+
       if (!deletedStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }

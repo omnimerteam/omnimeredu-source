@@ -15,6 +15,8 @@ import extraFee from "./extraFee.route";
 import roleRoute from "./role.route";
 import schoolAdminDashboardRoute from "./schoolAdminDashboard.route";
 import membershipRequestRoute from "./membershipRequest.route";
+import gradeRoute from "./grade.route";
+import personnelRoute from "./personnel.route";
 
 import { Express } from "express";
 
@@ -36,5 +38,7 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/extra-fees", extraFee); //Extra fee: /api/v1/extra-fees
   app.use("/api/v1/school-admin-dashboard", schoolAdminDashboardRoute); //Extra School Admin Dashboard: /api/v1/school-admin-dashboard
   app.use("/api/v1/membership-request", membershipRequestRoute); //Membership Request: /api/v1/membership-request
+  app.use("/api/v1/grades", gradeRoute); //Grade: /api/v1/membership-request
+  app.use("/api/v1/personnel", personnelRoute); //personnel: /api/v1/personnel
 }
 export default setupRoutes;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
 class SectionTitle extends StatelessWidget {
   final String title;
@@ -13,10 +12,9 @@ class SectionTitle extends StatelessWidget {
       title,
       style:
           style ??
-          Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textDark,
-          ),
+          Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }

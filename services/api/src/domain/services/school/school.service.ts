@@ -4,6 +4,7 @@ import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import { generateSchoolCode } from "../../utils/generateCode";
 import mongoose, { Types } from "mongoose";
 import { HttpError } from "../../../common/utils/HttpError";
+import { SchoolAdminPositionEnum } from "../../../common/enum/schoolAdmin.enum";
 
 class SchoolService {
   private readonly schoolRepository: SchoolRepository;
@@ -106,7 +107,10 @@ class SchoolService {
       // 2. Update SchoolAdmin
       await this.schoolAdminRepository.updateByUserId(
         actorId,
-        { schoolId: newSchool._id },
+        {
+          schoolId: newSchool._id,
+          position: SchoolAdminPositionEnum.Owner,
+        },
         session
       );
 

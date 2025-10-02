@@ -5,6 +5,10 @@ import {
   DetailsRecordRepository,
   AttendanceRepository,
 } from "../../../repositories";
+import { HttpError } from "../../../../common/utils/HttpError";
+import DateUtils from "../../../../common/utils/DateUtils";
+import AppConstant from "../../../../common/configs/app_constant";
+import { AttendanceStatusEnum } from "../../../../common/enum/attendanceStatus.enum";
 
 class DetailsRecordService {
   private readonly detailsRecordRepository: DetailsRecordRepository;
@@ -34,6 +38,34 @@ class DetailsRecordService {
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_DETAILS_RECORDS_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getAttendanceRecordsById(
+    actorId: string,
+    userRole: string,
+    attendanceId: string
+  ) {
+    try {
+      const records = await this.detailsRecordRepository.findByAttendanceId(
+        attendanceId
+      );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ATTENDANCE_RECORDS_BY_ID",
+        roleSnapshot: userRole,
+        metadata: { count: records.length },
+      });
+      return records;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_ATTENDANCE_RECORDS_BY_ID_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
@@ -92,7 +124,6 @@ class DetailsRecordService {
       throw error;
     }
   }
-
   async updateDetailsRecord(
     recordId: string,
     recordData: Partial<IDetailsRecord>,
@@ -104,53 +135,38 @@ class DetailsRecordService {
       const existingRecord = await this.detailsRecordRepository.findById(
         recordId
       );
-      if (!existingRecord) {
-        throw new Error("Không tìm thấy bản ghi theo ID");
-      }
+      if (!existingRecord)
+        throw new HttpError(404, "Không tìm thấy bản ghi theo ID");
 
-      const attendanceID = existingRecord?.attendanceId?.toString();
-      const existingAttendance = await this.attendanceRepository.findById(
-        attendanceID
+      const attendance = await this.attendanceRepository.findById(
+        existingRecord.attendanceId.toString()
       );
-      if (!existingAttendance) {
-        throw new Error("Không tìm thấy buổi điểm danh liên quan");
-      }
+      if (!attendance)
+        throw new HttpError(404, "Không tìm thấy buổi điểm danh liên quan");
 
-      const existingAttendanceSchoolId =
-        existingAttendance?.schoolId?.toString();
+      const isSameSchool = schoolId === attendance.schoolId.toString();
 
-      // SuperAdmin => toàn quyền, bỏ qua các check
       if (userRole !== "SuperAdmin") {
-        // SchoolAdmin chỉ được chỉnh trong trường của mình
-        if (
-          userRole === "SchoolAdmin" &&
-          schoolId !== existingAttendanceSchoolId
-        ) {
-          throw new Error(
-            "Bạn không có quyền truy cập để chỉnh sửa bản ghi này"
-          );
+        if (!isSameSchool) {
+          throw new HttpError(403, "Bạn không có quyền chỉnh sửa bản ghi này");
         }
 
-        // Teacher => phải cùng trường và trong 2 ngày
         if (userRole === "Teacher") {
-          if (schoolId !== existingAttendanceSchoolId) {
-            throw new Error(
-              "Bạn không có quyền truy cập để chỉnh sửa bản ghi này"
-            );
-          }
-          const attendanceDate = new Date(existingAttendance.date);
-          const now = new Date();
-          const diffInDays =
-            (now.getTime() - attendanceDate.getTime()) / (1000 * 60 * 60 * 24);
-          if (diffInDays > 2) {
-            throw new Error(
-              "Teacher chỉ được thay đổi bản ghi trong vòng 2 ngày kể từ ngày điểm danh"
+          if (
+            !DateUtils.isEditableByTeacher(
+              attendance.date,
+              AppConstant.TEACHER_EDIT_DAYS_LIMIT
+            )
+          ) {
+            throw new HttpError(
+              403,
+              "Giáo viên chỉ được chỉnh sửa trong vòng 2 ngày kể từ ngày điểm danh"
             );
           }
         }
       }
 
-      const record = await this.detailsRecordRepository.update(
+      const updatedRecord = await this.detailsRecordRepository.update(
         recordId,
         recordData
       );
@@ -160,14 +176,88 @@ class DetailsRecordService {
         action: "UPDATE_DETAIL_RECORD",
         roleSnapshot: userRole,
         targetId: recordId,
-        metadata: { found: !!record },
+        metadata: { found: !!updatedRecord },
       });
 
-      return record;
+      return updatedRecord;
     } catch (error) {
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_DETAIL_RECORD_FAILED",
+        roleSnapshot: userRole,
+        targetId: recordId,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async updateStatusDetailRecord(
+    schoolId: string,
+    actorId: string,
+    userRole: string,
+    recordId: string,
+    status: AttendanceStatusEnum,
+    note?: string
+  ) {
+    try {
+      const existingRecord = await this.detailsRecordRepository.findById(
+        recordId
+      );
+
+      console.log("exs", existingRecord);
+
+      if (!existingRecord)
+        throw new HttpError(404, "Không tìm thấy bản ghi theo ID");
+
+      const attendance = await this.attendanceRepository.findById(
+        existingRecord.attendanceId.toString()
+      );
+      if (!attendance)
+        throw new HttpError(404, "Không tìm thấy buổi điểm danh liên quan");
+
+      const isSameSchool = schoolId === attendance.schoolId.toString();
+
+      if (userRole !== "SuperAdmin") {
+        if (!isSameSchool) {
+          throw new HttpError(403, "Bạn không có quyền chỉnh sửa bản ghi này");
+        }
+
+        if (userRole === "Teacher") {
+          if (
+            !DateUtils.isEditableByTeacher(
+              attendance.date,
+              AppConstant.TEACHER_EDIT_DAYS_LIMIT
+            )
+          ) {
+            throw new HttpError(
+              403,
+              "Giáo viên chỉ được chỉnh sửa trong vòng 2 ngày kể từ ngày điểm danh"
+            );
+          }
+        }
+      }
+
+      const updatedRecord =
+        await this.detailsRecordRepository.updateStatusDetailRecord(
+          recordId,
+          status,
+          note
+        );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_STATUS_DETAIL_RECORD",
+        roleSnapshot: userRole,
+        targetId: recordId,
+        metadata: { found: !!updatedRecord },
+      });
+
+      return updatedRecord;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_STATUS_DETAIL_RECORD_FAILED",
         roleSnapshot: userRole,
         targetId: recordId,
         metadata: { error: (error as Error).message },
@@ -186,38 +276,32 @@ class DetailsRecordService {
       const existingRecord = await this.detailsRecordRepository.findById(
         recordId
       );
-      if (!existingRecord) {
-        throw new Error("Không tìm thấy bản ghi theo ID");
-      }
+      if (!existingRecord)
+        throw new HttpError(404, "Không tìm thấy bản ghi theo ID");
 
-      const attendanceID = existingRecord?.attendanceId?.toString();
-      const existingAttendance = await this.attendanceRepository.findById(
-        attendanceID
+      const attendance = await this.attendanceRepository.findById(
+        existingRecord.attendanceId.toString()
       );
+      if (!attendance)
+        throw new HttpError(404, "Không tìm thấy buổi điểm danh liên quan");
 
-      if (!existingAttendance) {
-        throw new Error("Không tìm thấy buổi điểm danh liên quan");
-      }
-
-      const existingAttendanceSchoolId =
-        existingAttendance?.schoolId?.toString();
+      const isSameSchool = schoolId === attendance.schoolId.toString();
 
       if (userRole !== "SuperAdmin") {
-        if (
-          userRole === "SchoolAdmin" &&
-          schoolId !== existingAttendanceSchoolId
-        ) {
-          throw new Error("Bạn không có quyền truy cập để xóa bản ghi này");
+        if (!isSameSchool) {
+          throw new HttpError(403, "Bạn không có quyền chỉnh sửa bản ghi này");
         }
 
         if (userRole === "Teacher") {
-          const attendanceDate = new Date(existingAttendance.date);
-          const now = new Date();
-          const compare = now.getTime() - attendanceDate.getTime();
-          const current = compare / (1000 * 60 * 60 * 24);
-          if (current > 1) {
-            throw new Error(
-              "Teacher chỉ được xóa bản ghi trong vòng 1 ngày kể từ ngày điểm danh"
+          if (
+            !DateUtils.isEditableByTeacher(
+              attendance.date,
+              AppConstant.TEACHER_DELETE_DAYS_LIMIT
+            )
+          ) {
+            throw new HttpError(
+              403,
+              "Giáo viên chỉ được chỉnh sửa trong vòng 1 ngày kể từ ngày điểm danh"
             );
           }
         }

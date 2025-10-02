@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/widgets/school_info_card.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 
 class SchoolInfoGrid extends StatelessWidget {
   final SchoolDataEntity school;
@@ -38,15 +37,14 @@ class SchoolInfoGrid extends StatelessWidget {
         SchoolInfoCard(
           icon: Icons.school,
           title: 'Cấp học',
-          value:
-              DisplayMapper.educationLevelName(school.level) ?? 'Chưa xác định',
+          value: school.level!.displayName,
           color: AppColors.warning,
           isDark: isDark,
         ),
         SchoolInfoCard(
           icon: Icons.people,
           title: 'Học sinh',
-          value: '${school.studentCount ?? 0}',
+          value: '${school.studentCount}',
           color: Colors.purple,
           isDark: isDark,
         ),

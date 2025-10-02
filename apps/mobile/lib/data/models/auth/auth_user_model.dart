@@ -1,21 +1,40 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 
-class AuthUserModel extends AuthUserEntity {
+class AuthUserModel {
+  final String id;
+  final String fullName;
+  final String roleName;
+  final bool? isVerified;
+  final String? schoolId;
+  final String? schoolName;
+  final EducationSystemLevelsEnum? schoolLevel;
+  final String? avatarUrl;
+  final SchoolAdminPositionEnum? position;
+  final String? qualification;
+  final String? classId;
+  final String? className;
+  final EducationSystemLevelsEnum? educationLevel;
+  final EducationGradesEnum? gradeGroup;
+
   const AuthUserModel({
-    required super.id,
-    required super.fullName,
-    required super.roleName,
-    super.isVerified,
-    super.avatarUrl,
-    super.schoolName,
-    super.position,
-    super.literacy,
-    super.className,
-    super.educationLevel,
-    super.grade,
+    required this.id,
+    required this.fullName,
+    required this.roleName,
+    this.isVerified,
+    this.schoolId,
+    this.schoolName,
+    this.schoolLevel,
+    this.avatarUrl,
+    this.position,
+    this.qualification,
+    this.classId,
+    this.className,
+    this.educationLevel,
+    this.gradeGroup,
   });
 
-  /// Chuyển từ JSON sang Model
+  /// Parse từ JSON (API -> Model)
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     return AuthUserModel(
       id: json['_id'] ?? '',
@@ -23,33 +42,43 @@ class AuthUserModel extends AuthUserEntity {
       roleName: json['roleId']?['name'] ?? '',
       isVerified: json['isVerified'] ?? false,
       avatarUrl: json['avatarUrl'] ?? '',
-      schoolName: json['schoolId']?['name'] ?? '',
-      position: json['position']?.toString() ?? '',
-      literacy: json['literacy']?.toString() ?? '',
-      className: json['classId']?['name'] ?? '',
-      educationLevel: json['educationLevel']?.toString() ?? '',
-      grade: json['grade']?.toString() ?? '',
+      schoolId: json['schoolId']?['_id'],
+      schoolName: json['schoolId']?['name'],
+      schoolLevel: EducationSystemLevelsEnum.fromString(
+        json['schoolId']?['level'] as String?,
+      ),
+      position: SchoolAdminPositionEnum.fromString(json['position'] as String?),
+      qualification: json['qualification']?.toString(),
+      classId: json['classId']?['_id'],
+      className: json['classId']?['name'],
+      educationLevel: EducationSystemLevelsEnum.fromString(
+        json['educationLevel'] as String?, // sửa typo eduction -> education
+      ),
+      gradeGroup: EducationGradesEnum.fromString(json['gradeGroup'] as String?),
     );
   }
 
-  /// Chuyển từ Model sang JSON
+  /// Convert sang JSON (Model -> API)
   Map<String, dynamic> toJson() {
     return {
       '_id': id,
       'fullName': fullName,
       'roleName': roleName,
       'isVerified': isVerified,
+      'schoolId': schoolId,
       'schoolName': schoolName,
+      'schoolLevel': schoolLevel?.name,
       'avatarUrl': avatarUrl,
-      'position': position,
-      'literacy': literacy,
+      'position': position?.name,
+      'qualification': qualification,
+      'classId': classId,
       'className': className,
-      'educationLevel': educationLevel,
-      'grade': grade,
+      'educationLevel': educationLevel?.name,
+      'gradeGroup': gradeGroup?.name,
     };
   }
 
-  /// Chuyển Model về Entity (tách biệt domain)
+  /// Convert Model -> Entity (Data -> Domain)
   AuthUserEntity toEntity() {
     return AuthUserEntity(
       id: id,
@@ -57,12 +86,15 @@ class AuthUserModel extends AuthUserEntity {
       roleName: roleName,
       isVerified: isVerified,
       avatarUrl: avatarUrl,
+      schoolId: schoolId,
       schoolName: schoolName,
+      schoolLevel: schoolLevel,
       position: position,
-      literacy: literacy,
+      qualification: qualification,
+      classId: classId,
       className: className,
       educationLevel: educationLevel,
-      grade: grade,
+      gradeGroup: gradeGroup,
     );
   }
 }

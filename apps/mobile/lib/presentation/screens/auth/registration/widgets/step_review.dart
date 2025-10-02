@@ -129,41 +129,30 @@ class StepReview extends StatelessWidget {
                       state.assignSchoolName,
                     ),
                   if (state.selectedRoleName!.toLowerCase() == 'student') ...[
-                    _reviewItem(
-                      'Cấp học',
-                      DisplayMapper.educationLevelName(state.educationLevel),
-                    ),
+                    _reviewItem('Cấp học', state.educationLevel?.displayName),
                     if (state.classId != null)
                       _reviewItem('Lớp', state.assignClassName),
-                    if (state.grade != null) _reviewItem('Khối', state.grade),
+                    if (state.gradeGroup != null)
+                      _reviewItem('Khối', state.gradeGroup?.displayName),
                     _reviewItem('Tên phụ huynh', state.guardianName),
                     _reviewItem('SĐT phụ huynh', state.guardianPhone),
                   ],
                   if (state.selectedRoleName!.toLowerCase() == 'teacher') ...[
-                    _reviewItem(
-                      'Trình độ',
-                      DisplayMapper.literacyLevelsName(state.literacy),
-                    ),
+                    _reviewItem('Trình độ', state.qualification?.displayName),
                     _reviewItem(
                       'Môn giảng dạy',
                       (state.subjects != null && state.subjects!.isNotEmpty)
-                          ? state.subjects!
-                                .map((s) => DisplayMapper.subjectsName(s) ?? '')
-                                .where((name) => name.isNotEmpty)
-                                .join(', ')
+                          ? state.subjects!.map((s) => s.displayName).join(', ')
                           : 'Chưa chọn',
                     ),
                   ],
                   if (state.selectedRoleName!.toLowerCase() ==
                       'schooladmin') ...[
                     if (!state.isCreateNewSchool) ...[
-                      _reviewItem('Chức vụ', state.position),
+                      _reviewItem('Chức vụ', state.position?.displayName),
                     ] else ...[
                       _reviewItem('Tên trường', state.schoolName),
-                      _reviewItem(
-                        'Cấp trường',
-                        DisplayMapper.educationLevelName(state.schoolLevel),
-                      ),
+                      _reviewItem('Cấp trường', state.schoolLevel?.displayName),
                       _reviewItem('Địa chỉ trường', state.schoolAddress),
                       if (state.schoolPhone != null)
                         _reviewItem('SĐT trường', state.schoolPhone),

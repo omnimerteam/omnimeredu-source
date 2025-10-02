@@ -29,7 +29,6 @@ import {
 import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
 import {
-  createPaginationSchemaWithSort,
   createPaginationSchemaWithSortAndFilter,
   searchClassesQuerySchema,
 } from "../../validators/common/query/query.validator";
@@ -52,7 +51,7 @@ const classController = new ClassController(classService);
 // Custom Validate
 const getAllClassPaginationSchema = createPaginationSchemaWithSortAndFilter(
   ["name", "code", "schoolId", "baseFee"],
-  []
+  ["gradeId", "maxStudents"]
 );
 
 // Router
@@ -76,7 +75,7 @@ router.get(
 
 // ✅ Lấy tất cả lớp trong view model ClassDetail (có filter query)
 router.get(
-  "/class-detail-view",
+  "/view-model/class-detail",
   validateData({
     headers: authHeaderSchema,
     query: getAllClassPaginationSchema,
@@ -84,6 +83,17 @@ router.get(
   verifyFirebaseToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClassDetailView(req, res, next)
+);
+
+router.get(
+  "/view-model/class-detail/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.getClassDetailViewById(req, res, next)
 );
 
 // ✅ Lấy lớp theo ID

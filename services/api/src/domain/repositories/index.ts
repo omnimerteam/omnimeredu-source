@@ -8,6 +8,7 @@ export { default as SuperAdminRepository } from "./user/superAdmin.repository";
 export { default as TeacherRepository } from "./user/teacher.repository";
 export { default as StudentRepository } from "./user/student.repository";
 export { default as RoleRepository } from "./user/role.repository";
+export { default as PersonnelRepository } from "./user/personnel.repository";
 
 // ======================
 // School Module
@@ -15,6 +16,7 @@ export { default as RoleRepository } from "./user/role.repository";
 export { default as SchoolRepository } from "./school/school.repository";
 export { default as NewsRepository } from "./school/news.repository";
 export { default as MembershipRequestRepository } from "./school/membershipRequest.repository";
+export { default as GradeRepository } from "./school/grade.repository";
 
 export { default as ClassRepository } from "./school/class/class.repository";
 export { default as TeachingAssignmentRepository } from "./school/class/teachingAssignment.repository";
@@ -22,6 +24,7 @@ export { default as ClassDetailViewRepository } from "./school/class/classDetail
 
 export { default as AttendanceRepository } from "./school/attendance/attendance.repository";
 export { default as DetailsRecordRepository } from "./school/attendance/detailsRecord.repository";
+export { default as AttendanceRecordViewRepository } from "./school/attendance/attendanceRecord.repository";
 
 // ======================
 // Payment Module

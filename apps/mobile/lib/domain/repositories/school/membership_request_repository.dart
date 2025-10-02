@@ -1,18 +1,17 @@
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 abstract class MembershipRequestRepository {
-  Future<List<MembershipRequestEntity>> getAllMembershipRequest({
-    int page,
-    int limit,
-    Map<String, String>? sort,
-    Map<String, dynamic>? filter,
-  });
+  Future<List<MembershipRequestEntity>> getAllMembershipRequest(
+    DefaultQueryEntity query,
+  );
 
-  Future<MembershipRequestEntity> createMembershipRequest(
+  Future<void> createMembershipRequest(
     MembershipRequestEntity createMembershipRequestData,
   );
 
-  Future<MembershipRequestEntity> updateMembershipRequest(
+  Future<void> updateMembershipRequest(
     MembershipRequestEntity updateMembershipRequestData,
   );
 
@@ -20,7 +19,7 @@ abstract class MembershipRequestRepository {
 
   Future<MembershipRequestEntity> getMemberRequestById(String id);
 
-  Future<MembershipRequestEntity> updateStatusMemberRequest(
+  Future<MembershipStatusEnum> updateStatusMemberRequest(
     String id,
     MembershipStatusEnum status,
   );

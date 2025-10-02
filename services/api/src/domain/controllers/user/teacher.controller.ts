@@ -43,7 +43,7 @@ class TeacherController {
         sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[TEACHER] Get all teachers successfully"));
+
       sendSuccess(res, teachers, "Lấy thông tin tất cả giáo viên thành công");
       return;
     } catch (error) {
@@ -73,9 +73,7 @@ class TeacherController {
         sendNotFound(res);
         return;
       }
-      console.log(
-        chalk.green(`[TEACHER] Get teacher by ${teacherId} successfully`)
-      );
+
       sendSuccess(res, teacher, "Lấy thông tin giáo viên từ ID thành công");
       return;
     } catch (error) {
@@ -101,7 +99,7 @@ class TeacherController {
         actorId,
         userRole
       );
-      console.log(chalk.green("[TEACHER] Create new teacher successfully"));
+
       sendSuccess(res, createdTeacher, "Thêm mới giáo viên thành công");
       return;
     } catch (error) {
@@ -135,7 +133,6 @@ class TeacherController {
         userRole
       );
 
-      console.log(chalk.green("[TEACHER] Update teacher successfully"));
       sendSuccess(
         res,
         updateTeacher,
@@ -172,7 +169,6 @@ class TeacherController {
         userRole
       );
 
-      console.log(chalk.green("[TEACHER] Delete teacher successfully"));
       sendSuccess(res, deleteTeacher, "Xóa giáo viên thành công");
       return;
     } catch (error) {

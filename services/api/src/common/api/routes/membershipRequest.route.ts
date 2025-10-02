@@ -18,17 +18,12 @@ import { validateData } from "../middlewares/validateData";
 // Validators
 import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
-import {
-  createPaginationSchemaWithSort,
-  createPaginationSchemaWithSortAndFilter,
-} from "../../validators/common/query/query.validator";
+import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 import {
   createMembershipRequestBodySchema,
   updateMembershipRequestBodySchema,
   updateStatusMembershipRequestBodySchema,
 } from "../../validators/app/membershipRequest/membershipRequest.validator";
-import { z } from "zod";
-import { MembershipActionTuple } from "../../../common/enum/membershipRequest.enum";
 
 // Init Dependencies
 const membershipRequestRepo = new MembershipRequestRepository(

@@ -34,10 +34,11 @@ class MembershipRequestService {
         actorId
       );
 
-      const membershipRequest = await this.membershipRequestRepo.findAll(
-        filter,
-        options
-      );
+      const membershipRequest =
+        await this.membershipRequestRepo.findAllMembershipRequest(
+          filter,
+          options
+        );
 
       await this.logger.log({
         userId: actorId,
@@ -187,6 +188,7 @@ class MembershipRequestService {
     id: string,
     status: MembershipStatusEnum
   ) {
+    console.log(`ID: ${id}, Status: ${status}`);
     try {
       const existing = await this.membershipRequestRepo.findById(id);
       if (!existing)

@@ -37,11 +37,67 @@ class DashboardQuickOverview extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: StatCard(
-                    title: 'Giáo viên',
-                    value: overview.totalTeachers.toString(),
-                    icon: Icons.person,
-                    color: Colors.green,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.school,
+                                  color: Colors.green,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  overview.totalTeachers.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.badge,
+                                  color: Colors.green,
+                                  size: 28,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  overview.totalStaff.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          "Nhân sự",
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

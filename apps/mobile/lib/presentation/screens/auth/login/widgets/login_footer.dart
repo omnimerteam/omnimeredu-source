@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
 
 class LoginFooter extends StatefulWidget {
   const LoginFooter({super.key});
@@ -77,7 +78,12 @@ class _LoginFooterState extends State<LoginFooter>
                 child: _buildSocialButton(
                   icon: Icons.g_mobiledata,
                   label: "Google",
-                  onPressed: () {},
+                  onPressed: () {
+                    AppSnackBars.showComingSoon(
+                      context,
+                      "Đăng nhập bằng Google",
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 12),
@@ -85,7 +91,12 @@ class _LoginFooterState extends State<LoginFooter>
                 child: _buildSocialButton(
                   icon: Icons.facebook,
                   label: "Facebook",
-                  onPressed: () {},
+                  onPressed: () {
+                    AppSnackBars.showComingSoon(
+                      context,
+                      "Đăng nhập bằng Facebook",
+                    );
+                  },
                 ),
               ),
             ],

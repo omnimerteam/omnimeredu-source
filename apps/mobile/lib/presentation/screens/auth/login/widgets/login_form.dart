@@ -5,6 +5,7 @@ import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart'
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 
 class LoginForm extends StatefulWidget {
@@ -75,14 +76,12 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
-        if (state.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-          );
+        if (state.error != null && !state.isLogin) {
+          context.read<LoginBloc>().add(ClearLoginErrorEvent());
         }
 
         // Điều hướng đến home khi đăng nhập thành công
-        if (state.user != null && !state.loading) {
+        if (state.isLogin && !state.loading) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Đăng nhập thành công!"),
@@ -90,6 +89,8 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
               duration: Duration(seconds: 1),
             ),
           );
+
+          context.read<LoginBloc>().add(ClearLoginErrorEvent());
 
           // Điều hướng đến home và xóa tất cả route trước đó
           Navigator.of(
@@ -148,7 +149,6 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       // Remember me and Forgot password row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -181,7 +181,12 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                             ],
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              AppSnackBars.showComingSoon(
+                                context,
+                                "Đổi mật khẩu",
+                              );
+                            },
                             style: TextButton.styleFrom(
                               foregroundColor: AppColors.primary,
                               padding: const EdgeInsets.symmetric(
@@ -200,6 +205,23 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                             ),
                           ),
                         ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // AnimatedSwitcher để lỗi hiện ẩn mượt
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: (state.error != null && !state.isLogin)
+                            ? Text(
+                                state.error!,
+                                key: ValueKey(state.error),
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 14,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ),
 
                       const SizedBox(height: 16),

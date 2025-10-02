@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_ios_android_platforms/domain/entities/auth/role.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/auth/role_entity.dart';
 
 class RegistrationState extends Equatable {
   final bool loading;
@@ -26,28 +27,28 @@ class RegistrationState extends Equatable {
   final String? assignSchoolName;
 
   // system
-  final String? selectedEducationLevel;
+  final EducationSystemLevelsEnum? selectedEducationLevel;
 
   // student
   final String? guardianName;
   final String? guardianPhone;
-  final String? educationLevel;
+  final EducationSystemLevelsEnum? educationLevel;
   final String? classId;
   final String? assignClassName;
-  final String? grade;
+  final EducationGradesEnum? gradeGroup;
 
   // teacher
-  final String? literacy;
-  final List<String>? subjects;
+  final TeacherQualificationEnum? qualification;
+  final List<SubjectEnum>? subjects;
 
   // school admin
   final bool isCreateNewSchool;
-  final String? position;
+  final SchoolAdminPositionEnum? position;
   final String? schoolName;
   final String? schoolAddress;
   final String? schoolPhone;
   final String? schoolDescription;
-  final String? schoolLevel;
+  final EducationSystemLevelsEnum? schoolLevel;
   final File? schoolLogoFile;
 
   factory RegistrationState.initial() {
@@ -58,6 +59,7 @@ class RegistrationState extends Equatable {
       roles: [],
       gender: "Male",
       isCreateNewSchool: false,
+      selectedEducationLevel: EducationSystemLevelsEnum.Preschool,
     );
   }
 
@@ -79,17 +81,17 @@ class RegistrationState extends Equatable {
     this.avatarFile,
     this.schoolId,
     this.assignSchoolName,
-    this.selectedEducationLevel,
+    this.selectedEducationLevel = EducationSystemLevelsEnum.Preschool,
     this.guardianName,
     this.guardianPhone,
     this.educationLevel,
     this.classId,
     this.assignClassName,
-    this.grade,
-    this.literacy,
+    this.gradeGroup,
+    this.qualification,
     this.subjects,
     this.isCreateNewSchool = false,
-    this.position,
+    this.position = SchoolAdminPositionEnum.None,
     this.schoolName,
     this.schoolAddress,
     this.schoolPhone,
@@ -116,23 +118,23 @@ class RegistrationState extends Equatable {
     File? avatarFile,
     String? schoolId,
     String? assignSchoolName,
-    String? selectedEducationLevel,
+    EducationSystemLevelsEnum? selectedEducationLevel,
     String? guardianName,
     String? guardianPhone,
-    String? educationLevel,
+    EducationSystemLevelsEnum? educationLevel,
     String? classId,
     String? assignClassName,
-    String? grade,
-    String? literacy,
-    List<String>? subjects,
+    EducationGradesEnum? gradeGroup,
+    TeacherQualificationEnum? qualification,
+    List<SubjectEnum>? subjects,
     bool? isCreateNewSchool,
-    String? position,
+    SchoolAdminPositionEnum? position,
     String? schoolName,
     String? schoolCode,
     String? schoolAddress,
     String? schoolPhone,
     String? schoolDescription,
-    String? schoolLevel,
+    EducationSystemLevelsEnum? schoolLevel,
     File? schoolLogoFile,
   }) {
     return RegistrationState(
@@ -160,8 +162,8 @@ class RegistrationState extends Equatable {
       educationLevel: educationLevel ?? this.educationLevel,
       classId: classId ?? this.classId,
       assignClassName: assignClassName ?? this.assignClassName,
-      grade: grade ?? this.grade,
-      literacy: literacy ?? this.literacy,
+      gradeGroup: gradeGroup ?? this.gradeGroup,
+      qualification: qualification ?? this.qualification,
       subjects: subjects ?? this.subjects,
       isCreateNewSchool: isCreateNewSchool ?? this.isCreateNewSchool,
       position: position ?? this.position,
@@ -199,8 +201,8 @@ class RegistrationState extends Equatable {
     educationLevel,
     classId,
     assignClassName,
-    grade,
-    literacy,
+    gradeGroup,
+    qualification,
     subjects,
     isCreateNewSchool,
     position,

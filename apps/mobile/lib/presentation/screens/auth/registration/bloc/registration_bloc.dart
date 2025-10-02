@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/base_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/register_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
@@ -130,7 +131,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
         guardianName: event.guardianName ?? state.guardianName,
         guardianPhone: event.guardianPhone ?? state.guardianPhone,
         educationLevel: event.educationLevel ?? state.educationLevel,
-        grade: event.grade ?? state.grade,
+        gradeGroup: event.gradeGroup ?? state.gradeGroup,
       ),
     );
   }
@@ -141,7 +142,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   ) {
     emit(
       state.copyWith(
-        literacy: event.literacy ?? state.literacy,
+        qualification: event.qualification ?? state.qualification,
         subjects: event.subjects ?? state.subjects,
       ),
     );
@@ -198,7 +199,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
         password: state.password ?? "",
         schoolId: state.schoolId,
         classId: state.classId,
-        baseUserInfo: BaseUserEntity(
+        baseUserInfo: BaseUserForRegisterEntity(
           roleId: state.selectedRoleId ?? "",
           fullName: state.fullName ?? "",
           gender: state.gender ?? "Other",
@@ -211,21 +212,20 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           // Student
           "guardianName": state.guardianName,
           "guardianPhone": state.guardianPhone,
-          "educationLevel": state.educationLevel,
+          "educationLevel": state.educationLevel?.name,
           // Teacher
-          "literacy": state.literacy,
-          "subjects": state.subjects,
+          "qualification": state.qualification?.name,
+          "subjects": state.subjects?.map((s) => s.name).toList(),
           // School Admin
-          "position": state.position,
+          "position": state.position?.name,
         },
         schoolData: state.isCreateNewSchool
             ? SchoolDataEntity(
-                id: "", // để server tự sinh
                 name: state.schoolName ?? "",
                 address: state.schoolAddress ?? "",
                 phone: state.schoolPhone,
                 description: state.schoolDescription,
-                level: state.schoolLevel ?? "Preschool",
+                level: state.schoolLevel ?? EducationSystemLevelsEnum.Preschool,
                 logoUrl: logoUrl, // nếu có upload thì để backend xử lý
               )
             : null,

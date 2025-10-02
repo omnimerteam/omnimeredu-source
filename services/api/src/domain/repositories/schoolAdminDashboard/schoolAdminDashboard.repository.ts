@@ -36,7 +36,7 @@ class SchoolAdminDashboardRepository {
 
     const totalStaff = await this.userModel.countDocuments({
       schoolId,
-      roleId: null,
+      roleKey: "Staff",
     });
 
     // Tổng số lớp

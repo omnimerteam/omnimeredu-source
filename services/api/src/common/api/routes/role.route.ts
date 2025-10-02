@@ -24,4 +24,10 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) =>
   roleController.getAllRoles(req, res, next)
 );
 
+router.get(
+  "/roles-personnel",
+  async (req: Request, res: Response, next: NextFunction) =>
+    roleController.getRolesPersonnel(req, res, next)
+);
+
 export default router;

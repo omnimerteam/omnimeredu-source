@@ -15,7 +15,6 @@ class SchoolAdminDashboardRemoteDataSource {
     return await user?.getIdToken();
   }
 
-  @override
   Future<DashboardOverviewModel> getSummary() async {
     final idToken = await _getIdToken();
 
@@ -33,7 +32,6 @@ class SchoolAdminDashboardRemoteDataSource {
     return res.data!;
   }
 
-  @override
   Future<AttendanceStatsModel> getSchoolAttendanceStats() async {
     final idToken = await _getIdToken();
 

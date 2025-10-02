@@ -3,9 +3,9 @@ import { z } from "zod";
 import { AttendanceSchema } from "./Attendance.schema";
 
 // ✅ Tái sử dụng phần students từ schema (nhưng bỏ optional)
-const studentsRequired = AttendanceSchema.shape.students.unwrap().nonempty({
-  message: "Danh sách học sinh không được để trống",
-});
+// const studentsRequired = AttendanceSchema.shape.students.unwrap().nonempty({
+//   message: "Danh sách học sinh không được để trống",
+// });
 
 // ✅ Create Attendance Validator
 export const createAttendanceBodySchema = AttendanceSchema.omit({
@@ -17,7 +17,7 @@ export const createAttendanceBodySchema = AttendanceSchema.omit({
       message: "Ngày điểm danh không được lớn hơn ngày hiện tại",
     }
   ),
-  students: studentsRequired, // bắt buộc và không rỗng khi create
+  //students: studentsRequired,
 });
 
 // ✅ Update Attendance Validator

@@ -22,7 +22,7 @@ function removeEmpty(obj: Record<string, any>) {
 export const validateData = (schemas: ValidationSchemas) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      // console.log(chalk.green("Request"), req);
+      console.log(chalk.green("Request"), req.query);
       // console.log(chalk.green("Schemas"), schemas);
 
       if (schemas.body) {
@@ -56,12 +56,7 @@ export const validateData = (schemas: ValidationSchemas) => {
 
         console.log(chalk.red("[VALIDATION] ❌ Validation failed:"), error);
 
-        sendError(
-          res,
-          "Dữ liệu yêu cầu không hợp lệ",
-          400,
-          cleanErrorMessage(combinedMessage)
-        );
+        sendError(res, cleanErrorMessage(combinedMessage), 400);
         return;
       }
 

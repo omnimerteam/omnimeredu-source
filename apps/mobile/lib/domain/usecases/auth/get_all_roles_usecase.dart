@@ -1,4 +1,4 @@
-import '../../entities/auth/role.dart';
+import '../../entities/auth/role_entity.dart';
 import '../../repositories/auth/role_repository.dart';
 
 class GetAllRolesUseCase {

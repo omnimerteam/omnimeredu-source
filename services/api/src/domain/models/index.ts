@@ -18,6 +18,7 @@ export {
   default as MembershipRequest,
   IMembershipRequest,
 } from "./school/MembershipRequest";
+export { default as Grade, IGrade } from "./school/Grade";
 
 // Class
 export { default as Class, IClass } from "./school/class/Class";
@@ -75,3 +76,9 @@ export {
   default as ClassDetailView,
   IClassDetailView,
 } from "./viewModel/ClassDetail";
+
+export {
+  default as AttendanceRecordView,
+  IAttendanceRecordView,
+  IStudentAttendance,
+} from "./viewModel/AttendanceRecord";

@@ -14,22 +14,28 @@ export const AttendanceSchema = z.object({
     message: "Định dạng ObjectId không hợp lệ cho classId",
   }),
 
-  date: z.string().datetime({
-    message: "Ngày phải đúng định dạng",
+  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "Định dạng ObjectId không hợp lệ cho schoolId",
   }),
 
-  students: z
-    .array(
-      z.object({
-        studentId: z.string().refine((val) => Types.ObjectId.isValid(val), {
-          message: "Định dạng ObjectId không hợp lệ cho studentId",
-        }),
-        status: z.enum(["present", "absent", "late"], {
-          message: "Trạng thái điểm danh không đúng",
-        }),
-      })
-    )
-    .optional(),
+  date: z
+    .string()
+    .datetime({ message: "Ngày phải đúng định dạng" })
+    .optional()
+    .transform((val) => val ?? new Date().toISOString()),
+
+  // students: z
+  //   .array(
+  //     z.object({
+  //       studentId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+  //         message: "Định dạng ObjectId không hợp lệ cho studentId",
+  //       }),
+  //       status: z.enum(["present", "absent", "late"], {
+  //         message: "Trạng thái điểm danh không đúng",
+  //       }),
+  //     })
+  //   )
+  //   .optional(),
 });
 
 export type Attendance = z.infer<typeof AttendanceSchema>;

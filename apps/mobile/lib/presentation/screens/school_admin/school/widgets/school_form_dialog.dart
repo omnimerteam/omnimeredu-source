@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_data_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/image_picker/app_image_picker.dart';
@@ -35,7 +35,7 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _descriptionFocus = FocusNode();
 
-  String? _selectedLevel;
+  EducationSystemLevelsEnum? _selectedLevel;
   File? _logoFile;
   bool _isLoading = false;
 
@@ -155,14 +155,15 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
 
                       const SizedBox(height: 20),
 
-                      PrimaryDropdown(
+                      PrimaryDropdown<EducationSystemLevelsEnum>(
                         value: _selectedLevel,
-                        items: DisplayMapper.educationLevels.entries
+                        items: EducationSystemLevelsEnum.values
                             .map(
-                              (e) => DropdownMenuItem(
-                                value: e.key,
-                                child: Text(e.value),
-                              ),
+                              (e) =>
+                                  DropdownMenuItem<EducationSystemLevelsEnum>(
+                                    value: e,
+                                    child: Text(e.displayName),
+                                  ),
                             )
                             .toList(),
                         hintText: 'Chọn cấp học...',

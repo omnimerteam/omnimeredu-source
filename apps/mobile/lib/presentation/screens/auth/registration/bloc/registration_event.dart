@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 abstract class RegistrationEvent extends Equatable {
   const RegistrationEvent();
@@ -47,34 +48,34 @@ class UpdateRoleEvent extends RegistrationEvent {
 class UpdateStudentInfoEvent extends RegistrationEvent {
   final String? guardianName;
   final String? guardianPhone;
-  final String? educationLevel;
+  final EducationSystemLevelsEnum? educationLevel;
   final String? classId;
-  final String? grade;
+  final EducationGradesEnum? gradeGroup;
   const UpdateStudentInfoEvent({
     this.guardianName,
     this.guardianPhone,
     this.educationLevel,
     this.classId,
-    this.grade,
+    this.gradeGroup,
   });
 }
 
 /// update thông tin giáo viên
 class UpdateTeacherInfoEvent extends RegistrationEvent {
-  final String? literacy;
-  final List<String>? subjects;
-  const UpdateTeacherInfoEvent({this.literacy, this.subjects});
+  final TeacherQualificationEnum? qualification;
+  final List<SubjectEnum>? subjects;
+  const UpdateTeacherInfoEvent({this.qualification, this.subjects});
 }
 
 /// update thông tin school admin
 class UpdateSchoolAdminInfoEvent extends RegistrationEvent {
   final bool? isCreateNewSchool;
-  final String? position;
+  final SchoolAdminPositionEnum? position;
   final String? schoolName;
   final String? schoolAddress;
   final String? schoolPhone;
   final String? schoolDescription;
-  final String? schoolLevel;
+  final EducationSystemLevelsEnum? schoolLevel;
   final File? schoolLogoFile;
   const UpdateSchoolAdminInfoEvent({
     this.isCreateNewSchool,
@@ -104,7 +105,7 @@ class UpdateClassIdEvent extends RegistrationEvent {
 }
 
 class UpdateSelectedEducationLevelEvent extends RegistrationEvent {
-  final String? selectedEducationLevel;
+  final EducationSystemLevelsEnum? selectedEducationLevel;
   const UpdateSelectedEducationLevelEvent({this.selectedEducationLevel});
 }
 

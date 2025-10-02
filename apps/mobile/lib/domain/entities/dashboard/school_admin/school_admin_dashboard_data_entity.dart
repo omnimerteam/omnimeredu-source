@@ -12,7 +12,7 @@ class SchoolAdminDashboardDataEntity extends DashboardDataBaseEntity {
     required DateTime cachedAt,
   }) : super(cachedAt: cachedAt);
 
-  /// Convert Entity -> Map (dùng để cache)
+  // /// Convert Entity -> Map (dùng để cache)
   @override
   Map<String, dynamic> toJson() => {
     'overview': overview.toJson(),

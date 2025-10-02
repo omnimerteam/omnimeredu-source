@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 import 'package:flutter_ios_android_platforms/core/theme/theme_cubit.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_bloc.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/auth/authentication/authentication_event.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/under_development_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/logout_dialog_widget.dart';
 
@@ -459,7 +459,10 @@ class MoreScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UnderDevelopmentScreen(featureName: featureName),
+        builder: (context) => UnderDevelopmentScreen(
+          featureName: featureName,
+          expectedReleaseDate: DateTime(2024),
+        ),
       ),
     );
   }

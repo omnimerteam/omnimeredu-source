@@ -8,10 +8,9 @@ import {
   StudentRepository,
 } from "../../../repositories";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
-import { HttpError } from "../../../../common/utils/HttpError";
 import { generateClassCode } from "../../../utils/generateCode";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
-import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
+import { buildPermissionFilterForClass } from "../../../../common/utils/permissionFilter";
 
 class ClassService {
   private readonly classRepository: ClassRepository;
@@ -38,7 +37,7 @@ class ClassService {
     options?: PaginationQueryOptions
   ) {
     try {
-      const filter = buildPermissionFilter(userRole, schoolId);
+      const filter = buildPermissionFilterForClass(userRole, schoolId);
 
       const classes = await this.classRepository.findAll(filter, options);
 
@@ -72,21 +71,7 @@ class ClassService {
     options?: PaginationQueryOptions
   ) {
     try {
-      let filter: any = {};
-
-      if (userRole === "SuperAdmin") {
-        filter = {}; // không giới hạn
-      } else if (userRole === "SchoolAdmin") {
-        if (!schoolId)
-          throw new HttpError(
-            400,
-            "Thiếu thông tin trường",
-            "MISSING_SCHOOL_ID"
-          );
-        filter = { schoolId };
-      } else {
-        throw new HttpError(403, "Bạn không có quyền xem danh sách lớp");
-      }
+      const filter = buildPermissionFilterForClass(userRole, schoolId);
 
       const classes = await this.classDetailViewRepository.findAll(
         filter,
@@ -95,7 +80,7 @@ class ClassService {
 
       await this.logger.log({
         userId: actorId,
-        action: "GET_ALL_CLASSES",
+        action: "GET_ALL_CLASSES_DETAIL_VIEW",
         roleSnapshot: userRole,
         metadata: {
           filter,
@@ -108,7 +93,30 @@ class ClassService {
     } catch (error) {
       await this.logger.log({
         userId: actorId,
-        action: "GET_ALL_CLASSES_FAILED",
+        action: "GET_ALL_CLASSES_DETAIL_VIEW_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  async getClassDetailViewById(actorId: string, userRole: string, id: string) {
+    try {
+      const classes = await this.classDetailViewRepository.findById(id);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASS_DETAIL_VIEW_BY_ID",
+        roleSnapshot: userRole,
+        metadata: { classId: id },
+      });
+
+      return classes;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_CLASS_DETAIL_VIEW_BY_ID_FAILED",
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
@@ -144,11 +152,11 @@ class ClassService {
   async createClass(
     actorId: string,
     userRole: string,
-    data: IClass,
+    data: Partial<IClass>,
     schoolId: string
   ) {
     try {
-      const code = generateClassCode(data.name);
+      const code = generateClassCode(data.name!);
 
       const created = await this.classRepository.create({
         ...data,
@@ -186,6 +194,7 @@ class ClassService {
     data: Partial<IClass>
   ) {
     try {
+      console.log(data);
       const updated = await this.classRepository.update(id, data);
 
       await this.logger.log({
@@ -577,11 +586,10 @@ class ClassService {
     }
   }
 
-  async searchClassesInSchool(schoolId?: string, query?: string) {
+  async searchClassesInSchool(schoolId: string) {
     try {
       const classes = await this.classRepository.searchClassesInSchool(
-        schoolId,
-        query
+        schoolId
       );
 
       return classes;

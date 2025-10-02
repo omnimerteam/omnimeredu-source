@@ -24,10 +24,29 @@ class RoleController {
         sendEmpty(res);
         return;
       }
-      console.log(chalk.green("[Roles] Get all roles successfully"));
       sendSuccess(res, roles, "Lấy danh sách vai trò thành công");
     } catch (error) {
       console.log(chalk.red("[Roles] Error getting all roles:", error));
+      return next(error);
+    }
+  }
+
+  async getRolesPersonnel(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const roles = await this.roleService.getRolesPersonnel();
+      if (!roles) {
+        sendEmpty(res);
+        return;
+      }
+      sendSuccess(res, roles, "Lấy danh sách vai trò thành công");
+    } catch (error) {
+      console.log(
+        chalk.red("[Roles] Error getting all roles personnel:", error)
+      );
       return next(error);
     }
   }

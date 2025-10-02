@@ -1,34 +1,30 @@
-// class_management_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
-import 'class_management_event.dart';
-import 'class_management_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_state.dart';
 
 class ClassManagementBloc
     extends Bloc<ClassManagementEvent, ClassManagementState> {
-  final GetAllClassDetailViewUseCase getAllClassDetailViewUseCase;
+  final GetAllClassUseCase getAllClassUseCase;
   final CreateClassUseCase createClassUseCase;
   final UpdateClassUseCase updateClassUseCase;
   final DeleteClassUseCase deleteClassUseCase;
-  final GetClassByIdUseCase getClassByIdUseCase;
 
   ClassManagementBloc({
-    required this.getAllClassDetailViewUseCase,
+    required this.getAllClassUseCase,
     required this.createClassUseCase,
     required this.updateClassUseCase,
     required this.deleteClassUseCase,
-    required this.getClassByIdUseCase,
-  }) : super(const ClassManagementState()) {
+  }) : super(const ClassManagementInitial()) {
     on<LoadClassesEvent>(_onLoadClasses);
-    on<ChangeSortStringEvent>(_onChangeSortString);
-    on<ChangeSortEvent>(_onChangeSort); // Keep for backward compatibility
-    on<ChangePageEvent>(_onChangePage);
+    on<RefreshClassesEvent>(_onRefreshClasses);
+    on<LoadMoreClassesEvent>(_onLoadMoreClasses);
+    on<FilterClassesEvent>(_onFilterClasses);
+    on<SortClassesEvent>(_onSortClasses);
     on<CreateClassEvent>(_onCreateClass);
     on<UpdateClassEvent>(_onUpdateClass);
     on<DeleteClassEvent>(_onDeleteClass);
@@ -36,115 +32,170 @@ class ClassManagementBloc
     on<ShowCreateFormEvent>(_onShowCreateForm);
     on<HideFormEvent>(_onHideForm);
     on<ResetFormEvent>(_onResetForm);
+    on<ClearFormDataEvent>(_onClearFormData);
   }
 
   Future<void> _onLoadClasses(
     LoadClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
+    emit(const ClassManagementLoading());
     try {
-      emit(state.copyWith(status: ClassManagementStatus.loading));
-
-      final classes = await getAllClassDetailViewUseCase.call(
-        event.sort ?? AppConstants.nameSort,
-        page: event.page ?? AppConstants.defaultPage,
-        limit: AppConstants.defaultLimit,
-      );
-
+      final query = event.query ?? DefaultQueryEntity();
+      final classes = await getAllClassUseCase.call(query);
       emit(
-        state.copyWith(
-          status: ClassManagementStatus.loaded,
+        ClassManagementLoaded(
           classes: classes,
-          currentPage: event.page,
-          hasMorePages: classes.length == AppConstants.defaultLimit,
+          hasReachedMax: classes.length < query.limit,
+          currentQuery: query,
         ),
       );
     } catch (e) {
+      emit(ClassManagementError(e.toString()));
+    }
+  }
+
+  Future<void> _onRefreshClasses(
+    RefreshClassesEvent event,
+    Emitter<ClassManagementState> emit,
+  ) async {
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      final refreshedQuery = current.currentQuery.copyWith(page: 1);
+      emit(const ClassManagementLoading());
+      try {
+        final classes = await getAllClassUseCase.call(refreshedQuery);
+        emit(
+          current.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < refreshedQuery.limit,
+            currentQuery: refreshedQuery,
+          ),
+        );
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
+    }
+  }
+
+  Future<void> _onLoadMoreClasses(
+    LoadMoreClassesEvent event,
+    Emitter<ClassManagementState> emit,
+  ) async {
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      if (current.hasReachedMax) return;
+
       emit(
-        state.copyWith(
-          status: ClassManagementStatus.error,
-          errorMessage: e.toString(),
+        ClassManagementLoadingMore(
+          classes: current.classes,
+          currentQuery: current.currentQuery,
         ),
       );
+
+      try {
+        final nextQuery = current.currentQuery.copyWith(
+          page: current.currentQuery.page + 1,
+        );
+        final newClasses = await getAllClassUseCase.call(nextQuery);
+        emit(
+          current.copyWith(
+            classes: [...current.classes, ...newClasses],
+            hasReachedMax: newClasses.length < nextQuery.limit,
+            currentQuery: nextQuery,
+          ),
+        );
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
     }
   }
 
-  Future<void> _onChangeSortString(
-    ChangeSortStringEvent event,
+  Future<void> _onFilterClasses(
+    FilterClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    emit(
-      state.copyWith(
-        sortString: event.sortString,
-        currentPage: AppConstants.defaultPage, // Reset to first page
-      ),
-    );
-
-    // Reload with new sort
-    add(
-      LoadClassesEvent(page: AppConstants.defaultPage, sort: event.sortString),
-    );
-  }
-
-  // Keep the old method for backward compatibility
-  Future<void> _onChangeSort(
-    ChangeSortEvent event,
-    Emitter<ClassManagementState> emit,
-  ) async {
-    String newSortString;
-
-    // If clicking the same field, toggle direction
-    if (state.currentSortField == event.sortField) {
-      final newDirection = state.isAscending ? 'desc' : 'asc';
-      newSortString = '${event.sortField}:$newDirection';
-    } else {
-      // New field, default to ascending
-      newSortString = '${event.sortField}:asc';
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      final newQuery = current.currentQuery.copyWith(
+        page: 1,
+        filter: event.filter,
+      );
+      emit(const ClassManagementLoading());
+      try {
+        final classes = await getAllClassUseCase.call(newQuery);
+        emit(
+          current.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < newQuery.limit,
+            currentQuery: newQuery,
+          ),
+        );
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
     }
-
-    emit(
-      state.copyWith(
-        sortString: newSortString,
-        currentPage: AppConstants.defaultPage,
-      ),
-    );
-
-    // Reload with new sort
-    add(LoadClassesEvent(page: AppConstants.defaultPage, sort: newSortString));
   }
 
-  Future<void> _onChangePage(
-    ChangePageEvent event,
+  Future<void> _onSortClasses(
+    SortClassesEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    add(LoadClassesEvent(page: event.page, sort: state.sortString));
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      final newQuery = current.currentQuery.copyWith(page: 1, sort: event.sort);
+      emit(const ClassManagementLoading());
+      try {
+        final classes = await getAllClassUseCase.call(newQuery);
+        emit(
+          current.copyWith(
+            classes: classes,
+            hasReachedMax: classes.length < newQuery.limit,
+            currentQuery: newQuery,
+          ),
+        );
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
+    }
   }
 
   Future<void> _onCreateClass(
     CreateClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
-
-      await createClassUseCase.call(event.classEntity);
-
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formSuccess,
-          isFormVisible: false,
+        ClassManagementFormLoading(
+          classes: current.classes,
+          currentQuery: current.currentQuery,
+          isFormVisible: current.isFormVisible,
+          isEditMode: current.isEditMode,
+          classToEdit: current.classToEdit,
         ),
       );
 
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
-        ),
-      );
+      try {
+        final newClass = await createClassUseCase.call(event.classEntity);
+        emit(
+          current.copyWith(
+            classes: [...current.classes, newClass],
+            formStatus: ClassManagementFormStatus.success,
+            isFormVisible: false,
+            isEditMode: false,
+            clearClassToEdit: true,
+            clearFormErrorMessage: true,
+          ),
+        );
+      } catch (e) {
+        emit(
+          current.copyWith(
+            formStatus: ClassManagementFormStatus.error,
+            formErrorMessage: e.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -152,29 +203,41 @@ class ClassManagementBloc
     UpdateClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
-
-      await updateClassUseCase.call(event.classEntity);
-
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formSuccess,
-          isFormVisible: false,
-          isEditMode: false,
-          classToEdit: null,
+        ClassManagementFormLoading(
+          classes: current.classes,
+          currentQuery: current.currentQuery,
+          isFormVisible: current.isFormVisible,
+          isEditMode: current.isEditMode,
+          classToEdit: current.classToEdit,
         ),
       );
 
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
-        ),
-      );
+      try {
+        final updatedClass = await updateClassUseCase.call(event.classEntity);
+        final updatedList = current.classes
+            .map((c) => c.id == updatedClass.id ? updatedClass : c)
+            .toList();
+        emit(
+          current.copyWith(
+            classes: updatedList,
+            formStatus: ClassManagementFormStatus.success,
+            isFormVisible: false,
+            isEditMode: false,
+            clearClassToEdit: true,
+            clearFormErrorMessage: true,
+          ),
+        );
+      } catch (e) {
+        emit(
+          current.copyWith(
+            formStatus: ClassManagementFormStatus.error,
+            formErrorMessage: e.toString(),
+          ),
+        );
+      }
     }
   }
 
@@ -182,19 +245,17 @@ class ClassManagementBloc
     DeleteClassEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      logger.i("Id deleted: ${event.classId}");
-      await deleteClassUseCase.call(event.classId);
-
-      // Reload the list
-      add(LoadClassesEvent(page: state.currentPage, sort: state.sortString));
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: ClassManagementStatus.error,
-          errorMessage: e.toString(),
-        ),
-      );
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      try {
+        await deleteClassUseCase.call(event.classId);
+        final remaining = current.classes
+            .where((c) => c.id != event.classId)
+            .toList();
+        emit(current.copyWith(classes: remaining));
+      } catch (e) {
+        emit(ClassManagementError(e.toString()));
+      }
     }
   }
 
@@ -202,24 +263,15 @@ class ClassManagementBloc
     LoadClassForEditEvent event,
     Emitter<ClassManagementState> emit,
   ) async {
-    try {
-      emit(state.copyWith(formStatus: ClassManagementStatus.formLoading));
-
-      final classEntity = await getClassByIdUseCase.call(event.classId);
-      logger.i("Thông tin update: ${classEntity}");
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
       emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.loaded,
+        current.copyWith(
           isFormVisible: true,
           isEditMode: true,
-          classToEdit: classEntity,
-        ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          formStatus: ClassManagementStatus.formError,
-          formErrorMessage: e.toString(),
+          classToEdit: event.classEdit,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
         ),
       );
     }
@@ -229,35 +281,61 @@ class ClassManagementBloc
     ShowCreateFormEvent event,
     Emitter<ClassManagementState> emit,
   ) {
-    emit(
-      state.copyWith(
-        isFormVisible: true,
-        isEditMode: false,
-        classToEdit: null,
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      emit(
+        current.copyWith(
+          isFormVisible: true,
+          isEditMode: false,
+          clearClassToEdit: true,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 
   void _onHideForm(HideFormEvent event, Emitter<ClassManagementState> emit) {
-    emit(
-      state.copyWith(
-        isFormVisible: false,
-        isEditMode: false,
-        classToEdit: null,
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      emit(
+        current.copyWith(
+          isFormVisible: false,
+          isEditMode: false,
+          clearClassToEdit: true,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 
   void _onResetForm(ResetFormEvent event, Emitter<ClassManagementState> emit) {
-    emit(
-      state.copyWith(
-        formStatus: ClassManagementStatus.initial,
-        formErrorMessage: null,
-      ),
-    );
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      emit(
+        current.copyWith(
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
+  }
+
+  void _onClearFormData(
+    ClearFormDataEvent event,
+    Emitter<ClassManagementState> emit,
+  ) {
+    if (state is ClassManagementLoaded) {
+      final current = state as ClassManagementLoaded;
+      emit(
+        current.copyWith(
+          clearClassToEdit: true,
+          isEditMode: false,
+          formStatus: ClassManagementFormStatus.initial,
+          clearFormErrorMessage: true,
+        ),
+      );
+    }
   }
 }

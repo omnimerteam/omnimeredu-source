@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/school/school_search_entity.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
 
@@ -9,7 +10,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/registra
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/school/school_state.dart';
 
 class SchoolSelector extends StatefulWidget {
-  final String educationLevel; // để load school theo cấp học
+  final EducationSystemLevelsEnum educationLevel; // để load school theo cấp học
   final void Function(SchoolSearchEntity?) onSchoolSelected;
   final String? Function(SchoolSearchEntity?)? validator;
 

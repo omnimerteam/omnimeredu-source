@@ -1,18 +1,25 @@
 // membership_request_item.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/membership_request/membership_request_entity.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/widgets/membership_request_detail_sheet.dart';
+import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
+
+import 'package:flutter_ios_android_platforms/presentation/widgets/text/info_row_widget.dart';
 
 class MembershipRequestItem extends StatelessWidget {
   final MembershipRequestEntity request;
   final bool isUpdating;
   final Function(MembershipStatusEnum) onStatusUpdate;
+  final VoidCallback? onViewDetail;
 
   const MembershipRequestItem({
     super.key,
     required this.request,
     required this.isUpdating,
     required this.onStatusUpdate,
+    this.onViewDetail,
   });
 
   @override
@@ -53,8 +60,40 @@ class MembershipRequestItem extends StatelessWidget {
   Widget _buildHeader(BuildContext context) {
     return Row(
       children: [
-        _buildStatusChip(context),
+        // Vai trò -> to và nổi bật hơn
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.badge_outlined,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                DisplayMapper.roleName(request.role.name),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+
         const Spacer(),
+
+        // Trạng thái
+        _buildStatusChip(context),
+
+        const SizedBox(width: 12),
+
+        // Nút hành động
         _buildActionButton(context),
       ],
     );
@@ -77,6 +116,10 @@ class MembershipRequestItem extends StatelessWidget {
         statusColor = Colors.red;
         statusIcon = Icons.cancel_rounded;
         break;
+      case MembershipStatusEnum.None:
+        statusColor = Colors.grey;
+        statusIcon = Icons.blur_circular;
+        break;
     }
 
     return Container(
@@ -92,7 +135,7 @@ class MembershipRequestItem extends StatelessWidget {
           Icon(statusIcon, size: 14, color: statusColor),
           const SizedBox(width: 4),
           Text(
-            _getStatusText(request.status),
+            DisplayMapper.membershipStatusName(request.status.name),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: statusColor,
               fontWeight: FontWeight.w600,
@@ -124,7 +167,7 @@ class MembershipRequestItem extends StatelessWidget {
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       itemBuilder: (context) => _buildMenuItems(context),
-      onSelected: (value) => _handleMenuAction(value),
+      onSelected: (value) => _handleMenuAction(value, context),
     );
   }
 
@@ -150,7 +193,6 @@ class MembershipRequestItem extends StatelessWidget {
     switch (request.status) {
       case MembershipStatusEnum.Pending:
         items.addAll([
-          const PopupMenuDivider(),
           PopupMenuItem<String>(
             value: 'approve',
             child: Row(
@@ -189,7 +231,6 @@ class MembershipRequestItem extends StatelessWidget {
         break;
       case MembershipStatusEnum.Approved:
         items.addAll([
-          const PopupMenuDivider(),
           PopupMenuItem<String>(
             value: 'reject',
             child: Row(
@@ -209,7 +250,6 @@ class MembershipRequestItem extends StatelessWidget {
         break;
       case MembershipStatusEnum.Rejected:
         items.addAll([
-          const PopupMenuDivider(),
           PopupMenuItem<String>(
             value: 'approve',
             child: Row(
@@ -231,15 +271,17 @@ class MembershipRequestItem extends StatelessWidget {
           ),
         ]);
         break;
+      case MembershipStatusEnum.None:
+        break;
     }
 
     return items;
   }
 
-  void _handleMenuAction(String value) {
+  void _handleMenuAction(String value, BuildContext context) {
     switch (value) {
       case 'view_detail':
-        // TODO: Navigate to detail page
+        _showDetailDialog(context); // 👈 mở bottom sheet trực tiếp
         break;
       case 'approve':
         onStatusUpdate(MembershipStatusEnum.Approved);
@@ -250,147 +292,50 @@ class MembershipRequestItem extends StatelessWidget {
     }
   }
 
+  void _showDetailDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white, // tránh bị trong suốt
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => MembershipRequestDetailSheet(
+        request: request,
+        onStatusUpdate: onStatusUpdate,
+      ),
+    );
+  }
+
   Widget _buildContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildInfoRow(
-          context,
-          icon: Icons.person_outline_rounded,
-          label: 'User ID',
-          value: request.userId,
-        ),
-        const SizedBox(height: 8),
-        _buildInfoRow(
-          context,
-          icon: Icons.school_outlined,
-          label: 'School ID',
-          value: request.schoolId,
-        ),
-        if (request.classId != null) ...[
-          const SizedBox(height: 8),
-          _buildInfoRow(
-            context,
-            icon: Icons.class_outlined,
-            label: 'Class ID',
-            value: request.classId!,
+        // Chỉ hiển thị thông tin quan trọng nhất
+        if (request.fullName != null) ...[
+          InfoRowWidget(
+            icon: Icons.person_outline_rounded,
+            label: 'Họ tên',
+            value: request.fullName!,
           ),
+          const SizedBox(height: 8),
         ],
-        const SizedBox(height: 8),
-        _buildInfoRow(
-          context,
-          icon: Icons.badge_outlined,
-          label: 'Vai trò',
-          value: _getRoleText(request.role),
-        ),
-        const SizedBox(height: 8),
-        _buildInfoRow(
-          context,
+
+        InfoRowWidget(
           icon: Icons.assignment_outlined,
           label: 'Hành động',
-          value: _getActionText(request.action),
+          value: DisplayMapper.membershipActionName(request.action.name),
         ),
-        const SizedBox(height: 8),
-        _buildInfoRow(
-          context,
-          icon: Icons.schedule_rounded,
-          label: 'Ngày tạo',
-          value: AppConstants.dateTimeFormatter.format(request.createdAt),
-        ),
-        if (request.note != null && request.note!.isNotEmpty) ...[
+
+        if (request.createdAt != null) ...[
           const SizedBox(height: 8),
-          _buildInfoRow(
-            context,
-            icon: Icons.note_outlined,
-            label: 'Ghi chú',
-            value: request.note!,
-            isMultiline: true,
+          InfoRowWidget(
+            icon: Icons.schedule_rounded,
+            label: 'Ngày tạo',
+            value: AppConstants.dateTimeFormatter.format(request.createdAt!),
           ),
         ],
       ],
     );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-    bool isMultiline = false,
-  }) {
-    return Row(
-      crossAxisAlignment: isMultiline
-          ? CrossAxisAlignment.start
-          : CrossAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '$label: ',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                TextSpan(
-                  text: value,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  String _getStatusText(MembershipStatusEnum status) {
-    switch (status) {
-      case MembershipStatusEnum.Pending:
-        return 'Chờ duyệt';
-      case MembershipStatusEnum.Approved:
-        return 'Đã duyệt';
-      case MembershipStatusEnum.Rejected:
-        return 'Từ chối';
-    }
-  }
-
-  String _getRoleText(MembershipRoleEnum role) {
-    switch (role) {
-      case MembershipRoleEnum.Student:
-        return 'Học sinh';
-      case MembershipRoleEnum.Teacher:
-        return 'Giáo viên';
-      case MembershipRoleEnum.Staff:
-        return 'Nhân viên';
-      case MembershipRoleEnum.SchoolAdmin:
-        return 'Quản trị viên';
-    }
-  }
-
-  String _getActionText(MembershipActionEnum action) {
-    switch (action) {
-      case MembershipActionEnum.Enroll:
-        return 'Nhập học/Nhận công tác';
-      case MembershipActionEnum.Transfer:
-        return 'Chuyển lớp';
-      case MembershipActionEnum.Assign:
-        return 'Phân công';
-      case MembershipActionEnum.Resign:
-        return 'Nghỉ học/Thôi công tác';
-    }
   }
 }

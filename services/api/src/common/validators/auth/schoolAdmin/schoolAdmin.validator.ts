@@ -18,3 +18,7 @@ export const updateSchoolAdminBodySchema = SchoolAdminSchema.partial({
   isVerified: true,
   position: true,
 });
+
+export const updatePositionSchoolAdminSchema = SchoolAdminSchema.pick({
+  position: true,
+});

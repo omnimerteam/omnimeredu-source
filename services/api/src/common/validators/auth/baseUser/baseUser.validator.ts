@@ -23,3 +23,11 @@ export const updateBaseUserBodySchema = BaseUserSchema.partial().extend({
     })
     .optional(),
 });
+
+export const updateRoleId = BaseUserSchema.pick({
+  roleId: true,
+});
+
+export const updateVerified = BaseUserSchema.pick({
+  isVerified: true,
+});

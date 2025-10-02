@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 
 class SchoolDataEntity extends Equatable {
   final String? id;
@@ -7,7 +8,7 @@ class SchoolDataEntity extends Equatable {
   final String? address;
   final String? phone;
   final String? description;
-  final String? level;
+  final EducationSystemLevelsEnum? level;
   final String? adminId;
   final String? logoUrl;
   final int studentCount;

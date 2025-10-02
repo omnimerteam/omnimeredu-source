@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_ios_android_platforms/core/app_constants.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
-import 'package:flutter_ios_android_platforms/data/models/class/class_detail_view_model.dart';
+import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/view_model/class_detail_view_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class ClassRemoteDataSource {
   final ApiClient client;
@@ -17,13 +19,10 @@ class ClassRemoteDataSource {
   }
 
   // Tìm kiếm lớp học trong trường
-  Future<List<ClassSearchEntity>> searchClassesInSchool(
-    String schoolId,
-    String? query,
-  ) async {
+  Future<List<ClassSearchEntity>> searchClassesInSchool(String schoolId) async {
     final res = await client.get<List<ClassSearchEntity>>(
       Endpoints.searchClassesInSchool,
-      query: {"schoolId": schoolId, "query": query},
+      query: {"schoolId": schoolId},
       parser: (data) {
         if (data is List) {
           return data
@@ -33,6 +32,10 @@ class ClassRemoteDataSource {
                   name: e["name"].toString(),
                   code: e["code"].toString(),
                   schoolId: e["schoolId"].toString(),
+                  gradeId: e["gradeId"].toString(),
+                  gradeGroup: EducationGradesEnum.fromString(
+                    e['gradeGroup'] as String?,
+                  ),
                 ),
               )
               .toList();
@@ -43,37 +46,25 @@ class ClassRemoteDataSource {
 
     if (res.success) {
       final list = res.data ?? [];
-      if (list.isEmpty) {
-        throw Exception("Không có lớp phù hợp");
-      }
+      logger.i("List ${list}");
       return list;
     } else {
       throw Exception(res.message ?? "Không thể tìm lớp trong trường");
     }
   }
 
-  /// Danh sác lớp học bằng ClassDetail View Model
-  Future<List<ClassDetailViewModel>> getAllClassDetailView(
-    String sort, {
-    int page = AppConstants.defaultPage,
-    int limit = AppConstants.defaultLimit,
-  }) async {
+  Future<List<ClassModel>> getAllClasses(DefaultQueryEntity query) async {
     final token = await _getIdToken();
+    final queryParams = query.toQueryBuilder().build();
 
-    final res = await client.get<List<ClassDetailViewModel>>(
+    final res = await client.get<List<ClassModel>>(
       Endpoints.classes,
       headers: {if (token != null) "Authorization": "Bearer $token"},
-      query: {
-        "page": page.toString(),
-        "limit": limit.toString(),
-        "sort": sort.isNotEmpty ? sort : "name:asc",
-      },
+      query: queryParams,
       parser: (data) {
         if (data is List) {
           return data
-              .map(
-                (e) => ClassDetailViewModel.fromJson(e as Map<String, dynamic>),
-              )
+              .map((e) => ClassModel.fromJson(e as Map<String, dynamic>))
               .toList();
         }
         throw Exception("API không trả về danh sách lớp hợp lệ");
@@ -87,7 +78,7 @@ class ClassRemoteDataSource {
     }
   }
 
-  /// Danh sác lớp học bằng ClassDetail View Model
+  /// Lấy thông tin lớp học
   Future<ClassModel> getClassById(String id) async {
     final token = await _getIdToken();
 
@@ -97,6 +88,28 @@ class ClassRemoteDataSource {
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return ClassModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu lớp hợp lệ");
+      },
+    );
+
+    if (res.success && res.data != null) {
+      return res.data!;
+    } else {
+      throw Exception(res.message ?? "Không thể lấy danh sách lớp");
+    }
+  }
+
+  /// Lấy thông tin lớp học
+  Future<ClassDetailViewModel> getClassDetailViewById(String id) async {
+    final token = await _getIdToken();
+
+    final res = await client.get<ClassDetailViewModel>(
+      Endpoints.classDetailViewId(id),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return ClassDetailViewModel.fromJson(data);
         }
         throw Exception("API không trả về dữ liệu lớp hợp lệ");
       },

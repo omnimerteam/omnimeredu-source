@@ -1,0 +1,61 @@
+import mongoose, { Schema, Document, Types } from "mongoose";
+import {
+  EducationGradesEnum,
+  EducationGradesTuple,
+  EducationSystemLevelsEnum,
+  EducationSystemLevelsTuple,
+} from "../../../common/enum/educationSystemLevels.enum";
+
+export interface IGrade extends Document {
+  _id: Types.ObjectId;
+  schoolId: Types.ObjectId; // null = khối chuẩn chung
+  name: string; // tên khối (Chồi, Lá, Mầm…)
+  level: EducationSystemLevelsEnum;
+
+  gradeGroup: EducationGradesEnum;
+
+  order: number; // thứ tự hiển thị
+  ageRange?: { min?: number; max?: number }; // độ tuổi học sinh
+  description?: string; // mô tả chi tiết khối
+  active: boolean;
+  linkedClasses?: Types.ObjectId[]; // optional, các lớp liên kết sẵn với khối
+
+  // Todo: Phát triển sau vì các tính năng này hơi khó
+  customFields?: Record<string, any>; // lưu các thông tin đặc thù riêng của trường
+}
+
+const GradeSchema = new Schema<IGrade>(
+  {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+    schoolId: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      required: true,
+      index: true,
+    },
+    name: { type: String, required: true },
+    level: {
+      type: String,
+      enum: EducationSystemLevelsTuple,
+      required: true,
+      index: true,
+    },
+    gradeGroup: {
+      type: String,
+      enum: EducationGradesTuple,
+      required: true,
+      index: true,
+    },
+    order: { type: Number, required: true },
+    ageRange: {
+      min: { type: Number, required: false },
+      max: { type: Number, required: false },
+    },
+    description: { type: String, required: false },
+    customFields: { type: Object, default: {} },
+    active: { type: Boolean, default: true },
+  },
+  { timestamps: true }
+);
+
+export default mongoose.model<IGrade>("Grade", GradeSchema);

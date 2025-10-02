@@ -12,3 +12,8 @@ export const updateDetailsRecordBodySchema = DetailsRecordSchema.partial({
   status: true,
   note: true,
 });
+
+export const updateStatusDetailsRecordBodySchema = DetailsRecordSchema.pick({
+  status: true,
+  note: true,
+});

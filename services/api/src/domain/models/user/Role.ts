@@ -1,11 +1,17 @@
 // role.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { RoleEnum, RoleTuple } from "../../../common/enum/role.enum";
+import {
+  RoleEnum,
+  RoleGroup,
+  RoleGroupTuple,
+  RoleTuple,
+} from "../../../common/enum/role.enum";
 
 export interface IRole extends Document {
   _id: Types.ObjectId;
   name: RoleEnum;
   description?: string;
+  group: RoleGroup;
   permissions?: string[];
 }
 
@@ -16,9 +22,16 @@ const RoleSchema = new Schema<IRole>(
       type: String,
       enum: RoleTuple,
       required: true,
-      unique: true,
       index: true,
     },
+
+    group: {
+      type: String,
+      enum: RoleGroupTuple,
+      required: true,
+      index: true,
+    },
+
     description: { type: String },
     permissions: [{ type: String }],
   },

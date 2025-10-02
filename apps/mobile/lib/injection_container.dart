@@ -1,19 +1,74 @@
+import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/attendance_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/detail_record_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/teaching_assignment_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/personnel_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/school_admin_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/attendance/attendance_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/attendance/detail_record_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/class/teaching_assignment_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/school/grade_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/personnel_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/school_admin_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/student_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/attendance/attendance_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/attendance/detail_record_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/class/teaching_assignment_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/personnel_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/school_admin_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_roles_personnel_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
-import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_detail_view_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_detail_view_by_id.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/detail_record/update_status_detail_record_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/create_grade_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/delete_grade_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_all_grades_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_grade_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/get_grades_for_select_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/grade/update_grade_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/create_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/delete_membership_request.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_all_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_membership_request_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/personnel/dismiss_personnel_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/personnel/get_all_personnel_from_school_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/personnel/update_verified_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/school_admin/update_position_school_admin_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/create_student_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/delete_student_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/get_all_students_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/get_student_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/create_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/delete_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_class_teacher_assignments_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_classes_teacher_assign_by_teacher_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/bloc/teacher_attendance_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/personnel/bloc/personnel_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -68,11 +123,11 @@ import 'domain/usecases/school_admin_dashboard/get_dashboard_overview.dart';
 import 'domain/usecases/school_admin_dashboard/get_school_attendance_stats.dart';
 
 // Blocs / Cubits
-import 'presentation/screens/auth/authentication/authentication_bloc.dart';
+import 'core/bloc/authentication/authentication_bloc.dart';
 import 'presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'presentation/screens/auth/registration/bloc/registration_bloc.dart';
 import 'presentation/screens/auth/registration/bloc/school/school_bloc.dart';
-import 'presentation/screens/auth/registration/bloc/class/class_bloc.dart';
+import 'presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 import 'presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
 
@@ -118,6 +173,27 @@ Future<void> init() async {
   sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
     () => MembershipRequestRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<GradeRemoteDataSource>(
+    () => GradeRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<StudentRemoteDataSource>(
+    () => StudentRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<TeachingAssignmentRemoteDataSource>(
+    () => TeachingAssignmentRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<PersonnelRemoteDataSource>(
+    () => PersonnelRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<SchoolAdminRemoteDataSource>(
+    () => SchoolAdminRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<AttendanceRemoteDataSource>(
+    () => AttendanceRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<DetailRecordRemoteDataSource>(
+    () => DetailRecordRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -132,6 +208,25 @@ Future<void> init() async {
   sl.registerLazySingleton<MembershipRequestRepository>(
     () => MembershipRequestRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<GradeRepository>(() => GradeRepositoryImpl(sl()));
+  sl.registerLazySingleton<StudentRepository>(
+    () => StudentRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<PersonnelRepository>(
+    () => PersonnelRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<TeachingAssignmentRepository>(
+    () => TeachingAssignmentRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<SchoolAdminRepository>(
+    () => SchoolAdminRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<AttendanceRepository>(
+    () => AttendanceRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<DetailRecordRepository>(
+    () => DetailRecordRepositoryImpl(sl()),
+  );
 
   // ======================
   // UseCases
@@ -141,6 +236,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUserUseCase(sl()));
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => GetAllRolesUseCase(sl()));
+  sl.registerLazySingleton(() => GetRolesPersonnelUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUserUseCase(sl()));
 
@@ -150,7 +246,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateClassUseCase(sl()));
   sl.registerLazySingleton(() => DeleteClassUseCase(sl()));
   sl.registerLazySingleton(() => GetClassByIdUseCase(sl()));
-  sl.registerLazySingleton(() => GetAllClassDetailViewUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllClassUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassDetailViewByIdUseCase(sl()));
 
   // School
   sl.registerLazySingleton(() => GetSchoolsByLevelUseCase(sl()));
@@ -170,6 +267,48 @@ Future<void> init() async {
   // Dashboard
   sl.registerLazySingleton(() => GetDashboardSummaryUseCase(sl()));
   sl.registerLazySingleton(() => GetSchoolAttendanceStatsUseCase(sl()));
+
+  // Grade
+  sl.registerLazySingleton(() => CreateGradeUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteGradeUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllGradesUseCase(sl()));
+  sl.registerLazySingleton(() => GetGradeByIdUseCase(sl()));
+  sl.registerLazySingleton(() => GetGradesForSelectUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateGradeUseCase(sl()));
+
+  // Student
+  sl.registerLazySingleton(() => CreateStudentUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteStudentUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllStudentsUseCase(sl()));
+  sl.registerLazySingleton(() => GetStudentByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateStudentUseCase(sl()));
+
+  // Personnel
+  sl.registerLazySingleton(() => GetAllPersonnelFromSchoolUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateVerifiedUseCase(sl()));
+  sl.registerLazySingleton(() => DismissPersonnelUseCase(sl()));
+
+  // Teaching Assignment
+  sl.registerLazySingleton(() => CreateTeachingAssignmentUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteTeachingAssignmentUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetTeachingAssignmentByTeacherClassAndSchoolUseCase(sl()),
+  );
+  sl.registerLazySingleton(() => UpdateTeachingAssignmentUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassTeacherAssignmentsUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetClassesTeacherAssignByTeacherIdUseCase(sl()),
+  );
+
+  // School Admin
+  sl.registerLazySingleton(() => UpdatePositionSchoolAdminUseCase(sl()));
+
+  // Attendance
+  sl.registerLazySingleton(() => InitializeClassAttendanceUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassAttendanceRecordViewUseCase(sl()));
+
+  // Detail Record
+  sl.registerLazySingleton(() => UpdateStatusDetailRecordUseCase(sl()));
 
   // ======================
   // Blocs / Cubits
@@ -193,9 +332,19 @@ Future<void> init() async {
     () => LoginBloc(loginUseCase: sl(), authenticationBloc: sl()),
   );
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
-  sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
   sl.registerFactory(
-    () => DashboardCubit(schoolAdminRepo: sl(), cacheService: sl()),
+    () => ClassSelectorBloc(
+      getClassesBySchoolUseCase: sl(),
+      getClassesByTeacherUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => DashboardCubit(
+      schoolAdminRepo: sl(),
+      getClassTeacherAssignmentsUseCase: sl(),
+      cacheService: sl(),
+      authBloc: sl(),
+    ),
   );
 
   sl.registerFactory(
@@ -210,11 +359,10 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => ClassManagementBloc(
-      getAllClassDetailViewUseCase: sl(),
       createClassUseCase: sl(),
       updateClassUseCase: sl(),
       deleteClassUseCase: sl(),
-      getClassByIdUseCase: sl(),
+      getAllClassUseCase: sl(),
     ),
   );
 
@@ -222,6 +370,60 @@ Future<void> init() async {
     () => MembershipRequestManagementBloc(
       getAllMembershipRequests: sl(),
       updateStatusMembershipRequest: sl(),
+    ),
+  );
+
+  sl.registerFactory(() => GradeSelectCubit(sl()));
+
+  sl.registerFactory(
+    () => GradeManagementBloc(
+      createGradeUseCase: sl(),
+      deleteGradeUseCase: sl(),
+      getAllGradesUseCase: sl(),
+      updateGradeUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => StudentManagementBloc(
+      createStudentUseCase: sl(),
+      deleteStudentUseCase: sl(),
+      getAllStudentsUseCase: sl(),
+      getStudentByIdUseCase: sl(),
+      updateStudentUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => PersonnelManagementBloc(
+      getAllPersonnelUseCase: sl(),
+      createTeachingAssignmentUseCase: sl(),
+      deleteTeachingAssignmentUseCase: sl(),
+      getTeachingAssignmentByTeacherClassAndSchoolUseCase: sl(),
+      updateTeachingAssignmentUseCase: sl(),
+      updateVerifiedUseCase: sl(),
+      dismissPersonnelUseCase: sl(),
+      updatePositionSchoolAdminUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => RoleBloc(getAllRolesUseCase: sl(), getRolesPersonnelUseCase: sl()),
+  );
+
+  sl.registerFactory(
+    () => TeacherClassesCubit(initializeClassAttendanceUseCase: sl()),
+  );
+
+  sl.registerFactory(
+    () => ClassDetailCubit(getClassDetailViewByIdUseCase: sl()),
+  );
+
+  sl.registerFactory(
+    () => TeacherAttendanceBloc(
+      getAttendanceRecordUseCase: sl(),
+      updateStatusUseCase: sl(),
+      initializeClassAttendanceUseCase: sl(),
     ),
   );
 }

@@ -58,7 +58,7 @@ class AccountRepository {
           "fullName",
           "isVerified",
           "position",
-          "literacy",
+          "qualification",
           "educationLevel",
           "grade",
           "roleId",
@@ -67,9 +67,9 @@ class AccountRepository {
           "avatarUrl",
         ].join(" "),
         populate: [
-          { path: "roleId", select: "name" },
-          { path: "schoolId", select: "name" },
-          { path: "classId", select: "name" },
+          { path: "roleId", select: "_id name" },
+          { path: "schoolId", select: "_id name level" },
+          { path: "classId", select: "_id name" },
         ],
       }); // nếu muốn return plain object
   }

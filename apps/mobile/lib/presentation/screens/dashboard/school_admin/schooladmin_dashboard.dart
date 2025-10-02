@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/theme/app_colors.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/school_admin_dashboard_data_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/school_admin/widgets/dashboard_quick_overview_skeleton.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/chart/attendance_chart.dart';
@@ -12,9 +11,14 @@ import 'widgets/dashboard_analytics_preview.dart';
 class SchoolAdminDashboard extends StatelessWidget {
   final SchoolAdminDashboardDataEntity? data;
   final bool isLoading;
+  final String roleName;
 
-  const SchoolAdminDashboard({Key? key, this.data, this.isLoading = false})
-    : super(key: key);
+  const SchoolAdminDashboard({
+    Key? key,
+    this.data,
+    this.isLoading = false,
+    required this.roleName,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +111,9 @@ class SchoolAdminDashboard extends StatelessWidget {
           classAttendanceRates: data!.attendanceStats.classAttendanceRates,
         ),
         const SizedBox(height: 24),
-        const DashboardQuickAccess(),
+        DashboardQuickAccess(roleName: roleName),
         const SizedBox(height: 24),
-        const DashboardAnalyticsPreview(),
+        DashboardAnalyticsPreview(),
       ],
     );
   }

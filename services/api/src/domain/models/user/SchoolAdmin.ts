@@ -1,6 +1,10 @@
 import { Schema } from "mongoose";
 import { IBaseUser } from "./BaseUser";
 import BaseUser from "./BaseUser";
+import {
+  SchoolAdminPositionEnum,
+  SchoolAdminPositionTuple,
+} from "../../../common/enum/schoolAdmin.enum";
 
 /**
  * Interface đại diện cho SchoolAdmin (quản trị trường),
@@ -8,14 +12,14 @@ import BaseUser from "./BaseUser";
  */
 export interface ISchoolAdmin extends IBaseUser {
   // Có thể thêm thuộc tính riêng cho quản trị trường ở đây
-  position: string;
+  position?: SchoolAdminPositionEnum;
 }
 
 /**
  * Schema cho SchoolAdmin
  */
 const SchoolAdminSchema = new Schema<ISchoolAdmin>({
-  position: { type: String, default: "Hiệu trưởng" },
+  position: { type: String, enum: SchoolAdminPositionTuple, required: false },
 });
 
 /**
