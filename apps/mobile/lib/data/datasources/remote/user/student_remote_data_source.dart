@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/data/models/user/student_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/user/student_selector_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class StudentRemoteDataSource {
@@ -125,5 +127,29 @@ class StudentRemoteDataSource {
     if (!res.success) {
       throw Exception(res.message ?? "Không thể xóa học sinh");
     }
+  }
+
+  Future<ApiResponse<List<StudentSelectorModel>?>> getStudentSelector(
+    String? gradeId,
+  ) async {
+    final token = await _getIdToken();
+
+    final res = await client.get<List<StudentSelectorModel>?>(
+      Endpoints.getStudentSelector,
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      query: {"gradeId": gradeId},
+      parser: (data) {
+        if (data is List) {
+          return data
+              .map(
+                (e) => StudentSelectorModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
+        }
+        throw Exception("API không trả về danh sách hợp lệ");
+      },
+    );
+
+    return res;
   }
 }

@@ -5,7 +5,7 @@ class UpdateClassUseCase {
   final ClassRepository repository;
   UpdateClassUseCase(this.repository);
 
-  Future<ClassEntity> call(ClassEntity updateClassData) {
-    return repository.updateClass(updateClassData);
+  Future<ClassEntity> call(ClassEntity updateClassData) async {
+    return await repository.updateClass(updateClassData);
   }
 }

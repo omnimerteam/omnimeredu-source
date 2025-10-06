@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 // Models → Repo → Service → Controller
-import { Class, ClassDetailView, Student } from "../../../domain/models";
+import { Class, ClassDetailView, Grade, Student } from "../../../domain/models";
 import {
   ClassRepository,
   StudentRepository,
@@ -38,7 +38,7 @@ const classRepository = new ClassRepository(Class);
 const classDetailViewRepository = new ClassDetailViewRepository(
   ClassDetailView
 );
-const studentRepository = new StudentRepository(Student);
+const studentRepository = new StudentRepository(Student, Grade);
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classService = new ClassService(
   classRepository,
@@ -61,7 +61,7 @@ const router = Router();
  * ROUTE DEFINITIONS
  */
 
-// ✅ Lấy tất cả lớp (có filter query)
+//  Lấy tất cả lớp (có filter query)
 router.get(
   "/",
   validateData({
@@ -73,7 +73,7 @@ router.get(
   (req, res, next) => classController.getAllClasses(req, res, next)
 );
 
-// ✅ Lấy tất cả lớp trong view model ClassDetail (có filter query)
+//  Lấy tất cả lớp trong view model ClassDetail (có filter query)
 router.get(
   "/view-model/class-detail",
   validateData({
@@ -96,7 +96,7 @@ router.get(
   (req, res, next) => classController.getClassDetailViewById(req, res, next)
 );
 
-// ✅ Lấy lớp theo ID
+//  Lấy lớp theo ID
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
@@ -105,7 +105,7 @@ router.get(
   (req, res, next) => classController.getClassById(req, res, next)
 );
 
-// ✅ Tạo lớp mới
+//  Tạo lớp mới
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createClassBodySchema }),
@@ -114,7 +114,7 @@ router.post(
   (req, res, next) => classController.createClass(req, res, next)
 );
 
-// ✅ Cập nhật lớp
+//  Cập nhật lớp
 router.put(
   "/:id",
   validateData({
@@ -127,7 +127,7 @@ router.put(
   (req, res, next) => classController.updateClass(req, res, next)
 );
 
-// ✅ Xóa lớp
+//  Xóa lớp
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
@@ -136,7 +136,7 @@ router.delete(
   (req, res, next) => classController.deleteClass(req, res, next)
 );
 
-// ✅ Thêm học sinh vào lớp
+//  Thêm học sinh vào lớp
 router.post(
   "/:id/students/add",
   validateData({
@@ -150,7 +150,7 @@ router.post(
   (req, res, next) => classController.addStudentToClass(req, res, next)
 );
 
-// ✅ Xóa học sinh khỏi lớp
+//  Xóa học sinh khỏi lớp
 router.post(
   "/:id/students/remove",
   validateData({
@@ -163,9 +163,9 @@ router.post(
   (req, res, next) => classController.removeStudentFromClass(req, res, next)
 );
 
-// ✅ Trao đổi học sinh giữa các lớp
-router.put(
-  "/:id/transfer",
+//  Trao đổi học sinh giữa các lớp
+router.post(
+  "/:id/students/transfer",
   validateData({
     headers: authHeaderSchema,
     params: objectIdParamSchema,
@@ -176,7 +176,7 @@ router.put(
   (req, res, next) => classController.transferClass(req, res, next)
 );
 
-// ✅ Tìm kiếm lớp học có trong trường theo name hoặc code của trường
+//  Tìm kiếm lớp học có trong trường theo name hoặc code của trường
 router.get(
   "/schools/search",
   validateData({ query: searchClassesQuerySchema }),

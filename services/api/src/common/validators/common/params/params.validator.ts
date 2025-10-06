@@ -80,3 +80,13 @@ export const attendanceIdSchema = z.object({
     message: "Invalid AttendanceId format",
   }),
 });
+
+export const paramGradeIdSchema = z.object({
+  gradeId: z
+    .string()
+    .refine((val) => Types.ObjectId.isValid(val), {
+      message: "Invalid GradeId format",
+    })
+    .nullable()
+    .optional(),
+});

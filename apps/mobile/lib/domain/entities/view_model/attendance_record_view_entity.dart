@@ -40,6 +40,32 @@ class StudentAttendanceEntity extends Equatable {
     status,
     note,
   ];
+
+  StudentAttendanceEntity copyWith({
+    String? id,
+    String? name,
+    String? phone,
+    String? guardianName,
+    String? guardianPhone,
+    String? gender,
+    DateTime? birthday,
+    String? detailRecordId,
+    AttendanceStatusEnum? status,
+    String? note,
+  }) {
+    return StudentAttendanceEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      guardianName: guardianName ?? this.guardianName,
+      guardianPhone: guardianPhone ?? this.guardianPhone,
+      gender: gender ?? this.gender,
+      birthday: birthday ?? this.birthday,
+      detailRecordId: detailRecordId ?? this.detailRecordId,
+      status: status ?? this.status,
+      note: note ?? this.note,
+    );
+  }
 }
 
 /// 🔹 Thông tin class trong attendance record
@@ -82,7 +108,7 @@ class AttendanceRecordViewEntity extends Equatable {
   final AttendanceClassInfoEntity classInfo;
   final AttendanceSchoolInfoEntity schoolInfo;
   final DateTime date;
-  final List<StudentAttendanceEntity> students;
+  final List<StudentAttendanceEntity?>? students;
 
   const AttendanceRecordViewEntity({
     required this.id,
@@ -104,4 +130,24 @@ class AttendanceRecordViewEntity extends Equatable {
     date,
     students,
   ];
+
+  AttendanceRecordViewEntity copyWith({
+    String? id,
+    String? classId,
+    String? schoolId,
+    AttendanceClassInfoEntity? classInfo,
+    AttendanceSchoolInfoEntity? schoolInfo,
+    DateTime? date,
+    List<StudentAttendanceEntity?>? students,
+  }) {
+    return AttendanceRecordViewEntity(
+      id: id ?? this.id,
+      classId: classId ?? this.classId,
+      schoolId: schoolId ?? this.schoolId,
+      classInfo: classInfo ?? this.classInfo,
+      schoolInfo: schoolInfo ?? this.schoolInfo,
+      date: date ?? this.date,
+      students: students ?? this.students,
+    );
+  }
 }

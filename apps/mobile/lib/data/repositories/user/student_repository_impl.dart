@@ -1,9 +1,11 @@
 import 'package:flutter_ios_android_platforms/core/error/failures.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/user/student_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/student_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/user/student_selector_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
 
 class StudentRepositoryImpl implements StudentRepository {
@@ -60,6 +62,22 @@ class StudentRepositoryImpl implements StudentRepository {
       await remote.deleteStudent(id);
     } catch (e) {
       throw ServerFailure("Xóa học sinh thất bại: $e");
+    }
+  }
+
+  @override
+  Future<ApiResponse<List<StudentSelectorEntity>?>> getStudentSelector(
+    String? gradeId,
+  ) async {
+    try {
+      final res = await remote.getStudentSelector(gradeId);
+      return ApiResponse<List<StudentSelectorEntity>?>(
+        success: res.success,
+        message: res.message,
+        data: res.data?.map((m) => m.toEntity()).toList(),
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
     }
   }
 }

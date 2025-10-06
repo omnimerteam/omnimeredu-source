@@ -1,5 +1,7 @@
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/student_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/user/student_selector_entity.dart';
 
 abstract class StudentRepository {
   Future<List<StudentEntity>> getAllStudents(DefaultQueryEntity query);
@@ -11,4 +13,8 @@ abstract class StudentRepository {
   Future<StudentEntity> updateStudent(StudentEntity updateStudentData);
 
   Future<void> deleteStudent(String id);
+
+  Future<ApiResponse<List<StudentSelectorEntity>?>> getStudentSelector(
+    String? gradeId,
+  );
 }

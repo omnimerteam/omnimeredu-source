@@ -5,5 +5,7 @@ import '../../repositories/auth/auth_repository.dart';
 class RegisterUserUseCase {
   final AuthRepository repo;
   RegisterUserUseCase(this.repo);
-  Future<void> call(RegisterUserEntity req) => repo.register(req);
+  Future<void> call(RegisterUserEntity req) async {
+    return await repo.register(req);
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/core/utils/query_builder.dart';
 
 class DefaultQueryEntity {
@@ -8,8 +9,8 @@ class DefaultQueryEntity {
   final String? search;
 
   DefaultQueryEntity({
-    this.page = 1,
-    this.limit = 10,
+    this.page = AppConstants.defaultPage,
+    this.limit = AppConstants.defaultLimit,
     this.sort = const [],
     this.filter = const {},
     this.search,

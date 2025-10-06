@@ -5,7 +5,7 @@ class GetAllClassesInSchoolUseCase {
   final ClassRepository repository;
   GetAllClassesInSchoolUseCase(this.repository);
 
-  Future<List<ClassSearchEntity>> call(String schoolId) {
-    return repository.getClassesInSchool(schoolId);
+  Future<List<ClassSearchEntity>> call(String schoolId) async {
+    return await repository.getClassesInSchool(schoolId);
   }
 }

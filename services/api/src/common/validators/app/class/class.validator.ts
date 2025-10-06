@@ -29,7 +29,7 @@ export const updateClassBodySchema = ClassSchema.partial().extend({
  *  - students: array ObjectId hợp lệ, không được rỗng
  */
 export const modifyStudentsBodySchema = z.object({
-  students: z
+  studentIds: z
     .array(
       z
         .string()
@@ -47,7 +47,7 @@ export const transferClassBodySchema = z.object({
   targetClassId: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, "targetClassId phải là ObjectId hợp lệ"),
-  students: z
+  studentIds: z
     .array(
       z
         .string()

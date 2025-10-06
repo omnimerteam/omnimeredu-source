@@ -475,7 +475,7 @@ class ClassService {
    * Chuyển học sinh sang lớp khác
    * @param actorId
    * @param userRole
-   * @param toClassId
+   * @param targetClassId
    * @param studentIds
    * @returns {
    * "transferred": 2,
@@ -489,11 +489,11 @@ class ClassService {
   async transferClass(
     actorId: string,
     userRole: string,
-    toClassId: string,
+    targetClassId: string,
     studentIds: string[]
   ) {
     try {
-      const targetClass = await this.classRepository.findById(toClassId);
+      const targetClass = await this.classRepository.findById(targetClassId);
       if (!targetClass) {
         throw new Error("Lớp học đích không tồn tại");
       }
@@ -513,7 +513,7 @@ class ClassService {
           continue;
         }
 
-        if (student.classId.toString() === toClassId) {
+        if (student.classId.toString() === targetClassId) {
           failed.push({ studentId, reason: "Học sinh đã thuộc lớp đích" });
           continue;
         }
@@ -543,14 +543,14 @@ class ClassService {
 
         // 2. Cập nhật lớp mới: add students
         await this.classRepository.addStudentsToClass(
-          toClassId,
+          targetClassId,
           studentIdsToTransfer
         );
 
         // 3. Cập nhật student.classId
         await this.studentRepository.assignClassToStudents(
           studentIdsToTransfer,
-          toClassId
+          targetClassId
         );
       }
 
@@ -559,7 +559,7 @@ class ClassService {
         action: "TRANSFER_CLASS",
         roleSnapshot: userRole,
         metadata: {
-          toClassId,
+          targetClassId,
           transferred: validTransfers,
           failed,
         },
@@ -576,7 +576,7 @@ class ClassService {
         action: "TRANSFER_CLASS_FAILED",
         roleSnapshot: userRole,
         metadata: {
-          toClassId,
+          targetClassId,
           studentIds,
           error: (err as Error).message,
         },

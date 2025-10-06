@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from "express";
-import { Class, Role, Student } from "../../../domain/models";
+import { Class, Grade, Role, Student } from "../../../domain/models";
 
 // Import các model, repository, service và controller cần thiết
 import {
@@ -26,11 +26,14 @@ import {
   createStudentBodySchema,
   updateStudentBodySchema,
 } from "../../validators/auth/student/student.validator";
-import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
+import {
+  createPaginationSchemaWithSortAndFilter,
+  queryGradeIdSchema,
+} from "../../validators/common/query/query.validator";
 
 // Khởi tạo và truyền giá trị vào các constructor
 const logger = new DefaultLogger(new ActivityLogRepository());
-const studentRepository = new StudentRepository(Student);
+const studentRepository = new StudentRepository(Student, Grade);
 const roleRepository = new RoleRepository(Role);
 const classRepository = new ClassRepository(Class);
 const studentService = new StudentService(
@@ -45,7 +48,7 @@ const router = Router();
 
 const studentQuerySchema = createPaginationSchemaWithSortAndFilter(
   ["fullName", "createdAt", "birthday"],
-  ["grade", "educationLevel", "classId", "gender"]
+  ["grade", "educationLevel", "classId", "gender", "gradeGroup"]
 );
 
 router.get(
@@ -55,6 +58,15 @@ router.get(
   verifyRole(["Teacher", "SchoolAdmin", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.getAllStudents(req, res, next)
+);
+
+router.get(
+  "/student-selector",
+  validateData({ headers: authHeaderSchema, query: queryGradeIdSchema }),
+  verifyFirebaseToken,
+  verifyRole(["Teacher", "SchoolAdmin", "SuperAdmin"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    studentController.getStudentSelector(req, res, next)
 );
 
 router.get(

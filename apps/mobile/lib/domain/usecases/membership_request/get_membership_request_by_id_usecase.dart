@@ -6,7 +6,7 @@ class GetMembershipRequestByIdUseCase {
 
   GetMembershipRequestByIdUseCase(this.repository);
 
-  Future<MembershipRequestEntity> call(String id) {
-    return repository.getMemberRequestById(id);
+  Future<MembershipRequestEntity> call(String id) async {
+    return await repository.getMemberRequestById(id);
   }
 }

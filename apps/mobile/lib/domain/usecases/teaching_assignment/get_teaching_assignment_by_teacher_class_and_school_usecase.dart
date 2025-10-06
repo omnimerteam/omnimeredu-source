@@ -11,8 +11,8 @@ class GetTeachingAssignmentByTeacherClassAndSchoolUseCase {
     String teacherId,
     String schoolId,
     String classId,
-  ) {
-    return repository.getTeachingAssignmentByTeacherClassAndSchool(
+  ) async {
+    return await repository.getTeachingAssignmentByTeacherClassAndSchool(
       teacherId,
       schoolId,
       classId,

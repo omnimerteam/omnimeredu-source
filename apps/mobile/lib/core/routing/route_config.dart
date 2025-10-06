@@ -4,6 +4,9 @@ import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentic
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/attendance_detail_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
@@ -15,6 +18,9 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/blo
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/class_detail_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/attendance_management_page.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/class_management_page.dart';
@@ -64,7 +70,6 @@ class RouteConfig {
         );
 
       case '/school-admin/classes/detail':
-        logger.i("argument: ${arguments}");
         final classId = arguments?['classId'] as String?;
         if (classId == null) {
           return const _ErrorPage(message: 'Class ID is required');
@@ -121,8 +126,35 @@ class RouteConfig {
             BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
             BlocProvider(create: (_) => sl<RoleBloc>()),
           ],
-          child:
-              const PersonnelManagementPage(), // Sử dụng Page, không phải Screen
+          child: const PersonnelManagementPage(),
+        );
+
+      case '/school-admin/attendance':
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  sl<AttendanceManagementBloc>()..add(LoadAttendancesEvent()),
+            ),
+            //BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
+          ],
+          child: const AttendanceManagementPage(),
+        );
+
+      case '/school-admin/attendance/detail-record':
+        final attendanceId = arguments?['attendanceId'] as String;
+        logger.i("AttendaceId: ${attendanceId}");
+
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  sl<AttendanceDetailBloc>()
+                    ..add(LoadAttendanceDetailEvent(attendanceId)),
+            ),
+            //BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
+          ],
+          child: AttendanceDetailPage(attendanceId: attendanceId),
         );
 
       default:

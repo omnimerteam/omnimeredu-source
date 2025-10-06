@@ -2,6 +2,8 @@
 import { Model, Types } from "mongoose";
 import { IDetailsRecord } from "../../models";
 import DateUtils from "../../../common/utils/DateUtils";
+import { AttendanceStatusEnum } from "../../../common/enum/attendanceStatus.enum";
+import { ClassAttendanceStats } from "../../../common/interfaces/ClassAttendanceStats.interface";
 
 class AttendanceStatsRepository {
   private readonly detailsRecordModel: Model<IDetailsRecord>;
@@ -11,11 +13,14 @@ class AttendanceStatsRepository {
   }
 
   /**
-   * Lấy thống kê điểm danh cho 1 trường trong ngày
+   * Lấy thống kê điểm danh chi tiết cho 1 trường trong ngày
    * @param schoolId id của trường
    * @param date ngày cần lấy thống kê
    */
-  async getAttendanceStatsBySchool(schoolId: string, date?: Date) {
+  async getAttendanceStatsBySchool(
+    schoolId: string,
+    date?: Date
+  ): Promise<ClassAttendanceStats[]> {
     const match: any = { "attendance.schoolId": new Types.ObjectId(schoolId) };
 
     // luôn mặc định là hôm nay (theo VN) nếu không truyền date
@@ -57,8 +62,38 @@ class AttendanceStatsRepository {
           _id: "$attendance.classId",
           className: { $first: "$class.name" },
           total: { $sum: 1 },
-          presentCount: {
-            $sum: { $cond: [{ $eq: ["$status", "Present"] }, 1, 0] },
+          present: {
+            $sum: {
+              $cond: [{ $eq: ["$status", AttendanceStatusEnum.Present] }, 1, 0],
+            },
+          },
+          absentWithLeave: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", AttendanceStatusEnum.AbsentWithLeave] },
+                1,
+                0,
+              ],
+            },
+          },
+          absent: {
+            $sum: {
+              $cond: [{ $eq: ["$status", AttendanceStatusEnum.Absent] }, 1, 0],
+            },
+          },
+          late: {
+            $sum: {
+              $cond: [{ $eq: ["$status", AttendanceStatusEnum.Late] }, 1, 0],
+            },
+          },
+          leftEarly: {
+            $sum: {
+              $cond: [
+                { $eq: ["$status", AttendanceStatusEnum.LeftEarly] },
+                1,
+                0,
+              ],
+            },
           },
         },
       },
@@ -66,15 +101,15 @@ class AttendanceStatsRepository {
         $project: {
           _id: 0,
           className: 1,
-          classAttendanceRate: {
-            $cond: [
-              { $eq: ["$total", 0] },
-              0,
-              { $divide: ["$presentCount", "$total"] },
-            ],
-          },
+          total: 1,
+          present: 1,
+          absentWithLeave: 1,
+          absent: 1,
+          late: 1,
+          leftEarly: 1,
         },
       },
+      { $sort: { className: 1 } },
     ]);
   }
 }

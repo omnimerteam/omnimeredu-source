@@ -54,6 +54,41 @@ class StudentController {
     }
   }
 
+  async getStudentSelector(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+    const userRole = req.role;
+    if (!userRole || !actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const schoolId = req.user?.schoolId;
+    const gradeId = req.query.gradeId as string;
+
+    try {
+      const students = await this.studentService.getStudentSelector(
+        actorId,
+        userRole,
+        schoolId,
+        gradeId
+      );
+      if (!students || students.length === 0) {
+        sendEmpty(res);
+        return;
+      }
+
+      sendSuccess(res, students, "Lấy danh sách học sinh thành công");
+      return;
+    } catch (error) {
+      console.error(chalk.red("[STUDENTS] Error getting all students:", error));
+      return next(error);
+    }
+  }
+
   async getStudentById(
     req: Request,
     res: Response,

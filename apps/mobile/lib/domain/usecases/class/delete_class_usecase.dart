@@ -4,7 +4,7 @@ class DeleteClassUseCase {
   final ClassRepository repository;
   DeleteClassUseCase(this.repository);
 
-  Future<void> call(String id) {
-    return repository.deleteClass(id);
+  Future<void> call(String id) async {
+    return await repository.deleteClass(id);
   }
 }

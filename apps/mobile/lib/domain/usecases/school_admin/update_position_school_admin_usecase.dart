@@ -10,7 +10,7 @@ class UpdatePositionSchoolAdminUseCase {
   Future<ApiResponse<SchoolAdminPositionEnum>> call(
     String schoolAdminId,
     SchoolAdminPositionEnum position,
-  ) {
-    return repository.updatePositionSchoolAdmin(schoolAdminId, position);
+  ) async {
+    return await repository.updatePositionSchoolAdmin(schoolAdminId, position);
   }
 }

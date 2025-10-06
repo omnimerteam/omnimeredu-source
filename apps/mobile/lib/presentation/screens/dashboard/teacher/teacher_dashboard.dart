@@ -7,6 +7,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/sch
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/widgets/teacher_classes_section.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 
 class TeacherDashboard extends StatelessWidget {
@@ -43,16 +44,8 @@ class TeacherDashboard extends StatelessWidget {
               classes: data?.classAssignment ?? [],
               onInitializeAttendance: (assignment) =>
                   _showInitializeAttendanceConfirmation(context, assignment),
-              onViewAttendance: (assignment) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Chức năng xem điểm danh sẽ được phát triển sau',
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onViewAttendance: (assignment) =>
+                  _handleViewAttendance(context, assignment),
               onViewStudents: (assignment) =>
                   _navigateToClassDetail(context, assignment),
             ),
@@ -62,6 +55,24 @@ class TeacherDashboard extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// 👉 Gọi sang TeacherAttendance màn chính
+  void _handleViewAttendance(
+    BuildContext context,
+    ClassTeacherAssignEntity assignment,
+  ) {
+    final mainState = context.findAncestorStateOfType<MainScreenState>();
+    if (mainState != null) {
+      mainState.openTeacherAttendance(
+        assignment.classEntity.id,
+        DateTime.now(),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Không tìm thấy classId")));
+    }
   }
 
   void _showSnack(BuildContext context, String message, Color color) {

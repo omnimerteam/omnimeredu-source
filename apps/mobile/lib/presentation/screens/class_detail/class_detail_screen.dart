@@ -5,6 +5,8 @@ import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/widgets/class_detail_skeleton.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/widgets/class_info_card.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/widgets/student_list.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/bloc/class_member_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/class_member_dialog_helper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/search_text_field.dart';
 
 class ClassDetailScreen extends StatefulWidget {
@@ -153,25 +155,56 @@ class _ClassDetailScreenState extends State<ClassDetailScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${state.filteredStudents.length} học sinh',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+                  Row(
+                    children: [
+                      // Nút thêm học sinh
+                      IconButton(
+                        tooltip: 'Thêm học sinh vào lớp',
+                        icon: Icon(
+                          Icons.person_add_alt_1_rounded,
+                          color: theme.colorScheme.primary,
+                        ),
+                        onPressed: () async {
+                          final result = await showClassMemberDialog(
+                            context: context,
+                            schoolId: state.classDetail.school!.id,
+                            initialClassId: state.classDetail.id,
+                            initialMode: ClassMemberMode.add,
+                            isTeacher: false,
+                          );
+
+                          if (result == true) {
+                            // Làm mới dữ liệu sau khi thêm học sinh
+                            context
+                                .read<ClassDetailCubit>()
+                                .refreshClassDetail();
+                          }
+                        },
                       ),
-                    ),
+
+                      // Thống kê số lượng học sinh
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${state.filteredStudents.length} học sinh',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
+
               const SizedBox(height: 16),
 
               // Student List

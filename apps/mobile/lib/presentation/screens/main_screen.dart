@@ -8,17 +8,24 @@ import 'package:flutter_ios_android_platforms/presentation/screens/more/more_scr
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/dashboard_screen_wrapper.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/bloc/teacher_attendance_bloc.dart';
+import 'package:flutter_ios_android_platforms/injection_container.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<MainScreen> createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
-  int _selectedIndex = 0; // Start with Dashboard
+class MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+  int _selectedIndex = 0;
+  String? _selectedClassId; // classId chọn từ bên ngoài
   PageController? _pageController;
   late AnimationController _animationController;
   late List<AnimationController> _iconAnimationControllers;
@@ -32,7 +39,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    // Tạo animation controller cho 3 icon
     _iconAnimationControllers = List.generate(
       3,
       (index) => AnimationController(
@@ -41,7 +47,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       ),
     );
 
-    // Animate icon đã chọn
     _iconAnimationControllers[_selectedIndex].forward();
   }
 
@@ -55,6 +60,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  /// Mở tab điểm danh + truyền classId
+  void openTeacherAttendance(String classId, DateTime date) {
+    setState(() {
+      _selectedIndex = 1;
+      _selectedClassId = classId; // gán classId
+    });
+    _pageController?.jumpToPage(1);
+  }
+
   void _onItemTapped(int index) {
     if (_selectedIndex == index) return;
 
@@ -66,14 +80,12 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     });
 
     if ((index - _selectedIndex).abs() == 1) {
-      // Animate khi chuyển liền kề
       _pageController?.animateToPage(
         index,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      // Jump khi bỏ qua tab trung gian để tránh "giật"
       _pageController?.jumpToPage(index);
     }
   }
@@ -86,36 +98,46 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           final user = state.user;
           final role = user.roleName;
 
-          return Scaffold(
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            body: SafeArea(
-              child: Column(
-                children: [
-                  HomeHeaderWidget(),
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      onPageChanged: (index) {
-                        // Sync animation khi swipe
-                        _iconAnimationControllers[_selectedIndex].reverse();
-                        _iconAnimationControllers[index].forward();
+          return _buildRoleBasedProviders(
+            role: role,
+            user: user,
+            child: Scaffold(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    HomeHeaderWidget(),
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          _iconAnimationControllers[_selectedIndex].reverse();
+                          _iconAnimationControllers[index].forward();
 
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-
-                      children: [
-                        const KeepAliveWrapper(child: DashboardScreenWrapper()),
-                        KeepAliveWrapper(child: MainFeatureScreen(user: user)),
-                        const MoreScreen(),
-                      ],
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                        },
+                        children: [
+                          KeepAliveWrapper(child: DashboardScreen(user: user)),
+                          KeepAliveWrapper(
+                            child: MainFeatureScreen(
+                              user: user,
+                              classId: _selectedClassId, // truyền trực tiếp
+                            ),
+                          ),
+                          const MoreScreen(),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              bottomNavigationBar: _buildCustomBottomNavigationBar(
+                context,
+                role,
               ),
             ),
-            bottomNavigationBar: _buildCustomBottomNavigationBar(context, role),
           );
         }
 
@@ -126,6 +148,69 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       },
     );
+  }
+
+  /// Khởi tạo các BLoC/Cubit theo vai trò
+  Widget _buildRoleBasedProviders({
+    required String role,
+    required dynamic user,
+    required Widget child,
+  }) {
+    switch (role) {
+      case 'Teacher':
+      case 'giáo viên':
+        return MultiBlocProvider(
+          providers: [
+            // Dashboard providers
+            BlocProvider(
+              create: (_) => sl<DashboardCubit>()..loadDashboard(role),
+            ),
+            BlocProvider(create: (_) => sl<TeacherClassesCubit>()),
+            // MainFeature providers
+            BlocProvider(create: (_) => sl<TeacherAttendanceBloc>()),
+            BlocProvider(
+              create: (_) {
+                final bloc = sl<ClassSelectorBloc>();
+                if (user.id.isNotEmpty) {
+                  bloc.add(LoadClassesByTeacher(user.id));
+                }
+                return bloc;
+              },
+            ),
+          ],
+          child: child,
+        );
+
+      case 'SchoolAdmin':
+        return MultiBlocProvider(
+          providers: [
+            // Dashboard providers
+            BlocProvider(
+              create: (_) => sl<DashboardCubit>()..loadDashboard(role),
+            ),
+            // Thêm các providers khác cho SchoolAdmin nếu cần
+          ],
+          child: child,
+        );
+
+      case 'Student':
+        return MultiBlocProvider(
+          providers: [
+            // Dashboard providers
+            BlocProvider(
+              create: (_) => sl<DashboardCubit>()..loadDashboard(role),
+            ),
+            // Thêm các providers khác cho Student nếu cần
+          ],
+          child: child,
+        );
+
+      default:
+        return BlocProvider(
+          create: (_) => sl<DashboardCubit>()..loadDashboard(role),
+          child: child,
+        );
+    }
   }
 
   Widget _buildCustomBottomNavigationBar(BuildContext context, String roleKey) {
@@ -194,7 +279,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         onTap: () => _onItemTapped(index),
         child: SizedBox(
-          height: 90, // Bằng với bottom bar để full vùng bấm
+          height: 90,
           child: AnimatedBuilder(
             animation: _iconAnimationControllers[index],
             builder: (context, child) {
@@ -288,13 +373,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   IconData _getIconMainFeature(String roleKey) {
     switch (roleKey) {
       case 'Student':
-        return Icons.school; // icon quen thuộc cho học tập
+        return Icons.school;
       case 'Teacher':
-        return Icons.how_to_reg; // điểm danh / quản lý lớp
+        return Icons.how_to_reg;
       case 'SchoolAdmin':
-        return Icons.bar_chart; // báo cáo, thống kê
+        return Icons.bar_chart;
       default:
-        return Icons.timeline; // tiến trình học tập
+        return Icons.timeline;
     }
   }
 }

@@ -8,7 +8,7 @@ class LoginUseCase {
   LoginUseCase(this.repository);
 
   /// Thực hiện login với LoginEntity
-  Future<AuthUserEntity> call({required LoginEntity loginInfo}) {
-    return repository.login(loginInfo: loginInfo);
+  Future<AuthUserEntity> call({required LoginEntity loginInfo}) async {
+    return await repository.login(loginInfo: loginInfo);
   }
 }

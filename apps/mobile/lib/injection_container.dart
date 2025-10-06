@@ -23,15 +23,20 @@ import 'package:flutter_ios_android_platforms/domain/repositories/school/members
 import 'package:flutter_ios_android_platforms/domain/repositories/user/personnel_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/school_admin_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_all_attendances_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_roles_personnel_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/add_student_to_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_all_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/get_class_detail_view_by_id.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/remove_student_from_class_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/class/transfer_class_use_case.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/update_class_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/detail_record/get_attendance_record_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/detail_record/update_status_detail_record_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/grade/create_grade_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/grade/delete_grade_usecase.dart';
@@ -53,6 +58,7 @@ import 'package:flutter_ios_android_platforms/domain/usecases/student/create_stu
 import 'package:flutter_ios_android_platforms/domain/usecases/student/delete_student_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/student/get_all_students_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/student/get_student_by_id_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/student/get_student_selector_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/student/update_student_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/create_teaching_assignment_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/delete_teaching_assignment_usecase.dart';
@@ -60,10 +66,13 @@ import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignmen
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_classes_teacher_assign_by_teacher_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/bloc/class_member_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/bloc/teacher_attendance_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/grade/bloc/grade_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/membership_request/bloc/membership_request_management_bloc.dart';
@@ -248,6 +257,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetClassByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetAllClassUseCase(sl()));
   sl.registerLazySingleton(() => GetClassDetailViewByIdUseCase(sl()));
+  sl.registerLazySingleton(() => AddStudentToClassUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveStudentFromClassUseCase(sl()));
+  sl.registerLazySingleton(() => TransferClassUseCase(sl()));
 
   // School
   sl.registerLazySingleton(() => GetSchoolsByLevelUseCase(sl()));
@@ -282,6 +294,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetAllStudentsUseCase(sl()));
   sl.registerLazySingleton(() => GetStudentByIdUseCase(sl()));
   sl.registerLazySingleton(() => UpdateStudentUseCase(sl()));
+  sl.registerLazySingleton(() => GetStudentSelectorUseCase(sl()));
 
   // Personnel
   sl.registerLazySingleton(() => GetAllPersonnelFromSchoolUseCase(sl()));
@@ -306,9 +319,11 @@ Future<void> init() async {
   // Attendance
   sl.registerLazySingleton(() => InitializeClassAttendanceUseCase(sl()));
   sl.registerLazySingleton(() => GetClassAttendanceRecordViewUseCase(sl()));
+  sl.registerLazySingleton(() => GetAllAttendancesUseCase(sl()));
 
   // Detail Record
   sl.registerLazySingleton(() => UpdateStatusDetailRecordUseCase(sl()));
+  sl.registerLazySingleton(() => GetAttendanceRecordByIdUseCase(sl()));
 
   // ======================
   // Blocs / Cubits
@@ -412,7 +427,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => TeacherClassesCubit(initializeClassAttendanceUseCase: sl()),
+    () => TeacherClassesCubit(
+      initializeClassAttendanceUseCase: sl(),
+      dashboardCubit: sl(),
+    ),
   );
 
   sl.registerFactory(
@@ -425,5 +443,22 @@ Future<void> init() async {
       updateStatusUseCase: sl(),
       initializeClassAttendanceUseCase: sl(),
     ),
+  );
+
+  sl.registerFactory(
+    () => ClassMemberBloc(
+      getStudentSelectorUseCase: sl(),
+      addStudentToClassUseCase: sl(),
+      removeStudentFromClassUseCase: sl(),
+      transferClassUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+    () => AttendanceManagementBloc(getAllAttendancesUseCase: sl()),
+  );
+
+  sl.registerFactory(
+    () => AttendanceDetailBloc(getAttendanceRecordByIdUseCase: sl()),
   );
 }

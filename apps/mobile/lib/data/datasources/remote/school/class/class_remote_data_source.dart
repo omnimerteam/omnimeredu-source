@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
+import 'package:flutter_ios_android_platforms/data/models/class/add_student_to_class_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
+import 'package:flutter_ios_android_platforms/data/models/class/transfer_class_for_student_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/view_model/class_detail_view_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
@@ -189,5 +192,75 @@ class ClassRemoteDataSource {
       // Nếu có message từ server thì throw, nếu không thì throw message mặc định
       throw Exception(res.message ?? "Không thể xóa lớp");
     }
+  }
+
+  Future<ApiResponse<AddStudentToClassModel?>> addStudentToClass(
+    String classId,
+    List<String> studentIds,
+  ) async {
+    if (studentIds.isEmpty) {
+      throw Exception("Danh sách học sinh không được để trống");
+    }
+
+    final token = await _getIdToken();
+
+    final res = await client.post<AddStudentToClassModel?>(
+      Endpoints.addStudentToClass(classId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      data: {"studentIds": studentIds},
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return AddStudentToClassModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu hợp lệ");
+      },
+    );
+
+    return res;
+  }
+
+  Future<ApiResponse<void>> removeStudentFromClass(
+    String classId,
+    List<String> studentIds,
+  ) async {
+    if (studentIds.isEmpty) {
+      throw Exception("Danh sách học sinh không được để trống");
+    }
+
+    final token = await _getIdToken();
+
+    final res = await client.post<void>(
+      Endpoints.removeStudentFromClass(classId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      data: {"studentIds": studentIds},
+    );
+
+    return res;
+  }
+
+  Future<ApiResponse<TransferClassForStudentModel?>> transferClass(
+    String classId,
+    String targetClassId,
+    List<String> studentIds,
+  ) async {
+    if (studentIds.isEmpty) {
+      throw Exception("Danh sách học sinh không được để trống");
+    }
+
+    final token = await _getIdToken();
+
+    final res = await client.post<TransferClassForStudentModel?>(
+      Endpoints.transferClass(classId),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      data: {"studentIds": studentIds, "targetClassId": targetClassId},
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return TransferClassForStudentModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu hợp lệ");
+      },
+    );
+
+    return res;
   }
 }

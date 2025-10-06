@@ -1,9 +1,10 @@
 import { BaseRepository } from "../../base.repository";
 import { IAttendance, IClass, IDetailsRecord } from "../../../models";
-import mongoose, { Model, Types } from "mongoose";
+import mongoose, { FilterQuery, Model, Types } from "mongoose";
 import { AttendanceStatusEnum } from "../../../../common/enum/attendanceStatus.enum";
 import { HttpError } from "../../../../common/utils/HttpError";
 import DateUtils from "../../../../common/utils/DateUtils";
+import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
 class AttendanceRepository extends BaseRepository<IAttendance> {
   private readonly classModel: Model<IClass>;
@@ -102,6 +103,34 @@ class AttendanceRepository extends BaseRepository<IAttendance> {
       400,
       "Đã tồn tại bảng điểm danh cho lớp này trong ngày"
     );
+  }
+
+  async findAllAttendances(
+    filter: FilterQuery<IAttendance> = {},
+    options?: PaginationQueryOptions
+  ): Promise<IAttendance[]> {
+    const page = options?.page ?? 1;
+    const limit = options?.limit ?? 20;
+    const skip = (page - 1) * limit;
+    const sort = options?.sort ?? { date: -1 };
+
+    // 🔹 Gộp filter mặc định với filter truyền vào từ query
+    const finalFilter = {
+      ...filter,
+      ...(options?.filter || {}),
+    };
+
+    return this.model
+      .find(finalFilter)
+      .populate({
+        path: "classId",
+        select: "name code", // chỉ lấy tên và mã lớp
+      })
+      .skip(skip)
+      .limit(limit)
+      .sort(sort)
+      .lean() // trả về object thường thay vì mongoose document
+      .exec();
   }
 }
 

@@ -5,7 +5,7 @@ class CreateClassUseCase {
   final ClassRepository repository;
   CreateClassUseCase(this.repository);
 
-  Future<ClassEntity> call(ClassEntity createClassData) {
-    return repository.createClass(createClassData);
+  Future<ClassEntity> call(ClassEntity createClassData) async {
+    return await repository.createClass(createClassData);
   }
 }

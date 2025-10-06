@@ -8,6 +8,7 @@ import {
   sendUnauthorized,
   sendError,
 } from "../../../../common/utils/ResponseHelper";
+import { buildQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
 class AttendanceController {
   private readonly attendanceService: AttendanceService;
@@ -26,12 +27,14 @@ class AttendanceController {
       return;
     }
     const actorSchoolId = req.user?.schoolId?.toString();
+    const options = buildQueryOptions(req.query as any);
 
     try {
       const attendances = await this.attendanceService.getAllAttendances(
         actorId,
         userRole,
-        actorSchoolId
+        actorSchoolId,
+        options
       );
       if (!attendances || attendances.length === 0) {
         sendEmpty(res);

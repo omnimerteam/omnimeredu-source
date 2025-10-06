@@ -20,11 +20,15 @@ class RoleGuard {
       'security',
     ],
     '/school-admin/school': ['school_admin'],
+    '/school-admin/attendance': ['school_admin'],
+    '/school-admin/attendance/detail-record': ['school_admin'],
+
     '/school-admin/classes': ['school_admin', 'teacher'],
     '/school-admin/classes/detail': ['school_admin', 'teacher'],
     '/school-admin/membership-requests': ['school_admin'],
     '/school-admin/grades': ['school_admin'],
     '/school-admin/students': ['school_admin', 'teacher'],
+
     '/school-admin/personnel': [
       'school_admin',
       'teacher',

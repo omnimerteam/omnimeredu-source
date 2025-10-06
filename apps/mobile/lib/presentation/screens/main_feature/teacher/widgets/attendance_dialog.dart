@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/view_model/attendance_record_view_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/primary_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_multiline_text_field.dart';
 
@@ -86,17 +87,29 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Đóng'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onUpdate(selectedStatus, noteController.text.trim());
-            Navigator.pop(context);
-          },
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-          child: const Text('Cập nhật'),
+        Row(
+          children: [
+            Expanded(
+              child: AppButton(
+                onPressed: () => Navigator.pop(context),
+                text: 'Đóng',
+                type: AppButtonType.cancel,
+              ),
+            ),
+
+            SizedBox(width: 15),
+
+            Expanded(
+              child: AppButton(
+                onPressed: () {
+                  widget.onUpdate(selectedStatus, noteController.text.trim());
+                  Navigator.pop(context);
+                },
+                text: 'Cập nhật',
+                type: AppButtonType.primary,
+              ),
+            ),
+          ],
         ),
       ],
     );

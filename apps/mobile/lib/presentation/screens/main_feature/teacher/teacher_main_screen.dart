@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/view_model/attendance_record_view_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/widgets/attendance_stats_card.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/widgets/class_and_date_selector.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/widgets/student_attendance_table.dart';
+import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/search_text_field.dart';
 
@@ -102,7 +102,6 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                 }
               },
               builder: (context, attendanceState) {
-                logger.i("Attendance State UI: ${attendanceState}");
                 return BlocBuilder<ClassSelectorBloc, ClassSelectorState>(
                   builder: (context, classState) {
                     return SingleChildScrollView(
@@ -110,6 +109,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ClassAndDateSelector(
+                            key: ValueKey(attendanceState.selectedClassId),
                             schoolId: widget.schoolId,
                             gradeGroup: null,
                             initialClassId: attendanceState.selectedClassId,
@@ -119,8 +119,10 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                                 AttendanceStatus
                                     .initializing, // 🔹 Truyền trạng thái loading
                             canCreate:
-                                attendanceState.selectedClassId !=
-                                null, // 🔹 Chỉ cho tạo khi đã chọn lớp
+                                attendanceState.selectedClassId != null &&
+                                attendanceState
+                                    .filteredStudents
+                                    .isEmpty, // 🔹 Chỉ cho tạo khi đã chọn lớp
                             onClassChanged: (clazz) {
                               if (clazz != null) {
                                 context.read<TeacherAttendanceBloc>().add(
@@ -217,24 +219,37 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
           '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year}?',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-
-              // 🔹 Dispatch event tạo attendance
-              context.read<TeacherAttendanceBloc>().add(
-                InitializeAttendance(
-                  classId: state.selectedClassId!,
-                  schoolId: widget.schoolId,
-                  date: state.selectedDate,
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  text: 'Hủy',
+                  type: AppButtonType.cancel,
                 ),
-              );
-            },
-            child: const Text('Xác nhận'),
+              ),
+
+              SizedBox(width: 15),
+
+              Expanded(
+                child: AppButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+
+                    // 🔹 Dispatch event tạo attendance
+                    context.read<TeacherAttendanceBloc>().add(
+                      InitializeAttendance(
+                        classId: state.selectedClassId!,
+                        schoolId: widget.schoolId,
+                        date: state.selectedDate,
+                      ),
+                    );
+                  },
+                  text: 'Xác nhận',
+                  type: AppButtonType.primary,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -287,7 +302,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
     }
 
     if (state.attendanceRecord == null ||
-        state.attendanceRecord!.students.isEmpty) {
+        state.attendanceRecord!.students == null) {
       return _buildEmptyState('Không có dữ liệu học sinh');
     }
 

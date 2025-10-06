@@ -5,7 +5,7 @@ class GetClassDetailViewByIdUseCase {
   final ClassRepository repository;
   GetClassDetailViewByIdUseCase(this.repository);
 
-  Future<ClassDetailViewEntity> call(String id) {
-    return repository.getClassDetailViewById(id);
+  Future<ClassDetailViewEntity> call(String id) async {
+    return await repository.getClassDetailViewById(id);
   }
 }

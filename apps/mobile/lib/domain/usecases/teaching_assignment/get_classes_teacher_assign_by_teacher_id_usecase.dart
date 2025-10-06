@@ -8,7 +8,7 @@ class GetClassesTeacherAssignByTeacherIdUseCase {
   GetClassesTeacherAssignByTeacherIdUseCase(this.repository);
 
   Future<ApiResponse<List<ClassSearchEntity>?>>
-  getClassesTeacherAssignByTeacherId(String teacherId) {
-    return repository.getClassesTeacherAssignByTeacherId(teacherId);
+  getClassesTeacherAssignByTeacherId(String teacherId) async {
+    return await repository.getClassesTeacherAssignByTeacherId(teacherId);
   }
 }

@@ -1,8 +1,11 @@
 import 'package:flutter_ios_android_platforms/core/error/failures.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/class/class_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/add_student_to_class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/transfer_class_for_student_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/view_model/class_detail_view_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/class_repository.dart';
@@ -79,6 +82,62 @@ class ClassRepositoryImpl implements ClassRepository {
       return model.toEntity();
     } catch (e) {
       throw ServerFailure("Không thể lấy danh sách lớp: $e");
+    }
+  }
+
+  @override
+  Future<ApiResponse<AddStudentToClassEntity?>> addStudentToClass(
+    String classId,
+    List<String> studentIds,
+  ) async {
+    try {
+      final res = await remote.addStudentToClass(classId, studentIds);
+      return ApiResponse<AddStudentToClassEntity?>(
+        success: res.success,
+        message: res.message,
+        data: res.data?.toEntity(),
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<ApiResponse<void>> removeStudentFromClass(
+    String classId,
+    List<String> studentIds,
+  ) async {
+    try {
+      final res = await remote.removeStudentFromClass(classId, studentIds);
+      return ApiResponse<AddStudentToClassEntity?>(
+        success: res.success,
+        message: res.message,
+        data: null,
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<ApiResponse<TransferClassForStudentEntity?>> transferClass(
+    String classId,
+    String targetClassId,
+    List<String> studentIds,
+  ) async {
+    try {
+      final res = await remote.transferClass(
+        classId,
+        targetClassId,
+        studentIds,
+      );
+      return ApiResponse<TransferClassForStudentEntity?>(
+        success: res.success,
+        message: res.message,
+        data: res.data?.toEntity(),
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
     }
   }
 }
