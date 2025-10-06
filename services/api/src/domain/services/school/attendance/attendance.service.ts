@@ -2,7 +2,10 @@ import { Types } from "mongoose";
 import DateUtils from "../../../../common/utils/DateUtils";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
-import { buildPermissionFilter } from "../../../../common/utils/permissionFilter";
+import {
+  buildPermissionFilter,
+  buildPermissionFilterForClass,
+} from "../../../../common/utils/permissionFilter";
 import { IAttendance } from "../../../models";
 import {
   AttendanceRepository,
@@ -11,6 +14,7 @@ import {
   TeacherRepository,
   AttendanceRecordViewRepository,
 } from "../../../repositories";
+import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
 class AttendanceService {
   private readonly attendanceRepository: AttendanceRepository;
@@ -34,20 +38,17 @@ class AttendanceService {
     actorId: string,
     userRole: string,
     schoolId?: string,
-    date?: Date,
-    timezone: string = "Asia/Ho_Chi_Minh"
+    options?: PaginationQueryOptions
   ) {
     try {
       let filter: any = {};
 
-      filter = buildPermissionFilter(userRole, schoolId);
+      filter = buildPermissionFilterForClass(userRole, schoolId);
 
-      if (date) {
-        const { start, end } = DateUtils.getUtcDayRange(date, timezone);
-        filter.date = { $gte: start, $lte: end };
-      }
-
-      const attendances = await this.attendanceRepository.findAll({ filter });
+      const attendances = await this.attendanceRepository.findAllAttendances(
+        filter,
+        options
+      );
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_ATTENDANCES",

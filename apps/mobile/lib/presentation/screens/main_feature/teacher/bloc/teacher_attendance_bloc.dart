@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/view_model/attendance_record_view_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/detail_record/detail_record_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
@@ -110,9 +111,37 @@ class TeacherAttendanceBloc
     UpdateStudentStatus event,
     Emitter<TeacherAttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.updating));
+    final currentRecord = state.attendanceRecord;
+    if (currentRecord == null) return;
+
+    // Tạo bản copy students list
+    final students = List<StudentAttendanceEntity>.from(
+      currentRecord.students ?? [],
+    );
+
+    final index = students.indexWhere(
+      (s) => s.detailRecordId == event.recordId,
+    );
+    if (index == -1) return;
+
+    // Backup để rollback nếu API fail
+    final oldStudent = students[index];
+
+    // 🔹 1. Optimistic update - cập nhật local ngay lập tức
+    students[index] = students[index].copyWith(
+      status: event.status,
+      note: event.note,
+    );
+
+    emit(
+      state.copyWith(
+        status: AttendanceStatus.updating,
+        attendanceRecord: currentRecord.copyWith(students: students),
+      ),
+    );
 
     try {
+      // 🔹 2. Gọi API update
       final detailRecord = DetailRecordEntity(
         id: event.recordId,
         status: event.status,
@@ -122,26 +151,25 @@ class TeacherAttendanceBloc
       final response = await updateStatusUseCase.call(detailRecord);
 
       if (response.success == true) {
-        // Reload attendance record after update
-        add(
-          LoadAttendanceRecord(
-            date: state.selectedDate,
-            classId: state.selectedClassId!,
-          ),
-        );
+        // 🔹 3a. Giữ nguyên state đã update
+        emit(state.copyWith(status: AttendanceStatus.success));
       } else {
+        // 🔹 3b. Rollback nếu thất bại
+        students[index] = oldStudent;
         emit(
           state.copyWith(
             status: AttendanceStatus.failure,
-            errorMessage: response.message ?? 'Không thể cập nhật trạng thái',
+            attendanceRecord: currentRecord.copyWith(students: students),
           ),
         );
       }
     } catch (e) {
+      // 🔹 3c. Rollback khi có exception
+      students[index] = oldStudent;
       emit(
         state.copyWith(
           status: AttendanceStatus.failure,
-          errorMessage: 'Đã xảy ra lỗi: ${e.toString()}',
+          attendanceRecord: currentRecord.copyWith(students: students),
         ),
       );
     }
@@ -152,6 +180,8 @@ class TeacherAttendanceBloc
     Emitter<TeacherAttendanceState> emit,
   ) {
     emit(state.copyWith(selectedClassId: event.classId));
+
+    logger.i("Reload khi classId change");
 
     // Auto load attendance when class is selected
     add(LoadAttendanceRecord(date: state.selectedDate, classId: event.classId));

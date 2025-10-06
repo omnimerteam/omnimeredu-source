@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/school_admin/dashboard_overview_entity.dart';
 
 class DashboardOverviewModel extends DashboardOverviewEntity {
@@ -17,7 +18,9 @@ class DashboardOverviewModel extends DashboardOverviewEntity {
       totalClasses: json['totalClasses'] ?? 0,
       totalStaff: json['totalStaff'] ?? 0,
       membershipRequests: json['membershipRequests'] ?? 0,
-      lastUpdated: DateTime.parse(json['lastUpdated']),
+      lastUpdated: AppConstants.toVietnamTime(
+        DateTime.tryParse(json['lastUpdated'] as String),
+      )!,
     );
   }
 
@@ -27,7 +30,7 @@ class DashboardOverviewModel extends DashboardOverviewEntity {
     'totalClasses': totalClasses,
     'totalStaff': totalStaff,
     'membershipRequests': membershipRequests,
-    'lastUpdated': lastUpdated.toIso8601String(),
+    'lastUpdated': lastUpdated.toUtc().toIso8601String(),
   };
 
   DashboardOverviewEntity toEntity() {

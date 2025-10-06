@@ -17,7 +17,7 @@ class ClassSelector extends StatefulWidget {
   final ValueChanged<ClassSearchEntity?> onClassSelected;
   final String? Function(ClassSearchEntity?)? validator;
   final bool autoLoad;
-  final String queryString; // 👈 thêm biến query
+  final String queryString;
 
   const ClassSelector({
     super.key,
@@ -137,7 +137,7 @@ class _ClassSelectorState extends State<ClassSelector> {
                     (clazz) => DropdownMenuItem<ClassSearchEntity>(
                       value: clazz,
                       child: Text(
-                        "${clazz.code} - ${clazz.name}",
+                        "${clazz.name} - ${clazz.code}",
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),

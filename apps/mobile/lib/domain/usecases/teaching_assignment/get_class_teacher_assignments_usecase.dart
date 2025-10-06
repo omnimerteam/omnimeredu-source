@@ -10,7 +10,7 @@ class GetClassTeacherAssignmentsUseCase {
   Future<ApiResponse<List<ClassTeacherAssignEntity>?>> call(
     String teacherId,
     String schoolId,
-  ) {
-    return repository.getClassTeacherAssignments(teacherId, schoolId);
+  ) async {
+    return await repository.getClassTeacherAssignments(teacherId, schoolId);
   }
 }

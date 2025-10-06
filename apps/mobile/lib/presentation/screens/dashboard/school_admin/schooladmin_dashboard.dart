@@ -6,7 +6,6 @@ import 'package:flutter_ios_android_platforms/presentation/widgets/chart/attenda
 import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
 import 'widgets/dashboard_quick_overview.dart';
 import 'widgets/dashboard_quick_access.dart';
-import 'widgets/dashboard_analytics_preview.dart';
 
 class SchoolAdminDashboard extends StatelessWidget {
   final SchoolAdminDashboardDataEntity? data;
@@ -107,13 +106,9 @@ class SchoolAdminDashboard extends StatelessWidget {
       children: [
         DashboardQuickOverview(overview: data!.overview),
         const SizedBox(height: 24),
-        AttendanceChart(
-          classAttendanceRates: data!.attendanceStats.classAttendanceRates,
-        ),
+        AttendanceChart(classStats: data!.attendanceStats.classAttendanceRates),
         const SizedBox(height: 24),
         DashboardQuickAccess(roleName: roleName),
-        const SizedBox(height: 24),
-        DashboardAnalyticsPreview(),
       ],
     );
   }

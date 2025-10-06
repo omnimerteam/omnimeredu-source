@@ -1,5 +1,5 @@
+import { ClassAttendanceStats } from "../../../common/interfaces/ClassAttendanceStats.interface";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
-import { AttendanceStatsEntity } from "../../entities/attendanceStats.entity";
 import {
   AttendanceStatsRepository,
   SchoolAdminDashboardRepository,
@@ -30,7 +30,7 @@ class SchoolAdminDashboardService {
     userRole: string,
     schoolId: string,
     date?: Date
-  ): Promise<AttendanceStatsEntity> {
+  ): Promise<ClassAttendanceStats[]> {
     try {
       // lấy thống kê từng lớp
       const classStats =
@@ -39,37 +39,17 @@ class SchoolAdminDashboardService {
           date
         );
 
-      // convert sang map: { className: attendanceRate }
-      const classAttendanceRates: Record<string, number> = {};
-      let totalPresent = 0;
-      let totalStudents = 0;
-
-      classStats.forEach((cls: any) => {
-        classAttendanceRates[cls.className] = cls.classAttendanceRate;
-        totalPresent += cls.classAttendanceRate * (cls.total ?? 0);
-        totalStudents += cls.total ?? 0;
-      });
-
-      // tỷ lệ toàn trường
-      const schoolAttendanceRate =
-        totalStudents > 0 ? totalPresent / totalStudents : 0;
-
+      console.log(classStats);
       await this.logger.log({
         userId: actorId,
         action: "GET_SCHOOL_ATTENDANCE_STATS",
         roleSnapshot: userRole,
         metadata: {
-          attendanceRate: schoolAttendanceRate,
-          classAttendanceRates,
-          date: date ?? new Date(),
+          classStats,
         },
       });
 
-      return new AttendanceStatsEntity({
-        attendanceRate: schoolAttendanceRate,
-        classAttendanceRates,
-        date: date ?? new Date(),
-      });
+      return classStats;
     } catch (error) {
       await this.logger.log({
         userId: actorId,

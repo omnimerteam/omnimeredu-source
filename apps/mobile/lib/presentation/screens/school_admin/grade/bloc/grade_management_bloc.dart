@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 import 'package:flutter_ios_android_platforms/domain/usecases/grade/create_grade_usecase.dart';
@@ -44,8 +45,8 @@ class GradeManagementBloc
 
     try {
       final query = DefaultQueryEntity(
-        page: 1,
-        limit: 10,
+        page: AppConstants.defaultPage,
+        limit: AppConstants.defaultLimit,
         sort: [
           {"name": "asc"},
         ],

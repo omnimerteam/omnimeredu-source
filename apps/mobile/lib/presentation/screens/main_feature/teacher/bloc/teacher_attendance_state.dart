@@ -32,30 +32,32 @@ class TeacherAttendanceState extends Equatable {
     this.availableClasses = const [],
   });
 
-  // Computed properties
+  /// 🔹 Lọc danh sách học sinh, bỏ qua null
   List<StudentAttendanceEntity> get filteredStudents {
-    if (attendanceRecord?.students == null) return [];
-    if (searchQuery.isEmpty) return attendanceRecord!.students;
+    final students =
+        attendanceRecord?.students
+            ?.where((s) => s != null) // bỏ null
+            .cast<StudentAttendanceEntity>()
+            .toList() ??
+        [];
 
-    return attendanceRecord!.students.where((student) {
+    if (searchQuery.isEmpty) return students;
+
+    return students.where((student) {
       final name = student.name.toLowerCase();
       return name.contains(searchQuery.toLowerCase());
     }).toList();
   }
 
+  /// 🔹 Thống kê trạng thái điểm danh
   Map<String, int> get attendanceStats {
-    if (attendanceRecord?.students == null) {
-      return {
-        'total': 0,
-        'present': 0,
-        'absent': 0,
-        'late': 0,
-        'absentWithLeave': 0,
-        'leftEarly': 0,
-      };
-    }
+    final students =
+        attendanceRecord?.students
+            ?.where((s) => s != null)
+            .cast<StudentAttendanceEntity>()
+            .toList() ??
+        [];
 
-    final students = attendanceRecord!.students;
     return {
       'total': students.length,
       'present': students
@@ -79,7 +81,7 @@ class TeacherAttendanceState extends Equatable {
   TeacherAttendanceState copyWith({
     AttendanceStatus? status,
     AttendanceRecordViewEntity? attendanceRecord,
-    bool attendanceRecordSet = false, // <-- thêm cờ
+    bool attendanceRecordSet = false,
     String? selectedClassId,
     DateTime? selectedDate,
     String? searchQuery,

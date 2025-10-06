@@ -1,6 +1,8 @@
 // Fixed class_management_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
@@ -96,7 +98,20 @@ class ClassManagementView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const SectionTitle(title: 'Danh sách lớp học'),
-                        _buildCreateButton(context, Theme.of(context)),
+
+                        // Chỉ hiển thị khi user là SchoolAdmin
+                        BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                          builder: (context, state) {
+                            if (state is AuthenticationAuthenticated &&
+                                state.user.roleName == "SchoolAdmin") {
+                              return _buildCreateButton(
+                                context,
+                                Theme.of(context),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                       ],
                     ),
 
@@ -138,7 +153,7 @@ class ClassManagementView extends StatelessWidget {
         },
         icon: const Icon(Icons.add_rounded, size: 18),
         label: const Text(
-          'Tạo lớp mới',
+          'Tạo lớp',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         style: ElevatedButton.styleFrom(

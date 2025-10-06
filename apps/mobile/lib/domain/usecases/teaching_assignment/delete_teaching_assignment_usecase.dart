@@ -6,7 +6,7 @@ class DeleteTeachingAssignmentUseCase {
 
   DeleteTeachingAssignmentUseCase(this.repository);
 
-  Future<ApiResponse<void>> call(String id) {
-    return repository.deleteTeachingAssignment(id);
+  Future<ApiResponse<void>> call(String id) async {
+    return await repository.deleteTeachingAssignment(id);
   }
 }

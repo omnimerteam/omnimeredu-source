@@ -6,7 +6,9 @@ class CreateMembershipRequestUseCase {
 
   CreateMembershipRequestUseCase(this.repository);
 
-  Future<void> call(MembershipRequestEntity createMembershipRequestData) {
-    return repository.createMembershipRequest(createMembershipRequestData);
+  Future<void> call(MembershipRequestEntity createMembershipRequestData) async {
+    return await repository.createMembershipRequest(
+      createMembershipRequestData,
+    );
   }
 }

@@ -7,7 +7,7 @@ class GetAllClassUseCase {
 
   GetAllClassUseCase(this.repository);
 
-  Future<List<ClassEntity>> call(DefaultQueryEntity query) {
-    return repository.getAllClasses(query);
+  Future<List<ClassEntity>> call(DefaultQueryEntity query) async {
+    return await repository.getAllClasses(query);
   }
 }

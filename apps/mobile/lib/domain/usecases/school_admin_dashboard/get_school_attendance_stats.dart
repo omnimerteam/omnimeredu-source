@@ -6,7 +6,7 @@ class GetSchoolAttendanceStatsUseCase {
 
   GetSchoolAttendanceStatsUseCase(this.repository);
 
-  Future<AttendanceStatsEntity> call() {
-    return repository.getSchoolAttendanceStats();
+  Future<AttendanceStatsEntity> call() async {
+    return await repository.getSchoolAttendanceStats();
   }
 }

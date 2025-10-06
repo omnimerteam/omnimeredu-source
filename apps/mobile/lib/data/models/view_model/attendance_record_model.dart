@@ -175,7 +175,7 @@ class AttendanceRecordViewModel {
   final AttendanceClassInfoModel classInfo;
   final AttendanceSchoolInfoModel schoolInfo;
   final DateTime date;
-  final List<StudentAttendanceModel> students;
+  final List<StudentAttendanceModel?>? students;
 
   const AttendanceRecordViewModel({
     required this.id,
@@ -195,11 +195,15 @@ class AttendanceRecordViewModel {
       classInfo: AttendanceClassInfoModel.fromJson(json['class']),
       schoolInfo: AttendanceSchoolInfoModel.fromJson(json['school']),
       date: AppConstants.toVietnamTime(DateTime.parse(json['date'] as String))!,
-      students: (json['students'] as List<dynamic>)
-          .map(
-            (e) => StudentAttendanceModel.fromJson(e as Map<String, dynamic>),
-          )
-          .toList(),
+      students:
+          (json['students'] as List<dynamic>?)
+              ?.where((e) => e != null) // loại bỏ null trong list
+              .map(
+                (e) =>
+                    StudentAttendanceModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [], // nếu null thì trả list rỗng
     );
   }
 
@@ -211,7 +215,7 @@ class AttendanceRecordViewModel {
       'classInfo': classInfo.toJson(),
       'schoolInfo': schoolInfo.toJson(),
       'date': date.toUtc().toIso8601String(),
-      'students': students.map((e) => e.toJson()).toList(),
+      'students': students?.map((e) => e?.toJson()).toList(),
     };
   }
 
@@ -225,7 +229,12 @@ class AttendanceRecordViewModel {
       classInfo: AttendanceClassInfoModel.fromEntity(entity.classInfo),
       schoolInfo: AttendanceSchoolInfoModel.fromEntity(entity.schoolInfo),
       date: entity.date,
-      students: entity.students.map(StudentAttendanceModel.fromEntity).toList(),
+      students:
+          entity.students
+              ?.where((e) => e != null)
+              .map((e) => StudentAttendanceModel.fromEntity(e!))
+              .toList() ??
+          [],
     );
   }
 
@@ -237,7 +246,12 @@ class AttendanceRecordViewModel {
       classInfo: classInfo.toEntity(),
       schoolInfo: schoolInfo.toEntity(),
       date: date,
-      students: students.map((e) => e.toEntity()).toList(),
+      students:
+          students
+              ?.where((e) => e != null) // loại bỏ null trước khi convert
+              .map((e) => e!.toEntity())
+              .toList() ??
+          [],
     );
   }
 }

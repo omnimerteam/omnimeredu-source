@@ -6,7 +6,9 @@ class UpdateMembershipRequestUseCase {
 
   UpdateMembershipRequestUseCase(this.repository);
 
-  Future<void> call(MembershipRequestEntity updateMembershipRequestData) {
-    return repository.updateMembershipRequest(updateMembershipRequestData);
+  Future<void> call(MembershipRequestEntity updateMembershipRequestData) async {
+    return await repository.updateMembershipRequest(
+      updateMembershipRequestData,
+    );
   }
 }

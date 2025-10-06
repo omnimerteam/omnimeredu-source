@@ -6,7 +6,7 @@ class GetDashboardSummaryUseCase {
 
   GetDashboardSummaryUseCase(this.repository);
 
-  Future<DashboardOverviewEntity> call() {
-    return repository.getSummary();
+  Future<DashboardOverviewEntity> call() async {
+    return await repository.getSummary();
   }
 }

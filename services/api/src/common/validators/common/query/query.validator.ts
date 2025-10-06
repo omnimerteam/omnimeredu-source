@@ -189,3 +189,15 @@ export function createPaginationSchemaWithSortFilterAndSearch(
       ),
   });
 }
+export const queryGradeIdSchema = z.object({
+  gradeId: z.preprocess(
+    (val) => (val === "" ? null : val), // convert "" thành null
+    z
+      .string()
+      .refine((val) => Types.ObjectId.isValid(val), {
+        message: "Dữ liệu trường học không hợp lệ",
+      })
+      .optional()
+      .nullable()
+  ),
+});

@@ -9,7 +9,7 @@ class UpdateTeachingAssignmentUseCase {
 
   Future<ApiResponse<TeachingAssignmentEntity?>> call(
     TeachingAssignmentEntity data,
-  ) {
-    return repository.updateTeachingAssignment(data);
+  ) async {
+    return await repository.updateTeachingAssignment(data);
   }
 }

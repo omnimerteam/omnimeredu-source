@@ -1,3 +1,5 @@
+import DateUtils from "./DateUtils";
+
 export interface PaginationQueryOptions {
   page: number;
   limit: number;
@@ -8,14 +10,18 @@ export interface PaginationQueryOptions {
 
 /**
  * Build query options (page, limit, sort, filter, search) từ request query
+ * Tự động parse date → { $gte, $lte } nếu có field "date"
  */
-export function buildQueryOptions(parsedQuery: {
-  page: number;
-  limit: number;
-  sort?: string | null;
-  filter?: string | null; // "gender:Male,literacy:Bachelor,subjects:Math|English"
-  search?: string | null; // ?search=John
-}): PaginationQueryOptions {
+export function buildQueryOptions(
+  parsedQuery: {
+    page: number;
+    limit: number;
+    sort?: string | null;
+    filter?: string | null; // "gender:Male,literacy:Bachelor,subjects:Math|English"
+    search?: string | null; // ?search=John
+  },
+  timezone: string = "Asia/Ho_Chi_Minh"
+): PaginationQueryOptions {
   const { page, limit } = parsedQuery;
 
   // 🔹 Xử lý sort
@@ -35,6 +41,7 @@ export function buildQueryOptions(parsedQuery: {
   if (parsedQuery.filter && parsedQuery.filter !== "null") {
     const fields = parsedQuery.filter.split(",");
     const obj: Record<string, any> = {};
+
     fields.forEach((f) => {
       const [key, value] = f.split(":");
       if (!key || !value || value === "null") return;
@@ -45,6 +52,14 @@ export function buildQueryOptions(parsedQuery: {
         obj[key] = value.trim();
       }
     });
+
+    // 🔹 Nếu filter có trường "date" → convert sang khoảng thời gian UTC
+    if (obj.date) {
+      const date = new Date(obj.date);
+      const { start, end } = DateUtils.getUtcDayRange(date, timezone);
+      obj.date = { $gte: start, $lte: end };
+    }
+
     if (Object.keys(obj).length) filterObj = obj;
   }
 

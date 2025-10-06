@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
@@ -17,8 +16,8 @@ class ClassAndDateSelector extends StatefulWidget {
   final VoidCallback onRefresh;
   final VoidCallback onNewOrUpdate;
   final String queryString;
-  final bool isLoading; // 🔹 Thêm trạng thái loading
-  final bool canCreate; // 🔹 Cho phép tạo hay không
+  final bool isLoading;
+  final bool canCreate;
 
   const ClassAndDateSelector({
     super.key,
@@ -31,8 +30,8 @@ class ClassAndDateSelector extends StatefulWidget {
     required this.onRefresh,
     required this.onNewOrUpdate,
     this.queryString = "",
-    this.isLoading = false, // 🔹 Mặc định false
-    this.canCreate = true, // 🔹 Mặc định true
+    this.isLoading = false,
+    this.canCreate = true,
   });
 
   @override
@@ -91,43 +90,25 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Top: Class selector + New button
-            Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: ClassSelector(
+            // 🔹 Bên trái: Class + Date (dọc)
+            Expanded(
+              flex: 4,
+              child: Column(
+                children: [
+                  ClassSelector(
                     schoolId: widget.schoolId,
                     gradeGroup: widget.gradeGroup,
                     initialClassId: widget.initialClassId,
                     queryString: widget.queryString,
                     onClassSelected: widget.onClassChanged,
+                    autoLoad: false,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 1,
-                  child: AppButton(
-                    onPressed: widget.canCreate && !widget.isLoading
-                        ? widget.onNewOrUpdate
-                        : null, // 🔹 Disable nếu đang loading hoặc không cho phép
-                    text: widget.isLoading ? "Đang tạo..." : "Tạo mới",
-                    type: AppButtonType.primary,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // 🔹 Bottom: Date picker + Refresh
-            Row(
-              children: [
-                Expanded(
-                  child: PrimaryTextField(
+                  const SizedBox(height: 12),
+                  PrimaryTextField(
                     controller: _dateController,
                     focusNode: _dateFocusNode,
                     hintText: 'Chọn ngày',
@@ -150,22 +131,47 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
                           )
                         : null,
                   ),
+                ],
+              ),
+            ),
+
+            const SizedBox(width: 16),
+
+            // 🔹 Bên phải: Icon actions (dọc)
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Tạo mới
+                Material(
+                  color: theme.colorScheme.primary.withOpacity(
+                    widget.canCreate && !widget.isLoading ? 1 : 0.4,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: widget.canCreate && !widget.isLoading
+                        ? widget.onNewOrUpdate
+                        : null,
+                    borderRadius: BorderRadius.circular(8),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: Icon(Icons.add, color: Colors.white),
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(height: 12),
+                // Refresh
                 Material(
                   color: theme.colorScheme.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                   child: InkWell(
-                    onTap: widget.isLoading
-                        ? null
-                        : widget.onRefresh, // 🔹 Disable khi loading
+                    onTap: widget.isLoading ? null : widget.onRefresh,
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: widget.isLoading
                           ? SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: 20,
+                              height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: theme.colorScheme.secondary,

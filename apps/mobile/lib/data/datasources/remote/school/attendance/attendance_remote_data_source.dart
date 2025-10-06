@@ -2,8 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_client.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/network/endpoints.dart';
+import 'package:flutter_ios_android_platforms/data/models/attendance/attendance_class_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/attendance/attendance_model.dart';
 import 'package:flutter_ios_android_platforms/data/models/view_model/attendance_record_model.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 
 class AttendanceRemoteDataSource {
   final ApiClient client;
@@ -49,6 +51,32 @@ class AttendanceRemoteDataSource {
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return AttendanceRecordViewModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu hợp lệ");
+      },
+    );
+
+    return res;
+  }
+
+  Future<ApiResponse<List<AttendanceClassModel>?>> getAllAttendances(
+    DefaultQueryEntity query,
+  ) async {
+    final token = await _getIdToken();
+
+    final queryParams = query.toQueryBuilder().build();
+
+    final res = await client.get<List<AttendanceClassModel>?>(
+      Endpoints.attendances,
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      query: queryParams,
+      parser: (data) {
+        if (data is List) {
+          return data
+              .map(
+                (e) => AttendanceClassModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList();
         }
         throw Exception("API không trả về dữ liệu hợp lệ");
       },

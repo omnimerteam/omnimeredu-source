@@ -301,9 +301,6 @@ class ClassController {
       const actorId = req.user?.id;
       const userRole = req.role;
       if (!actorId || !userRole) {
-        console.log(
-          chalk.yellow("[CLASS] ❌ Transfer class - Unauthorized access")
-        );
         sendUnauthorized(res);
         return;
       }
@@ -363,7 +360,11 @@ class ClassController {
         studentIds
       );
 
-      sendSuccess(res, result, "Xóa học sinh khỏi lớp thành công");
+      sendSuccess(
+        res,
+        null,
+        `Xóa ${result.removed} học sinh khỏi lớp thành công`
+      );
     } catch (error) {
       console.log(
         chalk.red("[CLASS] ❌ Remove students from class failed"),
@@ -388,9 +389,9 @@ class ClassController {
       return;
     }
 
-    const { toClassId, studentIds } = req.body;
+    const { targetClassId, studentIds } = req.body;
 
-    if (!toClassId) {
+    if (!targetClassId) {
       sendBadRequest(res, "Thiếu thông tin lớp");
       return;
     }
@@ -404,7 +405,7 @@ class ClassController {
       const result = await this.classService.transferClass(
         actorId,
         userRole,
-        toClassId,
+        targetClassId,
         studentIds
       );
 

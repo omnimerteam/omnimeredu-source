@@ -63,6 +63,42 @@ class StudentService {
     }
   }
 
+  async getStudentSelector(
+    actorId: string,
+    userRole: string,
+    schoolId?: string,
+    gradeId?: string
+  ) {
+    try {
+      const filter = buildPermissionFilterForStudent(userRole, schoolId);
+
+      const students = await this.studentRepository.getStudentSelector(
+        gradeId,
+        filter.schoolId
+      );
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_STUDENT_SELECTOR",
+        roleSnapshot: userRole,
+        metadata: {
+          filter: { gradeId, filter },
+          count: students.length,
+        },
+      });
+
+      return students;
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GET_STUDENT_SELECTOR_FAILED",
+        roleSnapshot: userRole,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
   async getStudentById(id: string, actorId: string, userRole: string) {
     try {
       const student = await this.studentRepository.findById(id);
@@ -71,7 +107,7 @@ class StudentService {
       }
       await this.logger.log({
         userId: actorId,
-        action: "GET_Student_BY_ID",
+        action: "GET_STUDENT_BY_ID",
         targetId: id,
         roleSnapshot: userRole,
         metadata: { found: !!student },

@@ -33,6 +33,7 @@ import {
 } from "../../validators/app/attendance/attendance.validator";
 import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import {
+  createPaginationSchemaWithSortAndFilter,
   getClassAttendanceRecordView,
   getSchoolAttendanceStatsSchema,
 } from "../../validators/common/query/query.validator";
@@ -57,14 +58,19 @@ const attendanceController = new AttendanceController(attendanceService);
 
 const router = Router();
 
+const queryAttendance = createPaginationSchemaWithSortAndFilter(
+  ["date"],
+  ["classId", "date"]
+);
+
 router.get(
   "/",
   validateData({
     headers: authHeaderSchema,
-    query: getSchoolAttendanceStatsSchema,
+    query: queryAttendance,
   }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAllAttendances(req, res, next)
 );

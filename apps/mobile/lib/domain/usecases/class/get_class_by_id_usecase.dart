@@ -5,7 +5,7 @@ class GetClassByIdUseCase {
   final ClassRepository repository;
   GetClassByIdUseCase(this.repository);
 
-  Future<ClassEntity> call(String id) {
-    return repository.getClassById(id);
+  Future<ClassEntity> call(String id) async {
+    return await repository.getClassById(id);
   }
 }

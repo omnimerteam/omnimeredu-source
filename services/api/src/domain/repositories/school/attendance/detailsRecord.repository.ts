@@ -8,7 +8,13 @@ class DetailsRecordRepository extends BaseRepository<IDetailsRecord> {
   }
 
   async findByAttendanceId(attendanceId: string): Promise<IDetailsRecord[]> {
-    return this.model.find({ attendanceId }).exec();
+    return await this.model
+      .find({ attendanceId })
+      .populate({
+        path: "studentId",
+        select: "fullName gender phone guardianName guardianPhone", // chỉ lấy các field cần thiết
+      })
+      .exec();
   }
 
   async updateStatusDetailRecord(
@@ -16,7 +22,7 @@ class DetailsRecordRepository extends BaseRepository<IDetailsRecord> {
     status: string,
     note?: string
   ): Promise<IDetailsRecord | null> {
-    return this.model
+    return await this.model
       .findByIdAndUpdate(
         recordId,
         { status, note, updatedAt: new Date() },

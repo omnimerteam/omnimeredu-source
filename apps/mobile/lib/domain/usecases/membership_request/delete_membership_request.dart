@@ -5,7 +5,7 @@ class DeleteMembershipRequestUseCase {
 
   DeleteMembershipRequestUseCase(this.repository);
 
-  Future<void> call(String id) {
-    return repository.deleteMembershipRequest(id);
+  Future<void> call(String id) async {
+    return await repository.deleteMembershipRequest(id);
   }
 }

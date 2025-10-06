@@ -48,8 +48,8 @@ class QueryBuilder {
   /// Builder từ defaultSort module (nếu không truyền sort thì lấy defaultSort)
   factory QueryBuilder.withModule({
     required String module,
-    int page = 1,
-    int limit = 10,
+    int page = AppConstants.defaultPage,
+    int limit = AppConstants.defaultLimit,
     List<Map<String, String>>? sort,
     Map<String, dynamic>? filter,
     String? search,

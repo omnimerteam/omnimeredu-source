@@ -1,8 +1,11 @@
-// widgets/class_list_item.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/bloc/class_member_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/class_member_dialog_helper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/dialog/delete_confirm_dialog.dart';
 import '../bloc/class_management_bloc.dart';
@@ -15,6 +18,8 @@ class ClassListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthenticationBloc>().state;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -34,6 +39,7 @@ class ClassListItem extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // ==== Thông tin lớp ====
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,94 +122,141 @@ class ClassListItem extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
+
+          // ==== Menu hành động ====
           PopupMenuButton<String>(
-            onSelected: (value) => _handleMenuAction(context, value),
+            onSelected: (value) => _handleMenuAction(context, value, authState),
             icon: Icon(
-              Icons.settings,
+              Icons.more_vert,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'update',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.primary,
+            itemBuilder: (context) {
+              final items = <PopupMenuEntry<String>>[];
+
+              if (authState is AuthenticationAuthenticated &&
+                  authState.user.roleName == 'SchoolAdmin') {
+                items.addAll([
+                  PopupMenuItem(
+                    value: 'details_class',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Chi tiết lớp học'),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Cập nhật'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.error,
+                  ),
+                  PopupMenuItem(
+                    value: 'update',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.edit,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Cập nhật'),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Xóa'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'add_student',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_add,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Xóa'),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Thêm học sinh'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'assign_teacher',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.assignment_ind,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  PopupMenuItem(
+                    value: 'add_student',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.person_add,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Thêm học sinh'),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Phân bổ giáo viên'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'supplement_teacher',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.person_add_alt,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  PopupMenuItem(
+                    value: 'assign_teacher',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.assignment_ind,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Phân bổ giáo viên'),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text('Bổ sung giáo viên'),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ]);
+              } else if (authState is AuthenticationAuthenticated &&
+                  authState.user.roleName == 'Teacher') {
+                items.addAll([
+                  PopupMenuItem(
+                    value: 'details_class',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.people,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Chi tiết lớp học'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'add_student',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.person_add,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Thêm học sinh'),
+                      ],
+                    ),
+                  ),
+                ]);
+              }
+
+              return items;
+            },
           ),
         ],
       ),
     );
   }
 
-  void _handleMenuAction(BuildContext context, String action) {
+  void _handleMenuAction(
+    BuildContext context,
+    String action,
+    AuthenticationState authState,
+  ) {
     final bloc = context.read<ClassManagementBloc>();
 
     switch (action) {
@@ -216,13 +269,34 @@ class ClassListItem extends StatelessWidget {
         _showDeleteConfirmation(context);
         break;
       case 'add_student':
-        AppSnackBars.showComingSoon(context, 'Thêm học sinh');
+        if (authState is! AuthenticationAuthenticated) return;
+
+        final user = authState.user;
+
+        showClassMemberDialog(
+          context: context,
+          schoolId: user.schoolId ?? '',
+          teacherId: user.roleName == 'Teacher' ? user.id : null,
+          initialClassId: classDetail.id,
+          initialMode: ClassMemberMode.add,
+          isTeacher: user.roleName == 'Teacher',
+        ).then((result) {
+          if (result == true) {
+            // Refresh danh sách lớp
+            context.read<ClassManagementBloc>().add(LoadClassesEvent());
+          }
+        });
         break;
+
       case 'assign_teacher':
         AppSnackBars.showComingSoon(context, 'Đăng ký giảng dạy');
         break;
-      case 'supplement_teacher':
-        AppSnackBars.showComingSoon(context, 'Bổ sung giáo viên');
+      case 'details_class':
+        Navigator.pushNamed(
+          context,
+          '/school-admin/classes/detail',
+          arguments: {'classId': classDetail.id},
+        );
         break;
     }
   }

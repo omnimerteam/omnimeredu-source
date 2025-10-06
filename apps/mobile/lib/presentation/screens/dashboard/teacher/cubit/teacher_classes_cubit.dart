@@ -2,41 +2,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/attendance/attendance_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/cubit/dashboard_state.dart';
 import 'teacher_classes_state.dart';
 
 class TeacherClassesCubit extends Cubit<TeacherClassesState> {
   final InitializeClassAttendanceUseCase initializeClassAttendanceUseCase;
+  final DashboardCubit dashboardCubit;
 
-  TeacherClassesCubit({required this.initializeClassAttendanceUseCase})
-    : super(TeacherClassesInitial());
-
-  /// Load danh sách lớp của giáo viên
-  // Future<void> loadTeacherClasses({
-  //   required String teacherId,
-  //   required String schoolId,
-  // }) async {
-  //   emit(TeacherClassesLoading());
-
-  //   try {
-  //     final response = await getClassTeacherAssignmentsUseCase.call(
-  //       teacherId,
-  //       schoolId,
-  //     );
-
-  //     if (response.success && response.data != null) {
-  //       emit(TeacherClassesLoaded(classes: response.data!));
-  //     } else {
-  //       emit(
-  //         TeacherClassesError(
-  //           response.message ?? 'Không thể tải danh sách lớp học',
-  //         ),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     logger.e('[TeacherClassesCubit] Error loading classes: $e');
-  //     emit(TeacherClassesError('Đã xảy ra lỗi: $e'));
-  //   }
-  // }
+  TeacherClassesCubit({
+    required this.initializeClassAttendanceUseCase,
+    required this.dashboardCubit,
+  }) : super(TeacherClassesInitial());
 
   /// Tạo bảng điểm danh cho lớp
   Future<void> initializeAttendance({
@@ -63,8 +41,8 @@ class TeacherClassesCubit extends Cubit<TeacherClassesState> {
           ),
         );
 
-        // Reload lại danh sách để cập nhật isHaveAttendance
-        // Cần truyền lại teacherId và schoolId từ nơi gọi
+        // ✅ Cập nhật ngay trong DashboardCubit
+        _updateDashboardClassAttendanceFlag(classId);
       } else {
         emit(
           AttendanceInitializationError(
@@ -84,11 +62,31 @@ class TeacherClassesCubit extends Cubit<TeacherClassesState> {
     }
   }
 
-  /// Refresh danh sách lớp
-  //   Future<void> refreshClasses({
-  //     required String teacherId,
-  //     required String schoolId,
-  //   }) async {
-  //     await loadTeacherClasses(teacherId: teacherId, schoolId: schoolId);
-  //   }
+  /// ✅ Hàm cập nhật DashboardCubit khi lớp vừa tạo điểm danh
+  void _updateDashboardClassAttendanceFlag(String classId) {
+    final current = dashboardCubit.state;
+    if (current is DashboardLoaded &&
+        current.data is TeacherDashboardDataEntity) {
+      final teacherData = current.data as TeacherDashboardDataEntity;
+
+      final updatedClasses = teacherData.classAssignment?.map((cls) {
+        if (cls.id == classId) {
+          return cls.copyWith(isHaveAttendance: true);
+        }
+        return cls;
+      }).toList();
+
+      final updatedData = teacherData.copyWith(
+        classAssignment: updatedClasses,
+        cachedAt: DateTime.now(),
+      );
+
+      // Ghi đè state trong dashboardCubit
+      dashboardCubit.emit(DashboardLoaded(data: updatedData));
+
+      logger.i(
+        "[TeacherClassesCubit] Đã cập nhật isHaveAttendance=true cho classId=$classId trong DashboardCubit",
+      );
+    }
+  }
 }

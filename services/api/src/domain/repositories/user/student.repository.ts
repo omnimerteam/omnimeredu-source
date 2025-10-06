@@ -1,12 +1,48 @@
 import { FilterQuery, Model } from "mongoose";
 import { BaseRepository } from "../base.repository";
-import { IStudent } from "../../models";
+import { IGrade, IStudent } from "../../models";
 import { PaginationQueryOptions } from "../../../common/utils/buildQueryOptions";
-import chalk from "chalk";
+import { HttpError } from "../../../common/utils/HttpError";
 
 class StudentRepository extends BaseRepository<IStudent> {
-  constructor(studentModel: Model<IStudent>) {
+  private readonly gradeModel: Model<IGrade>;
+  constructor(studentModel: Model<IStudent>, gradeModel: Model<IGrade>) {
     super(studentModel);
+    this.gradeModel = gradeModel;
+  }
+
+  async getStudentSelector(gradeId?: string, schoolId?: string) {
+    let gradeGroup: string | undefined;
+
+    if (gradeId) {
+      const grade = await this.gradeModel.findById(gradeId, "gradeGroup");
+      gradeGroup = grade?.gradeGroup;
+
+      if (!gradeGroup) {
+        throw new HttpError(404, "Lớp học không chính xác");
+      }
+    }
+
+    // Xây query động
+    const filter: any = {};
+    if (schoolId) filter.schoolId = schoolId;
+    if (gradeGroup) filter.gradeGroup = gradeGroup;
+
+    return await this.model
+      .find(filter, {
+        _id: 1,
+        fullName: 1,
+        gender: 1,
+        isVerified: 1,
+        classId: 1,
+        gradeGroup: 1,
+      })
+      .populate({
+        path: "classId",
+        select: "name",
+      })
+      .sort({ fullName: 1 })
+      .exec();
   }
 
   async findAllStudent(
@@ -30,8 +66,6 @@ class StudentRepository extends BaseRepository<IStudent> {
         $options: "i",
       };
     }
-
-    console.log(chalk.green("finalFilter: ", finalFilter));
 
     return this.model
       .find(finalFilter)

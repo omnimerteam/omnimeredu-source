@@ -29,7 +29,10 @@ class TeacherDashboardDataEntity extends DashboardDataBaseEntity {
 
   /// Copy với cachedAt mới (dùng trong cache)
   @override
-  DashboardDataBaseEntity copyWith({required DateTime cachedAt}) {
+  DashboardDataBaseEntity copyWith({
+    required DateTime cachedAt,
+    List<ClassTeacherAssignEntity>? classAssignment,
+  }) {
     return TeacherDashboardDataEntity(
       classAssignment: classAssignment,
       cachedAt: cachedAt,
