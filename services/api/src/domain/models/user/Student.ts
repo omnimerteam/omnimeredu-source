@@ -12,17 +12,25 @@ import {
  * Interface đại diện cho Student (học sinh), kế thừa từ IBaseUser
  */
 export interface IStudent extends IBaseUser {
-  classId?: Types.ObjectId;
+  classId?: Types.ObjectId | null;
   educationLevel: EducationSystemLevelsEnum;
   gradeGroup: EducationGradesEnum;
 
   guardianName?: string;
   guardianPhone?: string;
+
   registeredExtraFees?: {
     extraFeeId: Types.ObjectId;
-    amount: number; // số tiền áp dụng cho học sinh này
+    amount: number;
+    quantity?: number;
   }[];
-  registeredDiscounts?: Types.ObjectId[];
+
+  registeredDiscounts?: {
+    discountId: Types.ObjectId;
+    params?: Record<string, any>;
+  }[];
+
+  meta?: Record<string, any>; // thông tin tự do (siblings, mealPlan, pickupService,...)
 }
 
 /**
@@ -35,47 +43,86 @@ const RegisteredExtraFeeSchema = new Schema(
       ref: "ExtraFee",
       required: true,
     },
-    amount: { type: Number, required: true, min: 0 },
+    amount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    quantity: {
+      type: Number,
+      default: 1,
+      min: 0,
+    },
   },
   { _id: false }
 );
 
 /**
- * Schema cho Student
+ * Subschema cho registeredDiscounts
  */
-const StudentSchema = new Schema<IStudent>({
-  classId: {
-    type: Schema.Types.ObjectId,
-    ref: "Class",
-    default: null,
-    index: true,
+const RegisteredDiscountSchema = new Schema(
+  {
+    discountId: {
+      type: Schema.Types.ObjectId,
+      ref: "DiscountPolicy",
+      required: true,
+    },
+    params: {
+      type: Schema.Types.Mixed, // có thể lưu các biến tuỳ chỉnh như { siblings: 2, validUntil: '2025-12-31' }
+      default: {},
+    },
   },
-  guardianName: { type: String },
-  guardianPhone: { type: String },
-
-  educationLevel: {
-    type: String,
-    enum: EducationSystemLevelsTuple,
-    required: true,
-    index: true,
-  },
-
-  gradeGroup: {
-    type: String,
-    enum: EducationGradesTuple,
-    required: true,
-    index: true,
-  },
-
-  // phí đăng ký (có amount riêng cho từng học sinh)
-  registeredExtraFees: [RegisteredExtraFeeSchema],
-
-  // giảm giá đăng ký (chỉ lưu ID policy)
-  registeredDiscounts: [{ type: Schema.Types.ObjectId, ref: "DiscountPolicy" }],
-});
+  { _id: false }
+);
 
 /**
- * Tạo discriminator Student dựa trên BaseUser
+ * Schema cho Student (kế thừa từ BaseUser)
+ */
+const StudentSchema = new Schema<IStudent>(
+  {
+    classId: {
+      type: Schema.Types.ObjectId,
+      ref: "Class",
+      default: null,
+      index: true,
+    },
+    guardianName: { type: String, trim: true },
+    guardianPhone: { type: String, trim: true },
+
+    educationLevel: {
+      type: String,
+      enum: EducationSystemLevelsTuple,
+      required: true,
+      index: true,
+    },
+
+    gradeGroup: {
+      type: String,
+      enum: EducationGradesTuple,
+      required: true,
+      index: true,
+    },
+
+    registeredExtraFees: {
+      type: [RegisteredExtraFeeSchema],
+      default: [],
+    },
+
+    registeredDiscounts: {
+      type: [RegisteredDiscountSchema],
+      default: [],
+    },
+
+    meta: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+  },
+  { timestamps: true }
+);
+
+/**
+ * Discriminator Student từ BaseUser
  */
 const Student = BaseUser.discriminator<IStudent>("Student", StudentSchema);
 

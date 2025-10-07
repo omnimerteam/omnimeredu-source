@@ -14,6 +14,8 @@ export interface IDiscountDetail {
 export interface ITuition extends Document {
   _id: Types.ObjectId;
   studentId: Types.ObjectId;
+  schoolId: Types.ObjectId;
+  classId: Types.ObjectId;
   month: string;
   extraFeeDetails?: IExtraFeeDetail[];
   discountDetails?: IDiscountDetail[];
@@ -49,6 +51,8 @@ const TuitionSchema = new Schema<ITuition>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
     studentId: { type: Schema.Types.ObjectId, ref: "BaseUser", required: true },
+    schoolId: { type: Schema.Types.ObjectId, ref: "School", required: true },
+    classId: { type: Schema.Types.ObjectId, ref: "Class", required: true },
     month: { type: String, required: true },
     extraFeeDetails: [ExtraFeeDetailSchema],
     discountDetails: [DiscountDetailSchema],

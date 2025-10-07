@@ -1,39 +1,53 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-
-export interface ICondition {
-  field: string; // Trường để kiểm tra (vd: "age", "pickupService", "mealPlan")
-  operator: string; // eq, gte, lte, in, ...
-  value: any; // Giá trị so sánh
-}
+import { ConditionSchema, ICondition } from "./Condition";
+export type FeeCalcType = "fixed" | "per_session" | "per_month" | "formula";
+// per_session: multiply by #sessions student attended that match (e.g., Sat classes)
+// formula: json-logic or custom expression evaluated with context
 
 export interface IExtraFee extends Document {
-  _id: Types.ObjectId;
+  code?: string;
   name: string;
-  amount: number;
-  note?: string;
-  conditions?: ICondition[];
+  calcType: FeeCalcType;
+  unitAmount: number; // per unit or fixed
+  unitName?: string; // "session", "set", ...
+  conditions?: ICondition[]; // when to apply
+  schoolId: Types.ObjectId;
+  oncePer?: "month" | "term" | "year" | null; // for uniform/insurance
+  priority?: number;
+  active?: boolean;
+  effectiveFrom?: Date;
+  effectiveTo?: Date | null;
+  formula?: any;
 }
-
-const ConditionSchema = new Schema<ICondition>(
-  {
-    field: { type: String, required: true },
-    operator: {
-      type: String,
-      required: true,
-      enum: ["eq", "neq", "gte", "lte", "gt", "lt", "in", "nin"],
-    },
-    value: { type: Schema.Types.Mixed, required: true },
-  },
-  { _id: false }
-);
 
 const ExtraFeeSchema = new Schema<IExtraFee>(
   {
-    _id: { type: Schema.Types.ObjectId, auto: true },
-    name: { type: String, required: true, trim: true },
-    amount: { type: Number, required: true, min: 0 },
-    note: { type: String, trim: true },
+    code: { type: String, index: true },
+    name: { type: String, required: true },
+    calcType: {
+      type: String,
+      enum: ["fixed", "per_session", "per_month", "formula"],
+      required: true,
+    },
+    unitAmount: { type: Number, default: 0, min: 0 },
+    unitName: String,
     conditions: [ConditionSchema],
+    schoolId: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      required: true,
+      index: true,
+    },
+    oncePer: {
+      type: String,
+      enum: ["month", "term", "year", null],
+      default: null,
+    },
+    priority: { type: Number, default: 0 },
+    active: { type: Boolean, default: true },
+    effectiveFrom: { type: Date, default: Date.now },
+    effectiveTo: { type: Date, default: null },
+    formula: { type: Schema.Types.Mixed },
   },
   { timestamps: true }
 );

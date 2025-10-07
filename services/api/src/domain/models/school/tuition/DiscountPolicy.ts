@@ -1,41 +1,52 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+import { ConditionSchema } from "./Condition";
 
-export interface ICondition {
-  field: string; // Trường kiểm tra, ví dụ: "siblings", "enrollDate", "baseFee"
-  operator: string; // Toán tử: "eq", "gte", "lte", "in"...
-  value: any; // Giá trị để so sánh
-}
+export type DiscountKind = "percentage" | "fixed";
 
 export interface IDiscountPolicy extends Document {
-  _id: Types.ObjectId;
+  code?: string;
   name: string;
-  type: "percentage" | "fixed";
+  kind: DiscountKind;
   value: number;
-  note?: string;
-  conditions?: ICondition[];
+  target: "subtotal" | "baseFee" | "specific_fee";
+  targetFeeCode?: string;
+  maxCap?: number; // max amount discount
+  stackable?: boolean; // if false, block other lower-priority discounts
+  priority?: number;
+  conditions?: any[];
+  oncePer?: "month" | "term" | null;
+  schoolId: Types.ObjectId;
+  active?: boolean;
+  effectiveFrom?: Date;
+  effectiveTo?: Date | null;
 }
-
-const ConditionSchema = new Schema<ICondition>(
-  {
-    field: { type: String, required: true },
-    operator: {
-      type: String,
-      required: true,
-      enum: ["eq", "neq", "gte", "lte", "gt", "lt", "in", "nin"],
-    },
-    value: { type: Schema.Types.Mixed, required: true }, // Cho phép nhiều kiểu dữ liệu
-  },
-  { _id: false }
-);
 
 const DiscountPolicySchema = new Schema<IDiscountPolicy>(
   {
-    _id: { type: Schema.Types.ObjectId, auto: true },
-    name: { type: String, required: true, trim: true },
-    type: { type: String, enum: ["percentage", "fixed"], required: true },
+    code: { type: String, index: true },
+    name: { type: String, required: true },
+    kind: { type: String, enum: ["percentage", "fixed"], required: true },
     value: { type: Number, required: true, min: 0 },
-    note: { type: String, trim: true },
+    target: {
+      type: String,
+      enum: ["subtotal", "baseFee", "specific_fee"],
+      default: "subtotal",
+    },
+    targetFeeCode: String,
+    maxCap: Number,
+    stackable: { type: Boolean, default: false },
+    priority: { type: Number, default: 0 },
     conditions: [ConditionSchema],
+    oncePer: { type: String, enum: ["month", "term", null], default: null },
+    schoolId: {
+      type: Schema.Types.ObjectId,
+      ref: "School",
+      required: true,
+      index: true,
+    },
+    active: { type: Boolean, default: true },
+    effectiveFrom: { type: Date, default: Date.now },
+    effectiveTo: Date,
   },
   { timestamps: true }
 );
