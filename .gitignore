@@ -101,9 +101,6 @@ coverage/
 !.gitignore
 
 # Firebase Admin SDK JSON
-**/omnimeredu-bb808-firebase-adminsdk-fbsvc-2af6165375.json
-**/omnishift-766b2-firebase-adminsdk-fbsvc-1e889a49c9.json
-**/omnimeredu-bb808-firebase-adminsdk-fbsvc-0673614a0a.json
-**/omnimeredu-bb808-firebase-adminsdk-fbsvc-59682697af.json
+services/api/src/common/configs/omnimeredu-bb808-firebase-adminsdk-fbsvc-5df1a5603e
 
 **/AllKey.md
