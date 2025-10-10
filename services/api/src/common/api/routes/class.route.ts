@@ -1,0 +1,154 @@
+import { Router } from "express";
+
+// Models → Repo → Service → Controller
+import { Class, Student } from "../../../domain/models";
+import {
+  ClassRepository,
+  StudentRepository,
+  ActivityLogRepository,
+} from "../../../domain/repositories";
+import { ClassService } from "../../../domain/services";
+import { ClassController } from "../../../domain/controllers";
+
+// Logger & Activity Log
+import { DefaultLogger } from "../../utils/DefaultLogger";
+
+// Middleware
+import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyRole } from "../middlewares/verifyRole";
+import { validateData } from "../middlewares/validateData";
+
+// Validators
+import {
+  createClassBodySchema,
+  modifyStudentsBodySchema,
+  transferClassBodySchema,
+  updateClassBodySchema,
+} from "../../validators/class/class.validator";
+import { objectIdParamSchema } from "../../validators/params/params.validator";
+import { authHeaderSchema } from "../../validators/header/header.validator";
+import {
+  createPaginationSchemaWithSort,
+  paginationQuerySchema,
+} from "../../validators/query/query.validator";
+
+// Init Dependencies
+const classRepository = new ClassRepository(Class);
+const studentRepository = new StudentRepository(Student);
+const logger = new DefaultLogger(new ActivityLogRepository());
+const classService = new ClassService(
+  classRepository,
+  logger,
+  studentRepository
+);
+const classController = new ClassController(classService);
+
+// Custom Validate
+const getAllClassPaginationSchema = createPaginationSchemaWithSort([
+  "name",
+  "code",
+  "schoolId",
+  "baseFee",
+]);
+
+// Router
+const router = Router();
+
+/**
+ * ROUTE DEFINITIONS
+ */
+
+// ✅ Lấy tất cả lớp (có filter query)
+router.get(
+  "/",
+  validateData({
+    headers: authHeaderSchema,
+    query: getAllClassPaginationSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.getAllClasses(req, res, next)
+);
+
+// ✅ Lấy lớp theo ID
+router.get(
+  "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.getClassById(req, res, next)
+);
+
+// ✅ Tạo lớp mới
+router.post(
+  "/",
+  validateData({ headers: authHeaderSchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  validateData({ body: createClassBodySchema }),
+  (req, res, next) => classController.createClass(req, res, next)
+);
+
+// ✅ Cập nhật lớp
+router.put(
+  "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: updateClassBodySchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req, res, next) => classController.updateClass(req, res, next)
+);
+
+// ✅ Xóa lớp
+router.delete(
+  "/:id",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req, res, next) => classController.deleteClass(req, res, next)
+);
+
+// ✅ Thêm học sinh vào lớp
+router.post(
+  "/:id/students/add",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: modifyStudentsBodySchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+
+  (req, res, next) => classController.addStudentToClass(req, res, next)
+);
+
+// ✅ Xóa học sinh khỏi lớp
+router.post(
+  "/:id/students/remove",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: modifyStudentsBodySchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.removeStudentFromClass(req, res, next)
+);
+
+// ✅ Trao đổi học sinh giữa các lớp
+router.put(
+  "/:id/transfer",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    body: transferClassBodySchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req, res, next) => classController.transferClass(req, res, next)
+);
+
+export default router;
