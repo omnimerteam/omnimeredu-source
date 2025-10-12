@@ -9,6 +9,7 @@ import {
 } from "../../../../common/utils/ResponseHelper";
 import { IDiscountPolicy } from "../../../models";
 import DiscountPolicyService from "../../../services/school/tuition/dicountPolicy.service";
+import { buildQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
 class DiscountPolicyController {
   private readonly discountPolicyService: DiscountPolicyService;
@@ -28,12 +29,14 @@ class DiscountPolicyController {
       sendUnauthorized(res);
       return;
     }
+    const options = buildQueryOptions(req.query as any);
     try {
       const discountPolicies =
         await this.discountPolicyService.getAllDisCountPolicy(
           actorId,
           schoolId,
-          userRole
+          userRole,
+          options
         );
       if (!discountPolicies || discountPolicies.length === 0) {
         sendEmpty(res);
@@ -116,7 +119,8 @@ class DiscountPolicyController {
           actorId,
           userRole
         );
-      sendSuccess(res, discountPolicy, "Thêm mới discount policy thành công ");
+
+      sendCreated(res, discountPolicy, "Thêm mới discount policy thành công ");
     } catch (error) {
       console.log(
         chalk.red("[Discount Policy] Error creatting discount policy: ", error)

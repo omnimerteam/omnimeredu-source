@@ -15,6 +15,8 @@ import {
  * Interface đại diện cho mô hình phụ phí (Extra Fee)
  */
 export interface IExtraFee extends Document {
+  _id: Types.ObjectId;
+
   code?: string;
   name: string;
   description?: string;
@@ -47,6 +49,8 @@ export interface IExtraFee extends Document {
  */
 const ExtraFeeSchema = new Schema<IExtraFee>(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+
     code: { type: String, index: true, unique: true, sparse: true },
     name: { type: String, required: true },
     description: String,

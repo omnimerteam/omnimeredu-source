@@ -45,16 +45,7 @@ class AttendanceRepository extends BaseRepository<IAttendance> {
         throw new HttpError(400, "Không tìm thấy lớp học");
       }
 
-      const attendance = await this.model.create(
-        [
-          {
-            classId: attendanceData.classId,
-            schoolId: attendanceData.schoolId,
-            date: attendanceData.date ?? new Date(),
-          },
-        ],
-        { session }
-      );
+      const attendance = await this.model.create([attendanceData], { session });
 
       if (classDoc.students?.length) {
         const detailRecords = classDoc.students.map(

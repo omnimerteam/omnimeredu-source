@@ -1,28 +1,88 @@
 import { z } from "zod";
 import { Types } from "mongoose";
+import {
+  FeeCalcTypeTuple,
+  ExtraFeeApplicabilityScopeTuple,
+  ExtraFeeOncePerTuple,
+  ExtraFeeFormulaTypeTuple,
+} from "../../../../common/enum/tuition.enum";
+import { ConditionZodSchema } from "../condition/ConditionZodSchema";
 
-export const ExtraFeeSchema = z.object({
+/**
+ * Schema validate ExtraFee (phụ phí)
+ */
+export const ExtraFeeZodSchema = z.object({
   _id: z
     .string()
     .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho _id",
+      message: "_id không hợp lệ",
     })
-    .optional(), // MongoDB tự sinh
+    .optional(),
 
-  name: z
-    .string()
-    .min(1, { message: "Tên là bắt buộc" })
-    .max(100, { message: "Tên không được vượt quá 100 ký tự" }),
+  code: z.string().optional(),
 
-  amount: z.number().positive({ message: "Số tiền phải là số dương" }),
+  name: z.string().min(1, "Tên là bắt buộc"),
 
-  applicableTo: z
+  description: z.string().optional(),
+
+  calcType: z.enum(FeeCalcTypeTuple as [string, ...string[]], {
+    message: `Loại tính toán không hợp lệ. (${FeeCalcTypeTuple.join(", ")})`,
+  }),
+
+  unitAmount: z.number().nonnegative("Giá trị phải >= 0"),
+  unitName: z.string().optional(),
+
+  conditions: z.array(ConditionZodSchema).optional(),
+
+  schoolId: z.string().refine((val) => Types.ObjectId.isValid(val), {
+    message: "schoolId không hợp lệ",
+  }),
+
+  applicableScope: z
+    .enum(ExtraFeeApplicabilityScopeTuple as [string, ...string[]])
+    .default("All"),
+
+  applicableClassIds: z
     .array(
-      z.string().refine((val) => Types.ObjectId.isValid(val), {
-        message: "Định dạng ObjectId không hợp lệ cho applicableTo",
+      z.string().refine((v) => Types.ObjectId.isValid(v), {
+        message: "ObjectId lớp không hợp lệ",
       })
     )
     .optional(),
+
+  applicableGradeIds: z
+    .array(
+      z.string().refine((v) => Types.ObjectId.isValid(v), {
+        message: "ObjectId khối không hợp lệ",
+      })
+    )
+    .optional(),
+
+  applicableStudentIds: z
+    .array(
+      z.string().refine((v) => Types.ObjectId.isValid(v), {
+        message: "ObjectId học sinh không hợp lệ",
+      })
+    )
+    .optional(),
+
+  oncePer: z
+    .enum(ExtraFeeOncePerTuple as [string, ...string[]])
+    .default("None"),
+
+  priority: z.number().optional(),
+  active: z.boolean().default(true),
+
+  effectiveFrom: z.coerce.date().optional(),
+  effectiveTo: z.coerce.date().nullable().optional(),
+
+  formula: z.any().optional(),
+  formulaType: z
+    .enum(ExtraFeeFormulaTypeTuple as [string, ...string[]])
+    .default("JsonLogic"),
+
+  isTaxable: z.boolean().default(false),
+  taxRate: z.number().min(0).optional(),
 });
 
-export type ExtraFee = z.infer<typeof ExtraFeeSchema>;
+export type ExtraFeeZod = z.infer<typeof ExtraFeeZodSchema>;

@@ -1,68 +1,77 @@
 import { z } from "zod";
 import { Types } from "mongoose";
+import {
+  TuitionStatusTuple,
+  DiscountKindTuple,
+  CurrencyTuple,
+} from "../../../../common/enum/tuition.enum";
 
-// Định nghĩa enum cho status
-const StatusEnum = ["paid", "pending"] as const;
-
-export const TuitionSchema = z.object({
-  _id: z
-    .string()
-    .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho _id",
-    })
-    .optional(),
-  studentId: z
-    .string()
-    .min(1, { message: "studentId là bắt buộc" })
-    .refine((val) => Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho studentId",
-    }),
-  month: z
-    .string()
-    .regex(/^\d{4}-(0[1-9]|1[0-2])$/, {
-      message: "Tháng phải có định dạng YYYY-MM (ví dụ: 2025-07)",
-    })
-    .refine(
-      (val) => {
-        const [year, month] = val.split("-").map(Number);
-        const currentYear = new Date().getFullYear();
-        return (
-          year >= 2000 && year <= currentYear + 1 && month >= 1 && month <= 12
-        );
-      },
-      {
-        message:
-          "Tháng phải trong khoảng từ 2000-01 đến " +
-          (new Date().getFullYear() + 1) +
-          "-12",
-      }
-    ),
-  extraFeeIds: z
-    .array(
-      z.string().refine((val) => Types.ObjectId.isValid(val), {
-        message: "Định dạng ObjectId không hợp lệ cho extraFeeIds",
-      })
-    )
-    .optional(),
-  discountId: z
-    .string()
-    .refine((val) => !val || Types.ObjectId.isValid(val), {
-      message: "Định dạng ObjectId không hợp lệ cho discountId",
-    })
-    .optional(),
-  totalAmount: z
-    .number()
-    .positive({ message: "Tổng số tiền phải là số dương" }),
-  attendedDays: z
-    .number()
-    .int({ message: "Số ngày điểm danh phải là số nguyên" })
-    .nonnegative({ message: "Số ngày điểm danh không được âm" })
-    .optional(),
-  status: z
-    .enum(StatusEnum, {
-      message: `Trạng thái phải là một trong: ${StatusEnum.join(", ")}`,
-    })
-    .optional(),
+/* ---------- Helper Validators ---------- */
+const objectId = z.string().refine((val) => Types.ObjectId.isValid(val), {
+  message: "Giá trị không hợp lệ, phải là ObjectId hợp lệ",
 });
 
-export type Tuition = z.infer<typeof TuitionSchema>;
+/* ---------- Subschema: ExtraFeeDetail ---------- */
+export const ExtraFeeDetailZod = z.object({
+  feeId: objectId,
+  feeCode: z.string().optional(),
+  feeName: z.string().optional(),
+  unitAmountSnapshot: z.number().nonnegative().optional(),
+  quantity: z.number().nonnegative().default(1),
+  calculatedAmount: z.number().nonnegative(),
+});
+
+/* ---------- Subschema: DiscountDetail ---------- */
+export const DiscountDetailZod = z.object({
+  discountId: objectId,
+  discountCode: z.string().optional(),
+  discountName: z.string().optional(),
+  kind: z.enum([...DiscountKindTuple] as [string, ...string[]]).optional(),
+  valueSnapshot: z.number().nonnegative().optional(),
+  appliedAmount: z.number().nonnegative(),
+});
+
+/* ---------- Main Schema: Tuition ---------- */
+export const TuitionZodSchema = z.object({
+  _id: objectId.optional(),
+
+  studentId: objectId,
+  schoolId: objectId,
+  classId: objectId,
+
+  // Dữ liệu kỳ học
+  month: z.string().optional(),
+  periodStart: z.coerce.date().optional(),
+  periodEnd: z.coerce.date().optional(),
+
+  // Học phí & chi tiết
+  baseFeeSnapshot: z.number().nonnegative(),
+  extraFeeDetails: z.array(ExtraFeeDetailZod).optional(),
+  discountDetails: z.array(DiscountDetailZod).optional(),
+  appliedRules: z.any().optional(),
+  calculationLog: z.record(z.string(), z.any()).optional(),
+
+  // Tổng tiền & ngày điểm danh
+  totalAmount: z.number().nonnegative(),
+  attendedDays: z.number().int().nonnegative().default(0),
+
+  // Loại tiền tệ
+  currency: z.enum([...CurrencyTuple] as [string, ...string[]]).default("VND"),
+
+  // Trạng thái
+  status: z
+    .enum([...TuitionStatusTuple] as [string, ...string[]])
+    .default("draft"),
+
+  // Metadata
+  createdBy: objectId.optional(),
+  confirmedBy: objectId.optional(),
+  confirmedAt: z.coerce.date().optional(),
+  paidAt: z.coerce.date().optional(),
+  invoiceId: z.string().optional(),
+  dueDate: z.coerce.date().optional(),
+  meta: z.record(z.string(), z.any()).optional(),
+});
+
+/* ---------- TypeScript Type ---------- */
+export type TuitionZodType = z.infer<typeof TuitionZodSchema>;

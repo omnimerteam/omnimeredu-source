@@ -10,7 +10,7 @@ import Holiday from "../models/system/Holiday";
  */
 export async function determineSessionType(
   date: Date,
-  schoolId?: Types.ObjectId
+  schoolId?: string
 ): Promise<AttendanceSessionTypeEnum> {
   const dayOfWeek = dayjs(date).day(); // 0 = CN, 6 = Thứ 7
 
@@ -20,10 +20,10 @@ export async function determineSessionType(
   }
 
   // --- 2️⃣ Nếu là ngày nghỉ lễ (toàn quốc hoặc của trường)
-  const holiday = await findHoliday(date, schoolId);
-  if (holiday) {
-    return AttendanceSessionTypeEnum.holiday;
-  }
+  // const holiday = await findHoliday(date, schoolId);
+  // if (holiday) {
+  //   return AttendanceSessionTypeEnum.holiday;
+  // }
 
   // --- 3️⃣ Nếu là buổi học bù (ExtraSession)
   const extra = await isExtraSession(date, schoolId);
@@ -39,7 +39,7 @@ export async function determineSessionType(
  * Kiểm tra xem ngày có trùng với holiday nào trong DB không
  * Bao gồm cả ngày lễ toàn quốc và riêng trường
  */
-async function findHoliday(date: Date, schoolId?: Types.ObjectId) {
+async function findHoliday(date: Date, schoolId?: string) {
   const targetDate = dayjs(date);
 
   // Tìm ngày nghỉ trùng khớp chính xác hoặc ngày lặp lại hằng năm
@@ -70,7 +70,7 @@ async function findHoliday(date: Date, schoolId?: Types.ObjectId) {
  * Kiểm tra xem có buổi học thêm / học bù không
  * (ở bước sau có thể kết nối với bảng ExtraSession)
  */
-async function isExtraSession(date: Date, schoolId?: Types.ObjectId) {
+async function isExtraSession(date: Date, schoolId?: string) {
   // TODO: sau này có thể tìm trong collection "ExtraSession"
   return false;
 }
