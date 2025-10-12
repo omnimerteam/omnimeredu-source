@@ -190,5 +190,22 @@ class PersonnelController {
       return next(error);
     }
   }
+
+  async getUserById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const id = req.params.id;
+
+    try {
+      const user = await this.personnelService.getUserById(id);
+
+      sendSuccess(res, user, "Lấy thông tin người dùng thành công");
+    } catch (error) {
+      console.error(chalk.red("[PERSONNEL] Error get user:", error));
+      return next(error);
+    }
+  }
 }
 export default PersonnelController;

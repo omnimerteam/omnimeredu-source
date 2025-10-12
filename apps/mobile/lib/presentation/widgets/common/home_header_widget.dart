@@ -242,6 +242,7 @@ class HomeHeaderWidget extends StatelessWidget {
       case 'account':
         break;
       case 'profile':
+        Navigator.pushNamed(context, '/profile');
         break;
       case 'logout':
         _showLogoutDialog(context);

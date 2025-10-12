@@ -66,6 +66,7 @@ class Endpoints {
   static String updateVerified(String id) =>
       "/v1/personnel/update-verified/$id";
   static String dismissPersonnel(String id) => "/v1/personnel/dismiss/$id";
+  static String personnelId(String id) => "/v1/personnel/$id";
 
   // ================== TEACHER ==================
   static const String teachers = "/v1/teachers";
@@ -91,6 +92,7 @@ class Endpoints {
   // ================== SCHOOL ADMIN ==================
   static String updatePositionSchoolAdmin(String id) =>
       "/v1/school-admins/update-position/$id";
+  static String schoolAdminId(String id) => "/v1/school-admin/$id";
 
   // ================== ATTENDANCE ==================
   static const String attendances = "/v1/attendances";
@@ -104,4 +106,10 @@ class Endpoints {
       "/v1/details-records/update-status/$id";
   static String getAttendanceRecordsById(String attendanceId) =>
       "/v1/details-records/attendance-records/$attendanceId";
+
+  // ================== DETAIL RECORD ==================
+  static String staffId(String id) => "/v1/details-records/update-status/$id";
+
+  // ================== UPLOAD ==================
+  static const String uploadAvatar = "/v1/upload/avatar-temp";
 }

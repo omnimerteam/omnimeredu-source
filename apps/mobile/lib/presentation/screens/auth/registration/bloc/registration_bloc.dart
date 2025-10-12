@@ -7,6 +7,7 @@ import 'package:flutter_ios_android_platforms/domain/entities/school/school_data
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_all_roles_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/register_user_usecase.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/upload_temp_avatar_usecase.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_storage_uploader.dart';
 
 import 'registration_event.dart';
@@ -16,11 +17,13 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   final GetAllRolesUseCase getAllRolesUseCase;
   final RegisterUserUseCase registerUserUseCase;
   final FirebaseStorageUploader uploader;
+  final UploadTempAvatarUseCase uploadTempAvatarUseCase;
 
   RegistrationBloc({
     required this.getAllRolesUseCase,
     required this.uploader,
     required this.registerUserUseCase,
+    required this.uploadTempAvatarUseCase,
   }) : super(const RegistrationState()) {
     on<LoadRolesEvent>(_onLoadRoles);
     on<UpdateBasicInfoEvent>(_onUpdateBasicInfo);
@@ -174,26 +177,32 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
       emit(state.copyWith(loading: true, error: null));
 
       String? avatarUrl;
+      String? avatarPath;
       String? logoUrl;
 
-      // Upload avatar nếu có
+      // ✅ Upload avatar tạm (qua backend)
       if (state.avatarFile != null) {
-        avatarUrl = await uploader.uploadUserAvatar(
-          state.avatarFile!,
-          uidOrRandom:
-              state.email ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        );
+        final res = await uploadTempAvatarUseCase.call(state.avatarFile!);
+        if (res.success && res.data != null) {
+          logger.i("Res: ${res.data}");
+          avatarUrl = res.data?['url'];
+          avatarPath = res.data?['filePath'];
+        } else {
+          throw Exception("Upload ảnh đại diện thất bại: ${res.message}");
+        }
       }
 
-      // Upload logo nếu có
+      // ✅ Upload logo trường tạm (nếu có)
       if (state.schoolLogoFile != null) {
-        logoUrl = await uploader.uploadSchoolLogo(
-          state.schoolLogoFile!,
-          schoolKey: state.schoolId ?? "default_school",
-        );
+        final res = await uploadTempAvatarUseCase.call(state.schoolLogoFile!);
+        if (res.success && res.data != null) {
+          logoUrl = res.data?['url'] ?? res.data?['path'];
+        } else {
+          throw Exception("Upload logo trường thất bại: ${res.message}");
+        }
       }
 
-      // Build entity từ state
+      // ✅ Build entity gửi backend đăng ký
       final user = RegisterUserEntity(
         email: state.email ?? "",
         password: state.password ?? "",
@@ -207,6 +216,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           birthday: state.birthday,
           address: state.address,
           avatarUrl: avatarUrl,
+          avatarPath: avatarPath,
         ),
         specificInfo: {
           // Student
@@ -226,7 +236,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
                 phone: state.schoolPhone,
                 description: state.schoolDescription,
                 level: state.schoolLevel ?? EducationSystemLevelsEnum.Preschool,
-                logoUrl: logoUrl, // nếu có upload thì để backend xử lý
+                logoUrl: logoUrl,
               )
             : null,
       );

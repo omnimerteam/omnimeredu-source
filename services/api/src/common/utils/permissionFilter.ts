@@ -64,4 +64,15 @@ export function buildPermissionFilterForMemberShipRequest(
   return { userId: actorId };
 }
 
+export function buildPermissionFilterForFeeAndPolicy(
+  userRole: string,
+  schoolId?: string
+) {
+  if (userRole === "SuperAdmin") {
+    return {};
+  } else {
+    return { schoolId };
+  }
+}
+
 // export function permissionToUpdateRoleId(userRole)

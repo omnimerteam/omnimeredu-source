@@ -8,6 +8,7 @@ class BaseUserForRegisterEntity extends Equatable {
   final DateTime? birthday;
   final String? address;
   final String? avatarUrl;
+  final String? avatarPath;
 
   const BaseUserForRegisterEntity({
     this.roleId,
@@ -17,6 +18,7 @@ class BaseUserForRegisterEntity extends Equatable {
     this.birthday,
     this.address,
     this.avatarUrl,
+    this.avatarPath,
   });
 
   @override
@@ -28,5 +30,6 @@ class BaseUserForRegisterEntity extends Equatable {
     birthday,
     address,
     avatarUrl,
+    avatarPath,
   ];
 }

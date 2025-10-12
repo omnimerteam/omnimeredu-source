@@ -78,4 +78,15 @@ router.patch(
     personnelController.dismissPersonnel(req, res, next)
 );
 
+router.get(
+  "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    personnelController.getUserById(req, res, next)
+);
+
 export default router;

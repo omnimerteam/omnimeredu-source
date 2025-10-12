@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import {
+  AttendanceAttendanceSessionTypeTuple,
+  AttendanceSessionTypeEnum,
   AttendanceStatusEnum,
   AttendanceStatusTuple,
 } from "../../../../common/enum/attendanceStatus.enum";
@@ -8,6 +10,7 @@ export interface IDetailsRecord extends Document {
   _id: Types.ObjectId;
   studentId: Types.ObjectId;
   attendanceId: Types.ObjectId;
+  sessionType: AttendanceSessionTypeEnum;
   status: AttendanceStatusEnum;
   note?: string;
 }
@@ -19,6 +22,12 @@ const DetailsRecordSchema = new Schema<IDetailsRecord>(
     attendanceId: {
       type: Schema.Types.ObjectId,
       ref: "Attendance",
+      required: true,
+    },
+    sessionType: {
+      type: String,
+      enum: AttendanceAttendanceSessionTypeTuple,
+      default: AttendanceSessionTypeEnum.regular,
       required: true,
     },
     status: {

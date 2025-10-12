@@ -130,6 +130,14 @@ class PersonnelService {
       throw error;
     }
   }
+
+  async getUserById(id: string) {
+    try {
+      return await this.personnelRepository.findById(id);
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 export default PersonnelService;

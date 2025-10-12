@@ -5,7 +5,6 @@ import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart'
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_state.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/common/app_snack_bar.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 
 class LoginForm extends StatefulWidget {
@@ -182,9 +181,9 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                           ),
                           TextButton(
                             onPressed: () {
-                              AppSnackBars.showComingSoon(
-                                context,
-                                "Đổi mật khẩu",
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/forget-password',
+                                (route) => false,
                               );
                             },
                             style: TextButton.styleFrom(

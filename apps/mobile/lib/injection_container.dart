@@ -4,14 +4,17 @@ import 'package:flutter_ios_android_platforms/data/datasources/remote/school/att
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/class/teaching_assignment_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/grade_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/membership_request_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/system/upload_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/personnel_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/school_admin_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/teacher_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/attendance/attendance_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/attendance/detail_record_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/class/teaching_assignment_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/grade_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/upload_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/personnel_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/school_admin_repository_impl.dart';
 import 'package:flutter_ios_android_platforms/data/repositories/user/student_repository_impl.dart';
@@ -20,13 +23,16 @@ import 'package:flutter_ios_android_platforms/domain/repositories/school/attenda
 import 'package:flutter_ios_android_platforms/domain/repositories/school/class/teaching_assignment_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/grade_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/school/membership_request_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/upload_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/personnel_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/school_admin_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/user/student_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_all_attendances_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/change_password_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_roles_personnel_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_user_profile_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/add_student_to_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/create_class_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/class/delete_class_usecase.dart';
@@ -66,8 +72,12 @@ import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignmen
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_classes_teacher_assign_by_teacher_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/get_teaching_assignment_by_teacher_class_and_school_usecase.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/teaching_assignment/update_teaching_assignment_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/upload_temp_avatar_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/change_password/cubit/change_password_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/forget_password/bloc/forget_password_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/cubit/user_profile_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_member_dialog/bloc/class_member_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
@@ -203,6 +213,12 @@ Future<void> init() async {
   sl.registerLazySingleton<DetailRecordRemoteDataSource>(
     () => DetailRecordRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<TeacherRemoteDataSource>(
+    () => TeacherRemoteDataSource(sl()),
+  );
+  sl.registerLazySingleton<UploadRemoteDataSource>(
+    () => UploadRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -236,6 +252,7 @@ Future<void> init() async {
   sl.registerLazySingleton<DetailRecordRepository>(
     () => DetailRecordRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton<UploadRepository>(() => UploadRepositoryImpl(sl()));
 
   // ======================
   // UseCases
@@ -248,6 +265,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetRolesPersonnelUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUserUseCase(sl()));
+  sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileByIdUseCase(sl()));
 
   // Class
   sl.registerLazySingleton(() => GetAllClassesInSchoolUseCase(sl()));
@@ -325,6 +344,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateStatusDetailRecordUseCase(sl()));
   sl.registerLazySingleton(() => GetAttendanceRecordByIdUseCase(sl()));
 
+  // Upload
+  sl.registerLazySingleton(() => UploadTempAvatarUseCase(sl()));
+
   // ======================
   // Blocs / Cubits
   // ======================
@@ -340,6 +362,7 @@ Future<void> init() async {
       registerUserUseCase: sl(),
       uploader: sl(),
       getAllRolesUseCase: sl(),
+      uploadTempAvatarUseCase: sl(),
     ),
   );
 
@@ -460,5 +483,17 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => AttendanceDetailBloc(getAttendanceRecordByIdUseCase: sl()),
+  );
+
+  sl.registerFactory(() => ForgetPasswordBloc(firebaseAuthService: sl()));
+
+  sl.registerFactory(() => ChangePasswordCubit(changePasswordUseCase: sl()));
+
+  sl.registerFactory(
+    () => UserProfileCubit(
+      getUserProfileByIdUseCase: sl(),
+      storageUploader: sl(),
+      authBloc: sl(),
+    ),
   );
 }
