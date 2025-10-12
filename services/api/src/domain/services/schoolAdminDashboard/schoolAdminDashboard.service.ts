@@ -1,4 +1,4 @@
-import { ClassAttendanceStats } from "../../../common/interfaces/ClassAttendanceStats.interface";
+import { ClassAttendanceStats } from "../../../common/interfaces/classAttendanceStats.interface";
 import { DefaultLogger } from "../../../common/utils/DefaultLogger";
 import {
   AttendanceStatsRepository,
