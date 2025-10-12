@@ -3,7 +3,7 @@ import { Model, Types } from "mongoose";
 import { IDetailsRecord } from "../../models";
 import DateUtils from "../../../common/utils/DateUtils";
 import { AttendanceStatusEnum } from "../../../common/enum/attendanceStatus.enum";
-import { ClassAttendanceStats } from "../../../common/interfaces/ClassAttendanceStats.interface";
+import { ClassAttendanceStats } from "../../../common/interfaces/classAttendanceStats.interface";
 
 class AttendanceStatsRepository {
   private readonly detailsRecordModel: Model<IDetailsRecord>;
