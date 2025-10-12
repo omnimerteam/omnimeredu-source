@@ -19,6 +19,27 @@ class RoleGuard {
       'nurse',
       'security',
     ],
+
+    '/profile': [
+      'super_admin',
+      'school_admin',
+      'teacher',
+      'student',
+      'canteen_staff',
+      'nurse',
+      'security',
+    ],
+
+    '/profile/change-password': [
+      'super_admin',
+      'school_admin',
+      'teacher',
+      'student',
+      'canteen_staff',
+      'nurse',
+      'security',
+    ],
+
     '/school-admin/school': ['school_admin'],
     '/school-admin/attendance': ['school_admin'],
     '/school-admin/attendance/detail-record': ['school_admin'],

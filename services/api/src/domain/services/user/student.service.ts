@@ -175,35 +175,57 @@ class StudentService {
     userRole: string
   ) {
     try {
-      const oldClassId = (await this.studentRepository.findById(id))?.classId;
-      const updatedStudent = await this.studentRepository.update(
-        id,
-        studentData
-      );
-
-      if (!updatedStudent) {
+      // Lấy thông tin hiện tại của học sinh
+      const existingStudent = await this.studentRepository.findById(id);
+      if (!existingStudent) {
         throw new Error(`Student with ID ${id} not found`);
       }
 
-      await this.classRepository.addStudentsToClass(
-        studentData.classId!.toString(),
-        [updatedStudent._id.toString()]
-      );
+      const oldClassId = existingStudent.classId?.toString();
+      const newClassId = studentData.classId?.toString();
 
-      await this.classRepository.removeStudentsFromClass(
-        oldClassId!.toString(),
-        [updatedStudent._id.toString()]
-      );
+      // Cập nhật thông tin học sinh (bỏ qua classId nếu undefined)
+      const { classId, ...otherData } = studentData;
+      const updatedStudent = await this.studentRepository.update(id, {
+        ...otherData,
+        ...(newClassId ? { classId: newClassId } : {}),
+      });
 
+      // Nếu không có bản ghi nào được cập nhật → throw lỗi
+      if (!updatedStudent) {
+        throw new HttpError(400, " Cập nhật dữ liệu thấ bại");
+      }
+
+      // Nếu có classId mới thì mới xử lý cập nhật lớp
+      if (newClassId && newClassId !== oldClassId) {
+        // Thêm học sinh vào lớp mới
+        await this.classRepository.addStudentsToClass(newClassId, [
+          updatedStudent._id.toString(),
+        ]);
+
+        // Gỡ học sinh khỏi lớp cũ nếu có
+        if (oldClassId) {
+          await this.classRepository.removeStudentsFromClass(oldClassId, [
+            updatedStudent._id.toString(),
+          ]);
+        }
+      }
+
+      // Log hành động thành công
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_STUDENT",
         targetId: id,
         roleSnapshot: userRole,
-        metadata: { found: !!updatedStudent },
+        metadata: {
+          found: !!updatedStudent,
+          classChanged: !!(newClassId && newClassId !== oldClassId),
+        },
       });
+
       return updatedStudent;
     } catch (error) {
+      // Log thất bại
       await this.logger.log({
         userId: actorId,
         action: "UPDATE_STUDENT_FAILED",

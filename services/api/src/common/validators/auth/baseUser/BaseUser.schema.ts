@@ -32,7 +32,7 @@ export const BaseUserSchema = z.object({
 
   gender: z
     .enum(GenderEnum, {
-      message: "Giới tính phải phải là nam, nữ hoặc giới tính khác",
+      message: "Giới tính phải là nam, nữ hoặc giới tính khác",
     })
     .optional()
     .nullable(),
@@ -64,6 +64,19 @@ export const BaseUserSchema = z.object({
     .refine((val) => Types.ObjectId.isValid(val), {
       message: "Định dạng ObjectId không hợp lệ cho schoolId",
     })
+    .optional()
+    .nullable(),
+
+  // ✅ Thêm avatarPath & avatarUrl
+  avatarPath: z
+    .string()
+    .max(255, { message: "Đường dẫn ảnh không vượt quá 255 ký tự" })
+    .optional()
+    .nullable(),
+
+  avatarUrl: z
+    .string()
+    .url({ message: "URL ảnh đại diện không hợp lệ" })
     .optional()
     .nullable(),
 });

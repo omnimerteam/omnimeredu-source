@@ -1,4 +1,5 @@
 import 'package:flutter_ios_android_platforms/core/error/failures.dart';
+import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/auth/auth_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/auth/auth_user_model.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_ios_android_platforms/data/models/auth/registration_user
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/login_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/register_user_entity.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/user/base_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/repositories/auth/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -87,6 +89,35 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       logger.e("getCurrentUser error: $e");
       return null;
+    }
+  }
+
+  @override
+  Future<ApiResponse<void>> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    try {
+      final res = await remote.changePassword(oldPassword, newPassword);
+
+      return res;
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<ApiResponse<BaseUserEntity>> getUserProfileById(String userId) async {
+    try {
+      final res = await remote.getUserById(userId);
+
+      return ApiResponse(
+        success: res.success,
+        message: res.message,
+        data: res.data?.toEntity(),
+      );
+    } catch (e) {
+      throw ServerFailure(e.toString());
     }
   }
 }

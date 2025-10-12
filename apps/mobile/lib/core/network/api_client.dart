@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
 import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
@@ -37,6 +39,39 @@ class ApiClient {
         },
       ),
     );
+  }
+
+  // Trong class ApiClient
+
+  Future<ApiResponse<T>> uploadFile<T>(
+    String path, {
+    required File file,
+    String fieldName = 'file',
+    Map<String, dynamic>? fields,
+    Map<String, dynamic>? headers,
+    T Function(dynamic)? parser,
+  }) async {
+    try {
+      final formData = FormData.fromMap({
+        if (fields != null) ...fields,
+        fieldName: await MultipartFile.fromFile(
+          file.path,
+          filename: file.uri.pathSegments.last,
+        ),
+      });
+
+      final response = await dio.post(
+        path,
+        data: formData,
+        options: Options(
+          headers: {...?headers, 'Content-Type': 'multipart/form-data'},
+        ),
+      );
+
+      return _handleResponse<T>(response, fromJsonT: parser);
+    } on DioException catch (e) {
+      return _handleError<T>(e);
+    }
   }
 
   /// GET with optional parser that maps the server `data` → T

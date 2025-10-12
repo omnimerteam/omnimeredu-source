@@ -35,7 +35,6 @@ import { objectIdParamSchema } from "../../validators/common/params/params.valid
 import {
   createPaginationSchemaWithSortAndFilter,
   getClassAttendanceRecordView,
-  getSchoolAttendanceStatsSchema,
 } from "../../validators/common/query/query.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());

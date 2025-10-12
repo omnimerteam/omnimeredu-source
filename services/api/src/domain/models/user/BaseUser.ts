@@ -12,6 +12,7 @@ export interface IBaseUser extends Document {
   address?: string;
   isVerified?: boolean;
   schoolId?: Types.ObjectId | null;
+  avatarPath?: string;
   avatarUrl?: string;
   roleKey?: RoleGroup;
 }
@@ -44,6 +45,10 @@ const BaseUserSchema = new Schema<IBaseUser>(
       index: true,
     },
     avatarUrl: {
+      type: String,
+      default: null,
+    },
+    avatarPath: {
       type: String,
       default: null,
     },

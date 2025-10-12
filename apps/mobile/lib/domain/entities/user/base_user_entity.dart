@@ -50,4 +50,21 @@ abstract class BaseUserEntity extends Equatable {
     createdAt,
     updatedAt,
   ];
+
+  BaseUserEntity copyWith({
+    String? id,
+    String? fullName,
+    String? roleId,
+    String? email,
+    String? gender,
+    DateTime? birthday,
+    String? phone,
+    String? address,
+    bool? isVerified,
+    String? schoolId,
+    String? avatarUrl,
+    String? roleKey,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  });
 }

@@ -17,6 +17,7 @@ import schoolAdminDashboardRoute from "./schoolAdminDashboard.route";
 import membershipRequestRoute from "./membershipRequest.route";
 import gradeRoute from "./grade.route";
 import personnelRoute from "./personnel.route";
+import uploadRoute from "./upload.route";
 
 import { Express } from "express";
 
@@ -40,5 +41,6 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/membership-request", membershipRequestRoute); //Membership Request: /api/v1/membership-request
   app.use("/api/v1/grades", gradeRoute); //Grade: /api/v1/membership-request
   app.use("/api/v1/personnel", personnelRoute); //personnel: /api/v1/personnel
+  app.use("/api/v1/upload", uploadRoute); //personnel: /api/v1/personnel
 }
 export default setupRoutes;

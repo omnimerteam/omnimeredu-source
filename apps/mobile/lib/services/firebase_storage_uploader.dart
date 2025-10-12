@@ -1,36 +1,40 @@
 import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
+/// Helper class để thao tác với Firebase Storage.
+/// Mục tiêu:
+/// - Tạo URL từ path lưu trong DB
+/// - Không upload trực tiếp từ client (upload qua backend)
 class FirebaseStorageUploader {
-  final FirebaseStorage _defaultBucket;
-  // Nếu dùng nhiều bucket, có thể tạo thêm instance khác:
-  // final FirebaseStorage _avatarBucket = FirebaseStorage.instanceFor(bucket: 'gs://avatar-bucket');
-  // final FirebaseStorage _schoolBucket = FirebaseStorage.instanceFor(bucket: 'gs://school-bucket');
+  final FirebaseStorage _storage;
 
   FirebaseStorageUploader({FirebaseStorage? storage})
-    : _defaultBucket = storage ?? FirebaseStorage.instance;
+    : _storage = storage ?? FirebaseStorage.instance;
 
-  Future<String> uploadUserAvatar(
-    File file, {
-    required String uidOrRandom,
-  }) async {
-    final ref = _defaultBucket.ref().child('avatar_user/$uidOrRandom');
-    final task = await ref.putFile(
-      file,
-      SettableMetadata(cacheControl: 'public,max-age=86400'),
-    );
-    return task.ref.getDownloadURL();
+  /// Lấy URL công khai từ 1 đường dẫn file trong Firebase Storage
+  /// [path] ví dụ: `avatar_user/abc123.jpg`
+  Future<String?> getDownloadUrlFromPath(String? path) async {
+    if (path == null || path.isEmpty) return null;
+    try {
+      final ref = _storage.ref().child(path);
+      return await ref.getDownloadURL();
+    } catch (e) {
+      return null;
+    }
   }
 
-  Future<String> uploadSchoolLogo(
-    File file, {
-    required String schoolKey,
-  }) async {
-    final ref = _defaultBucket.ref().child('logo_school/$schoolKey');
-    final task = await ref.putFile(
-      file,
-      SettableMetadata(cacheControl: 'public,max-age=86400'),
-    );
-    return task.ref.getDownloadURL();
+  Future<String?> updateAvatar(File imageFile) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    try {
+      final ref = FirebaseStorage.instance.ref('avatar_user/${user.uid}');
+      await ref.putFile(imageFile);
+      return await ref.getDownloadURL(); // Lấy URL mới
+    } catch (e) {
+      return null;
+    }
   }
 }

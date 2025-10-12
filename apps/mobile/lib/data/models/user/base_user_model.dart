@@ -1,22 +1,37 @@
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/base_user_entity.dart';
 
-abstract class BaseUserModel extends BaseUserEntity {
+abstract class BaseUserModel {
+  final String? id;
+  final String fullName;
+  final String? roleId;
+  final String? email;
+  final String? gender;
+  final DateTime? birthday;
+  final String? phone;
+  final String? address;
+  final bool isVerified;
+  final String? schoolId;
+  final String? avatarUrl;
+  final String roleKey;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
   const BaseUserModel({
-    super.id,
-    required super.fullName,
-    super.roleId,
-    super.email,
-    super.gender,
-    super.birthday,
-    super.phone,
-    super.address,
-    super.isVerified = false,
-    super.schoolId,
-    super.avatarUrl,
-    super.createdAt,
-    super.updatedAt,
-    required super.roleKey,
+    this.id,
+    required this.fullName,
+    this.roleId,
+    this.email,
+    this.gender,
+    this.birthday,
+    this.phone,
+    this.address,
+    this.isVerified = false,
+    this.schoolId,
+    this.avatarUrl,
+    this.createdAt,
+    this.updatedAt,
+    required this.roleKey,
   });
 
   /// Parse từ JSON chung cho mọi user
@@ -25,9 +40,9 @@ abstract class BaseUserModel extends BaseUserEntity {
     required String roleKey,
   }) {
     return _BaseUserModelImpl(
-      id: json['_id'] as String,
+      id: json['_id'] as String?,
       fullName: json['fullName'] as String,
-      roleId: json['roleId'] as String,
+      roleId: json['roleId'] as String?,
       email: json['email'] as String?,
       gender: json['gender'] as String?,
       birthday: json['birthday'] != null
@@ -68,10 +83,12 @@ abstract class BaseUserModel extends BaseUserEntity {
       'schoolId': schoolId,
       'avatarUrl': avatarUrl,
       'roleKey': roleKey,
+      'createdAt': createdAt?.toUtc().toIso8601String(),
+      'updatedAt': updatedAt?.toUtc().toIso8601String(),
     };
   }
 
-  /// Mỗi model con (StudentModel, TeacherModel, …) sẽ override để trả về entity tương ứng
+  /// Mỗi model con override để trả về entity tương ứng
   BaseUserEntity toEntity();
 }
 
@@ -80,7 +97,7 @@ class _BaseUserModelImpl extends BaseUserModel {
   const _BaseUserModelImpl({
     required super.id,
     required super.fullName,
-    required super.roleId,
+    super.roleId,
     super.email,
     super.gender,
     super.birthday,
@@ -95,5 +112,9 @@ class _BaseUserModelImpl extends BaseUserModel {
   });
 
   @override
-  BaseUserEntity toEntity() => this; // hoặc throw UnimplementedError nếu muốn buộc subclass override
+  BaseUserEntity toEntity() {
+    throw UnimplementedError(
+      'Subclasses of BaseUserModel must override toEntity()',
+    );
+  }
 }

@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/attendance_detail_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/change_password/change_password_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/change_password/cubit/change_password_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/forget_password/bloc/forget_password_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/forget_password/forget_password_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/bloc/login_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/login/login_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/cubit/user_profile_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/user_profile_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/registration/bloc/registration_bloc.dart';
@@ -54,6 +59,23 @@ class RouteConfig {
     switch (routeName) {
       case '/main':
         return const MainScreen();
+
+      case '/profile':
+        return BlocProvider(
+          create: (context) {
+            return sl<UserProfileCubit>();
+          },
+          child: Builder(
+            builder: (context) {
+              final authState = context.read<AuthenticationBloc>().state;
+              String userId = '';
+              if (authState is AuthenticationAuthenticated) {
+                userId = authState.user.id;
+              }
+              return UserProfileScreen(userId: userId);
+            },
+          ),
+        );
 
       case '/school-admin/school':
         return BlocProvider(
@@ -143,7 +165,6 @@ class RouteConfig {
 
       case '/school-admin/attendance/detail-record':
         final attendanceId = arguments?['attendanceId'] as String;
-        logger.i("AttendaceId: ${attendanceId}");
 
         return MultiBlocProvider(
           providers: [
@@ -155,6 +176,12 @@ class RouteConfig {
             //BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
           ],
           child: AttendanceDetailPage(attendanceId: attendanceId),
+        );
+
+      case '/profile/change-password':
+        return BlocProvider(
+          create: (_) => sl<ChangePasswordCubit>(),
+          child: const ChangePasswordScreen(),
         );
 
       default:
@@ -171,6 +198,11 @@ class RouteConfig {
           BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
         ],
         child: const RegistrationScreen(),
+      );
+    } else if (routeName == '/forget-password') {
+      return BlocProvider(
+        create: (_) => sl<ForgetPasswordBloc>(),
+        child: const ForgetPasswordScreen(),
       );
     } else {
       return BlocProvider(

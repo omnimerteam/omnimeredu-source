@@ -19,62 +19,8 @@ export interface IStudent extends IBaseUser {
   guardianName?: string;
   guardianPhone?: string;
 
-  registeredExtraFees?: {
-    extraFeeId: Types.ObjectId;
-    amount: number;
-    quantity?: number;
-  }[];
-
-  registeredDiscounts?: {
-    discountId: Types.ObjectId;
-    params?: Record<string, any>;
-  }[];
-
   meta?: Record<string, any>; // thông tin tự do (siblings, mealPlan, pickupService,...)
 }
-
-/**
- * Subschema cho registeredExtraFees
- */
-const RegisteredExtraFeeSchema = new Schema(
-  {
-    extraFeeId: {
-      type: Schema.Types.ObjectId,
-      ref: "ExtraFee",
-      required: true,
-    },
-    amount: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    quantity: {
-      type: Number,
-      default: 1,
-      min: 0,
-    },
-  },
-  { _id: false }
-);
-
-/**
- * Subschema cho registeredDiscounts
- */
-const RegisteredDiscountSchema = new Schema(
-  {
-    discountId: {
-      type: Schema.Types.ObjectId,
-      ref: "DiscountPolicy",
-      required: true,
-    },
-    params: {
-      type: Schema.Types.Mixed, // có thể lưu các biến tuỳ chỉnh như { siblings: 2, validUntil: '2025-12-31' }
-      default: {},
-    },
-  },
-  { _id: false }
-);
-
 /**
  * Schema cho Student (kế thừa từ BaseUser)
  */
@@ -101,16 +47,6 @@ const StudentSchema = new Schema<IStudent>(
       enum: EducationGradesTuple,
       required: true,
       index: true,
-    },
-
-    registeredExtraFees: {
-      type: [RegisteredExtraFeeSchema],
-      default: [],
-    },
-
-    registeredDiscounts: {
-      type: [RegisteredDiscountSchema],
-      default: [],
     },
 
     meta: {

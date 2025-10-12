@@ -1,53 +1,100 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import { ConditionSchema, ICondition } from "./Condition";
-export type FeeCalcType = "fixed" | "per_session" | "per_month" | "formula";
-// per_session: multiply by #sessions student attended that match (e.g., Sat classes)
-// formula: json-logic or custom expression evaluated with context
+import {
+  FeeCalcTypeEnum,
+  FeeCalcTypeTuple,
+  ExtraFeeApplicabilityScopeEnum,
+  ExtraFeeApplicabilityScopeTuple,
+  ExtraFeeOncePerEnum,
+  ExtraFeeOncePerTuple,
+  ExtraFeeFormulaTypeEnum,
+  ExtraFeeFormulaTypeTuple,
+} from "../../../../common/enum/tuition.enum";
 
+/**
+ * Interface đại diện cho mô hình phụ phí (Extra Fee)
+ */
 export interface IExtraFee extends Document {
   code?: string;
   name: string;
-  calcType: FeeCalcType;
-  unitAmount: number; // per unit or fixed
-  unitName?: string; // "session", "set", ...
-  conditions?: ICondition[]; // when to apply
+  description?: string;
+  calcType: FeeCalcTypeEnum;
+
+  unitAmount: number;
+  unitName?: string;
+  conditions?: ICondition[];
   schoolId: Types.ObjectId;
-  oncePer?: "month" | "term" | "year" | null; // for uniform/insurance
+
+  applicableScope?: ExtraFeeApplicabilityScopeEnum;
+  applicableClassIds?: Types.ObjectId[];
+  applicableGradeIds?: Types.ObjectId[];
+  applicableStudentIds?: Types.ObjectId[];
+
+  oncePer?: ExtraFeeOncePerEnum;
   priority?: number;
   active?: boolean;
   effectiveFrom?: Date;
   effectiveTo?: Date | null;
   formula?: any;
+  formulaType?: ExtraFeeFormulaTypeEnum;
+
+  isTaxable?: boolean;
+  taxRate?: number;
 }
 
+/**
+ * Schema định nghĩa cho ExtraFee
+ */
 const ExtraFeeSchema = new Schema<IExtraFee>(
   {
-    code: { type: String, index: true },
+    code: { type: String, index: true, unique: true, sparse: true },
     name: { type: String, required: true },
+    description: String,
+
     calcType: {
       type: String,
-      enum: ["fixed", "per_session", "per_month", "formula"],
+      enum: FeeCalcTypeTuple,
       required: true,
     },
     unitAmount: { type: Number, default: 0, min: 0 },
     unitName: String,
     conditions: [ConditionSchema],
+
     schoolId: {
       type: Schema.Types.ObjectId,
       ref: "School",
       required: true,
       index: true,
     },
+
+    applicableScope: {
+      type: String,
+      enum: ExtraFeeApplicabilityScopeTuple,
+      default: ExtraFeeApplicabilityScopeEnum.All,
+    },
+    applicableClassIds: [{ type: Schema.Types.ObjectId, ref: "Class" }],
+    applicableGradeIds: [{ type: Schema.Types.ObjectId, ref: "Grade" }],
+    applicableStudentIds: [{ type: Schema.Types.ObjectId, ref: "BaseUser" }],
+
     oncePer: {
       type: String,
-      enum: ["month", "term", "year", null],
-      default: null,
+      enum: ExtraFeeOncePerTuple,
+      default: ExtraFeeOncePerEnum.None,
     },
     priority: { type: Number, default: 0 },
     active: { type: Boolean, default: true },
     effectiveFrom: { type: Date, default: Date.now },
     effectiveTo: { type: Date, default: null },
+
     formula: { type: Schema.Types.Mixed },
+    formulaType: {
+      type: String,
+      enum: ExtraFeeFormulaTypeTuple,
+      default: ExtraFeeFormulaTypeEnum.JsonLogic,
+    },
+
+    isTaxable: { type: Boolean, default: false },
+    taxRate: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
