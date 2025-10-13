@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_state.dart';
 
 class GradeSelectDropdown extends StatelessWidget {
   final String? selectedGradeId;

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/class/bloc/class_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text/section_title.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';

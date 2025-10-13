@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_event.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/auth/get_user_profile_by_id_usecase.dart';
 import 'package:flutter_ios_android_platforms/services/firebase_storage_uploader.dart';
@@ -62,8 +63,7 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     emit(UserProfileAvatarUpdated(updatedUser));
     final authState = authBloc.state;
     if (authState is AuthenticationAuthenticated) {
-      final updatedAuthUser = authState.user.copyWith(avatarUrl: downloadUrl);
-      authBloc.emit(AuthenticationAuthenticated(updatedAuthUser));
+      authBloc.add(UpdateUserAvatarEvent(downloadUrl));
     }
   }
 

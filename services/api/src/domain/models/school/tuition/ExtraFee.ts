@@ -7,8 +7,6 @@ import {
   ExtraFeeApplicabilityScopeTuple,
   ExtraFeeOncePerEnum,
   ExtraFeeOncePerTuple,
-  ExtraFeeFormulaTypeEnum,
-  ExtraFeeFormulaTypeTuple,
 } from "../../../../common/enum/tuition.enum";
 
 /**
@@ -37,8 +35,6 @@ export interface IExtraFee extends Document {
   active?: boolean;
   effectiveFrom?: Date;
   effectiveTo?: Date | null;
-  formula?: any;
-  formulaType?: ExtraFeeFormulaTypeEnum;
 
   isTaxable?: boolean;
   taxRate?: number;
@@ -61,7 +57,7 @@ const ExtraFeeSchema = new Schema<IExtraFee>(
       required: true,
     },
     unitAmount: { type: Number, default: 0, min: 0 },
-    unitName: String,
+
     conditions: [ConditionSchema],
 
     schoolId: {
@@ -89,13 +85,6 @@ const ExtraFeeSchema = new Schema<IExtraFee>(
     active: { type: Boolean, default: true },
     effectiveFrom: { type: Date, default: Date.now },
     effectiveTo: { type: Date, default: null },
-
-    formula: { type: Schema.Types.Mixed },
-    formulaType: {
-      type: String,
-      enum: ExtraFeeFormulaTypeTuple,
-      default: ExtraFeeFormulaTypeEnum.JsonLogic,
-    },
 
     isTaxable: { type: Boolean, default: false },
     taxRate: { type: Number, default: 0 },

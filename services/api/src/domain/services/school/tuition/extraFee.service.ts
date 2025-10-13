@@ -39,6 +39,8 @@ class ExtraFeeService {
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
+
+      throw error;
     }
   }
 
@@ -61,6 +63,8 @@ class ExtraFeeService {
         targetId: id,
         metadata: { error: (error as Error).message },
       });
+
+      throw error;
     }
   }
 
@@ -85,6 +89,8 @@ class ExtraFeeService {
         roleSnapshot: userRole,
         metadata: { error: (error as Error).message },
       });
+
+      throw error;
     }
   }
 
@@ -115,6 +121,8 @@ class ExtraFeeService {
         targetId: extraFeeId,
         metadata: { error: (error as Error).message },
       });
+
+      throw error;
     }
   }
 
@@ -137,6 +145,8 @@ class ExtraFeeService {
         targetId: extraFeeId,
         metadata: { error: (error as Error).message },
       });
+
+      throw error;
     }
   }
 }

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { ConditionSchema } from "./Condition";
+import { ConditionSchema, ICondition } from "./Condition";
 import {
   DiscountKindEnum,
   DiscountKindTuple,
@@ -33,7 +33,7 @@ export interface IDiscountPolicy extends Document {
   exclusiveGroup?: string;
   oncePer?: DiscountOncePerEnum;
 
-  conditions?: any[];
+  conditions?: ICondition[];
 
   applicabilityScope?: DiscountApplicabilityScopeEnum;
   applicableClassIds?: Types.ObjectId[];

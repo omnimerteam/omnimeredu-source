@@ -4,7 +4,6 @@ import {
   FeeCalcTypeTuple,
   ExtraFeeApplicabilityScopeTuple,
   ExtraFeeOncePerTuple,
-  ExtraFeeFormulaTypeTuple,
 } from "../../../../common/enum/tuition.enum";
 import { ConditionZodSchema } from "../condition/ConditionZodSchema";
 
@@ -30,7 +29,6 @@ export const ExtraFeeZodSchema = z.object({
   }),
 
   unitAmount: z.number().nonnegative("Giá trị phải >= 0"),
-  unitName: z.string().optional(),
 
   conditions: z.array(ConditionZodSchema).optional(),
 
@@ -75,11 +73,6 @@ export const ExtraFeeZodSchema = z.object({
 
   effectiveFrom: z.coerce.date().optional(),
   effectiveTo: z.coerce.date().nullable().optional(),
-
-  formula: z.any().optional(),
-  formulaType: z
-    .enum(ExtraFeeFormulaTypeTuple as [string, ...string[]])
-    .default("JsonLogic"),
 
   isTaxable: z.boolean().default(false),
   taxRate: z.number().min(0).optional(),

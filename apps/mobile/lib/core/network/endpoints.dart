@@ -112,4 +112,18 @@ class Endpoints {
 
   // ================== UPLOAD ==================
   static const String uploadAvatar = "/v1/upload/avatar-temp";
+
+  // ================== EXTRA_FEE ==================
+  static const String extraFeeList = "/v1/extra-fees";
+  static const String createExtraFee = "/v1/extra-fees";
+  static String extraFeeById(String id) => "/v1/extra-fees/$id";
+  static String updateExtraFee(String id) => "/v1/extra-fees/$id";
+  static String deleteExtraFee(String id) => "/v1/extra-fees/$id";
+
+  // ================== EXTRA_FEE ==================
+  static const String discountPolicyList = "/v1/discount-policies";
+  static const String createDiscountPolicy = "/v1/discount-policies";
+  static String discountPolicyById(String id) => "/v1/discount-policies/$id";
+  static String updateDiscountPolicy(String id) => "/v1/discount-policies/$id";
+  static String deleteDiscountPolicy(String id) => "/v1/discount-policies/$id";
 }

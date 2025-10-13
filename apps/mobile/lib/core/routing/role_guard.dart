@@ -43,6 +43,8 @@ class RoleGuard {
     '/school-admin/school': ['school_admin'],
     '/school-admin/attendance': ['school_admin'],
     '/school-admin/attendance/detail-record': ['school_admin'],
+    '/school-admin/tuition': ['school_admin'],
+    '/school-admin/tuition/extra-fee': ['school_admin'],
 
     '/school-admin/classes': ['school_admin', 'teacher'],
     '/school-admin/classes/detail': ['school_admin', 'teacher'],

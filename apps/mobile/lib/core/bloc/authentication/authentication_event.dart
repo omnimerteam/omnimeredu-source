@@ -30,3 +30,8 @@ class AuthenticationSchoolUpdated extends AuthenticationEvent {
   @override
   List<Object?> get props => [schoolName];
 }
+
+class UpdateUserAvatarEvent extends AuthenticationEvent {
+  final String avatarUrl;
+  UpdateUserAvatarEvent(this.avatarUrl);
+}

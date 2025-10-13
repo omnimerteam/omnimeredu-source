@@ -109,7 +109,7 @@ class DashboardQuickAccess extends StatelessWidget {
             color: Colors.red,
             badge: '12',
             onTap: () =>
-                _navigateToFeature(context, 'Học phí', DateTime(2026, 2, 1)),
+                Navigator.of(context).pushNamed('/school-admin/tuition'),
           ),
           QuickAccessButton(
             title: 'Bài viết',

@@ -18,6 +18,7 @@ class AuthenticationBloc
     on<AuthenticationLoggedIn>(_onLoggedIn);
     on<AuthenticationLoggedOut>(_onLoggedOut);
     on<AuthenticationSchoolUpdated>(_onSchoolUpdated);
+    on<UpdateUserAvatarEvent>(_onAvatarUpdate);
   }
 
   Future<void> _onStarted(
@@ -72,6 +73,20 @@ class AuthenticationBloc
       );
 
       emit(AuthenticationAuthenticated(updatedUser));
+    }
+  }
+
+  void _onAvatarUpdate(
+    UpdateUserAvatarEvent event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    if (state is AuthenticationAuthenticated) {
+      final currentUser = (state as AuthenticationAuthenticated).user;
+      emit(
+        AuthenticationAuthenticated(
+          currentUser.copyWith(avatarUrl: event.avatarUrl),
+        ),
+      );
     }
   }
 }
