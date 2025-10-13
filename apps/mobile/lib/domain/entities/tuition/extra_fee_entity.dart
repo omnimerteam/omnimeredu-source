@@ -7,6 +7,7 @@ class ExtraFeeEntity {
   final String? code;
   final String name;
   final String? description;
+
   final FeeCalcTypeEnum calcType;
   final double unitAmount;
   final String? unitName;
@@ -23,9 +24,6 @@ class ExtraFeeEntity {
   final bool? active;
   final DateTime? effectiveFrom;
   final DateTime? effectiveTo;
-
-  final dynamic formula;
-  final ExtraFeeFormulaTypeEnum? formulaType;
 
   final bool? isTaxable;
   final double? taxRate;
@@ -52,8 +50,6 @@ class ExtraFeeEntity {
     this.active,
     this.effectiveFrom,
     this.effectiveTo,
-    this.formula,
-    this.formulaType,
     this.isTaxable,
     this.taxRate,
     this.createdAt,

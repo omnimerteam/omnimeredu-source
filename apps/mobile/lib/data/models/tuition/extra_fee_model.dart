@@ -26,9 +26,6 @@ class ExtraFeeModel {
   final DateTime? effectiveFrom;
   final DateTime? effectiveTo;
 
-  final dynamic formula;
-  final ExtraFeeFormulaTypeEnum? formulaType;
-
   final bool? isTaxable;
   final double? taxRate;
 
@@ -54,8 +51,7 @@ class ExtraFeeModel {
     this.active,
     this.effectiveFrom,
     this.effectiveTo,
-    this.formula,
-    this.formulaType,
+
     this.isTaxable,
     this.taxRate,
     this.createdAt,
@@ -91,8 +87,6 @@ class ExtraFeeModel {
       effectiveTo: (json['effectiveTo'] as String?) != null
           ? AppConstants.toVietnamTime(DateTime.parse(json['effectiveTo']))
           : null,
-      formula: json['formula'],
-      formulaType: ExtraFeeFormulaTypeEnum.fromString(json['formulaType']),
       isTaxable: json['isTaxable'] as bool?,
       taxRate: (json['taxRate'] ?? 0).toDouble(),
       createdAt: (json['createdAt'] as String?) != null
@@ -124,8 +118,6 @@ class ExtraFeeModel {
       'active': active,
       'effectiveFrom': effectiveFrom?.toUtc().toIso8601String(),
       'effectiveTo': effectiveTo?.toUtc().toIso8601String(),
-      'formula': formula,
-      'formulaType': formulaType?.name,
       'isTaxable': isTaxable,
       'taxRate': taxRate,
     };
@@ -153,8 +145,6 @@ class ExtraFeeModel {
       active: entity.active,
       effectiveFrom: entity.effectiveFrom,
       effectiveTo: entity.effectiveTo,
-      formula: entity.formula,
-      formulaType: entity.formulaType,
       isTaxable: entity.isTaxable,
       taxRate: entity.taxRate,
       createdAt: entity.createdAt,
@@ -182,8 +172,6 @@ class ExtraFeeModel {
       active: active,
       effectiveFrom: effectiveFrom,
       effectiveTo: effectiveTo,
-      formula: formula,
-      formulaType: formulaType,
       isTaxable: isTaxable,
       taxRate: taxRate,
       createdAt: createdAt,

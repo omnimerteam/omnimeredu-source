@@ -38,8 +38,7 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
 
   FeeCalcTypeEnum? _selectedCalcType;
   ExtraFeeApplicabilityScopeEnum? _selectedScope;
-  ExtraFeeOncePerEnum _selectedOncePer = ExtraFeeOncePerEnum.none;
-  ExtraFeeFormulaTypeEnum? _selectedFormulaType;
+  ExtraFeeOncePerEnum? _selectedOncePer;
 
   List<String> _selectedClassIds = [];
   List<String> _selectedGradeIds = [];
@@ -57,7 +56,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
   final _unitNameFocusNode = FocusNode();
   final _priorityFocusNode = FocusNode();
   final _taxRateFocusNode = FocusNode();
-  final _formulaFocusNode = FocusNode();
   final _calcTypeFocusNode = FocusNode();
   final _scopeFocusNode = FocusNode();
 
@@ -75,7 +73,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
     _unitNameController = TextEditingController();
     _priorityController = TextEditingController(text: '0');
     _taxRateController = TextEditingController(text: '0');
-    _formulaController = TextEditingController();
   }
 
   void _loadExistingData() {
@@ -87,12 +84,10 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
       _unitNameController.text = fee.unitName ?? '';
       _priorityController.text = (fee.priority ?? 0).toString();
       _taxRateController.text = (fee.taxRate ?? 0).toString();
-      _formulaController.text = fee.formula?.toString() ?? '';
 
       _selectedCalcType = fee.calcType;
       _selectedScope = fee.applicableScope;
-      _selectedOncePer = fee.oncePer;
-      _selectedFormulaType = fee.formulaType;
+      _selectedOncePer = fee.oncePer ?? ExtraFeeOncePerEnum.none;
 
       _selectedGradeIds = fee.applicableGradeIds ?? [];
       _selectedStudentIds = fee.applicableStudentIds ?? [];
@@ -116,7 +111,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
     _unitNameController.dispose();
     _priorityController.dispose();
     _taxRateController.dispose();
-    _formulaController.dispose();
 
     _nameFocusNode.dispose();
     _descriptionFocusNode.dispose();
@@ -124,7 +118,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
     _unitNameFocusNode.dispose();
     _priorityFocusNode.dispose();
     _taxRateFocusNode.dispose();
-    _formulaFocusNode.dispose();
     _calcTypeFocusNode.dispose();
     _scopeFocusNode.dispose();
     super.dispose();
@@ -189,10 +182,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
         active: _isActive,
         effectiveFrom: _effectiveFrom,
         effectiveTo: _effectiveTo,
-        formula: _selectedCalcType == FeeCalcTypeEnum.formula
-            ? _formulaController.text
-            : null,
-        formulaType: _selectedFormulaType,
         isTaxable: _isTaxable,
         taxRate: _isTaxable ? double.tryParse(_taxRateController.text) : null,
       );
@@ -388,46 +377,6 @@ class _ExtraFeeFormDialogState extends State<ExtraFeeFormDialog> {
                         ),
 
                         const SizedBox(height: 10),
-
-                        // Formula section (conditional)
-                        if (_selectedCalcType == FeeCalcTypeEnum.formula) ...[
-                          PrimaryMultilineTextField(
-                            controller: _formulaController,
-                            focusNode: _formulaFocusNode,
-                            hintText:
-                                'Nhập công thức JSON Logic hoặc JavaScript',
-                            prefixIcon: Icons.functions,
-                            maxLines: 4,
-                            validator: (value) {
-                              if (value?.isEmpty ?? true) {
-                                return 'Vui lòng nhập công thức';
-                              }
-                              return null;
-                            },
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          PrimaryDropdown<ExtraFeeFormulaTypeEnum>(
-                            value: _selectedFormulaType,
-                            hintText: 'Chọn kiểu công thức',
-                            prefixIcon: Icons.code_outlined,
-                            items: ExtraFeeFormulaTypeEnum.values
-                                .map(
-                                  (type) => DropdownMenuItem(
-                                    value: type,
-                                    child: Text(type.displayName),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: _isSubmitting
-                                ? null
-                                : (val) {
-                                    setState(() => _selectedFormulaType = val);
-                                  },
-                          ),
-                          const SizedBox(height: 20),
-                        ],
 
                         // Scope and Applicability
                         Focus(

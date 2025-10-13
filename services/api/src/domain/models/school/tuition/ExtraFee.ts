@@ -18,8 +18,8 @@ export interface IExtraFee extends Document {
   code?: string;
   name: string;
   description?: string;
-  calcType: FeeCalcTypeEnum;
 
+  calcType: FeeCalcTypeEnum;
   unitAmount: number;
   unitName?: string;
   conditions?: ICondition[];

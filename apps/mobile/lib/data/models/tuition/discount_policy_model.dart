@@ -44,7 +44,7 @@ class DiscountPolicyModel {
     this.exclusiveGroup,
     this.oncePer = DiscountOncePerEnum.none,
     this.conditions,
-    this.applicabilityScope = DiscountApplicabilityScopeEnum.all,
+    this.applicabilityScope = DiscountApplicabilityScopeEnum.All,
     this.applicableClassIds,
     this.applicableStudentIds,
     this.applicableGradeIds,
