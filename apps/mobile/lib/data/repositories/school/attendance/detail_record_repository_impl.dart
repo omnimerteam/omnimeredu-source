@@ -37,7 +37,9 @@ class DetailRecordRepositoryImpl implements DetailRecordRepository {
       return ApiResponse<List<DetailRecordStudentEntity>?>(
         success: model.success,
         message: model.message,
-        data: model.data?.map((e) => e.toEntity()).toList(),
+        data: model.data != null
+            ? model.data?.map((e) => e.toEntity()).toList()
+            : [],
       );
     } catch (e) {
       throw ServerFailure(e.toString());

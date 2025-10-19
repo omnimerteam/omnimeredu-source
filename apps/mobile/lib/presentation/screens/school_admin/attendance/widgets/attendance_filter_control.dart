@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
+import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
+import 'package:intl/intl.dart';
+
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_state.dart';
 
+import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/class_selector.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/class/class_search_entity.dart';
+
 import 'package:flutter_ios_android_platforms/presentation/widgets/sort/multi_sort_bottom_sheet.dart';
-//import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/search_text_field.dart';
-import 'package:intl/intl.dart';
 
 class AttendanceFilterControl extends StatefulWidget {
   const AttendanceFilterControl({super.key});
@@ -17,32 +22,28 @@ class AttendanceFilterControl extends StatefulWidget {
 }
 
 class _AttendanceFilterControlState extends State<AttendanceFilterControl> {
-  final _searchController = TextEditingController();
-  final _searchFocusNode = FocusNode();
   DateTime? _selectedDate;
+  ClassSearchEntity? _selectedClass;
 
-  // Các tùy chọn sắp xếp cho điểm danh
   static const Map<Map<String, String>, String> _attendanceSortOptions = {
     {'date': 'desc'}: 'Ngày mới nhất',
     {'date': 'asc'}: 'Ngày cũ nhất',
   };
 
-  @override
-  void initState() {
-    super.initState();
-    _searchFocusNode.addListener(() => setState(() {}));
-  }
+  void _applyFilter() {
+    final filter = <String, dynamic>{};
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _searchFocusNode.dispose();
-    super.dispose();
-  }
+    if (_selectedDate != null) {
+      filter['date'] = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+    }
+    if (_selectedClass != null) {
+      filter['classId'] = _selectedClass!.id;
+    }
 
-  // void _onSearchSubmitted(String value) {
-  //   context.read<AttendanceManagementBloc>().add(SearchAttendancesEvent(value));
-  // }
+    context.read<AttendanceManagementBloc>().add(
+      FilterAttendancesEvent(filter),
+    );
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -52,33 +53,30 @@ class _AttendanceFilterControlState extends State<AttendanceFilterControl> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(() => _selectedDate = picked);
       _applyFilter();
     }
   }
 
   void _clearDate() {
-    setState(() {
-      _selectedDate = null;
-    });
+    setState(() => _selectedDate = null);
     _applyFilter();
-  }
-
-  void _applyFilter() {
-    final filter = <String, dynamic>{};
-    if (_selectedDate != null) {
-      filter['date'] = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-    }
-    context.read<AttendanceManagementBloc>().add(
-      FilterAttendancesEvent(filter),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final schoolId = context.select<AuthenticationBloc, String?>((bloc) {
+      final state = bloc.state;
+      if (state is AuthenticationAuthenticated) {
+        return state.user.schoolId;
+      }
+      return null;
+    });
+
+    if (schoolId == null) {
+      return const SizedBox.shrink();
+    }
 
     return BlocBuilder<AttendanceManagementBloc, AttendanceManagementState>(
       builder: (context, state) {
@@ -93,7 +91,7 @@ class _AttendanceFilterControlState extends State<AttendanceFilterControl> {
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: theme.colorScheme.outline.withOpacity(0.1),
             ),
@@ -108,6 +106,7 @@ class _AttendanceFilterControlState extends State<AttendanceFilterControl> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Row(
                 children: [
                   Icon(
@@ -127,83 +126,101 @@ class _AttendanceFilterControlState extends State<AttendanceFilterControl> {
               ),
               const SizedBox(height: 16),
 
-              // Search bar
-              // SearchTextField(
-              //   controller: _searchController,
-              //   focusNode: _searchFocusNode,
-              //   hintText: 'Tìm kiếm theo tên lớp...',
-              //   isFocused: _searchFocusNode.hasFocus,
-              //   onFieldSubmitted: _onSearchSubmitted,
-              //   suffixIcon: _searchController.text.isNotEmpty
-              //       ? IconButton(
-              //           icon: const Icon(Icons.clear),
-              //           onPressed: () {
-              //             _searchController.clear();
-              //             _onSearchSubmitted('');
-              //           },
-              //         )
-              //       : null,
-              // ),
-              const SizedBox(height: 16),
+              Text(
+                'Lọc theo',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 6),
 
-              // Date Filter
-              GestureDetector(
-                onTap: () => _selectDate(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _selectedDate != null
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.outline.withOpacity(0.3),
-                      width: _selectedDate != null ? 2 : 1,
+              Row(
+                children: [
+                  Expanded(
+                    child: ClassSelector(
+                      schoolId: schoolId,
+                      onClassSelected: (selected) {
+                        setState(() => _selectedClass = selected);
+                        _applyFilter();
+                      },
                     ),
                   ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.event_outlined,
-                        size: 20,
-                        color: _selectedDate != null
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _selectedDate != null
-                              ? 'Ngày: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)}'
-                              : 'Chọn ngày để lọc',
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectDate(context),
+                      child: // --- Date Picker (thiết kế đồng nhất với ClassSelector) ---
+                      Container(
+                        height: 64,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? Colors.grey[800]
+                              : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
                             color: _selectedDate != null
-                                ? theme.colorScheme.onSurface
-                                : theme.colorScheme.onSurface.withOpacity(0.6),
-                            fontWeight: _selectedDate != null
-                                ? FontWeight.w600
-                                : FontWeight.normal,
+                                ? theme.colorScheme.primary
+                                : (theme.brightness == Brightness.dark
+                                      ? Colors.grey[600]!
+                                      : const Color(0xFFE2E8F0)),
+                            width: _selectedDate != null ? 2 : 1,
+                          ),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => _selectDate(context),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.event_outlined,
+                                color: _selectedDate != null
+                                    ? theme.colorScheme.primary
+                                    : (theme.brightness == Brightness.dark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600]),
+                                size: 22,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _selectedDate != null
+                                      ? "Ngày: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)}"
+                                      : "Chọn ngày điểm danh",
+                                  style: TextStyle(
+                                    color: _selectedDate != null
+                                        ? theme.colorScheme.onSurface
+                                        : (theme.brightness == Brightness.dark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600]),
+                                    fontSize: 14,
+                                    fontWeight: _selectedDate != null
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              if (_selectedDate != null)
+                                IconButton(
+                                  icon: const Icon(Icons.clear, size: 20),
+                                  onPressed: _clearDate,
+                                  color: theme.colorScheme.primary,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                            ],
                           ),
                         ),
                       ),
-                      if (_selectedDate != null)
-                        IconButton(
-                          icon: const Icon(Icons.clear, size: 20),
-                          onPressed: _clearDate,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
 
               const SizedBox(height: 16),
 
-              // Sort Button
+              // --- Sort Bottom Sheet ---
               MultiSortBottomSheet(
                 currentSort: currentSort,
                 sortOptions: _attendanceSortOptions,

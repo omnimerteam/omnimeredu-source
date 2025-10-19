@@ -36,18 +36,26 @@ class SortAttendancesEvent extends AttendanceManagementEvent {
   List<Object?> get props => [sort];
 }
 
-class SearchAttendancesEvent extends AttendanceManagementEvent {
-  final String search;
-  const SearchAttendancesEvent(this.search);
-
-  @override
-  List<Object?> get props => [search];
-}
-
 class DeleteAttendanceEvent extends AttendanceManagementEvent {
   final String attendanceId;
   const DeleteAttendanceEvent(this.attendanceId);
 
   @override
   List<Object?> get props => [attendanceId];
+}
+
+/// 🔹 Event khởi tạo bảng điểm danh mới (theo mẫu TeacherClassesCubit)
+class InitializeAttendanceEvent extends AttendanceManagementEvent {
+  final String classId;
+  final String schoolId;
+  final DateTime date;
+
+  const InitializeAttendanceEvent({
+    required this.classId,
+    required this.schoolId,
+    required this.date,
+  });
+
+  @override
+  List<Object?> get props => [classId, schoolId, date];
 }

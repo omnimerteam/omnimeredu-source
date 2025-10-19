@@ -63,4 +63,18 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       throw ServerFailure("Không thể khởi tạo điểm danh: $e");
     }
   }
+
+  @override
+  Future<ApiResponse<bool?>> deleteAttendance(String id) async {
+    try {
+      final model = await remote.deleteAttendance(id);
+      return ApiResponse<bool?>(
+        success: model.success,
+        message: model.message,
+        data: model.data as bool,
+      );
+    } catch (e) {
+      throw ServerFailure("Xóa điểm danh thất bại: ${e.toString()}");
+    }
+  }
 }

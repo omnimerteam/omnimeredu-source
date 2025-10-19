@@ -4,6 +4,7 @@ import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_ent
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/no_access_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/under_development_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/bloc/teacher_attendance_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/bloc/teacher_attendance_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_feature/teacher/teacher_main_screen.dart';
@@ -73,10 +74,16 @@ class MainFeatureScreenState extends State<MainFeatureScreen> {
         );
 
       case 'SchoolAdmin':
-        return const NoAccessScreen();
+        return UnderDevelopmentScreen(
+          featureName: "Quản lý học vấn",
+          expectedReleaseDate: DateTime(2025, 12, 1),
+        );
 
       case 'Student':
-        return const NoAccessScreen();
+        return UnderDevelopmentScreen(
+          featureName: "Quản lý học vấn",
+          expectedReleaseDate: DateTime(2026, 3, 1),
+        );
 
       default:
         return const NoAccessScreen();

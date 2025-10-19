@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/auth/auth_user_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
-import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/school_admin/widgets/dashboard_quick_access.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/cubit/teacher_classes_state.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/widgets/teacher_classes_section.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/teacher/widgets/teacher_dashboard_quick_access.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
 
@@ -50,7 +50,7 @@ class TeacherDashboard extends StatelessWidget {
                   _navigateToClassDetail(context, assignment),
             ),
             const SizedBox(height: 32),
-            DashboardQuickAccess(roleName: user.roleName),
+            TeacherDashboardQuickAccess(),
           ],
         );
       },

@@ -17,4 +17,6 @@ abstract class AttendanceRepository {
   Future<ApiResponse<List<AttendanceClassEntity>?>> getAllAttendances(
     DefaultQueryEntity query,
   );
+
+  Future<ApiResponse<bool?>> deleteAttendance(String id);
 }

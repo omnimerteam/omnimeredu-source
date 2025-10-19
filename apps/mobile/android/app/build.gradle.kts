@@ -27,7 +27,7 @@ android {
         applicationId = "com.example.flutter_ios_android_platforms"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = 32
         versionCode = flutter.versionCode
         versionName = flutter.versionName

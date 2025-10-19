@@ -21,7 +21,7 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           logger.i("👉 [${options.method}] ${options.uri}");
-          logger.i("Headers: ${options.headers}");
+          //logger.i("Headers: ${options.headers}");
           logger.i("Query: ${options.queryParameters}");
           logger.i("Data: ${options.data}");
           return handler.next(options);

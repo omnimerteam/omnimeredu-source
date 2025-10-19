@@ -24,7 +24,9 @@ class AttendanceClassModel {
       id: json['_id'] ?? '',
       classId: ClassAttendanceModel.fromJson(json['classId']),
       schoolId: json['schoolId'] ?? '',
-      date: DateTime.parse(json['date']),
+      date: AppConstants.toVietnamTime(
+        DateTime.tryParse(json['date'] as String),
+      )!,
       createdAt: (json['createdAt'] as String?) != null
           ? AppConstants.toVietnamTime(
               DateTime.tryParse(json['createdAt'] as String)!,
@@ -44,7 +46,7 @@ class AttendanceClassModel {
       '_id': id,
       'classId': classId.toJson(),
       'schoolId': schoolId,
-      'date': date.toIso8601String(),
+      'date': date.toUtc().toIso8601String(),
       if (createdAt != null) 'createdAt': createdAt!.toUtc().toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toUtc().toIso8601String(),
     };

@@ -1,3 +1,4 @@
+import 'package:flutter_ios_android_platforms/domain/usecases/attendance/delete_attendance_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/attendance_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/detail_record_remote_data_source.dart';
@@ -360,6 +361,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => InitializeClassAttendanceUseCase(sl()));
   sl.registerLazySingleton(() => GetClassAttendanceRecordViewUseCase(sl()));
   sl.registerLazySingleton(() => GetAllAttendancesUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAttendanceUseCase(sl()));
 
   // Detail Record
   sl.registerLazySingleton(() => UpdateStatusDetailRecordUseCase(sl()));
@@ -507,11 +509,18 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => AttendanceManagementBloc(getAllAttendancesUseCase: sl()),
+    () => AttendanceManagementBloc(
+      getAllAttendancesUseCase: sl(),
+      deleteAttendanceUseCase: sl(),
+      initializeClassAttendanceUseCase: sl(),
+    ),
   );
 
   sl.registerFactory(
-    () => AttendanceDetailBloc(getAttendanceRecordByIdUseCase: sl()),
+    () => AttendanceDetailBloc(
+      getAttendanceRecordByIdUseCase: sl(),
+      updateStatusUseCase: sl(),
+    ),
   );
 
   sl.registerFactory(() => ForgetPasswordBloc(firebaseAuthService: sl()));

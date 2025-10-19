@@ -164,7 +164,7 @@ class RouteConfig {
               create: (_) =>
                   sl<AttendanceManagementBloc>()..add(LoadAttendancesEvent()),
             ),
-            //BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
+            BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
           ],
           child: const AttendanceManagementPage(),
         );

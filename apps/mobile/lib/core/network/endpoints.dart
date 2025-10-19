@@ -100,6 +100,7 @@ class Endpoints {
       "/v1/attendances/initialize-class-attendance";
   static const String getClassAttendanceRecordView =
       "/v1/attendances/class-attendance-record/view";
+  static String deleteAttendance(String id) => "/v1/attendances/$id";
 
   // ================== DETAIL RECORD ==================
   static String updateStatusDetailRecord(String id) =>
