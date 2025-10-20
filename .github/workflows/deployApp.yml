@@ -42,4 +42,5 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_PATH: "/var/www/flutter/app"
         run: |
-          scp -o StrictHostKeyChecking=no build/app/outputs/flutter-apk/app-release.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
+          scp -o StrictHostKeyChecking=no apps/mobile/build/app/outputs/flutter-apk/app-release.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
+
