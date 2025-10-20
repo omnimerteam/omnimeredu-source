@@ -20,6 +20,7 @@ Deploy ứng dụng Android của OmniMer EDU lên Google Play Store để ngư�
 
 ## 2. Build và ký ứng dụng
 
+
 ### Bước 1: Tạo Keystore (chỉ tạo 1 lần)
 
 ```bash
@@ -91,3 +92,22 @@ keytool -genkey -v -keystore omnimer-release-key.jks -keyalg RSA -keysize 2048 -
 ### Thời gian xét duyệt:    
 - App lần đầu: 3 - 7 ngày
 - App update: 1 - 3 ngày
+
+
+## 3. Build ứng dụng lên VPS .APK
+
+### Flow deploy ứng dụng lên VPS
+
+    1. Developer push code Flutter (main)
+            ↓
+    2. GitHub Actions build file .apk
+            ↓
+    3. Tự động upload file .apk lên VPS
+            ↓
+    4. User truy cập đường link VPS để tải app về
+            ↓
+    5. Cài đặt và sử dụng app, kết nối tới backend trên VPS
+
+
+### Ứng dụng sẽ được lưu trữ /var/www/flutter/app
+

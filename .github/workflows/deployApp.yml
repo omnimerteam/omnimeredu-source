@@ -1,0 +1,33 @@
+name: Build & Deploy Flutter APK
+
+on:
+  push:
+    branches:
+      - cicd-App   # chỉ build khi có push lên nhánh main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.3"  
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PATH: "/var/www/flutter/app"
+        run: |
+          scp -o StrictHostKeyChecking=no build/app/outputs/flutter-apk/app-release.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
