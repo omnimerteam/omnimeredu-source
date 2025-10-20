@@ -23,9 +23,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+        working-directory: apps/mobile
 
       - name: Build release APK
         run: flutter build apk --release
+        working-directory: apps/mobile
 
       - name: Upload APK to VPS
         env:
