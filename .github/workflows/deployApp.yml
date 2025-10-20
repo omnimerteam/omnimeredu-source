@@ -1,4 +1,4 @@
-name: Build & Deploy Flutter APK
+name: Build & Deploy Flutter .APK
 
 on:
   push:
@@ -20,6 +20,12 @@ jobs:
 
       - name: Disable Flutter analytics
         run: flutter config --no-analytics
+
+      - name: Create .env file from secrets
+        run: |
+          echo "API_URL=${{ secrets.API_URL }}" >> .env
+          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env
+        shell: bash
 
       - name: Install dependencies
         run: flutter pub get
