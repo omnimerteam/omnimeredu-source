@@ -24,7 +24,8 @@ jobs:
       - name: Create .env file from secrets
         run: |
           echo "API_URL=${{ secrets.API_URL }}" >> .env
-          echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env
+          echo "APP_ENV=PROD" >> .env
+        working-directory: apps/mobile
         shell: bash
 
       - name: Install dependencies
