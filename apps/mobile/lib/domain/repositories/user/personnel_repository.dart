@@ -10,4 +10,6 @@ abstract class PersonnelRepository {
   Future<ApiResponse<bool>> updateVerified(String personnelId, bool isVerified);
 
   Future<ApiResponse<void>> dismissPersonnel(String personnelId);
+
+  Future<ApiResponse<void>> updateAvatar(String avatarPath, String avatarUrl);
 }

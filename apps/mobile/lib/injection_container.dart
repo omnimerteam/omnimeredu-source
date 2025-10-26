@@ -1,4 +1,11 @@
+import 'package:flutter_ios_android_platforms/data/datasources/remote/user/staff_remote_data_source.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/staff_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/data/repositories/user/teacher_repository_impl.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/staff_repository.dart';
+import 'package:flutter_ios_android_platforms/domain/repositories/user/teacher_repository.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/attendance/delete_attendance_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/personnel/update_avatar_usecase.dart';
+import 'package:flutter_ios_android_platforms/domain/usecases/user/update_profile_usecase.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/attendance_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/school/attendance/detail_record_remote_data_source.dart';
@@ -238,6 +245,9 @@ Future<void> init() async {
   sl.registerLazySingleton<ExtraFeeRemoteDataSource>(
     () => ExtraFeeRemoteDataSource(client: sl(), getIdToken: _getIdToken),
   );
+  sl.registerLazySingleton<StaffRemoteDataSource>(
+    () => StaffRemoteDataSource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -274,6 +284,10 @@ Future<void> init() async {
   sl.registerLazySingleton<UploadRepository>(() => UploadRepositoryImpl(sl()));
   sl.registerLazySingleton<ExtraFeeRepository>(
     () => ExtraFeeRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<StaffRepository>(() => StaffRepositoryImpl(sl()));
+  sl.registerLazySingleton<TeacherRepository>(
+    () => TeacherRepositoryImpl(sl()),
   );
 
   // ======================
@@ -341,6 +355,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetAllPersonnelFromSchoolUseCase(sl()));
   sl.registerLazySingleton(() => UpdateVerifiedUseCase(sl()));
   sl.registerLazySingleton(() => DismissPersonnelUseCase(sl()));
+  sl.registerLazySingleton(
+    () => UpdateAvatarUseCase(firebaseService: sl(), repository: sl()),
+  );
 
   // Teaching Assignment
   sl.registerLazySingleton(() => CreateTeachingAssignmentUseCase(sl()));
@@ -376,6 +393,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateExtraFeeUseCase(sl()));
   sl.registerLazySingleton(() => UpdateExtraFeeUseCase(sl()));
   sl.registerLazySingleton(() => DeleteExtraFeeUseCase(sl()));
+
+  // User
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl(), sl(), sl(), sl()));
 
   // ======================
   // Blocs / Cubits
@@ -530,7 +550,8 @@ Future<void> init() async {
   sl.registerFactory(
     () => UserProfileCubit(
       getUserProfileByIdUseCase: sl(),
-      storageUploader: sl(),
+      updateAvatarUseCase: sl(),
+      updateProfileUseCase: sl(),
       authBloc: sl(),
     ),
   );

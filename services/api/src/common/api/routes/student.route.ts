@@ -95,7 +95,7 @@ router.put(
     params: objectIdParamSchema,
   }),
   verifyFirebaseToken,
-  verifyRole(["Teacher", "SchoolAdmin", "Student"]),
+  verifyRole(["Teacher", "SchoolAdmin", "Student", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.updateStudent(req, res, next)
 );

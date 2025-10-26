@@ -35,3 +35,11 @@ class UpdateUserAvatarEvent extends AuthenticationEvent {
   final String avatarUrl;
   UpdateUserAvatarEvent(this.avatarUrl);
 }
+
+class UpdateUserProfileEvent extends AuthenticationEvent {
+  final AuthUserEntity updatedUser;
+  const UpdateUserProfileEvent(this.updatedUser);
+
+  @override
+  List<Object?> get props => [updatedUser];
+}

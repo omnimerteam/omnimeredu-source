@@ -30,6 +30,7 @@ class UserProfileError extends UserProfileState {
   List<Object?> get props => [message];
 }
 
+/// State khi đang upload avatar
 class UserProfileAvatarUploading extends UserProfileState {
   final BaseUserEntity user;
 
@@ -39,10 +40,31 @@ class UserProfileAvatarUploading extends UserProfileState {
   List<Object?> get props => [user];
 }
 
+/// State khi avatar đã được upload xong
 class UserProfileAvatarUpdated extends UserProfileState {
   final BaseUserEntity user;
 
   const UserProfileAvatarUpdated(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// State khi đang cập nhật thông tin người dùng (tên, số điện thoại, v.v.)
+class UserProfileUpdating extends UserProfileState {
+  final BaseUserEntity user;
+
+  const UserProfileUpdating(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// State khi cập nhật thông tin người dùng thành công
+class UserProfileUpdated extends UserProfileState {
+  final BaseUserEntity user;
+
+  const UserProfileUpdated(this.user);
 
   @override
   List<Object?> get props => [user];

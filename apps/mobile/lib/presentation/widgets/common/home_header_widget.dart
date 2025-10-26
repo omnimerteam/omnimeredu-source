@@ -159,16 +159,16 @@ class HomeHeaderWidget extends StatelessWidget {
     return PopupMenuButton<String>(
       onSelected: (value) => _handleMenuSelection(context, value),
       itemBuilder: (BuildContext context) => [
-        const PopupMenuItem<String>(
-          value: 'account',
-          child: Row(
-            children: [
-              Icon(Icons.account_circle, size: 20),
-              SizedBox(width: 12),
-              Text('Tài khoản'),
-            ],
-          ),
-        ),
+        // const PopupMenuItem<String>(
+        //   value: 'account',
+        //   child: Row(
+        //     children: [
+        //       Icon(Icons.account_circle, size: 20),
+        //       SizedBox(width: 12),
+        //       Text('Tài khoản'),
+        //     ],
+        //   ),
+        // ),
         const PopupMenuItem<String>(
           value: 'profile',
           child: Row(

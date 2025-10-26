@@ -9,6 +9,7 @@ import 'package:flutter_ios_android_platforms/domain/entities/user/student_entit
 import 'package:flutter_ios_android_platforms/domain/entities/user/teacher_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/cubit/user_profile_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/cubit/user_profile_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/auth/user_profile/widgets/edit_user_profile_form.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/display_mapper.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/image_picker/app_image_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -52,7 +53,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Thông tin cá nhân'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Thông tin cá nhân'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Tải lại',
+            onPressed: () {
+              final cubit = context.read<UserProfileCubit>();
+              cubit.refresh();
+            },
+          ),
+        ],
+      ),
       body: BlocConsumer<UserProfileCubit, UserProfileState>(
         listener: (context, state) {
           if (state is UserProfileError) {
@@ -78,7 +92,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
           if (state is UserProfileLoaded ||
               state is UserProfileAvatarUploading ||
-              state is UserProfileAvatarUpdated) {
+              state is UserProfileAvatarUpdated ||
+              state is UserProfileUpdated) {
             // Chọn user dựa trên state
             BaseUserEntity user;
             bool isUploading = false;
@@ -88,6 +103,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             } else if (state is UserProfileAvatarUploading) {
               user = state.user;
               isUploading = true;
+            } else if (state is UserProfileUpdated) {
+              user = state.user;
             } else {
               user = (state as UserProfileAvatarUpdated).user;
             }
@@ -169,12 +186,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/profile/edit',
-                              arguments: {'userId': user.id},
+                            showDialog(
+                              context: context,
+                              builder: (dialogContext) => BlocProvider.value(
+                                value: context.read<UserProfileCubit>(),
+                                child: EditUserProfileDialog(user: user),
+                              ),
                             );
                           },
+
                           icon: const Icon(Icons.edit),
                           label: const Text('Cập nhật thông tin'),
                         ),

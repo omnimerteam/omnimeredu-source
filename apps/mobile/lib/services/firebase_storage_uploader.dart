@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_ios_android_platforms/core/utils/usecase_executor_mixin.dart';
 
 /// Helper class để thao tác với Firebase Storage.
 /// Mục tiêu:
@@ -25,15 +26,19 @@ class FirebaseStorageUploader {
     }
   }
 
-  Future<String?> updateAvatar(File imageFile) async {
+  Future<Map<String, String>?> uploadAvatar(File imageFile) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return null;
 
     try {
-      final ref = FirebaseStorage.instance.ref('avatar_user/${user.uid}');
+      final avatarPath = 'avatar_user/${user.uid}';
+
+      final ref = _storage.ref(avatarPath);
       await ref.putFile(imageFile);
-      return await ref.getDownloadURL(); // Lấy URL mới
+      final avatarUrl = await ref.getDownloadURL();
+      return {'url': avatarUrl, 'path': avatarPath};
     } catch (e) {
+      logger.e('Upload avatar thất bại: $e');
       return null;
     }
   }

@@ -13,6 +13,7 @@ import { authHeaderSchema } from "../../validators/common/header/header.validato
 import { createPaginationSchemaWithSortFilterAndSearch } from "../../validators/common/query/query.validator";
 import { BaseUser } from "../../../domain/models";
 import {
+  updateAvatar,
   updateRoleId,
   updateVerified,
 } from "../../validators/auth/baseUser/baseUser.validator";
@@ -31,6 +32,7 @@ const personnelQuerySchema = createPaginationSchemaWithSortFilterAndSearch(
 );
 
 // Lấy danh sách nhân sự (gồm teacher + staff)
+//? Tuy cái này không ngờ nhưng cái này có thể cập nhật tất cả nha
 router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: personnelQuerySchema }),
@@ -87,6 +89,17 @@ router.get(
   verifyFirebaseToken,
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.getUserById(req, res, next)
+);
+
+router.patch(
+  "/update-avatar",
+  validateData({
+    headers: authHeaderSchema,
+    body: updateAvatar,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    personnelController.updateAvatar(req, res, next)
 );
 
 export default router;

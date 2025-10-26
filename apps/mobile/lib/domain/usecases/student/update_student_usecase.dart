@@ -7,6 +7,7 @@ class UpdateStudentUseCase {
   UpdateStudentUseCase(this.repository);
 
   Future<StudentEntity> call(StudentEntity updateStudentData) async {
-    return await repository.updateStudent(updateStudentData);
+    final res = await repository.updateStudent(updateStudentData);
+    return res.data!;
   }
 }

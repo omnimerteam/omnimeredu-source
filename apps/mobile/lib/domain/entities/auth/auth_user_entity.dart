@@ -13,7 +13,7 @@ class AuthUserEntity extends Equatable {
   // SchoolAdmin
   final SchoolAdminPositionEnum? position;
   // Teacher
-  final String? qualification;
+  final TeacherQualificationEnum? qualification;
   final String? classId;
   // Student
   final String? className;
@@ -75,7 +75,7 @@ class AuthUserEntity extends Equatable {
           : position as SchoolAdminPositionEnum?,
       qualification: qualification == _noChange
           ? this.qualification
-          : qualification as String?,
+          : qualification as TeacherQualificationEnum?,
       classId: classId == _noChange ? this.classId : classId as String?,
       className: className == _noChange ? this.className : className as String?,
       educationLevel: educationLevel == _noChange

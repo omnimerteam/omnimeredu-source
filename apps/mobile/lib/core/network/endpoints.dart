@@ -10,11 +10,6 @@ class Endpoints {
   static const String changePassword = "/v1/auth/change-password";
   static const String forgetPassword = "/v1/auth/forget-password";
 
-  // ================== USERS ==================
-  static const String users = "/v1/users";
-  static const String userProfile = "/v1/users/profile";
-  static String userById(String id) => "/v1/users/$id";
-
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
   static String classId(String id) => "/v1/classes/$id";
@@ -67,6 +62,7 @@ class Endpoints {
       "/v1/personnel/update-verified/$id";
   static String dismissPersonnel(String id) => "/v1/personnel/dismiss/$id";
   static String personnelId(String id) => "/v1/personnel/$id";
+  static const String updateAvatar = "/v1/personnel/update-avatar";
 
   // ================== TEACHER ==================
   static const String teachers = "/v1/teachers";

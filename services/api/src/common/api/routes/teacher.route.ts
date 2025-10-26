@@ -63,7 +63,7 @@ router.post(
 router.put(
   "/:id",
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin"]),
+  verifyRole(["SuperAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.updateTeacher(req, res, next)
 );

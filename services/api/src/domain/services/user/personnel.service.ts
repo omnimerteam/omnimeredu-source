@@ -134,8 +134,25 @@ class PersonnelService {
   async getUserById(id: string) {
     try {
       return await this.personnelRepository.findById(id);
-    } catch (e) {
-      throw e;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateAvatar(actorId: string, avatarPath: string, avatarUrl: string) {
+    try {
+      return await this.personnelRepository.update(actorId, {
+        avatarPath: avatarPath,
+        avatarUrl: avatarUrl,
+      });
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "UPDATE_AVATAR_FAILED",
+        metadata: { error: (error as Error).message },
+      });
+
+      throw error;
     }
   }
 }

@@ -70,4 +70,23 @@ class PersonnelRemoteDataSource {
 
     return res;
   }
+
+  Future<ApiResponse<void>> updateAvatar(
+    String avatarPath,
+    String avatarUrl,
+  ) async {
+    try {
+      final token = await _getIdToken();
+
+      final res = await client.patch<void>(
+        Endpoints.updateAvatar,
+        headers: {if (token != null) "Authorization": "Bearer $token"},
+        data: {"avatarPath": avatarPath, "avatarUrl": avatarUrl},
+      );
+
+      return res;
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }
