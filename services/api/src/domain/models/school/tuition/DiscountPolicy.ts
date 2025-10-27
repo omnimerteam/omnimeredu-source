@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
-import { ConditionSchema } from "./Condition";
+import { ConditionSchema, ICondition } from "./Condition";
 import {
   DiscountKindEnum,
   DiscountKindTuple,
@@ -15,6 +15,8 @@ import {
  * Interface đại diện cho một chính sách giảm học phí
  */
 export interface IDiscountPolicy extends Document {
+  _id: Types.ObjectId;
+
   code?: string;
   name: string;
   description?: string;
@@ -31,7 +33,7 @@ export interface IDiscountPolicy extends Document {
   exclusiveGroup?: string;
   oncePer?: DiscountOncePerEnum;
 
-  conditions?: any[];
+  conditions?: ICondition[];
 
   applicabilityScope?: DiscountApplicabilityScopeEnum;
   applicableClassIds?: Types.ObjectId[];
@@ -51,6 +53,8 @@ export interface IDiscountPolicy extends Document {
  */
 const DiscountPolicySchema = new Schema<IDiscountPolicy>(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+
     code: { type: String, index: true, unique: true, sparse: true },
     name: { type: String, required: true },
     description: String,

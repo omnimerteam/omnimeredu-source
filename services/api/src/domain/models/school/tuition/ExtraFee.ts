@@ -7,19 +7,19 @@ import {
   ExtraFeeApplicabilityScopeTuple,
   ExtraFeeOncePerEnum,
   ExtraFeeOncePerTuple,
-  ExtraFeeFormulaTypeEnum,
-  ExtraFeeFormulaTypeTuple,
 } from "../../../../common/enum/tuition.enum";
 
 /**
  * Interface đại diện cho mô hình phụ phí (Extra Fee)
  */
 export interface IExtraFee extends Document {
+  _id: Types.ObjectId;
+
   code?: string;
   name: string;
   description?: string;
-  calcType: FeeCalcTypeEnum;
 
+  calcType: FeeCalcTypeEnum;
   unitAmount: number;
   unitName?: string;
   conditions?: ICondition[];
@@ -35,8 +35,6 @@ export interface IExtraFee extends Document {
   active?: boolean;
   effectiveFrom?: Date;
   effectiveTo?: Date | null;
-  formula?: any;
-  formulaType?: ExtraFeeFormulaTypeEnum;
 
   isTaxable?: boolean;
   taxRate?: number;
@@ -47,6 +45,8 @@ export interface IExtraFee extends Document {
  */
 const ExtraFeeSchema = new Schema<IExtraFee>(
   {
+    _id: { type: Schema.Types.ObjectId, auto: true },
+
     code: { type: String, index: true, unique: true, sparse: true },
     name: { type: String, required: true },
     description: String,
@@ -57,7 +57,7 @@ const ExtraFeeSchema = new Schema<IExtraFee>(
       required: true,
     },
     unitAmount: { type: Number, default: 0, min: 0 },
-    unitName: String,
+
     conditions: [ConditionSchema],
 
     schoolId: {
@@ -85,13 +85,6 @@ const ExtraFeeSchema = new Schema<IExtraFee>(
     active: { type: Boolean, default: true },
     effectiveFrom: { type: Date, default: Date.now },
     effectiveTo: { type: Date, default: null },
-
-    formula: { type: Schema.Types.Mixed },
-    formulaType: {
-      type: String,
-      enum: ExtraFeeFormulaTypeTuple,
-      default: ExtraFeeFormulaTypeEnum.JsonLogic,
-    },
 
     isTaxable: { type: Boolean, default: false },
     taxRate: { type: Number, default: 0 },

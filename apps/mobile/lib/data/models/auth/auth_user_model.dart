@@ -11,7 +11,7 @@ class AuthUserModel {
   final EducationSystemLevelsEnum? schoolLevel;
   final String? avatarUrl;
   final SchoolAdminPositionEnum? position;
-  final String? qualification;
+  final TeacherQualificationEnum? qualification;
   final String? classId;
   final String? className;
   final EducationSystemLevelsEnum? educationLevel;
@@ -48,7 +48,9 @@ class AuthUserModel {
         json['schoolId']?['level'] as String?,
       ),
       position: SchoolAdminPositionEnum.fromString(json['position'] as String?),
-      qualification: json['qualification']?.toString(),
+      qualification: TeacherQualificationEnum.fromString(
+        json['qualification'] as String?,
+      ),
       classId: json['classId']?['_id'],
       className: json['classId']?['name'],
       educationLevel: EducationSystemLevelsEnum.fromString(

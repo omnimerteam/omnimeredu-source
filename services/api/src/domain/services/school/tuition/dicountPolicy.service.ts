@@ -1,36 +1,34 @@
+import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
-import {
-  buildPermissionFilter,
-  buildPermissionFilterForFeeAndPolicy,
-} from "../../../../common/utils/permissionFilter";
+import { buildPermissionFilterForFeeAndPolicy } from "../../../../common/utils/permissionFilter";
 import { IDiscountPolicy } from "../../../models";
 import DiscountPolicyRepository from "../../../repositories/school/tuition/discountPolicy.repository";
-import SchoolAdminRepository from "../../../repositories/user/schoolAdmin.repository";
 
 class DiscountPolicyService {
   private readonly discountPolicyRepository: DiscountPolicyRepository;
-  private readonly schoolAdminRepository: SchoolAdminRepository;
   private readonly logger: DefaultLogger;
   constructor(
     discountPolicyRepository: DiscountPolicyRepository,
-    schoolAdminRepository: SchoolAdminRepository,
     logger: DefaultLogger
   ) {
     this.discountPolicyRepository = discountPolicyRepository;
-    this.schoolAdminRepository = schoolAdminRepository;
     this.logger = logger;
   }
 
   async getAllDisCountPolicy(
     actorId: string,
     userRole: string,
-    schoolId?: string
+    schoolId?: string,
+    options?: PaginationQueryOptions
   ) {
     try {
       const filter = buildPermissionFilterForFeeAndPolicy(userRole, schoolId);
+
       const discountPolicies = await this.discountPolicyRepository.findAll(
-        filter
+        filter,
+        options
       );
+
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_DISCOUNT_POLICIES",
@@ -73,13 +71,13 @@ class DiscountPolicyService {
   }
 
   async createDisCountPolicy(
-    discoutPolicyData: Partial<IDiscountPolicy>,
+    discountPolicyData: Partial<IDiscountPolicy>,
     actorId: string,
     userRole: string
   ) {
     try {
       const discountPolicy = await this.discountPolicyRepository.create(
-        discoutPolicyData
+        discountPolicyData
       );
       await this.logger.log({
         userId: actorId,
@@ -100,7 +98,7 @@ class DiscountPolicyService {
   }
 
   async updateDisCountPolicy(
-    discoutPolicyData: Partial<IDiscountPolicy>,
+    discountPolicyData: Partial<IDiscountPolicy>,
     discountPolicyId: string,
     actorId: string,
     userRole: string
@@ -108,7 +106,7 @@ class DiscountPolicyService {
     try {
       const discountPolicy = await this.discountPolicyRepository.update(
         discountPolicyId,
-        discoutPolicyData
+        discountPolicyData
       );
       await this.logger.log({
         userId: actorId,

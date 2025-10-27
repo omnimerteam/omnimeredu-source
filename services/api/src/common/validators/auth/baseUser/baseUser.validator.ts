@@ -31,3 +31,8 @@ export const updateRoleId = BaseUserSchema.pick({
 export const updateVerified = BaseUserSchema.pick({
   isVerified: true,
 });
+
+export const updateAvatar = BaseUserSchema.pick({
+  avatarPath: true,
+  avatarUrl: true,
+});

@@ -12,7 +12,7 @@ import {
 } from "../../../common/utils/ResponseHelper";
 import { buildQueryOptions } from "../../../common/utils/buildQueryOptions";
 class PersonnelController {
-  private personnelService: PersonnelService;
+  private readonly personnelService: PersonnelService;
   constructor(personnelService: PersonnelService) {
     this.personnelService = personnelService;
   }
@@ -202,6 +202,30 @@ class PersonnelController {
       const user = await this.personnelService.getUserById(id);
 
       sendSuccess(res, user, "Lấy thông tin người dùng thành công");
+    } catch (error) {
+      console.error(chalk.red("[PERSONNEL] Error get user:", error));
+      return next(error);
+    }
+  }
+
+  async updateAvatar(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const actorId = req.user?.id;
+
+    if (!actorId) {
+      sendUnauthorized(res);
+      return;
+    }
+
+    const { avatarPath, avatarUrl } = req.body;
+
+    try {
+      await this.personnelService.updateAvatar(actorId, avatarPath, avatarUrl);
+
+      sendSuccess(res, null, "Lấy thông tin người dùng thành công");
     } catch (error) {
       console.error(chalk.red("[PERSONNEL] Error get user:", error));
       return next(error);

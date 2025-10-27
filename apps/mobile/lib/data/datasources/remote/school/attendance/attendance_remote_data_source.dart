@@ -84,4 +84,15 @@ class AttendanceRemoteDataSource {
 
     return res;
   }
+
+  Future<ApiResponse<bool?>> deleteAttendance(String id) async {
+    final token = await _getIdToken();
+
+    final res = await client.delete<bool?>(
+      Endpoints.deleteAttendance(id),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+    );
+
+    return res;
+  }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter_ios_android_platforms/core/error/failures.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/data/datasources/remote/user/student_remote_data_source.dart';
 import 'package:flutter_ios_android_platforms/data/models/user/student_model.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
@@ -45,12 +44,17 @@ class StudentRepositoryImpl implements StudentRepository {
   }
 
   @override
-  Future<StudentEntity> updateStudent(StudentEntity updateStudentData) async {
+  Future<ApiResponse<StudentEntity>> updateStudent(
+    StudentEntity updateStudentData,
+  ) async {
     try {
       final model = StudentModel.fromEntity(updateStudentData);
-      logger.i("Update Student Model: ${model}");
-      final updatedModel = await remote.updateStudent(model);
-      return updatedModel.toEntity();
+      final res = await remote.updateStudent(model);
+      return ApiResponse<StudentEntity>(
+        success: res.success,
+        message: res.message,
+        data: res.data?.toEntity(),
+      );
     } catch (e) {
       throw ServerFailure("Không thể cập nhật học sinh: $e");
     }

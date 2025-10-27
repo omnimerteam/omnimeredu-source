@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
+import 'package:flutter_ios_android_platforms/domain/entities/view_model/attendance_record_view_entity.dart';
 
 /// 🔹 DetailRecordEntity - Đại diện dữ liệu chi tiết điểm danh ở tầng domain
 class DetailRecordStudentEntity extends Equatable {
@@ -31,6 +32,21 @@ class DetailRecordStudentEntity extends Equatable {
     createdAt,
     updatedAt,
   ];
+
+  StudentAttendanceEntity toStudentAttendanceEntity() {
+    return StudentAttendanceEntity(
+      id: studentId?.id ?? '',
+      name: studentId?.name ?? '',
+      phone: studentId?.phone,
+      guardianName: studentId?.guardianName ?? '',
+      guardianPhone: studentId?.guardianPhone ?? '',
+      gender: studentId?.gender,
+      birthday: null, // vì DetailRecord không có trường này
+      detailRecordId: id ?? '',
+      status: status ?? AttendanceStatusEnum.Present, // fallback default
+      note: note,
+    );
+  }
 }
 
 class StudentDetailRecordEntity extends Equatable {

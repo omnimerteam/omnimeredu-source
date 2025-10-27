@@ -18,6 +18,8 @@ class AuthenticationBloc
     on<AuthenticationLoggedIn>(_onLoggedIn);
     on<AuthenticationLoggedOut>(_onLoggedOut);
     on<AuthenticationSchoolUpdated>(_onSchoolUpdated);
+    on<UpdateUserAvatarEvent>(_onAvatarUpdate);
+    on<UpdateUserProfileEvent>(_onProfileUpdated);
   }
 
   Future<void> _onStarted(
@@ -73,5 +75,47 @@ class AuthenticationBloc
 
       emit(AuthenticationAuthenticated(updatedUser));
     }
+  }
+
+  void _onAvatarUpdate(
+    UpdateUserAvatarEvent event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    if (state is AuthenticationAuthenticated) {
+      final currentUser = (state as AuthenticationAuthenticated).user;
+      emit(
+        AuthenticationAuthenticated(
+          currentUser.copyWith(avatarUrl: event.avatarUrl),
+        ),
+      );
+    }
+  }
+
+  void _onProfileUpdated(
+    UpdateUserProfileEvent event,
+    Emitter<AuthenticationState> emit,
+  ) {
+    if (state is! AuthenticationAuthenticated) return;
+
+    final currentUser = (state as AuthenticationAuthenticated).user;
+    final updated = event.updatedUser;
+
+    // Hàm nội bộ giúp chỉ cập nhật field nào có dữ liệu
+    T? pick<T>(T? newValue, T? oldValue) => newValue ?? oldValue;
+
+    final updatedUser = currentUser.copyWith(
+      fullName: pick(updated.fullName, currentUser.fullName),
+      avatarUrl: pick(updated.avatarUrl, currentUser.avatarUrl),
+      position: pick(updated.position, currentUser.position),
+      qualification: pick(updated.qualification, currentUser.qualification),
+      educationLevel: pick(updated.educationLevel, currentUser.educationLevel),
+      gradeGroup: pick(updated.gradeGroup, currentUser.gradeGroup),
+    );
+
+    emit(AuthenticationAuthenticated(updatedUser));
+
+    logger.i(
+      "🔁 Hồ sơ người dùng (${updated.roleName}) được cập nhật an toàn trong AuthenticationBloc: ${updatedUser.fullName}",
+    );
   }
 }

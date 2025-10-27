@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/network/api_response.dart';
-import 'package:flutter_ios_android_platforms/core/utils/logger.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/query/default_query_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/user/personnel_entity.dart';
 import 'package:flutter_ios_android_platforms/domain/usecases/personnel/dismiss_personnel_usecase.dart';
@@ -100,7 +99,6 @@ class PersonnelManagementBloc
 
       try {
         final res = await call();
-        logger.i("Res: ${res.data}");
         if (res.success) {
           onSuccess(current, res);
         } else {

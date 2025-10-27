@@ -10,11 +10,6 @@ class Endpoints {
   static const String changePassword = "/v1/auth/change-password";
   static const String forgetPassword = "/v1/auth/forget-password";
 
-  // ================== USERS ==================
-  static const String users = "/v1/users";
-  static const String userProfile = "/v1/users/profile";
-  static String userById(String id) => "/v1/users/$id";
-
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
   static String classId(String id) => "/v1/classes/$id";
@@ -67,6 +62,7 @@ class Endpoints {
       "/v1/personnel/update-verified/$id";
   static String dismissPersonnel(String id) => "/v1/personnel/dismiss/$id";
   static String personnelId(String id) => "/v1/personnel/$id";
+  static const String updateAvatar = "/v1/personnel/update-avatar";
 
   // ================== TEACHER ==================
   static const String teachers = "/v1/teachers";
@@ -100,6 +96,7 @@ class Endpoints {
       "/v1/attendances/initialize-class-attendance";
   static const String getClassAttendanceRecordView =
       "/v1/attendances/class-attendance-record/view";
+  static String deleteAttendance(String id) => "/v1/attendances/$id";
 
   // ================== DETAIL RECORD ==================
   static String updateStatusDetailRecord(String id) =>
@@ -112,4 +109,18 @@ class Endpoints {
 
   // ================== UPLOAD ==================
   static const String uploadAvatar = "/v1/upload/avatar-temp";
+
+  // ================== EXTRA_FEE ==================
+  static const String extraFeeList = "/v1/extra-fees";
+  static const String createExtraFee = "/v1/extra-fees";
+  static String extraFeeById(String id) => "/v1/extra-fees/$id";
+  static String updateExtraFee(String id) => "/v1/extra-fees/$id";
+  static String deleteExtraFee(String id) => "/v1/extra-fees/$id";
+
+  // ================== EXTRA_FEE ==================
+  static const String discountPolicyList = "/v1/discount-policies";
+  static const String createDiscountPolicy = "/v1/discount-policies";
+  static String discountPolicyById(String id) => "/v1/discount-policies/$id";
+  static String updateDiscountPolicy(String id) => "/v1/discount-policies/$id";
+  static String deleteDiscountPolicy(String id) => "/v1/discount-policies/$id";
 }

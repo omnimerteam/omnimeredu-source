@@ -15,6 +15,7 @@ import {
   AttendanceRecordViewRepository,
 } from "../../../repositories";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
+import { determineSessionType } from "../../../utils/determineSessionType";
 
 class AttendanceService {
   private readonly attendanceRepository: AttendanceRepository;
@@ -49,6 +50,7 @@ class AttendanceService {
         filter,
         options
       );
+
       await this.logger.log({
         userId: actorId,
         action: "GET_ALL_ATTENDANCES",
@@ -235,6 +237,15 @@ class AttendanceService {
         }
       }
 
+      if (AttendanceData.date) {
+        AttendanceData.sessionType = await determineSessionType(
+          AttendanceData.date,
+          actorSchoolId
+        );
+      } else {
+        throw new HttpError(400, "Thiếu ngày để lập bảng điểm danh");
+      }
+
       const attendance = await this.attendanceRepository.create(AttendanceData);
 
       await this.logger.log({
@@ -282,6 +293,15 @@ class AttendanceService {
             "Bạn không có quyền tạo bảng điểm danh cho trường"
           );
         }
+      }
+
+      if (AttendanceData.date) {
+        AttendanceData.sessionType = await determineSessionType(
+          AttendanceData.date,
+          actorSchoolId
+        );
+      } else {
+        throw new HttpError(400, "Thiếu ngày để tạo mới");
       }
 
       const attendance =
@@ -355,6 +375,13 @@ class AttendanceService {
             );
           }
         }
+      }
+
+      if (AttendanceData.date) {
+        AttendanceData.sessionType = await determineSessionType(
+          AttendanceData.date,
+          actorSchoolId
+        );
       }
 
       const attendance = await this.attendanceRepository.update(

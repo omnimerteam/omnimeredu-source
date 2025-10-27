@@ -5,7 +5,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/dashboard/sch
 import 'package:flutter_ios_android_platforms/presentation/widgets/chart/attendance_chart.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/skeleton/common_skeleton.dart';
 import 'widgets/dashboard_quick_overview.dart';
-import 'widgets/dashboard_quick_access.dart';
+import 'widgets/school_admin_dashboard_quick_access.dart';
 
 class SchoolAdminDashboard extends StatelessWidget {
   final SchoolAdminDashboardDataEntity? data;
@@ -30,7 +30,7 @@ class SchoolAdminDashboard extends StatelessWidget {
           SizedBox(height: 24),
           SkeletonBox(height: 200),
           SizedBox(height: 24),
-          DashboardQuickAccess(),
+          SchoolAdminDashboardQuickAccess(),
           SizedBox(height: 24),
           SkeletonBox(height: 120),
         ],
@@ -95,7 +95,7 @@ class SchoolAdminDashboard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          DashboardQuickAccess(highlightSchool: true),
+          SchoolAdminDashboardQuickAccess(highlightSchool: true),
         ],
       );
     }
@@ -108,7 +108,7 @@ class SchoolAdminDashboard extends StatelessWidget {
         const SizedBox(height: 24),
         AttendanceChart(classStats: data!.attendanceStats.classAttendanceRates),
         const SizedBox(height: 24),
-        DashboardQuickAccess(roleName: roleName),
+        SchoolAdminDashboardQuickAccess(),
       ],
     );
   }

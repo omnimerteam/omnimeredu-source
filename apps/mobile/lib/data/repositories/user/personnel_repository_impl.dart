@@ -52,4 +52,17 @@ class PersonnelRepositoryImpl implements PersonnelRepository {
       throw ServerFailure(e.toString());
     }
   }
+
+  @override
+  Future<ApiResponse<void>> updateAvatar(
+    String avatarPath,
+    String avatarUrl,
+  ) async {
+    try {
+      final res = await remote.updateAvatar(avatarPath, avatarUrl);
+      return ApiResponse<void>(success: res.success, message: res.message);
+    } catch (e) {
+      throw ServerFailure(e.toString());
+    }
+  }
 }

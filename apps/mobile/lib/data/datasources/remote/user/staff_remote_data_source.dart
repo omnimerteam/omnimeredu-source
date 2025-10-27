@@ -23,7 +23,7 @@ class StaffRemoteDataSource {
       final token = await _getIdToken();
 
       final res = await client.put<StaffModel?>(
-        Endpoints.teacherId(data.id!),
+        Endpoints.personnelId(data.id!),
         headers: {if (token != null) "Authorization": "Bearer $token"},
         data: data.toJson(),
         parser: (data) {

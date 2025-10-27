@@ -1,12 +1,12 @@
 // Updated ClassFormDialog for Map-based state
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_cubit.dart';
-import 'package:flutter_ios_android_platforms/core/bloc/grade_select/grade_select_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_state.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/class/class_entity.dart';
 import 'package:flutter_ios_android_platforms/presentation/utils/validator.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/button/app_button.dart';
-import 'package:flutter_ios_android_platforms/presentation/widgets/dropdown/grade_select_dropdown.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/grade_select_dropdown.dart';
 import 'package:flutter_ios_android_platforms/presentation/widgets/text_field/primary_text_field.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';

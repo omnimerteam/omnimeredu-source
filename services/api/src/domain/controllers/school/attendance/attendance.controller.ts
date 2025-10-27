@@ -289,7 +289,7 @@ class AttendanceController {
         sendNotFound(res);
         return;
       }
-      console.log(chalk.green("[Attendance] Delete attendance successfully"));
+
       sendSuccess(res, attendance, "Xoas attendance thành công");
       return;
     } catch (error) {

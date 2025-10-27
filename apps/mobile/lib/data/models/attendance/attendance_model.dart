@@ -1,4 +1,5 @@
 import 'package:flutter_ios_android_platforms/core/constants/app_constant.dart';
+import 'package:flutter_ios_android_platforms/core/constants/enum_constant.dart';
 import 'package:flutter_ios_android_platforms/domain/entities/attendance/attendance_entity.dart';
 
 /// 🔹 AttendanceModel - mapping JSON <-> Entity
@@ -7,6 +8,7 @@ class AttendanceModel {
   final String? classId;
   final String? schoolId;
   final DateTime? date;
+  final AttendanceSessionTypeEnum? sessionType;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -15,6 +17,7 @@ class AttendanceModel {
     required this.classId,
     required this.schoolId,
     this.date,
+    this.sessionType,
     this.createdAt,
     this.updatedAt,
   });
@@ -30,6 +33,9 @@ class AttendanceModel {
               DateTime.tryParse(json['date'] as String)!,
             )
           : null,
+      sessionType: AttendanceSessionTypeEnum.fromString(
+        json['sessionType'] as String?,
+      ),
       createdAt: (json['createdAt'] as String?) != null
           ? AppConstants.toVietnamTime(
               DateTime.tryParse(json['createdAt'] as String)!,
@@ -50,6 +56,7 @@ class AttendanceModel {
       'classId': classId,
       'schoolId': schoolId,
       'date': date?.toUtc().toIso8601String(),
+      'sessionType': sessionType?.name,
     };
   }
 
@@ -60,6 +67,7 @@ class AttendanceModel {
       classId: entity.classId,
       schoolId: entity.schoolId,
       date: entity.date,
+      sessionType: entity.sessionType,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     );
@@ -71,6 +79,7 @@ class AttendanceModel {
       classId: classId,
       schoolId: schoolId,
       date: date,
+      sessionType: sessionType,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

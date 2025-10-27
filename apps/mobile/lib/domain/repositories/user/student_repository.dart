@@ -10,7 +10,9 @@ abstract class StudentRepository {
 
   Future<StudentEntity> getStudentById(String id);
 
-  Future<StudentEntity> updateStudent(StudentEntity updateStudentData);
+  Future<ApiResponse<StudentEntity>> updateStudent(
+    StudentEntity updateStudentData,
+  );
 
   Future<void> deleteStudent(String id);
 

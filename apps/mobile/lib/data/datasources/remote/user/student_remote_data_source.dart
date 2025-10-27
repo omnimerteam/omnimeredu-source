@@ -88,30 +88,31 @@ class StudentRemoteDataSource {
   }
 
   /// Cập nhật học sinh
-  Future<StudentModel> updateStudent(StudentModel studentData) async {
-    final id = studentData.id;
-    if (id == null) {
-      throw Exception("Học sinh chưa được chọn");
+  Future<ApiResponse<StudentModel?>> updateStudent(
+    StudentModel studentData,
+  ) async {
+    if (studentData.id == null) {
+      throw Exception("Thiếu dữ liệu");
     }
 
-    final token = await _getIdToken();
+    try {
+      final token = await _getIdToken();
 
-    final res = await client.put<StudentModel>(
-      Endpoints.studentId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
-      data: studentData.toJson(),
-      parser: (data) {
-        if (data is Map<String, dynamic>) {
-          return StudentModel.fromJson(data);
-        }
-        throw Exception("API không trả về dữ liệu học sinh hợp lệ");
-      },
-    );
+      final res = await client.put<StudentModel?>(
+        Endpoints.studentId(studentData.id!),
+        headers: {if (token != null) "Authorization": "Bearer $token"},
+        data: studentData.toJson(),
+        parser: (data) {
+          if (data is Map<String, dynamic>) {
+            return StudentModel.fromJson(data);
+          }
+          throw Exception("API không trả về dữ liệu isVerified hợp lệ");
+        },
+      );
 
-    if (res.success && res.data != null) {
-      return res.data!;
-    } else {
-      throw Exception(res.message ?? "Không thể cập nhật học sinh");
+      return res;
+    } catch (e) {
+      throw Exception(e.toString());
     }
   }
 

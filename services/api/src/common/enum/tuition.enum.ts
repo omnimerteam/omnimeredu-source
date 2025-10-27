@@ -29,11 +29,11 @@ export const TuitionConditionOperatorTuple = Object.values(
  * Các kiểu dữ liệu cho giá trị so sánh.
  */
 export enum TuitionConditionValueTypeEnum {
-  String = "string",
-  Number = "number",
-  Boolean = "boolean",
-  Array = "array",
-  Object = "object",
+  String = "String",
+  Number = "Number",
+  Boolean = "Boolean",
+  Array = "Array",
+  Object = "Object",
 }
 
 export const TuitionConditionValueTypeTuple = Object.values(
@@ -54,8 +54,8 @@ export const TuitionConditionValueTypeTuple = Object.values(
  * Loại giảm giá (theo phần trăm hoặc cố định)
  */
 export enum DiscountKindEnum {
-  Percentage = "percentage",
-  Fixed = "fixed",
+  Percentage = "Percentage",
+  Fixed = "Fixed",
 }
 
 export const DiscountKindTuple = Object.values(DiscountKindEnum) as [
@@ -70,9 +70,9 @@ export const DiscountKindTuple = Object.values(DiscountKindEnum) as [
  * - specific_fee: chỉ áp dụng cho một phụ phí cụ thể
  */
 export enum DiscountTargetEnum {
-  Subtotal = "subtotal",
-  BaseFee = "baseFee",
-  SpecificFee = "specific_fee",
+  Subtotal = "Subtotal",
+  BaseFee = "BaseFee",
+  SpecificFee = "SpecificFee",
 }
 
 export const DiscountTargetTuple = Object.values(DiscountTargetEnum) as [
@@ -84,10 +84,10 @@ export const DiscountTargetTuple = Object.values(DiscountTargetEnum) as [
  * Phạm vi áp dụng (scope)
  */
 export enum DiscountApplicabilityScopeEnum {
-  All = "all",
-  Class = "class",
-  Grade = "grade",
-  Student = "student",
+  All = "All",
+  Class = "Class",
+  Grade = "Grade",
+  Student = "Student",
 }
 
 export const DiscountApplicabilityScopeTuple = Object.values(
@@ -98,9 +98,9 @@ export const DiscountApplicabilityScopeTuple = Object.values(
  * Chu kỳ áp dụng (once per)
  */
 export enum DiscountOncePerEnum {
-  Month = "month",
-  Term = "term",
-  None = "none", // dùng thay cho null để đồng nhất kiểu
+  Month = "Month",
+  Term = "Term",
+  None = "None", // dùng thay cho null để đồng nhất kiểu
 }
 
 export const DiscountOncePerTuple = Object.values(DiscountOncePerEnum) as [
@@ -122,10 +122,10 @@ export const DiscountOncePerTuple = Object.values(DiscountOncePerEnum) as [
  * Cách tính phụ phí (Extra Fee Calculation Type)
  */
 export enum FeeCalcTypeEnum {
-  Fixed = "fixed",
-  PerSession = "per_session",
-  PerMonth = "per_month",
-  Formula = "formula",
+  Fixed = "Fixed",
+  PerSession = "PerSession",
+  PerMonth = "PerMonth",
+  PerYear = "PerYear",
 }
 
 export const FeeCalcTypeTuple = Object.values(FeeCalcTypeEnum) as [
@@ -137,10 +137,10 @@ export const FeeCalcTypeTuple = Object.values(FeeCalcTypeEnum) as [
  * Phạm vi áp dụng phụ phí (Scope)
  */
 export enum ExtraFeeApplicabilityScopeEnum {
-  All = "all",
-  Class = "class",
-  Grade = "grade",
-  Student = "student",
+  All = "All",
+  Class = "Class",
+  Grade = "Grade",
+  Student = "Student",
 }
 
 export const ExtraFeeApplicabilityScopeTuple = Object.values(
@@ -151,28 +151,16 @@ export const ExtraFeeApplicabilityScopeTuple = Object.values(
  * Chu kỳ áp dụng phụ phí (Once Per Period)
  */
 export enum ExtraFeeOncePerEnum {
-  Month = "month",
-  Term = "term",
-  Year = "year",
-  None = "none",
+  Month = "Month",
+  Term = "Term",
+  Year = "Year",
+  None = "None",
 }
 
 export const ExtraFeeOncePerTuple = Object.values(ExtraFeeOncePerEnum) as [
   ExtraFeeOncePerEnum,
   ...ExtraFeeOncePerEnum[]
 ];
-
-/**
- * Loại công thức tính toán (formula type)
- */
-export enum ExtraFeeFormulaTypeEnum {
-  JsonLogic = "jsonlogic",
-  JavaScript = "js",
-}
-
-export const ExtraFeeFormulaTypeTuple = Object.values(
-  ExtraFeeFormulaTypeEnum
-) as [ExtraFeeFormulaTypeEnum, ...ExtraFeeFormulaTypeEnum[]];
 
 /**
  * ============================================================
@@ -184,11 +172,11 @@ export const ExtraFeeFormulaTypeTuple = Object.values(
  * Trạng thái của học phí (tuition status)
  */
 export enum TuitionStatusEnum {
-  Draft = "draft",
-  Pending = "pending",
-  Paid = "paid",
-  Cancelled = "cancelled",
-  Failed = "failed",
+  Draft = "Draft",
+  Pending = "Pending",
+  Paid = "Paid",
+  Cancelled = "Cancelled",
+  Failed = "Failed",
 }
 
 export const TuitionStatusTuple = Object.values(TuitionStatusEnum) as [

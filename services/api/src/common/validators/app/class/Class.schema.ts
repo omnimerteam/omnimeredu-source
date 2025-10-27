@@ -16,10 +16,11 @@ export const ClassSchema = z.object({
 
   code: z
     .string()
-    .min(1, { message: "Mã lớp là bắt buộc" })
     .regex(/^[A-Z0-9-]{3,10}$/, {
       message: "Mã lớp phải từ 3-10 ký tự in hoa, số hoặc dấu gạch ngang",
-    }),
+    })
+    .optional()
+    .nullable(),
 
   schoolId: z
     .string()

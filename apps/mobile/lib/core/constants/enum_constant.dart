@@ -296,3 +296,22 @@ enum AttendanceStatusEnum {
     );
   }
 }
+
+enum AttendanceSessionTypeEnum {
+  regular("Ngày thường"),
+  weekend("Cuối tuần"),
+  holiday("Lễ"),
+  extra("Học bù");
+
+  final String displayName;
+  const AttendanceSessionTypeEnum(this.displayName);
+
+  String get asString => name;
+
+  static AttendanceSessionTypeEnum fromString(String? value) {
+    return AttendanceSessionTypeEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => AttendanceSessionTypeEnum.regular,
+    );
+  }
+}

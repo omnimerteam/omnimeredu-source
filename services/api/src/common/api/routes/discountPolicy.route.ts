@@ -1,74 +1,97 @@
 import { NextFunction, Request, Response, Router } from "express";
-import DiscountPolicyModel  from "../../../domain/models/school/tuition/DiscountPolicy";
-import SchoolAdminModel from "../../../domain/models/user/SchoolAdmin";
-
+import { DiscountPolicy } from "../../../domain/models";
 
 import DiscountPolicyRepository from "../../../domain/repositories/school/tuition/discountPolicy.repository";
-import SchoolAdminRepository from "../../../domain/repositories/user/schoolAdmin.repository";
 import DiscountPolicyService from "../../../domain/services/school/tuition/dicountPolicy.service";
 import DiscountPolicyController from "../../../domain/controllers/school/tuition/discountPolicy.controller";
 
 // Logger & Activity Log
 import { DefaultLogger } from "../../utils/DefaultLogger";
-import {ActivityLogRepository} from "../../../domain/repositories";
+import { ActivityLogRepository } from "../../../domain/repositories";
 
 // Middleware
 import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
 import { verifyRole } from "../middlewares/verifyRole";
+import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
+import { authHeaderSchema } from "../../validators/common/header/header.validator";
+import { validateData } from "../middlewares/validateData";
+import { objectIdParamSchema } from "../../validators/common/params/params.validator";
+import {
+  createDiscountPolicyBodySchema,
+  updateDiscountPolicyBodySchema,
+} from "../../validators/app/discountPolicy/discountPolicy.validator";
 
 // Initialize and pass values to constructors
 const logger = new DefaultLogger(new ActivityLogRepository());
-const discountPolicyRepository = new DiscountPolicyRepository(DiscountPolicyModel);
-const schoolAdminRepository = new SchoolAdminRepository(SchoolAdminModel);
+const discountPolicyRepository = new DiscountPolicyRepository(DiscountPolicy);
 const discountPolicyService = new DiscountPolicyService(
-    discountPolicyRepository,
-    schoolAdminRepository,
-    logger
+  discountPolicyRepository,
+  logger
 );
 const discountPolicyController = new DiscountPolicyController(
-    discountPolicyService
+  discountPolicyService
+);
+
+const queryDiscountPolicy = createPaginationSchemaWithSortAndFilter(
+  ["code", "name", "minSubtotal", "maxSubtotal"],
+  ["kind", "target", "stackable", "oncePer", "applicabilityScope", "active"]
 );
 
 const router = Router();
 
 router.get(
-    "/",
-    verifyFirebaseToken,
-    verifyRole(["SuperAdmin", "SchoolAdmin"]),
-    (req: Request, res: Response, next: NextFunction) =>
-        discountPolicyController.getAllDiscountPolicy(req, res, next)
+  "/",
+  validateData({ headers: authHeaderSchema, query: queryDiscountPolicy }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    discountPolicyController.getAllDiscountPolicy(req, res, next)
 );
 
 router.get(
-    "/:id",
-    verifyFirebaseToken,
-    verifyRole(["SuperAdmin", "SchoolAdmin"]),
-    (req: Request, res: Response, next: NextFunction) =>
-        discountPolicyController.getDiscountPolicyById(req, res, next)
+  "/:id",
+  validateData({ headers: authHeaderSchema, query: objectIdParamSchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    discountPolicyController.getDiscountPolicyById(req, res, next)
 );
 
 router.post(
-    "/",
-    verifyFirebaseToken,
-    verifyRole(["SuperAdmin", "SchoolAdmin"]),
-    (req: Request, res: Response, next: NextFunction) =>
-        discountPolicyController.createDiscountPolicy(req, res, next)
+  "/",
+  validateData({
+    headers: authHeaderSchema,
+    query: createDiscountPolicyBodySchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    discountPolicyController.createDiscountPolicy(req, res, next)
 );
 
 router.put(
-    "/:id",
-    verifyFirebaseToken,
-    verifyRole(["SuperAdmin", "SchoolAdmin"]),
-    (req: Request, res: Response, next: NextFunction) =>
-        discountPolicyController.updateDiscountPolicy(req, res, next)
+  "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    query: updateDiscountPolicyBodySchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    discountPolicyController.updateDiscountPolicy(req, res, next)
 );
 
 router.delete(
-    "/:id",
-    verifyFirebaseToken,
-    verifyRole(["SuperAdmin", "SchoolAdmin"]),
-    (req: Request, res: Response, next: NextFunction) =>
-        discountPolicyController.deleteDiscountPolicy(req, res, next)
+  "/:id",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+  }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    discountPolicyController.deleteDiscountPolicy(req, res, next)
 );
 
 export default router;

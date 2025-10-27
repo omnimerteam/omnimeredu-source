@@ -1,13 +1,5 @@
-import { TuitionSchema } from "./Tuition.schema";
+import { TuitionZodSchema } from "./Tuition.schema";
 
-export const createTuitionBodySchema = TuitionSchema.omit({ _id: true });
+export const createTuitionBodySchema = TuitionZodSchema.omit({ _id: true });
 
-export const updateTuitionBodySchema = TuitionSchema.partial({
-  studentId: true,
-  month: true,
-  extraFeeIds: true,
-  discountId: true,
-  totalAmount: true,
-  attendedDays: true,
-  status: true,
-});
+export const updateTuitionBodySchema = TuitionZodSchema.partial();

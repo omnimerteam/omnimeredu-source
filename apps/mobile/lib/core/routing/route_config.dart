@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_bloc.dart';
 import 'package:flutter_ios_android_platforms/core/bloc/authentication/authentication_state.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/grade_select/cubit/grade_select_cubit.dart';
 import 'package:flutter_ios_android_platforms/injection_container.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/attendance_detail_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/attendance_record/bloc/attendance_detail_bloc.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_ios_android_platforms/presentation/screens/auth/registra
 import 'package:flutter_ios_android_platforms/presentation/screens/auth/role/bloc/role_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/class_detail_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/class_detail/cubit/class_detail_cubit.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/common/student_selector/cubit/student_selector_cubit.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/main_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/attendance_management_page.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/attendance/bloc/attendance_management_bloc.dart';
@@ -40,6 +42,10 @@ import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/bloc/school_data_schooladmin_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/school/school_data_schooladmin_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/tuition/extra_fee/bloc/extra_fee_management_bloc.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/tuition/extra_fee/bloc/extra_fee_management_event.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/tuition/extra_fee/extra_fee_management_screen.dart';
+import 'package:flutter_ios_android_platforms/presentation/screens/school_admin/tuition/tuition_management_center_screen.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/bloc/student_management_event.dart';
 import 'package:flutter_ios_android_platforms/presentation/screens/student/student_managent/student_management_screen.dart';
@@ -158,7 +164,7 @@ class RouteConfig {
               create: (_) =>
                   sl<AttendanceManagementBloc>()..add(LoadAttendancesEvent()),
             ),
-            //BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
+            BlocProvider(create: (_) => sl<ClassSelectorBloc>()),
           ],
           child: const AttendanceManagementPage(),
         );
@@ -182,6 +188,39 @@ class RouteConfig {
         return BlocProvider(
           create: (_) => sl<ChangePasswordCubit>(),
           child: const ChangePasswordScreen(),
+        );
+
+      case '/school-admin/tuition':
+        return TuitionManagementCenterScreen();
+
+      case '/school-admin/tuition/extra-fee':
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  sl<ExtraFeeManagementBloc>()
+                    ..add(LoadExtraFeeEvent()), // Load danh sách phí phụ
+            ),
+            BlocProvider(
+              create: (context) {
+                final authState = context.read<AuthenticationBloc>().state;
+                String schoolId = '';
+                if (authState is AuthenticationAuthenticated) {
+                  schoolId = authState.user.schoolId ?? '';
+                }
+                final bloc = sl<ClassSelectorBloc>();
+                if (schoolId.isNotEmpty) {
+                  bloc.add(LoadClassesBySchool(schoolId));
+                }
+                return bloc;
+              },
+            ),
+            BlocProvider(create: (_) => sl<GradeSelectCubit>()..loadGrades()),
+            BlocProvider(
+              create: (_) => sl<StudentSelectorCubit>()..loadStudents(),
+            ),
+          ],
+          child: const ExtraFeeManagementScreen(),
         );
 
       default:

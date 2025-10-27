@@ -1,46 +1,96 @@
 import { z } from "zod";
 import { Types } from "mongoose";
+import {
+  DiscountKindTuple,
+  DiscountTargetTuple,
+  DiscountApplicabilityScopeTuple,
+  DiscountOncePerTuple,
+} from "../../../../common/enum/tuition.enum";
+import { ConditionZodSchema } from "../condition/ConditionZodSchema";
 
-// Enum cho type
-export const TypeEnum = ["percentage", "fixed"] as const;
-
-export const DiscountPolicySchema = z
+/**
+ * Schema validate DiscountPolicy (chính sách giảm giá học phí)
+ */
+export const DiscountPolicyZodSchema = z
   .object({
     _id: z
       .string()
-      .refine((val) => Types.ObjectId.isValid(val), {
-        message: "Định dạng ObjectId không hợp lệ cho _id",
+      .refine((v) => Types.ObjectId.isValid(v), {
+        message: "_id không hợp lệ",
       })
       .optional(),
 
-    name: z
-      .string()
-      .min(1, { message: "Tên là bắt buộc" })
-      .max(100, { message: "Tên không được vượt quá 100 ký tự" }),
+    code: z.string().optional(),
 
-    type: z.enum(TypeEnum, {
-      message: `Loại phải là một trong: ${TypeEnum.join(", ")}`,
-    }),
+    name: z.string().min(1, "Tên là bắt buộc"),
+    description: z.string().optional(),
 
-    value: z.number().positive({ message: "Giá trị phải là một số dương" }),
+    kind: z.enum(DiscountKindTuple as [string, ...string[]]),
+    value: z.number().nonnegative("Giá trị phải >= 0"),
 
-    applicableTo: z
+    target: z
+      .enum(DiscountTargetTuple as [string, ...string[]])
+      .default("Subtotal"),
+    targetFeeCode: z.string().optional(),
+    maxCap: z.number().optional(),
+
+    stackable: z.boolean().default(false),
+    priority: z.number().optional(),
+    exclusiveGroup: z.string().optional(),
+
+    oncePer: z
+      .enum(DiscountOncePerTuple as [string, ...string[]])
+      .default("None"),
+
+    conditions: z.array(ConditionZodSchema).optional(),
+
+    applicabilityScope: z
+      .enum(DiscountApplicabilityScopeTuple as [string, ...string[]])
+      .default("All"),
+
+    applicableClassIds: z
       .array(
-        z.string().refine((val) => Types.ObjectId.isValid(val), {
-          message: "Định dạng ObjectId không hợp lệ cho applicableTo user",
+        z.string().refine((v) => Types.ObjectId.isValid(v), {
+          message: "ObjectId lớp không hợp lệ",
         })
       )
       .optional(),
+
+    applicableGradeIds: z
+      .array(
+        z.string().refine((v) => Types.ObjectId.isValid(v), {
+          message: "ObjectId khối không hợp lệ",
+        })
+      )
+      .optional(),
+
+    applicableStudentIds: z
+      .array(
+        z.string().refine((v) => Types.ObjectId.isValid(v), {
+          message: "ObjectId học sinh không hợp lệ",
+        })
+      )
+      .optional(),
+
+    schoolId: z.string().refine((v) => Types.ObjectId.isValid(v), {
+      message: "schoolId không hợp lệ",
+    }),
+
+    minSubtotal: z.number().optional(),
+    maxSubtotal: z.number().optional(),
+
+    active: z.boolean().default(true),
+    effectiveFrom: z.coerce.date().optional(),
+    effectiveTo: z.coerce.date().nullable().optional(),
   })
-  .superRefine(({ type, value }, ctx) => {
-    if (type === "percentage" && (value < 0 || value > 100)) {
+  .superRefine(({ kind, value }, ctx) => {
+    if (kind === "Percent" && (value < 0 || value > 100)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["value"],
-        message:
-          "Giá trị phải nằm trong khoảng từ 0 đến 100 nếu loại là percentage",
+        message: "Giá trị phần trăm phải nằm trong khoảng 0–100",
       });
     }
   });
 
-export type DiscountPolicy = z.infer<typeof DiscountPolicySchema>;
+export type DiscountPolicyZod = z.infer<typeof DiscountPolicyZodSchema>;
