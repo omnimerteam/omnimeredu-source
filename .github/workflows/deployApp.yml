@@ -47,4 +47,4 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST_APP }}
           VPS_PATH: ${{ secrets.VPS_PATH }}
         run: |
-          scp -o StrictHostKeyChecking=no apps/omnimereduapp/build/app/outputs/flutter-apk/app-release.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
+          scp -o StrictHostKeyChecking=no apps/omnimereduapp/build/app/outputs/apk/release/app-realease.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
