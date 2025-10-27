@@ -25,16 +25,16 @@ jobs:
         run: |
           echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> .env.production
           echo "APP_ENV=PROD" >> .env.production
-        working-directory: apps/mobile
+        working-directory: apps/omnimereduapp
         shell: bash
 
       - name: Install dependencies
         run: flutter pub get
-        working-directory: apps/mobile
+        working-directory: apps/omnimereduapp
 
       - name: Build release APK
         run: flutter build apk --release --dart-define=ENV=PROD
-        working-directory: apps/mobile
+        working-directory: apps/omnimereduapp
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
