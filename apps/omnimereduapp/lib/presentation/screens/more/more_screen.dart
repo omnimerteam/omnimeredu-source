@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:omnimereduapp/presentation/screens/more/widgets/app_info_card.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_cubit.dart';
 import '../../../core/bloc/authentication/authentication_bloc.dart';
@@ -17,8 +18,6 @@ class MoreScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Section
-          _buildHeaderSection(context),
           const SizedBox(height: 24),
 
           // Account Section
@@ -28,85 +27,29 @@ class MoreScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // App Settings Section
-          _buildSectionTitle(context, 'Cài đặt ứng dụng'),
-          const SizedBox(height: 12),
-          _buildAppSettingsSection(context),
-          const SizedBox(height: 24),
+          // _buildSectionTitle(context, 'Cài đặt ứng dụng'),
+          // const SizedBox(height: 12),
+          // _buildAppSettingsSection(context),
+          // const SizedBox(height: 24),
 
           // Premium Section
-          _buildSectionTitle(context, 'Nâng cao'),
-          const SizedBox(height: 12),
-          _buildPremiumSection(context),
-          const SizedBox(height: 24),
+          // _buildSectionTitle(context, 'Nâng cao'),
+          // const SizedBox(height: 12),
+          // _buildPremiumSection(context),
+          // const SizedBox(height: 24),
 
           // Support Section
-          _buildSectionTitle(context, 'Hỗ trợ'),
-          const SizedBox(height: 12),
-          _buildSupportSection(context),
-          const SizedBox(height: 24),
+          // _buildSectionTitle(context, 'Hỗ trợ'),
+          // const SizedBox(height: 12),
+          // _buildSupportSection(context),
+          // const SizedBox(height: 24),
 
           // Logout Section
           _buildLogoutSection(context),
           const SizedBox(height: 24),
 
           // App Info
-          _buildAppInfo(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeaderSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary.withOpacity(0.1),
-            AppColors.blue.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.more_horiz,
-              size: 32,
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tùy chọn thêm',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Cài đặt, hỗ trợ và các tính năng khác',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
+          const AppInfoCard(),
         ],
       ),
     );
@@ -134,7 +77,7 @@ class MoreScreen extends StatelessWidget {
             title: 'Thông tin cá nhân',
             subtitle: 'Xem và chỉnh sửa thông tin',
             color: Colors.blue,
-            onTap: () => _navigateToFeature(context, 'profile'),
+            onTap: () => Navigator.pushNamed(context, '/profile'),
           ),
           const Divider(height: 1),
           _buildMenuItem(
@@ -319,69 +262,6 @@ class MoreScreen extends StatelessWidget {
         subtitle: 'Thoát khỏi tài khoản hiện tại',
         color: Colors.red,
         onTap: () => _showLogoutDialog(context),
-      ),
-    );
-  }
-
-  Widget _buildAppInfo(BuildContext context) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.school,
-                    size: 24,
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Omnimer Education',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Phiên bản 1.0.0',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '© 2025 Tập đoàn Omnimer',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'contact@omnimer.com',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: AppColors.primary),
-            ),
-          ],
-        ),
       ),
     );
   }
