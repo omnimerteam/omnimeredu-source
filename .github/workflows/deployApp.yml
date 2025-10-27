@@ -3,7 +3,7 @@ name: Build & Deploy Flutter .APK
 on:
   push:
     branches:
-      - cicd-App   # chỉ build khi có push lên nhánh main
+      - cicd-App-v2   # chỉ build khi có push lên nhánh main
 
 jobs:
   build:
