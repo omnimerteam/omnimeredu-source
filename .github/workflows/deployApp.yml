@@ -1,0 +1,50 @@
+name: Build & Deploy Flutter .APK
+
+on:
+  push:
+    branches:
+      - cicd-App   # chỉ build khi có push lên nhánh main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.6"  
+
+      - name: Disable Flutter analytics
+        run: flutter config --no-analytics
+
+      - name: Create .env file from secrets
+        run: |
+          echo "API_BASE_URL=${{ secrets.API_BASE_URL }}" >> .env.production
+          echo "APP_ENV=PROD" >> .env.production
+        working-directory: apps/mobile
+        shell: bash
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Build release APK
+        run: flutter build apk --release --dart-define=ENV=PROD
+        working-directory: apps/mobile
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Upload APK to VPS
+        env:
+          VPS_USER: ${{ secrets.VPS_USER_APP }}
+          VPS_HOST: ${{ secrets.VPS_HOST_APP }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+        run: |
+          scp -o StrictHostKeyChecking=no apps/mobile/build/app/outputs/flutter-apk/app-release.apk $VPS_USER@$VPS_HOST:$VPS_PATH/app-release.apk
