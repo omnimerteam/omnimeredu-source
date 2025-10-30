@@ -1,0 +1,30 @@
+name: Deploy to Google Play
+on:  
+  workflow_dispatch: 
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64}}" | base64 --decode >android/app/upload-keystore.jks
+
+      - name: Build AAB
+        run: flutter build appbundle --release
+
+      - name: Upload to Google Play
+        run: r0adkll/upload-google-play@v1
+        with:
+            serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+            packageName: com.yourcompany.yourapp
+            releaseFiles: build/app/outputs/bundle/release/app-release.aab
+            track: production
+            status: completed
