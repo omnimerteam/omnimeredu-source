@@ -83,7 +83,7 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - .env.development
+    # - .env.development
     - .env.production
     - assets/images/logo/logo.jpg
     - assets/images/logo/Combination_Logo.jpeg
