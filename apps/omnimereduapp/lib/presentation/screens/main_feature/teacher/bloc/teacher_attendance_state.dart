@@ -11,6 +11,9 @@ enum AttendanceStatus {
   initializing,
   initializeSuccess,
   initializeFailure,
+  deleting,
+  deleteSuccess,
+  deleteFailure,
 }
 
 class TeacherAttendanceState extends Equatable {

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/utils/logger.dart';
+import 'package:omnimereduapp/domain/usecases/attendance/delete_attendance_usecase.dart';
 import '../../../../../domain/entities/view_model/attendance_record_view_entity.dart';
 import '../../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import '../../../../../domain/entities/detail_record/detail_record_entity.dart';
@@ -14,11 +14,13 @@ class TeacherAttendanceBloc
   final GetClassAttendanceRecordViewUseCase getAttendanceRecordUseCase;
   final UpdateStatusDetailRecordUseCase updateStatusUseCase;
   final InitializeClassAttendanceUseCase initializeClassAttendanceUseCase;
+  final DeleteAttendanceUseCase deleteAttendanceUseCase;
 
   TeacherAttendanceBloc({
     required this.getAttendanceRecordUseCase,
     required this.updateStatusUseCase,
     required this.initializeClassAttendanceUseCase,
+    required this.deleteAttendanceUseCase,
   }) : super(TeacherAttendanceState(selectedDate: DateTime.now())) {
     on<LoadAttendanceRecord>(_onLoadAttendanceRecord);
     on<RefreshAttendanceRecord>(_onRefreshAttendanceRecord);
@@ -26,7 +28,8 @@ class TeacherAttendanceBloc
     on<ChangeSelectedClass>(_onChangeSelectedClass);
     on<ChangeSelectedDate>(_onChangeSelectedDate);
     on<SearchStudents>(_onSearchStudents);
-    on<InitializeAttendance>(_onInitializeAttendance); // 🔹 Handler mới
+    on<InitializeAttendance>(_onInitializeAttendance);
+    on<DeleteAttendance>(_onDeleteAttendance);
   }
 
   Future<void> _onLoadAttendanceRecord(
@@ -40,8 +43,6 @@ class TeacherAttendanceBloc
         event.date,
         event.classId,
       );
-
-      logger.i("Response: ${response.data}");
 
       if (response.success == true && response.data != null) {
         emit(
@@ -181,9 +182,6 @@ class TeacherAttendanceBloc
   ) {
     emit(state.copyWith(selectedClassId: event.classId));
 
-    logger.i("Reload khi classId change");
-
-    // Auto load attendance when class is selected
     add(LoadAttendanceRecord(date: state.selectedDate, classId: event.classId));
   }
 
@@ -227,8 +225,6 @@ class TeacherAttendanceBloc
       );
 
       if (response.success == true) {
-        logger.i("Initialize attendance success: ${response.data}");
-
         emit(state.copyWith(status: AttendanceStatus.initializeSuccess));
 
         // 🔹 Sau khi tạo thành công, tự động load lại dữ liệu
@@ -242,11 +238,45 @@ class TeacherAttendanceBloc
         );
       }
     } catch (e) {
-      logger.e('[TeacherAttendanceBloc] Error initializing attendance: $e');
       emit(
         state.copyWith(
           status: AttendanceStatus.initializeFailure,
           errorMessage: 'Đã xảy ra lỗi: ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onDeleteAttendance(
+    DeleteAttendance event,
+    Emitter<TeacherAttendanceState> emit,
+  ) async {
+    emit(state.copyWith(status: AttendanceStatus.loading));
+
+    try {
+      final response = await deleteAttendanceUseCase.call(event.attendanceId);
+
+      if (response.success == true) {
+        emit(
+          state.copyWith(
+            status: AttendanceStatus.success,
+            attendanceRecord: null,
+            errorMessage: null,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: AttendanceStatus.failure,
+            errorMessage: response.message ?? 'Không thể xóa bảng điểm danh',
+          ),
+        );
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.failure,
+          errorMessage: 'Đã xảy ra lỗi khi xóa: ${e.toString()}',
         ),
       );
     }

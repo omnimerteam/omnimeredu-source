@@ -145,10 +145,15 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                                 );
                               }
                             },
-                            onNewOrUpdate: () {
+                            onNewOrDelete: () {
                               // 🔹 Xử lý tạo attendance mới
-                              _handleCreateAttendance(context, attendanceState);
+                              _handleCreateOrDeleteAttendance(
+                                context,
+                                attendanceState,
+                              );
                             },
+                            hasAttendance:
+                                attendanceState.attendanceRecord != null,
                           ),
                           const SizedBox(height: 16),
 
@@ -192,12 +197,12 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
     );
   }
 
-  // 🔹 Xử lý tạo attendance
-  void _handleCreateAttendance(
+  void _handleCreateOrDeleteAttendance(
     BuildContext context,
     TeacherAttendanceState state,
   ) {
-    // Kiểm tra điều kiện
+    final bloc = context.read<TeacherAttendanceBloc>();
+
     if (state.selectedClassId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -209,51 +214,106 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
       return;
     }
 
-    // Hiển thị dialog xác nhận
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Tạo bảng điểm danh'),
-        content: Text(
-          'Bạn có chắc muốn tạo bảng điểm danh cho ngày '
-          '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year}?',
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  text: 'Hủy',
-                  type: AppButtonType.cancel,
-                ),
-              ),
+    final hasAttendance = state.attendanceRecord != null;
 
-              SizedBox(width: 15),
-
-              Expanded(
-                child: AppButton(
-                  onPressed: () {
-                    Navigator.of(dialogContext).pop();
-
-                    // 🔹 Dispatch event tạo attendance
-                    context.read<TeacherAttendanceBloc>().add(
-                      InitializeAttendance(
-                        classId: state.selectedClassId!,
-                        schoolId: widget.schoolId,
-                        date: state.selectedDate,
-                      ),
-                    );
-                  },
-                  text: 'Xác nhận',
-                  type: AppButtonType.primary,
-                ),
-              ),
-            ],
+    // 🔹 Nếu đã có bảng điểm danh → hỏi xóa
+    if (hasAttendance) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Xóa bảng điểm danh'),
+          content: Text(
+            'Bảng điểm danh cho ngày '
+            '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year} '
+            'đã tồn tại.\n\nBạn có chắc muốn xóa bảng điểm danh này không?',
           ),
-        ],
-      ),
-    );
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    text: 'Hủy',
+                    type: AppButtonType.cancel,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: AppButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+
+                      // 🔹 Gửi event xóa bảng điểm danh
+                      bloc.add(DeleteAttendance(state.attendanceRecord!.id));
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đang xóa bảng điểm danh...'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    },
+                    text: 'Xóa',
+                    type: AppButtonType.danger,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      // 🔹 Nếu chưa có bảng điểm danh → hỏi tạo mới
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Tạo bảng điểm danh'),
+          content: Text(
+            'Bạn có chắc muốn tạo bảng điểm danh cho ngày '
+            '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year}?',
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    text: 'Hủy',
+                    type: AppButtonType.cancel,
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: AppButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+
+                      // 🔹 Gửi event tạo bảng điểm danh mới
+                      bloc.add(
+                        InitializeAttendance(
+                          classId: state.selectedClassId!,
+                          schoolId: widget.schoolId,
+                          date: state.selectedDate,
+                        ),
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Đang tạo bảng điểm danh...'),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    },
+                    text: 'Tạo mới',
+                    type: AppButtonType.primary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildStatsLoading() {
@@ -406,7 +466,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () => _handleCreateAttendance(context, state),
+            onPressed: () => _handleCreateOrDeleteAttendance(context, state),
             icon: const Icon(Icons.add),
             label: const Text('Tạo bảng điểm danh'),
             style: ElevatedButton.styleFrom(

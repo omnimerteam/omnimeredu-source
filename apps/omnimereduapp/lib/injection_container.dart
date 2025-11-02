@@ -516,6 +516,7 @@ Future<void> init() async {
       getAttendanceRecordUseCase: sl(),
       updateStatusUseCase: sl(),
       initializeClassAttendanceUseCase: sl(),
+      deleteAttendanceUseCase: sl(),
     ),
   );
 

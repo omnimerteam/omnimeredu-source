@@ -14,10 +14,12 @@ class ClassAndDateSelector extends StatefulWidget {
   final ValueChanged<ClassSearchEntity?> onClassChanged;
   final ValueChanged<DateTime> onDateChanged;
   final VoidCallback onRefresh;
-  final VoidCallback onNewOrUpdate;
+  final VoidCallback onNewOrDelete;
   final String queryString;
   final bool isLoading;
   final bool canCreate;
+
+  final bool hasAttendance;
 
   const ClassAndDateSelector({
     super.key,
@@ -28,10 +30,11 @@ class ClassAndDateSelector extends StatefulWidget {
     required this.onClassChanged,
     required this.onDateChanged,
     required this.onRefresh,
-    required this.onNewOrUpdate,
+    required this.onNewOrDelete,
     this.queryString = "",
     this.isLoading = false,
     this.canCreate = true,
+    this.hasAttendance = false,
   });
 
   @override
@@ -94,7 +97,7 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Bên trái: Class + Date (dọc)
+            // 🔹 Bên trái: Class + Date
             Expanded(
               flex: 4,
               child: Column(
@@ -137,29 +140,38 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
 
             const SizedBox(width: 16),
 
-            // 🔹 Bên phải: Icon actions (dọc)
+            // 🔹 Bên phải: Action buttons
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Tạo mới
+                // ✅ Nút tạo mới / xóa tự đổi icon
                 Material(
-                  color: theme.colorScheme.primary.withOpacity(
-                    widget.canCreate && !widget.isLoading ? 1 : 0.4,
-                  ),
+                  color: widget.hasAttendance
+                      ? Colors.redAccent.withOpacity(
+                          widget.canCreate && !widget.isLoading ? 1 : 0.4,
+                        )
+                      : theme.colorScheme.primary.withOpacity(
+                          widget.canCreate && !widget.isLoading ? 1 : 0.4,
+                        ),
                   borderRadius: BorderRadius.circular(8),
                   child: InkWell(
                     onTap: widget.canCreate && !widget.isLoading
-                        ? widget.onNewOrUpdate
+                        ? widget.onNewOrDelete
                         : null,
                     borderRadius: BorderRadius.circular(8),
-                    child: const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Icon(Icons.add, color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Icon(
+                        widget.hasAttendance ? Icons.delete_outline : Icons.add,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 12),
-                // Refresh
+
+                // 🔄 Refresh
                 Material(
                   color: theme.colorScheme.secondary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),

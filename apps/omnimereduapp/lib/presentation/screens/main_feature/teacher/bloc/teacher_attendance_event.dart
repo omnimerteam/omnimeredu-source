@@ -85,3 +85,13 @@ class InitializeAttendance extends TeacherAttendanceEvent {
   @override
   List<Object?> get props => [classId, schoolId, date];
 }
+
+// 🔹 Event mới: Xóa bảng điểm danh
+class DeleteAttendance extends TeacherAttendanceEvent {
+  final String attendanceId;
+
+  const DeleteAttendance(this.attendanceId);
+
+  @override
+  List<Object?> get props => [attendanceId];
+}
