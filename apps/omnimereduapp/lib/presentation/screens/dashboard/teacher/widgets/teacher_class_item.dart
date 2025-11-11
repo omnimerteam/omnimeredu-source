@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:omnimereduapp/presentation/screens/dashboard/teacher/cubit/teacher_classes_cubit.dart';
+import 'package:omnimereduapp/presentation/screens/dashboard/teacher/cubit/teacher_classes_state.dart';
 import '../../../../../domain/entities/teaching_assignment/class_teacher_assign_entity.dart';
+import '../../../../../domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
+import '../../cubit/dashboard_cubit.dart';
+import '../../cubit/dashboard_state.dart';
 
 class TeacherClassItem extends StatelessWidget {
   final ClassTeacherAssignEntity classAssignment;
@@ -17,63 +23,239 @@ class TeacherClassItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasAttendance = classAssignment.isHaveAttendance;
-    final isMainTeacher = classAssignment.isMain;
+    // 🔹 Listen to both cubits để update UI realtime
+    return BlocListener<TeacherClassesCubit, TeacherClassesState>(
+      listener: (context, state) => _handleClassesStateChange(context, state),
+      child: BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, dashboardState) {
+          // 🔹 Lấy data mới nhất từ dashboard
+          final currentClass = _getCurrentClassData(dashboardState);
+          final hasAttendance = currentClass.isHaveAttendance;
+          final isMainTeacher = currentClass.isMain;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: hasAttendance ? Colors.grey.shade300 : Colors.red,
-          width: hasAttendance ? 1 : 2,
+          // 🔹 Check nếu đang loading cho class này
+          final isLoading = _isClassLoading(context);
+
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: hasAttendance ? Colors.grey.shade300 : Colors.red,
+                width: hasAttendance ? 1 : 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      /// 🔹 Icon lớp học với loading overlay
+                      _buildClassIcon(isLoading),
+                      const SizedBox(width: 12),
+
+                      /// 🔹 Thông tin lớp
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildClassTitle(isMainTeacher),
+                            const SizedBox(height: 4),
+                            _buildClassDetails(),
+                            if (!hasAttendance && !isLoading)
+                              _buildAttendanceWarning(),
+                            if (isLoading) _buildLoadingIndicator(),
+                          ],
+                        ),
+                      ),
+
+                      /// 🔹 Menu tác vụ (disable khi loading)
+                      _buildMenu(hasAttendance, isLoading),
+                    ],
+                  ),
+                ),
+
+                // 🔹 Loading overlay khi đang xử lý
+                if (isLoading) _buildLoadingOverlay(),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// 🔹 Xử lý state changes từ TeacherClassesCubit
+  void _handleClassesStateChange(
+    BuildContext context,
+    TeacherClassesState state,
+  ) {
+    if (state is AttendanceInitialized && state.classId == classAssignment.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(state.message)),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+      );
+    }
+
+    if (state is AttendanceInitializationError &&
+        state.classId == classAssignment.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(state.message)),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+
+    if (state is AttendanceDeleted && state.classId == classAssignment.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(state.message)),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    if (state is AttendanceDeletionError &&
+        state.classId == classAssignment.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(state.message)),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  /// 🔹 Lấy data class mới nhất từ dashboard
+  ClassTeacherAssignEntity _getCurrentClassData(DashboardState dashboardState) {
+    if (dashboardState is DashboardLoaded &&
+        dashboardState.data is TeacherDashboardDataEntity) {
+      final data = dashboardState.data as TeacherDashboardDataEntity;
+      final classes = data.classAssignment ?? [];
+
+      // Tìm class với ID tương ứng
+      return classes.firstWhere(
+        (c) => c.id == classAssignment.id,
+        orElse: () => classAssignment,
+      );
+    }
+    return classAssignment;
+  }
+
+  /// 🔹 Check xem class này có đang loading không
+  bool _isClassLoading(BuildContext context) {
+    final state = context.watch<TeacherClassesCubit>().state;
+
+    if (state is InitializingAttendance &&
+        state.classId == classAssignment.id) {
+      return true;
+    }
+    if (state is DeletingAttendance && state.classId == classAssignment.id) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Icon lớp học với animation khi loading
+  Widget _buildClassIcon(bool isLoading) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: isLoading ? Colors.grey.shade100 : Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            )
+          : Icon(Icons.class_outlined, color: Colors.blue.shade700, size: 24),
+    );
+  }
+
+  /// Loading indicator dưới class details
+  Widget _buildLoadingIndicator() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 12,
+            height: 12,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.blue.shade600,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Đang xử lý...',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.blue.shade600,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            /// 🔹 Icon lớp học
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.class_outlined,
-                color: Colors.blue.shade700,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 12),
+    );
+  }
 
-            /// 🔹 Thông tin lớp
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildClassTitle(isMainTeacher),
-                  const SizedBox(height: 4),
-                  _buildClassDetails(),
-                  if (!hasAttendance) _buildAttendanceWarning(),
-                ],
-              ),
-            ),
-
-            /// 🔹 Menu tác vụ
-            _buildMenu(hasAttendance),
-          ],
+  /// Loading overlay che toàn bộ card
+  Widget _buildLoadingOverlay() {
+    return Positioned.fill(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
   }
@@ -127,10 +309,8 @@ class TeacherClassItem extends StatelessWidget {
           'Mã lớp: ${entity.code}',
           style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
         ),
-
         Row(
           children: [
-            // Cột trái: Grade
             Expanded(
               child: Text(
                 'Khối: ${entity.gradeName}',
@@ -139,17 +319,13 @@ class TeacherClassItem extends StatelessWidget {
                 maxLines: 1,
               ),
             ),
-
             const SizedBox(width: 16),
-
-            // Cột phải: Sĩ số
             Text(
               'Sĩ số: ${entity.studentsCount}/${entity.maxStudents}',
               style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
             ),
           ],
         ),
-
         Text(
           'Môn: ${classAssignment.subject.displayName}',
           style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
@@ -184,9 +360,13 @@ class TeacherClassItem extends StatelessWidget {
   }
 
   /// Menu tác vụ (PopupMenu)
-  Widget _buildMenu(bool hasAttendance) {
+  Widget _buildMenu(bool hasAttendance, bool isLoading) {
     return PopupMenuButton<String>(
-      icon: Icon(Icons.more_vert, color: Colors.grey.shade700),
+      icon: Icon(
+        Icons.more_vert,
+        color: isLoading ? Colors.grey.shade400 : Colors.grey.shade700,
+      ),
+      enabled: !isLoading, // Disable menu khi loading
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       offset: const Offset(-10, 40),
       itemBuilder: (context) => [
@@ -204,6 +384,13 @@ class TeacherClassItem extends StatelessWidget {
             color: Colors.green.shade700,
             text: 'Xem bảng điểm danh',
           ),
+        if (hasAttendance)
+          _menuItem(
+            value: 'delete_attendance',
+            icon: Icons.delete_outline,
+            color: Colors.red.shade700,
+            text: 'Xóa bảng điểm danh',
+          ),
         _menuItem(
           value: 'view_students',
           icon: Icons.people_outline,
@@ -218,6 +405,9 @@ class TeacherClassItem extends StatelessWidget {
             break;
           case 'view_attendance':
             onViewAttendance();
+            break;
+          case 'delete_attendance':
+            // TODO: Implement delete
             break;
           case 'view_students':
             onViewStudents();

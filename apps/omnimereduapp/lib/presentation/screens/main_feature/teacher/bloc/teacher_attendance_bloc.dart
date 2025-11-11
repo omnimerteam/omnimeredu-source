@@ -52,6 +52,7 @@ class TeacherAttendanceBloc
             attendanceRecordSet: true,
             selectedClassId: event.classId,
             selectedDate: event.date,
+            errorMessage: null,
           ),
         );
       } else if (response.success == true && response.data == null) {
@@ -63,7 +64,7 @@ class TeacherAttendanceBloc
             attendanceRecordSet: true,
             selectedClassId: event.classId,
             selectedDate: event.date,
-            errorMessage: 'Chưa có bảng điểm danh cho ngày này',
+            errorMessage: null,
           ),
         );
       } else {
@@ -100,6 +101,16 @@ class TeacherAttendanceBloc
           state.copyWith(
             status: AttendanceStatus.success,
             attendanceRecord: response.data,
+            attendanceRecordSet: true,
+          ),
+        );
+      } else if (response.success == true && response.data == null) {
+        // 🔹 Trường hợp đã bị xóa hoặc không tồn tại
+        emit(
+          state.copyWith(
+            status: AttendanceStatus.initial,
+            attendanceRecord: null,
+            attendanceRecordSet: true,
           ),
         );
       }
@@ -161,6 +172,7 @@ class TeacherAttendanceBloc
           state.copyWith(
             status: AttendanceStatus.failure,
             attendanceRecord: currentRecord.copyWith(students: students),
+            errorMessage: response.message ?? 'Cập nhật thất bại',
           ),
         );
       }
@@ -171,6 +183,7 @@ class TeacherAttendanceBloc
         state.copyWith(
           status: AttendanceStatus.failure,
           attendanceRecord: currentRecord.copyWith(students: students),
+          errorMessage: 'Đã xảy ra lỗi: ${e.toString()}',
         ),
       );
     }
@@ -180,7 +193,15 @@ class TeacherAttendanceBloc
     ChangeSelectedClass event,
     Emitter<TeacherAttendanceState> emit,
   ) {
-    emit(state.copyWith(selectedClassId: event.classId));
+    emit(
+      state.copyWith(
+        selectedClassId: event.classId,
+        // Clear attendance record khi đổi lớp
+        attendanceRecord: null,
+        attendanceRecordSet: true,
+        errorMessage: null,
+      ),
+    );
 
     add(LoadAttendanceRecord(date: state.selectedDate, classId: event.classId));
   }
@@ -189,7 +210,15 @@ class TeacherAttendanceBloc
     ChangeSelectedDate event,
     Emitter<TeacherAttendanceState> emit,
   ) {
-    emit(state.copyWith(selectedDate: event.date));
+    emit(
+      state.copyWith(
+        selectedDate: event.date,
+        // Clear attendance record khi đổi ngày
+        attendanceRecord: null,
+        attendanceRecordSet: true,
+        errorMessage: null,
+      ),
+    );
 
     // Auto load attendance when date is changed
     if (state.selectedClassId != null) {
@@ -206,7 +235,7 @@ class TeacherAttendanceBloc
     emit(state.copyWith(searchQuery: event.query));
   }
 
-  // 🔹 Handler mới: Khởi tạo bảng điểm danh
+  // 🔹 Handler: Khởi tạo bảng điểm danh
   Future<void> _onInitializeAttendance(
     InitializeAttendance event,
     Emitter<TeacherAttendanceState> emit,
@@ -225,7 +254,12 @@ class TeacherAttendanceBloc
       );
 
       if (response.success == true) {
-        emit(state.copyWith(status: AttendanceStatus.initializeSuccess));
+        emit(
+          state.copyWith(
+            status: AttendanceStatus.initializeSuccess,
+            errorMessage: null,
+          ),
+        );
 
         // 🔹 Sau khi tạo thành công, tự động load lại dữ liệu
         add(LoadAttendanceRecord(date: event.date, classId: event.classId));
@@ -247,38 +281,72 @@ class TeacherAttendanceBloc
     }
   }
 
+  // 🔹 Handler: Xóa bảng điểm danh - CẢI TIẾN
   Future<void> _onDeleteAttendance(
     DeleteAttendance event,
     Emitter<TeacherAttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.loading));
+    // Lưu lại attendance record hiện tại để rollback nếu cần
+    final previousRecord = state.attendanceRecord;
+    final previousStatus = state.status;
+
+    // 🔹 1. Chuyển sang trạng thái deleting
+    emit(state.copyWith(status: AttendanceStatus.deleting));
 
     try {
       final response = await deleteAttendanceUseCase.call(event.attendanceId);
 
       if (response.success == true) {
+        // 🔹 2a. Xóa thành công - Clear attendance record
         emit(
           state.copyWith(
-            status: AttendanceStatus.success,
+            status: AttendanceStatus.deleteSuccess,
             attendanceRecord: null,
+            attendanceRecordSet: true,
             errorMessage: null,
           ),
         );
+
+        // 🔹 Optional: Tự động chuyển về initial sau một khoảng thời gian ngắn
+        // để UI có thời gian hiển thị success message
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (!emit.isDone) {
+          emit(state.copyWith(status: AttendanceStatus.initial));
+        }
       } else {
+        // 🔹 2b. Xóa thất bại - Rollback về trạng thái cũ
         emit(
           state.copyWith(
-            status: AttendanceStatus.failure,
+            status: AttendanceStatus.deleteFailure,
+            attendanceRecord: previousRecord,
             errorMessage: response.message ?? 'Không thể xóa bảng điểm danh',
           ),
         );
+
+        // Sau khi hiển thị lỗi, quay về trạng thái trước đó
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (!emit.isDone) {
+          emit(state.copyWith(status: previousStatus));
+        }
       }
     } catch (e) {
+      // 🔹 2c. Exception - Rollback về trạng thái cũ
       emit(
         state.copyWith(
-          status: AttendanceStatus.failure,
+          status: AttendanceStatus.deleteFailure,
+          attendanceRecord: previousRecord,
           errorMessage: 'Đã xảy ra lỗi khi xóa: ${e.toString()}',
         ),
       );
+
+      // Sau khi hiển thị lỗi, quay về trạng thái trước đó
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!emit.isDone) {
+        emit(state.copyWith(status: previousStatus));
+      }
     }
   }
 }

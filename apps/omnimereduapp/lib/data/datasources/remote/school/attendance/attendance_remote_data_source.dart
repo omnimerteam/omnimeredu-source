@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:omnimereduapp/data/models/attendance/export_file_model.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/api_response.dart';
 import '../../../../../core/network/endpoints.dart';
@@ -91,6 +92,31 @@ class AttendanceRemoteDataSource {
     final res = await client.delete<bool?>(
       Endpoints.deleteAttendance(id),
       headers: {if (token != null) "Authorization": "Bearer $token"},
+    );
+
+    return res;
+  }
+
+  Future<ApiResponse<ExportedFileModel?>> exportAttendanceExcel(
+    String id, {
+    String? mode,
+  }) async {
+    final token = await _getIdToken();
+
+    // Gắn query param (mode) nếu có
+    final queryParams = <String, dynamic>{};
+    if (mode != null) queryParams['mode'] = mode;
+
+    final res = await client.get<ExportedFileModel?>(
+      Endpoints.exportAttendanceExcel(id),
+      headers: {if (token != null) "Authorization": "Bearer $token"},
+      query: queryParams,
+      parser: (data) {
+        if (data is Map<String, dynamic>) {
+          return ExportedFileModel.fromJson(data);
+        }
+        throw Exception("API không trả về dữ liệu hợp lệ");
+      },
     );
 
     return res;

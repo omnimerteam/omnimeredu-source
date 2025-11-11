@@ -4,6 +4,17 @@ import {
   EducationGradesTuple,
   EducationSystemLevelsTuple,
 } from "../../../enum/educationSystemLevels.enum";
+import { ExcelMode, ExcelTuple } from "../../../utils/ResponseHelper";
+
+/**
+ * Schema validate query cho export Excel điểm danh
+ * mode có thể là:
+ *  - "download" → tải file
+ *  - "json"     → trả base64 JSON
+ */
+export const exportAttendanceExcelQuerySchema = z.object({
+  mode: z.enum(ExcelTuple).optional().default(ExcelMode.download),
+});
 
 /**
  * Pagination and sorting query schema
