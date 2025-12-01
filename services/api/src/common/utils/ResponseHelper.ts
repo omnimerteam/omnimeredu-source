@@ -189,3 +189,47 @@ export const cleanErrorMessage = (err: any): string => {
 
   return message.trim();
 };
+
+export enum ExcelMode {
+  download = "download",
+  json = "json",
+}
+
+export const ExcelTuple = Object.values(ExcelMode) as [
+  ExcelMode,
+  ...ExcelMode[]
+];
+
+/**
+ * Gửi file Excel dưới dạng tải xuống hoặc JSON base64.
+ */
+export const sendExcelResponse = (
+  res: Response,
+  buffer: Buffer | Uint8Array,
+  fileName: string,
+  mode: ExcelMode = ExcelMode.download,
+  message = "Xuất file Excel thành công"
+) => {
+  const mimeType =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+  if (mode === ExcelMode.download) {
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
+    res.end(Buffer.from(buffer));
+    return;
+  }
+
+  // mode === "json"
+  const base64 = Buffer.from(buffer).toString("base64");
+  return res.status(200).json({
+    success: true,
+    message,
+    data: {
+      mode,
+      fileName,
+      mimeType,
+      base64Data: base64,
+    },
+  });
+};

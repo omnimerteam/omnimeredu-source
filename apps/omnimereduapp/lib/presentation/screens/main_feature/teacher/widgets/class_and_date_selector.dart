@@ -17,8 +17,6 @@ class ClassAndDateSelector extends StatefulWidget {
   final VoidCallback onNewOrDelete;
   final String queryString;
   final bool isLoading;
-  final bool canCreate;
-
   final bool hasAttendance;
 
   const ClassAndDateSelector({
@@ -33,7 +31,6 @@ class ClassAndDateSelector extends StatefulWidget {
     required this.onNewOrDelete,
     this.queryString = "",
     this.isLoading = false,
-    this.canCreate = true,
     this.hasAttendance = false,
   });
 
@@ -45,6 +42,7 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
   late TextEditingController _dateController;
   late FocusNode _dateFocusNode;
   DateTime? _selectedDate;
+  ClassSearchEntity? _selectedClass;
 
   @override
   void initState() {
@@ -82,6 +80,36 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
     }
   }
 
+  // ✅ Kiểm tra có thể thực hiện action không
+  bool get _canPerformAction {
+    return _selectedClass != null && _selectedDate != null && !widget.isLoading;
+  }
+
+  // ✅ Xác định màu button dựa trên trạng thái
+  Color _getActionButtonColor(ThemeData theme) {
+    if (!_canPerformAction) {
+      return Colors.grey.withOpacity(0.3);
+    }
+    return widget.hasAttendance ? Colors.redAccent : theme.colorScheme.primary;
+  }
+
+  // ✅ Xác định icon button
+  IconData get _actionIcon {
+    return widget.hasAttendance ? Icons.delete_outline : Icons.add;
+  }
+
+  // ✅ Xác định tooltip
+  String get _actionTooltip {
+    if (!_canPerformAction) {
+      if (_selectedClass == null) return 'Vui lòng chọn lớp';
+      if (_selectedDate == null) return 'Vui lòng chọn ngày';
+      if (widget.isLoading) return 'Đang xử lý...';
+    }
+    return widget.hasAttendance
+        ? 'Xóa bảng điểm danh'
+        : 'Tạo bảng điểm danh mới';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -107,7 +135,12 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
                     gradeGroup: widget.gradeGroup,
                     initialClassId: widget.initialClassId,
                     queryString: widget.queryString,
-                    onClassSelected: widget.onClassChanged,
+                    onClassSelected: (clazz) {
+                      setState(() {
+                        _selectedClass = clazz;
+                      });
+                      widget.onClassChanged(clazz);
+                    },
                     autoLoad: false,
                   ),
                   const SizedBox(height: 12),
@@ -130,6 +163,8 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
                                 _selectedDate = null;
                                 _dateController.clear();
                               });
+                              // Thông báo về việc clear date
+                              widget.onDateChanged(DateTime.now());
                             },
                           )
                         : null,
@@ -144,26 +179,18 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ✅ Nút tạo mới / xóa tự đổi icon
-                Material(
-                  color: widget.hasAttendance
-                      ? Colors.redAccent.withOpacity(
-                          widget.canCreate && !widget.isLoading ? 1 : 0.4,
-                        )
-                      : theme.colorScheme.primary.withOpacity(
-                          widget.canCreate && !widget.isLoading ? 1 : 0.4,
-                        ),
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: widget.canCreate && !widget.isLoading
-                        ? widget.onNewOrDelete
-                        : null,
+                // ✅ Nút tạo mới / xóa với tooltip
+                Tooltip(
+                  message: _actionTooltip,
+                  child: Material(
+                    color: _getActionButtonColor(theme),
                     borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Icon(
-                        widget.hasAttendance ? Icons.delete_outline : Icons.add,
-                        color: Colors.white,
+                    child: InkWell(
+                      onTap: _canPerformAction ? widget.onNewOrDelete : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Icon(_actionIcon, color: Colors.white, size: 24),
                       ),
                     ),
                   ),
@@ -171,28 +198,32 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
 
                 const SizedBox(height: 12),
 
-                // 🔄 Refresh
-                Material(
-                  color: theme.colorScheme.secondary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: widget.isLoading ? null : widget.onRefresh,
+                // 🔄 Refresh button
+                Tooltip(
+                  message: widget.isLoading ? 'Đang tải...' : 'Làm mới dữ liệu',
+                  child: Material(
+                    color: theme.colorScheme.secondary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: widget.isLoading
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                    child: InkWell(
+                      onTap: widget.isLoading ? null : widget.onRefresh,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(12.0),
+                        child: widget.isLoading
+                            ? SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: theme.colorScheme.secondary,
+                                ),
+                              )
+                            : Icon(
+                                Icons.refresh,
                                 color: theme.colorScheme.secondary,
+                                size: 24,
                               ),
-                            )
-                          : Icon(
-                              Icons.refresh,
-                              color: theme.colorScheme.secondary,
-                            ),
+                      ),
                     ),
                   ),
                 ),

@@ -19,4 +19,6 @@ abstract class AttendanceRepository {
   );
 
   Future<ApiResponse<bool?>> deleteAttendance(String id);
+
+  // Future<ApiResponse<>>
 }

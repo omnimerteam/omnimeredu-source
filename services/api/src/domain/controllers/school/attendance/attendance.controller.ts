@@ -7,6 +7,8 @@ import {
   sendEmpty,
   sendUnauthorized,
   sendError,
+  sendExcelResponse,
+  ExcelMode,
 } from "../../../../common/utils/ResponseHelper";
 import { buildQueryOptions } from "../../../../common/utils/buildQueryOptions";
 
@@ -295,6 +297,46 @@ class AttendanceController {
     } catch (error) {
       console.log(chalk.red("[Attendance] Error Deletting attendance:", error));
       return next(error);
+    }
+  }
+  /**
+   * Xuất file Excel điểm danh (tải xuống hoặc trả JSON base64)
+   */
+  async exportAttendanceExcel(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      if (!actorId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const attendanceId = req.params.id;
+      const mode = (req.query.mode as ExcelMode) || ExcelMode.download;
+
+      const buffer = await this.attendanceService.exportAttendanceExcel(
+        actorId,
+        attendanceId
+      );
+
+      if (!buffer) {
+        sendNotFound(res, "Không tìm thấy bản ghi điểm danh");
+        return;
+      }
+
+      sendExcelResponse(
+        res,
+        buffer,
+        `attendance_${attendanceId}.xlsx`,
+        mode,
+        "Xuất file điểm danh thành công"
+      );
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error exporting attendance:", error));
+      next(error);
     }
   }
 }

@@ -97,6 +97,8 @@ class Endpoints {
   static const String getClassAttendanceRecordView =
       "/v1/attendances/class-attendance-record/view";
   static String deleteAttendance(String id) => "/v1/attendances/$id";
+  static String exportAttendanceExcel(String id) =>
+      "/v1/attendances/$id/export";
 
   // ================== DETAIL RECORD ==================
   static String updateStatusDetailRecord(String id) =>

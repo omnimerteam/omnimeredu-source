@@ -419,7 +419,9 @@ Future<void> init() async {
   sl.registerFactory(
     () => LoginBloc(loginUseCase: sl(), authenticationBloc: sl()),
   );
+
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
+
   sl.registerFactory(
     () => ClassSelectorBloc(
       getClassesBySchoolUseCase: sl(),

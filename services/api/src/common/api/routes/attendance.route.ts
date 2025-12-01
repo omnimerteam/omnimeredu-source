@@ -34,6 +34,7 @@ import {
 import { objectIdParamSchema } from "../../validators/common/params/params.validator";
 import {
   createPaginationSchemaWithSortAndFilter,
+  exportAttendanceExcelQuerySchema,
   getClassAttendanceRecordView,
 } from "../../validators/common/query/query.validator";
 
@@ -139,17 +140,21 @@ router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
   verifyFirebaseToken,
-  verifyRole(["SuperAdmin", "SchoolAdmin"]),
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.deleteAttendance(req, res, next)
 );
 
-export default router;
+router.get(
+  "/:id/export",
+  validateData({
+    headers: authHeaderSchema,
+    params: objectIdParamSchema,
+    query: exportAttendanceExcelQuerySchema,
+  }),
+  verifyFirebaseToken,
+  async (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.exportAttendanceExcel(req, res, next)
+);
 
-/** example request body for creating a teacher
- * {
-    "classId": "687b2c1b08f9ba18bdfaf116",
-    "schoolId": "6885e31812e74de500041b51",
-    "date": "2025-2-14"
-}
- */
+export default router;

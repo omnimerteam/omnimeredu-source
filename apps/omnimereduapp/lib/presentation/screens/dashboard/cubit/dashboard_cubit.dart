@@ -63,6 +63,42 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  /// 🔹 HÀM MỚI: Cập nhật isHaveAttendance cho class
+  void updateClassAttendanceStatus(String classId, bool hasAttendance) {
+    final current = state;
+
+    // Chỉ xử lý nếu đang ở trạng thái loaded và là teacher data
+    if (current is! DashboardLoaded) return;
+    if (current.data is! TeacherDashboardDataEntity) return;
+
+    final teacherData = current.data as TeacherDashboardDataEntity;
+
+    // Cập nhật class có classId tương ứng
+    final updatedClasses = teacherData.classAssignment?.map((cls) {
+      if (cls.id == classId) {
+        return cls.copyWith(isHaveAttendance: hasAttendance);
+      }
+      return cls;
+    }).toList();
+
+    // Tạo data mới với cachedAt cũ (để không làm mất cache)
+    final updatedData = teacherData.copyWith(
+      classAssignment: updatedClasses,
+      // Giữ nguyên cachedAt để cache không bị invalidate
+      cachedAt: teacherData.cachedAt,
+    );
+
+    // 🔹 Emit state mới để trigger rebuild
+    emit(DashboardLoaded(data: updatedData));
+
+    // 🔹 Cập nhật cache với data mới
+    _updateCacheInBackground(updatedData);
+
+    logger.i(
+      "[DashboardCubit] Updated isHaveAttendance=$hasAttendance for classId=$classId",
+    );
+  }
+
   /// Core function: lấy dữ liệu mới từ API theo role
   Future<DashboardDataBaseEntity> _fetchFreshData(String role) async {
     switch (role) {
@@ -112,5 +148,19 @@ class DashboardCubit extends Cubit<DashboardState> {
             "[DashboardCubit] Refresh cache in background failed: $e\n$s",
           );
         });
+  }
+
+  /// 🔹 Cập nhật cache trong background
+  void _updateCacheInBackground(DashboardDataBaseEntity data) {
+    if (data is TeacherDashboardDataEntity) {
+      cacheService
+          .save('Teacher', data)
+          .then((_) {
+            logger.i("[DashboardCubit] Cache updated after attendance change");
+          })
+          .catchError((e) {
+            logger.w("[DashboardCubit] Failed to update cache: $e");
+          });
+    }
   }
 }

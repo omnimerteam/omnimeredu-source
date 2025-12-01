@@ -3,6 +3,7 @@ import {
   AttendanceStatusEnum,
   AttendanceStatusTuple,
 } from "../../../common/enum/attendanceStatus.enum";
+import { GenderEnum, GenderTuple } from "../../../common/enum/gender.enum";
 
 // Subdocument: từng học sinh trong attendance
 export interface IStudentAttendance {
@@ -11,7 +12,7 @@ export interface IStudentAttendance {
   phone?: string;
   guardianName: string;
   guardianPhone: string;
-  gender?: string;
+  gender?: GenderEnum;
   birthday?: Date;
   detailRecordId: Types.ObjectId;
   status: AttendanceStatusEnum;
@@ -44,7 +45,7 @@ const StudentAttendanceSchema = new Schema<IStudentAttendance>(
     phone: { type: String, required: false },
     guardianName: { type: String, required: true },
     guardianPhone: { type: String, required: true },
-    gender: { type: String, required: false },
+    gender: { type: String, enum: GenderTuple, required: false },
     birthday: { type: Date, required: false },
     detailRecordId: {
       type: Schema.Types.ObjectId,

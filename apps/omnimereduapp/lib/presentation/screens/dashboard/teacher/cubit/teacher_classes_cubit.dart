@@ -2,9 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/utils/logger.dart';
 import '../../../../../domain/entities/attendance/attendance_entity.dart';
 import '../../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
-import '../../../../../domain/entities/dashboard/teacher/teacher_dashboard_data_entity.dart';
 import '../../cubit/dashboard_cubit.dart';
-import '../../cubit/dashboard_state.dart';
 import 'teacher_classes_state.dart';
 
 class TeacherClassesCubit extends Cubit<TeacherClassesState> {
@@ -34,6 +32,10 @@ class TeacherClassesCubit extends Cubit<TeacherClassesState> {
       );
 
       if (response.success) {
+        // ✅ Cập nhật DashboardCubit TRƯỚC KHI emit success
+        dashboardCubit.updateClassAttendanceStatus(classId, true);
+
+        // Emit success state
         emit(
           AttendanceInitialized(
             classId: classId,
@@ -41,8 +43,9 @@ class TeacherClassesCubit extends Cubit<TeacherClassesState> {
           ),
         );
 
-        // ✅ Cập nhật ngay trong DashboardCubit
-        _updateDashboardClassAttendanceFlag(classId);
+        logger.i(
+          '[TeacherClassesCubit] Successfully initialized attendance for classId=$classId',
+        );
       } else {
         emit(
           AttendanceInitializationError(
@@ -62,30 +65,34 @@ class TeacherClassesCubit extends Cubit<TeacherClassesState> {
     }
   }
 
-  /// ✅ Hàm cập nhật DashboardCubit khi lớp vừa tạo điểm danh
-  void _updateDashboardClassAttendanceFlag(String classId) {
-    final current = dashboardCubit.state;
-    if (current is DashboardLoaded &&
-        current.data is TeacherDashboardDataEntity) {
-      final teacherData = current.data as TeacherDashboardDataEntity;
+  /// 🔹 Xóa bảng điểm danh (nếu cần)
+  Future<void> deleteAttendance({
+    required String classId,
+    required String attendanceId,
+  }) async {
+    emit(DeletingAttendance(classId));
 
-      final updatedClasses = teacherData.classAssignment?.map((cls) {
-        if (cls.id == classId) {
-          return cls.copyWith(isHaveAttendance: true);
-        }
-        return cls;
-      }).toList();
+    try {
+      // Gọi API xóa ở đây...
+      // final response = await deleteAttendanceUseCase.call(attendanceId);
 
-      final updatedData = teacherData.copyWith(
-        classAssignment: updatedClasses,
-        cachedAt: DateTime.now(),
+      // Giả sử xóa thành công
+      dashboardCubit.updateClassAttendanceStatus(classId, false);
+
+      emit(
+        AttendanceDeleted(
+          classId: classId,
+          message: 'Xóa bảng điểm danh thành công',
+        ),
       );
 
-      // Ghi đè state trong dashboardCubit
-      dashboardCubit.emit(DashboardLoaded(data: updatedData));
-
       logger.i(
-        "[TeacherClassesCubit] Đã cập nhật isHaveAttendance=true cho classId=$classId trong DashboardCubit",
+        '[TeacherClassesCubit] Successfully deleted attendance for classId=$classId',
+      );
+    } catch (e) {
+      logger.e('[TeacherClassesCubit] Error deleting attendance: $e');
+      emit(
+        AttendanceDeletionError(classId: classId, message: 'Đã xảy ra lỗi: $e'),
       );
     }
   }

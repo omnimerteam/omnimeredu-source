@@ -1,21 +1,18 @@
-import { Types } from "mongoose";
 import DateUtils from "../../../../common/utils/DateUtils";
 import { DefaultLogger } from "../../../../common/utils/DefaultLogger";
 import { HttpError } from "../../../../common/utils/HttpError";
-import {
-  buildPermissionFilter,
-  buildPermissionFilterForClass,
-} from "../../../../common/utils/permissionFilter";
+import { buildPermissionFilterForClass } from "../../../../common/utils/permissionFilter";
 import { IAttendance } from "../../../models";
 import {
   AttendanceRepository,
-  SchoolAdminRepository,
   ClassRepository,
-  TeacherRepository,
   AttendanceRecordViewRepository,
 } from "../../../repositories";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
 import { determineSessionType } from "../../../utils/determineSessionType";
+import { translateStatus } from "../../../utils/ExcelUtils";
+import ExcelJS from "exceljs";
+import { AttendanceExcelBuilder } from "./attendance.excel-builder";
 
 class AttendanceService {
   private readonly attendanceRepository: AttendanceRepository;
@@ -423,17 +420,17 @@ class AttendanceService {
 
         //Kiem tra currentAttendance có tồn tại hay không
         if (!currentAttendance) {
-          throw new Error("Không tìm thấy thông tin của lớp điểm danh");
+          throw new HttpError(
+            403,
+            "Không tìm thấy thông tin của lớp điểm danh"
+          );
         }
 
         //schoolId from currentClass
         const attendanceSchoolId = currentAttendance?.schoolId.toString();
 
         // So sánh schoolId
-        if (
-          userRole === "SchoolAdmin" &&
-          actorSchoolId !== attendanceSchoolId
-        ) {
+        if (actorSchoolId !== attendanceSchoolId) {
           throw new Error(
             "Bạn không có quyền xóa bảng điểm danh cho trường này"
           );
@@ -457,6 +454,40 @@ class AttendanceService {
         roleSnapshot: userRole,
         targetId: attendanceId,
         metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Xuất file Excel điểm danh theo ID
+   * @param {string} attendanceId
+   * @returns {Buffer} Excel file buffer
+   */
+  async exportAttendanceExcel(actorId: string, attendanceId: string) {
+    try {
+      const attendance = await this.attendanceRecordViewRepository.findById(
+        attendanceId
+      );
+      if (!attendance)
+        throw new HttpError(403, "Không tìm thấy bản ghi điểm danh");
+
+      const builder = new AttendanceExcelBuilder();
+      const buffer = await builder.build(attendance);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "EXPORT_ATTENDANCE_EXCEL",
+        targetId: attendanceId,
+      });
+
+      return buffer;
+    } catch (error: any) {
+      await this.logger.log({
+        userId: actorId,
+        action: "EXPORT_ATTENDANCE_EXCEL_FAILED",
+        targetId: attendanceId,
+        metadata: { error: error.message },
       });
       throw error;
     }
