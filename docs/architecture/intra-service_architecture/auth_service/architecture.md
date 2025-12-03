@@ -45,7 +45,7 @@ src/
 └── infrastructure/         # Frameworks & Drivers
     ├── config/             # Biến môi trường
     ├── database/           # Thiết lập kết nối DB
-    └── server.ts           # Điểm khởi chạy ứng dụng
+── server.ts           # Điểm khởi chạy ứng dụng
 ```
 
 ## 4. Thiết kế chi tiết thành phần
