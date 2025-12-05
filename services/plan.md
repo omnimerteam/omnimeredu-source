@@ -35,15 +35,15 @@ Dựa trên kiến trúc hệ thống đã định nghĩa trong `docs/architectu
 
 1.  **Database Connectors:**
 
-    - [ ] **Sequelize Client:** Module kết nối Postgres, cấu hình migration, seeder.
-    - [ ] **NoSQL Client Factory:** Module Factory Pattern để trả về instance của MongoDB Client hoặc DynamoDB Client dựa trên config.
+    - [x] **Sequelize Client:** Module kết nối Postgres, cấu hình migration, seeder.
+    - [x] **NoSQL Client Factory:** Module Factory Pattern để trả về instance của MongoDB Client hoặc DynamoDB Client dựa trên config.
 
 2.  **Cơ chế CQRS Sync (Synchronization Logic):**
-    - [ ] Xây dựng `SyncService`:
+    - [x] Xây dựng `SyncService`:
       - Input: Dữ liệu vừa ghi vào RDS.
       - Process: Transform dữ liệu sang định dạng NoSQL (Denormalization nếu cần).
       - Output: Ghi vào MongoDB/DynamoDB.
-    - [ ] Implement `Hooks` trong Sequelize (afterCreate, afterUpdate, afterDestroy) để tự động kích hoạt `SyncService`.
+    - [x] Implement `Hooks` trong Sequelize (afterCreate, afterUpdate, afterDestroy) để tự động kích hoạt `SyncService`.
 
 ## Giai đoạn 3: Phát triển User Module
 

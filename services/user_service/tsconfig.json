@@ -3,7 +3,10 @@
     "target": "ES2020",
     "module": "NodeNext",
     "outDir": "dist",
-    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "shared-lib": ["../shared-lib/src/index.ts"]
+    },
     "strict": true,
     "moduleResolution": "NodeNext",
     "esModuleInterop": true,
@@ -11,5 +14,5 @@
     "skipLibCheck": true,
     "typeRoots": ["./src/common/types", "./node_modules/@types"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../shared-lib/src/**/*"]
 }
