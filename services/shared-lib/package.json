@@ -1,0 +1,22 @@
+{
+  "name": "shared-lib",
+  "version": "1.0.0",
+  "description": "Shared library for OmniMer EDU services",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "mongoose": "^8.0.0",
+    "sequelize": "^6.35.0"
+  }
+}
