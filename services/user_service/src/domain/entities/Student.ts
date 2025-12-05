@@ -1,27 +1,17 @@
-import { User, RoleGroup, Gender } from "./User";
-
-export enum EducationSystemLevels {
-  Primary = "Primary",
-  Secondary = "Secondary",
-  HighSchool = "HighSchool",
-  University = "University",
-}
-
-export enum EducationGrades {
-  Grade1 = "Grade1",
-  Grade2 = "Grade2",
-  Grade10 = "Grade10",
-  Grade11 = "Grade11",
-  Grade12 = "Grade12",
-  // Add others as needed
-}
+import { User } from "./User";
+import {
+  GenderEnum,
+  RoleGroup,
+  EducationSystemLevelsEnum,
+  EducationGradesEnum,
+} from "shared-lib";
 
 export class Student extends User {
   constructor(
     id: string,
     fullName: string,
     email: string | undefined,
-    gender: Gender | undefined,
+    gender: GenderEnum | undefined,
     birthday: Date | undefined,
     phone: string | undefined,
     address: string | undefined,
@@ -31,8 +21,8 @@ export class Student extends User {
     deletedAt: Date | null | undefined,
 
     // Student specific fields
-    public educationLevel: EducationSystemLevels,
-    public gradeGroup: EducationGrades,
+    public educationLevel: EducationSystemLevelsEnum,
+    public gradeGroup: EducationGradesEnum,
     public classId?: string | null,
     public guardianName?: string,
     public guardianPhone?: string,

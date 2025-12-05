@@ -1,16 +1,4 @@
-export enum Gender {
-  Male = "Male",
-  Female = "Female",
-  Other = "Other",
-}
-
-export enum RoleGroup {
-  Student = "Student",
-  Teacher = "Teacher",
-  SchoolAdmin = "SchoolAdmin",
-  SuperAdmin = "SuperAdmin",
-  Staff = "Staff",
-}
+import { GenderEnum, RoleGroup } from "shared-lib";
 
 export class User {
   constructor(
@@ -18,7 +6,7 @@ export class User {
     public fullName: string,
     public roleKey: RoleGroup,
     public email?: string, // Contact email
-    public gender?: Gender,
+    public gender?: GenderEnum,
     public birthday?: Date,
     public phone?: string,
     public address?: string,

@@ -10,7 +10,3 @@ export const noSQLClient = NoSQLClientFactory.createClient(
   NoSQLType.MONGODB,
   mongoUri
 );
-
-export const connectNoSQL = async () => {
-  await noSQLClient.connect();
-};

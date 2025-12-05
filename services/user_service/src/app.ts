@@ -21,9 +21,12 @@ app.use(morgan("dev"));
 
 // Khi production thì  sẽ thêm một middleware giới hạn request tránh sập
 
+import userRoutes from "./presentation/routes/user.routes";
+import schoolRoutes from "./presentation/routes/school.routes";
+
 // Mount routes
-//Sẽ sử dụng site.route để quản lý tất cả các route của ứng dụng
-// route(app);
+app.use("/api/users", userRoutes);
+app.use("/api/schools", schoolRoutes);
 
 // app.use(errorHandler);
 
