@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "NodeNext",
+    "module": "commonjs",
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
       "shared-lib": ["../shared-lib/src/index.ts"]
     },
     "strict": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

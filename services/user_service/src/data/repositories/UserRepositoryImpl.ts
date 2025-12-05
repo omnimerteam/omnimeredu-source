@@ -27,6 +27,12 @@ export class UserRepositoryImpl implements IUserRepository {
     return this.toUserEntity(userModel);
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    const userModel = await UserModel.findOne({ where: { email } });
+    if (!userModel) return null;
+    return this.toUserEntity(userModel);
+  }
+
   async update(user: User): Promise<User> {
     const [affectedCount, updatedModels] = await UserModel.update(
       {
@@ -54,6 +60,10 @@ export class UserRepositoryImpl implements IUserRepository {
     return this.toUserEntity(updatedModels[0]);
   }
 
+  async updateAvatar(userId: string, avatarUrl: string): Promise<void> {
+    await UserModel.update({ avatarUrl }, { where: { id: userId } });
+  }
+
   async createAccount(account: Account): Promise<Account> {
     const accountModel = await AccountModel.create({
       userId: account.userId,
@@ -76,6 +86,29 @@ export class UserRepositoryImpl implements IUserRepository {
     const accountModel = await AccountModel.findOne({ where: { uid } });
     if (!accountModel) return null;
     return this.toAccountEntity(accountModel);
+  }
+
+  async findAccountByUserId(userId: string): Promise<Account | null> {
+    const accountModel = await AccountModel.findOne({ where: { userId } });
+    if (!accountModel) return null;
+    return this.toAccountEntity(accountModel);
+  }
+
+  async updateLastLogin(accountId: string): Promise<void> {
+    await AccountModel.update(
+      { lastLogin: new Date() },
+      { where: { id: accountId } }
+    );
+  }
+
+  async updateAccountPassword(
+    userId: string,
+    newPasswordHash: string
+  ): Promise<void> {
+    await AccountModel.update(
+      { passwordHash: newPasswordHash },
+      { where: { userId } }
+    );
   }
 
   private toUserEntity(model: UserModel): User {

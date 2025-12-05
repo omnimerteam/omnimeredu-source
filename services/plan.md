@@ -49,25 +49,40 @@ Dựa trên kiến trúc hệ thống đã định nghĩa trong `docs/architectu
 
 **Mục tiêu:** Quản lý thông tin người dùng, trường học, lớp học.
 
-1.  **Write Side (PostgreSQL + Sequelize):**
+1.  **Authentication \u0026 Authorization:**
 
-    - [ ] Define Models:
+    - [x] Implement JWT-based authentication (thay thế Firebase Auth)
+    - [x] Register user với bcryptjs password hashing
+    - [x] Login với JWT token generation
+    - [x] Refresh access token functionality
+    - [x] Get authenticated user info (getAuth)
+    - [x] Upload avatar to Amazon S3 với naming convention `avatar-{userId}`
+    - [x] Auth utilities: hashPassword, comparePassword, generateToken, verifyToken
+    - [x] S3 utilities: uploadAvatar, deleteAvatar
+
+2.  **Write Side (PostgreSQL + Sequelize):**
+
+    - [x] Define Models:
       - `Account`: Quản lý thông tin đăng ký, đăng nhập
       - `User` (Thông tin tài khoản, profile).
       - `School` (Thông tin trường).
       - `Grade` (Khối).
       - `Class` (Lớp học - quan hệ với Grade, School).
       - `MembershipRequest` (Yêu cầu tham gia trường/lớp).
-    - [ ] Implement CRUD Services & Controllers.
+    - [x] Implement Auth Use Cases: RegisterUserUseCase, LoginUseCase, RefreshAccessTokenUseCase, GetAuthUseCase
+    - [x] Implement Auth Controller \u0026 Routes with transaction support
+    - [ ] Implement CRUD Services \u0026 Controllers for School, Grade, Class.
     - [ ] Tích hợp `SyncService` vào các Models trên.
 
-2.  **Read Side (MongoDB):**
-    - [ ] Define Schemas (Collections): `users`, `schools`, `classes`, `activity_logs`.
+3.  **Read Side (MongoDB):**
+    - [x] Define Enhanced Schema: `users_full` với denormalized data (join account, school, role-specific info)
+    - [x] Implement UserReadRepository với các query methods
+    - [ ] Define Schemas (Collections): `schools`, `classes`, `activity_logs`.
     - [ ] Implement Read APIs:
       - API lấy danh sách học sinh theo lớp (tối ưu query từ Mongo).
       - API xem profile, lịch sử hoạt động.
 
-## Giai đoạn 4: Phát triển Payment & Attendance Module
+## Giai đoạn 4: Phát triển Payment \u0026 Attendance Module
 
 **Mục tiêu:** Quản lý điểm danh và thanh toán.
 
@@ -85,7 +100,7 @@ Dựa trên kiến trúc hệ thống đã định nghĩa trong `docs/architectu
     - [ ] Tích hợp `SyncService`.
 
 2.  **Read Side (MongoDB):**
-    -Đồng bộ: Dữ liệu từ Write DB sẽ được đồng bộ sang Read DB qua Events (sử dụng Message Broker như Kafka, RabbitMQ).
+    - Đồng bộ: Dữ liệu từ Write DB sẽ được đồng bộ sang Read DB qua Events (sử dụng Message Broker như Kafka, RabbitMQ).
     - `ActivityLog` (Lịch sử hoạt động).
     - [ ] Define Schemas: `attendances`, `tuitions`, `payments`.
     - [ ] Implement Read APIs:

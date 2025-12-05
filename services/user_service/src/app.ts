@@ -23,8 +23,10 @@ app.use(morgan("dev"));
 
 import userRoutes from "./presentation/routes/user.routes";
 import schoolRoutes from "./presentation/routes/school.routes";
+import authRoutes from "./presentation/routes/auth.routes";
 
 // Mount routes
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/schools", schoolRoutes);
 
