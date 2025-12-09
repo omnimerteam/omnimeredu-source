@@ -1,0 +1,255 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/core/routing/role_guard.dart';
+// TODO: Import các screen, cubit, bloc cần thiết ở đây
+
+/// RouteConfig - Quản lý routing và navigation cho ứng dụng
+///
+/// Cách sử dụng:
+/// 1. Định nghĩa route names trong phần ROUTE NAMES
+/// 2. Implement buildAuthPage() cho các trang không cần authentication
+/// 3. Implement buildPage() cho các trang cần authentication và role-based access
+/// 4. Sử dụng các navigation helpers để điều hướng
+class RouteConfig {
+  // ==================== ROUTE NAMES ====================
+  // Auth routes - Không cần authentication
+  static const String login = '/login';
+  static const String register = '/register';
+
+  // Main routes - Cần authentication và role-based access
+  static const String main = '/main';
+  static const String home = '/home';
+
+  // TODO: Thêm các route names khác ở đây
+  // Ví dụ:
+  // static const String profile = '/profile';
+  // static const String settings = '/settings';
+
+  // ==================== BUILD AUTH PAGES ====================
+  /// Build các trang không cần authentication (login, register, forgot password)
+  ///
+  /// Ví dụ:
+  /// ```dart
+  /// static Widget buildAuthPage(String? routeName) {
+  ///   switch (routeName) {
+  ///     case register:
+  ///       return BlocProvider(
+  ///         create: (_) => RegisterCubit(),
+  ///         child: const RegisterScreen(),
+  ///       );
+  ///     case login:
+  ///     default:
+  ///       return BlocProvider(
+  ///         create: (_) => LoginCubit(),
+  ///         child: const LoginScreen(),
+  ///       );
+  ///   }
+  /// }
+  /// ```
+  static Widget buildAuthPage(String? routeName) {
+    switch (routeName) {
+      case login:
+      default:
+        // TODO: Implement LoginScreen với BlocProvider
+        return const Scaffold(body: Center(child: Text('Login Screen')));
+    }
+  }
+
+  // ==================== BUILD AUTHENTICATED PAGES ====================
+  /// Build các trang cần authentication và kiểm tra role-based access
+  ///
+  /// Tham số:
+  /// - [routeName]: Tên route cần build
+  /// - [role]: Danh sách role của user hiện tại
+  /// - [arguments]: Arguments truyền vào route (optional)
+  ///
+  /// Ví dụ:
+  /// ```dart
+  /// static Widget buildPage({
+  ///   required String routeName,
+  ///   required List<String>? role,
+  ///   Map<String, dynamic>? arguments,
+  /// }) {
+  ///   // Kiểm tra quyền truy cập
+  ///   if (!RoleGuard.canAccess(role, routeName)) {
+  ///     return _ForbiddenPage(role: role, routeName: routeName);
+  ///   }
+  ///
+  ///   // Build page theo route
+  ///   switch (routeName) {
+  ///     case home:
+  ///       return BlocProvider(
+  ///         create: (_) => HomeBloc(),
+  ///         child: const HomeScreen(),
+  ///       );
+  ///     case profile:
+  ///       final userId = arguments?['userId'] as String?;
+  ///       return ProfileScreen(userId: userId);
+  ///     default:
+  ///       return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
+  ///   }
+  /// }
+  /// ```
+  static Widget buildPage({
+    required String routeName,
+    required List<String>? role,
+    Map<String, dynamic>? arguments,
+  }) {
+    // Kiểm tra quyền truy cập
+    if (!RoleGuard.canAccess(role, routeName)) {
+      return _ForbiddenPage(role: role, routeName: routeName);
+    }
+
+    // Build page theo route
+    switch (routeName) {
+      case main:
+      case home:
+        // TODO: Implement HomeScreen với BlocProvider
+        return const Scaffold(body: Center(child: Text('Home Screen')));
+
+      // TODO: Thêm các route khác ở đây
+
+      default:
+        return _ErrorPage(message: 'Không tìm thấy trang: $routeName');
+    }
+  }
+
+  // ==================== NAVIGATION HELPERS ====================
+  /// Các helper methods để điều hướng giữa các màn hình
+  ///
+  /// Ví dụ:
+  /// ```dart
+  /// static void navigateToLogin(BuildContext context) {
+  ///   Navigator.of(context).pushNamedAndRemoveUntil(login, (route) => false);
+  /// }
+  ///
+  /// static void navigateToProfile(
+  ///   BuildContext context, {
+  ///   required String userId,
+  /// }) {
+  ///   Navigator.of(context).pushNamed(profile, arguments: {'userId': userId});
+  /// }
+  /// ```
+
+  static void navigateToLogin(BuildContext context) {
+    Navigator.of(context).pushNamedAndRemoveUntil(login, (route) => false);
+  }
+
+  static void navigateToMain(BuildContext context) {
+    Navigator.of(context).pushNamedAndRemoveUntil(main, (route) => false);
+  }
+
+  static void navigateToHome(BuildContext context) {
+    Navigator.of(context).pushNamed(home);
+  }
+
+  // TODO: Thêm các navigation helpers khác ở đây
+}
+
+// ==================== ERROR PAGES ====================
+
+/// Trang hiển thị khi không đủ quyền truy cập
+class _ForbiddenPage extends StatelessWidget {
+  final List<String>? role;
+  final String routeName;
+
+  const _ForbiddenPage({required this.role, required this.routeName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Không có quyền truy cập'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.block, size: 80.w, color: Colors.red),
+              SizedBox(height: 24.h),
+              Text(
+                'Không có quyền truy cập',
+                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                'Bạn không có quyền truy cập trang này.\nVai trò của bạn: ${role ?? "Không xác định"}',
+                style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 32.h),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Quay lại'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 16.h,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Trang hiển thị khi có lỗi
+class _ErrorPage extends StatelessWidget {
+  final String message;
+
+  const _ErrorPage({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lỗi'), centerTitle: true),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(24.w),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 80.w, color: Colors.orange),
+              SizedBox(height: 24.h),
+              Text(
+                'Có lỗi xảy ra',
+                style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                message,
+                style: TextStyle(fontSize: 16.sp, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 32.h),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Quay lại'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 16.h,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
