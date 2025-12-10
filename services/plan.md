@@ -70,19 +70,19 @@ Dựa trên kiến trúc hệ thống đã định nghĩa trong `docs/architectu
       - `Class` (Lớp học - quan hệ với Grade, School).
       - `MembershipRequest` (Yêu cầu tham gia trường/lớp).
     - [x] Implement Auth Use Cases: RegisterUserUseCase, LoginUseCase, RefreshAccessTokenUseCase, GetAuthUseCase
-    - [x] Implement Auth Controller \u0026 Routes with transaction support
-    - [ ] Implement CRUD Services \u0026 Controllers for School, Grade, Class.
-    - [ ] Tích hợp `SyncService` vào các Models trên.
+    - [x] Implement Auth Controller & Routes with transaction support
+    - [x] Implement CRUD Services & Controllers for School, Grade, Class.
+    - [x] Tích hợp `SyncService` vào các Models trên.
 
 3.  **Read Side (MongoDB):**
     - [x] Define Enhanced Schema: `users_full` với denormalized data (join account, school, role-specific info)
     - [x] Implement UserReadRepository với các query methods
-    - [ ] Define Schemas (Collections): `schools`, `classes`, `activity_logs`.
-    - [ ] Implement Read APIs:
+    - [x] Define Schemas (Collections): `schools`, `classes`, `grades`.
+    - [x] Implement Read APIs:
       - API lấy danh sách học sinh theo lớp (tối ưu query từ Mongo).
       - API xem profile, lịch sử hoạt động.
 
-## Giai đoạn 4: Phát triển Payment \u0026 Attendance Module
+## Giai đoạn 4: Phát triển Payment & Attendance Module
 
 **Mục tiêu:** Quản lý điểm danh và thanh toán.
 
