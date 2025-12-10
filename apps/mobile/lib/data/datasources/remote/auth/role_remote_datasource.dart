@@ -3,11 +3,17 @@ import '../../../../core/api/endpoints.dart';
 import '../../../../core/error/failures.dart';
 import '../../../models/auth/role_model.dart';
 
-class RoleRemoteDataSource {
+abstract class RoleRemoteDataSource {
+  Future<List<RoleModel>> getAllRoles();
+  Future<List<RoleModel>> getRolesPersonnel();
+}
+
+class RoleRemoteDataSourceImpl implements RoleRemoteDataSource {
   final ApiClient client;
 
-  RoleRemoteDataSource(this.client);
+  RoleRemoteDataSourceImpl(this.client);
 
+  @override
   Future<List<RoleModel>> getAllRoles() async {
     try {
       final response = await client.get<List>(
@@ -32,6 +38,7 @@ class RoleRemoteDataSource {
     }
   }
 
+  @override
   Future<List<RoleModel>> getRolesPersonnel() async {
     // Assuming same endpoint or specific one if available.
     // Reference used specific endpoint. Mobile Endpoints currently only has 'roles'.

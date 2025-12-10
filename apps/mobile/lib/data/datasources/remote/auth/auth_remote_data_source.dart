@@ -5,13 +5,21 @@ import '../../../../core/error/failures.dart';
 import '../../../../domain/entities/auth/login_entity.dart';
 import '../../../../services/secure_storage_service.dart';
 import '../../../models/auth/auth_user_model.dart';
+import 'package:mobile/core/error/failures.dart' as error;
 
-class AuthRemoteDataSource {
+abstract class AuthRemoteDataSource {
+  Future<AuthUserModel> login(LoginEntity params);
+  Future<void> logout();
+  Future<AuthUserModel?> getCurrentUser();
+}
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiClient client;
   final SecureStorageService secureStorage;
 
-  AuthRemoteDataSource(this.client, this.secureStorage);
+  AuthRemoteDataSourceImpl(this.client, this.secureStorage);
 
+  @override
   Future<AuthUserModel> login(LoginEntity params) async {
     try {
       final response = await client.post<Map<String, dynamic>>(
@@ -55,11 +63,12 @@ class AuthRemoteDataSource {
       // Return Model
       return AuthUserModel.fromJson(userJson);
     } catch (e) {
-      if (e is Failure) rethrow;
+      if (e is error.Failure) rethrow; // Disambiguate Failure
       throw AuthFailure(e.toString());
     }
   }
 
+  @override
   Future<void> logout() async {
     // Gọi API logout nếu cần
     try {
@@ -72,6 +81,7 @@ class AuthRemoteDataSource {
     await secureStorage.delete(StorageConstant.kRefreshTokenKey);
   }
 
+  @override
   Future<AuthUserModel?> getCurrentUser() async {
     try {
       final response = await client.get<Map<String, dynamic>>(

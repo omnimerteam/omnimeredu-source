@@ -45,8 +45,12 @@ Future<void> init() async {
   );
 
   // Data sources
-  sl.registerLazySingleton(() => AuthRemoteDataSource(sl(), sl()));
-  sl.registerLazySingleton(() => RoleRemoteDataSource(sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(sl(), sl()),
+  );
+  sl.registerLazySingleton<RoleRemoteDataSource>(
+    () => RoleRemoteDataSourceImpl(sl()),
+  );
 
   // ! Core
   sl.registerLazySingleton(() => ApiClient(secureStorage: sl()));
