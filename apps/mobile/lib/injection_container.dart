@@ -1,35 +1,56 @@
 import 'package:get_it/get_it.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:dio/dio.dart';
+
+import 'core/api/api_client.dart';
+import 'services/secure_storage_service.dart';
+
+import 'data/datasources/remote/auth/auth_remote_data_source.dart';
+import 'data/datasources/remote/auth/role_remote_datasource.dart';
+
+import 'domain/repositories/auth_repository.dart';
+import 'domain/repositories/role_repository.dart';
+import 'data/repositories/auth_repository_impl.dart';
+import 'data/repositories/role_repository_impl.dart';
+
+import 'domain/usecases/auth/login_usecase.dart';
+import 'domain/usecases/auth/logout_usecase.dart';
+import 'domain/usecases/auth/get_current_user_usecase.dart';
+
+import 'presentation/common/blocs/auth_bloc/auth_bloc.dart';
 
 // Service Locator
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  //! Features - Auth
+  // ! Features - Auth
   // Bloc
-  // sl.registerFactory(() => AuthenticationBloc(userRepository: sl()));
-  // sl.registerFactory(() => LoginCubit(loginUseCase: sl()));
+  sl.registerFactory(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      logoutUseCase: sl(),
+      getCurrentUserUseCase: sl(),
+    ),
+  );
 
   // Use cases
-  // sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => LoginUseCase(sl()));
+  sl.registerLazySingleton(() => LogoutUseCase(sl()));
+  sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
 
   // Repository
-  // sl.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(remoteDataSource: sl(), localDataSource: sl()));
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<RoleRepository>(
+    () => RoleRepositoryImpl(remoteDataSource: sl()),
+  );
 
-  //! Core
-  // Network
-  // sl.registerLazySingleton(() => Dio());
+  // Data sources
+  sl.registerLazySingleton(() => AuthRemoteDataSource(sl(), sl()));
+  sl.registerLazySingleton(() => RoleRemoteDataSource(sl()));
 
-  //! External
-  // final sharedPreferences = await SharedPreferences.getInstance();
-  // sl.registerLazySingleton(() => sharedPreferences);
+  // ! Core
+  sl.registerLazySingleton(() => ApiClient(secureStorage: sl()));
 
-  // TODO: Add dependency injection setup here
-  // 1. External (SharedPreferences, libraries)
-  // 2. Core (Network, styles, utilities)
-  // 3. Data sources
-  // 4. Repositories
-  // 5. Use cases
-  // 6. Blocs / Cubits
+  // ! External & Services
+  sl.registerLazySingleton(() => SecureStorageService());
 }
