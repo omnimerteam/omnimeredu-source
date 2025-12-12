@@ -1,17 +1,30 @@
-import express from "express";
 import dotenv from "dotenv";
+import app from "./app";
+import { connectDatabase } from "./data/datasources/postgres/database";
+import { connectMongoDB } from "./data/datasources/mongodb/client";
+import { setupSyncHooks } from "./data/datasources/sync-setup";
 
 dotenv.config();
 
-const app = express();
 const port = process.env.PORT || 3002;
 
-app.use(express.json());
+const startServer = async () => {
+  try {
+    // Connect to databases
+    await connectDatabase();
+    await connectMongoDB();
 
-app.get("/", (req, res) => {
-  res.send("Payment & Attendance Service is running");
-});
+    // Setup Sync Hooks
+    setupSyncHooks();
 
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+    // Start server
+    app.listen(port, () => {
+      console.log(`[server]: Payment & Attendance Server is running at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("❌ Stats server failed to start:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

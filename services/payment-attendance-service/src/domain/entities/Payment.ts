@@ -8,7 +8,8 @@ export class Payment {
     public transactionId: string,
     public status: "Success" | "Failed",
     public paidAt: Date,
+    public metadata?: Record<string, any>,
     public createdAt?: Date,
     public updatedAt?: Date
-  ) {}
+  ) { }
 }
