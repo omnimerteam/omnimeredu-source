@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../utils/validator.dart';
+import '../../../../../utils/validator.dart';
 import '../bloc/login_bloc.dart';
 import '../bloc/login_event.dart';
 import '../bloc/login_state.dart';
-import '../../../../widgets/text_field/primary_text_field.dart';
+import '../../../../common/widgets/input/primary_text_field.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -148,7 +148,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                               setState(() => _obscureText = !_obscureText),
                         ),
                       ),
-                      const SizedBox(height: 16.h),
+                      SizedBox(height: 16.h),
                       // Remember me and Forgot password row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -207,7 +207,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                         ],
                       ),
 
-                      const SizedBox(height: 16.h),
+                      SizedBox(height: 16.h),
 
                       // AnimatedSwitcher để lỗi hiện ẩn mượt
                       AnimatedSwitcher(
@@ -216,7 +216,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                             ? Text(
                                 state.error!,
                                 key: ValueKey(state.error),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.red,
                                   fontSize: 14.sp,
                                 ),
@@ -224,7 +224,7 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                             : const SizedBox.shrink(),
                       ),
 
-                      const SizedBox(height: 16.h),
+                      SizedBox(height: 16.h),
 
                       // Login button
                       SizedBox(

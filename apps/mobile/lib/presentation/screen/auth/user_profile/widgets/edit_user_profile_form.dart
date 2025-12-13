@@ -3,10 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/constants/enum_constant.dart';
 import '../../../../../domain/entities/user/base_user_entity.dart';
 import '../../../../../domain/entities/user/school_admin_entity.dart';
+import '../../../../../domain/entities/user/staff_entity.dart';
 import '../../../../../domain/entities/user/student_entity.dart';
 import '../../../../../domain/entities/user/teacher_entity.dart';
 import '../cubit/user_profile_cubit.dart';
 import '../../../../utils/display_mapper.dart';
+import '../../../../utils/validator.dart';
 import '../../../../widgets/button/app_button.dart';
 import '../../../../widgets/dropdown/register_dropdown.dart';
 import '../../../../widgets/dropdown/register_multi_select_dropdwon.dart';
@@ -78,8 +80,7 @@ class _EditUserProfileDialogState extends State<EditUserProfileDialog> {
                 controller: fullNameController,
                 label: "Họ và tên",
                 requiredInput: true,
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Không được để trống' : null,
+                validator: (v) => Validators.name(v) ?? Validators.requiredField(v, name: 'Họ và tên'),
               ),
               const SizedBox(height: 10),
 
@@ -101,6 +102,7 @@ class _EditUserProfileDialogState extends State<EditUserProfileDialog> {
                 controller: addressController,
                 label: "Địa chỉ",
                 hintText: "Nhập địa chỉ hiện tại",
+                validator: Validators.address,
               ),
               const SizedBox(height: 10),
 
@@ -191,6 +193,7 @@ class _EditUserProfileDialogState extends State<EditUserProfileDialog> {
             controller: TextEditingController(text: guardianName ?? ''),
             label: "Tên phụ huynh",
             onChanged: (v) => guardianName = v,
+            validator: Validators.name,
           ),
           const SizedBox(height: 10),
           RegisterTextField(
@@ -198,6 +201,7 @@ class _EditUserProfileDialogState extends State<EditUserProfileDialog> {
             label: "SĐT phụ huynh",
             keyboardType: TextInputType.phone,
             onChanged: (v) => guardianPhone = v,
+            validator: Validators.phone,
           ),
         ],
       );

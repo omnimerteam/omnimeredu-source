@@ -1,6 +1,7 @@
 import 'base_user_model.dart';
 import '../../../domain/entities/user/base_user_entity.dart';
 import '../../../domain/entities/user/student_entity.dart';
+import '../../../domain/entities/user/user_role_enum.dart';
 
 class StudentModel extends BaseUserModel {
   const StudentModel({
@@ -17,7 +18,7 @@ class StudentModel extends BaseUserModel {
     super.avatarUrl,
     super.createdAt,
     super.updatedAt,
-  }) : super(roleKey: 'Student');
+  }) : super(roleKey: UserRole.Student);
 
   factory StudentModel.fromJson(Map<String, dynamic> json) {
     final base = BaseUserModel.fromJson(json, roleKey: 'Student');
@@ -52,7 +53,6 @@ class StudentModel extends BaseUserModel {
       isVerified: isVerified,
       schoolId: schoolId,
       avatarUrl: avatarUrl,
-      roleKey: roleKey,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

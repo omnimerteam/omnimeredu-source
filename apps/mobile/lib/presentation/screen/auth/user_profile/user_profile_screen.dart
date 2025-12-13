@@ -7,13 +7,14 @@ import '../../../../domain/entities/user/school_admin_entity.dart';
 import '../../../../domain/entities/user/staff_entity.dart';
 import '../../../../domain/entities/user/student_entity.dart';
 import '../../../../domain/entities/user/teacher_entity.dart';
+import '../../../../domain/entities/user/user_role_enum.dart';
 import 'cubit/user_profile_cubit.dart';
 import 'cubit/user_profile_state.dart';
 import 'widgets/edit_user_profile_form.dart';
-import '../../../utils/display_mapper.dart';
-import '../../../widgets/image_picker/app_image_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import '../../../../utils/display_mapper.dart';
+import '../../../common/widgets/input/app_image_picker.dart';
 
 class UserProfileScreen extends StatefulWidget {
   final String userId;
@@ -273,13 +274,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   Widget _buildRoleSpecificInfo(BaseUserEntity user) {
     switch (user.roleKey) {
-      case 'Student':
+      case UserRole.Student:
         return _buildStudentInfo(user as StudentEntity);
-      case 'Teacher':
+      case UserRole.Teacher:
         return _buildTeacherInfo(user as TeacherEntity);
-      case 'SchoolAdmin':
+      case UserRole.SchoolAdmin:
         return _buildSchoolAdminInfo(user as SchoolAdminEntity);
-      case 'Staff':
+      case UserRole.Staff:
         return _buildStaffInfo(user as StaffEntity);
       default:
         return const SizedBox.shrink();

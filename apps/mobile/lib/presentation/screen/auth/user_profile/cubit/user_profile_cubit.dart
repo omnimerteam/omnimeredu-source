@@ -1,48 +1,44 @@
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../core/bloc/authentication/authentication_bloc.dart';
-import '../../../../../core/bloc/authentication/authentication_event.dart';
-import '../../../../../core/bloc/authentication/authentication_state.dart';
-import '../../../../../core/utils/usecase_executor_mixin.dart';
-import '../../../../../domain/entities/auth/auth_user_entity.dart';
+import '../../../../common/blocs/auth_bloc/auth_bloc.dart';
 import '../../../../../domain/entities/user/school_admin_entity.dart';
 import '../../../../../domain/entities/user/staff_entity.dart';
 import '../../../../../domain/entities/user/student_entity.dart';
 import '../../../../../domain/entities/user/teacher_entity.dart';
-import '../../../../../domain/usecases/auth/get_user_profile_by_id_usecase.dart';
-import '../../../../../domain/usecases/personnel/update_avatar_usecase.dart';
-import '../../../../../domain/usecases/user/update_profile_usecase.dart';
+// import '../../../../../domain/usecases/auth/get_user_profile_by_id_usecase.dart';
+// import '../../../../../domain/usecases/personnel/update_avatar_usecase.dart';
+// import '../../../../../domain/usecases/user/update_profile_usecase.dart';
 import 'user_profile_state.dart';
 
 class UserProfileCubit extends Cubit<UserProfileState> {
-  final GetUserProfileByIdUseCase getUserProfileByIdUseCase;
-  final UpdateAvatarUseCase updateAvatarUseCase;
-  final AuthenticationBloc authBloc;
-  final UpdateProfileUseCase updateProfileUseCase;
+  // final GetUserProfileByIdUseCase getUserProfileByIdUseCase;
+  // final UpdateAvatarUseCase updateAvatarUseCase;
+  final AuthBloc authBloc;
+  // final UpdateProfileUseCase updateProfileUseCase;
 
   UserProfileCubit({
-    required this.getUserProfileByIdUseCase,
-    required this.updateAvatarUseCase,
+    // required this.getUserProfileByIdUseCase,
+    // required this.updateAvatarUseCase,
     required this.authBloc,
-    required this.updateProfileUseCase,
+    // required this.updateProfileUseCase,
   }) : super(UserProfileInitial());
 
   /// Load thông tin user
   Future<void> loadUserProfile(String userId) async {
     emit(UserProfileLoading());
 
-    final response = await getUserProfileByIdUseCase.getUserProfileById(userId);
+    // final response = await getUserProfileByIdUseCase.getUserProfileById(userId);
 
-    if (response.success && response.data != null) {
-      emit(UserProfileLoaded(response.data!));
-    } else {
-      emit(
-        UserProfileError(
-          response.message ?? 'Không thể tải thông tin người dùng',
-        ),
-      );
-    }
+    // if (response.success && response.data != null) {
+    //   emit(UserProfileLoaded(response.data!));
+    // } else {
+    //   emit(
+    //     UserProfileError(
+    //       response.message ?? 'Không thể tải thông tin người dùng',
+    //     ),
+    //   );
+    // }
   }
 
   /// Upload ảnh avatar và cập nhật state UI
@@ -68,8 +64,9 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     // Emit state đã upload xong, UI sẽ tự refresh avatar
     emit(UserProfileAvatarUpdated(updatedUser));
     final authState = authBloc.state;
-    if (authState is AuthenticationAuthenticated) {
-      authBloc.add(UpdateUserAvatarEvent(avatarUrl));
+    if (authState is AuthAuthenticated) {
+      // TODO: Implement avatar update in AuthBloc if needed
+      // authBloc.add(UpdateUserAvatarEvent(avatarUrl));
     }
   }
 
@@ -81,14 +78,14 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     emit(UserProfileUpdating(currentUser));
 
     try {
-      // Lấy user hiện tại từ AuthenticationBloc
+      // Lấy user hiện tại từ AuthBloc
       final authState = authBloc.state;
-      if (authState is! AuthenticationAuthenticated) {
+      if (authState is! AuthAuthenticated) {
         emit(UserProfileError('Không tìm thấy thông tin người dùng hiện tại'));
         return;
       }
 
-      final AuthUserEntity user = authState.user;
+      final user = authState.user;
 
       // Đảm bảo đúng ID người hiện tại
       updatedUserData = updatedUserData.copyWith(id: user.id);
@@ -102,17 +99,10 @@ class UserProfileCubit extends Cubit<UserProfileState> {
       if (response.success && response.data != null) {
         final updatedEntity = response.data!;
 
-        // ✅ Chuyển đổi sang AuthUserEntity tùy theo loại entity
-        final updatedAuthUser = _mapToAuthUserEntity(
-          updatedEntity,
-          user.roleName,
-        );
-
         // Emit state cập nhật thành công
         emit(UserProfileUpdated(updatedEntity));
 
-        // Đồng bộ lại AuthenticationBloc
-        authBloc.add(UpdateUserProfileEvent(updatedAuthUser));
+        // TODO: Đồng bộ lại AuthBloc nếu cần
       } else {
         emit(UserProfileError(response.message ?? 'Cập nhật thất bại'));
       }
@@ -132,50 +122,8 @@ class UserProfileCubit extends Cubit<UserProfileState> {
     }
   }
 
-  AuthUserEntity _mapToAuthUserEntity(dynamic entity, String roleName) {
-    switch (roleName) {
-      case "Student":
-        final e = entity as StudentEntity;
-        return AuthUserEntity(
-          id: e.id ?? '',
-          fullName: e.fullName,
-          roleName: roleName,
-          isVerified: e.isVerified,
-          educationLevel: e.educationLevel,
-          gradeGroup: e.gradeGroup,
-        );
-
-      case "Teacher":
-        final e = entity as TeacherEntity;
-        return AuthUserEntity(
-          id: e.id ?? '',
-          fullName: e.fullName,
-          roleName: roleName,
-          isVerified: e.isVerified,
-          qualification: e.qualification,
-        );
-
-      case "SchoolAdmin":
-        final e = entity as SchoolAdminEntity;
-        return AuthUserEntity(
-          id: e.id ?? '',
-          fullName: e.fullName,
-          roleName: roleName,
-          isVerified: e.isVerified,
-          position: e.position,
-        );
-
-      case "Staff":
-        final e = entity as StaffEntity;
-        return AuthUserEntity(
-          id: e.id ?? '',
-          fullName: e.fullName,
-          roleName: roleName,
-          isVerified: e.isVerified,
-        );
-
-      default:
-        throw UnsupportedError('Vai trò không được hỗ trợ: $roleName');
-    }
-  }
+  // TODO: Implement _mapToAuthUserEntity if needed for profile sync
+  // dynamic _mapToAuthUserEntity(dynamic entity, String roleName) {
+  //   // Implementation here
+  // }
 }

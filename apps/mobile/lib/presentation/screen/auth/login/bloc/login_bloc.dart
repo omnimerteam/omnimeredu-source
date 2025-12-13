@@ -1,17 +1,16 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../domain/entities/auth/login_entity.dart';
 import '../../../../../domain/usecases/auth/login_usecase.dart';
-import '../../../../../core/bloc/authentication/authentication_bloc.dart';
-import '../../../../../core/bloc/authentication/authentication_event.dart';
+import '../../../../common/blocs/auth_bloc/auth_bloc.dart';
 
 import 'login_event.dart';
 import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginUseCase loginUseCase;
-  final AuthenticationBloc authenticationBloc;
+  final AuthBloc authBloc;
 
-  LoginBloc({required this.loginUseCase, required this.authenticationBloc})
+  LoginBloc({required this.loginUseCase, required this.authBloc})
     : super(const LoginState()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<ClearLoginErrorEvent>((event, emit) {
@@ -32,10 +31,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         rememberMe: event.rememberMe,
       );
 
-      final user = await loginUseCase.call(loginInfo: loginInfo);
-
-      // báo cho AuthenticationBloc biết user đã login
-      authenticationBloc.add(AuthenticationLoggedIn(user));
+      // Gọi AuthBloc để xử lý login
+      authBloc.add(AuthLoginRequested(loginInfo));
 
       emit(state.copyWith(loading: false, isLogin: true, error: null));
     } catch (e) {
