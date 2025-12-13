@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 // import 'package:mobile/core/routing/route_config.dart';
 // import 'package:receive_intent/receive_intent.dart' as ri;
 // import 'package:url_launcher/url_launcher.dart';
-import 'screen/auth/login/login_screen.dart';
-import 'screen/auth/registration/registration_screen.dart';
 import '../../core/theme/app_theme.dart';
 
 // TODO: Import AuthenticationBloc, LoginCubit, BlocListener...
@@ -84,12 +82,7 @@ class _AppViewState extends State<AppView> {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light, // TODO: Lấy từ ThemeCubit
       // home: const AuthWrapper(), // TODO: Dùng AuthWrapper sau khi có Bloc
-      home: const AuthWrapper(),
       // onGenerateRoute: ... // TODO: Setup RouteConfig
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/registration': (context) => const RegistrationScreen(),
-      },
     );
   }
 
@@ -113,14 +106,14 @@ class _AppViewState extends State<AppView> {
 }
 
 /// Wrapper để quản lý login/logout và routing tự động
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
+// class AuthWrapper extends StatelessWidget {
+//   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  // Widget build(BuildContext context) {
     // TODO: Replace with BlocConsumer when AuthenticationBloc is implemented
     // For now, we'll show the login screen by default
-    return const LoginScreen();
+    // return const LoginScreen();
 
     /*
     return BlocConsumer<AuthenticationBloc, AuthenticationState>(
@@ -147,5 +140,5 @@ class AuthWrapper extends StatelessWidget {
       },
     );
     */
-  }
-}
+  // }
+// }
