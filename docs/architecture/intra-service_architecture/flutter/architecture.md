@@ -8,44 +8,55 @@
 
 - **Framework**: Flutter (Dart)
 - **Quản lý trạng thái**: BLoC / Cubit (flutter_bloc)
-- **Dependency Injection**: get_it & injectable
-- **Networking**: Dio (với Retrofit tùy chọn)
-- **Lưu trữ cục bộ**: Hive hoặc SharedPreferences
-- **Điều hướng**: GoRouter hoặc AutoRoute
+- **Dependency Injection**: get_it
+- **Networking**: Dio
+- **Lưu trữ cục bộ**: Shared Preferences & Flutter Secure Storage
+- **Điều hướng**: Navigator (Custom RouteConfig)
 
 ## 3. Cấu trúc dự án
 
 Dự án được tổ chức thành các lớp, tuân thủ nghiêm ngặt Quy tắc Phụ thuộc (Dependency Rule):
 
-```
 lib/
-├── core/                     # Shared Kernel (Cấu hình, Tiện ích)
-│   ├── network/             # API Client, Interceptors
-│   ├── error/               # Failures & Exceptions
-│   └── utils/               # Validators, Constants
+├── core/ # Shared Kernel (Cấu hình, Tiện ích cốt lõi)
+│ ├── api/ # API Client, Interceptors
+│ ├── bloc/ # Global BLoCs
+│ ├── constants/ # Hằng số (Assets, Strings)
+│ ├── error/ # Failures & Exceptions
+│ ├── routing/ # Cấu hình điều hướng
+│ ├── theme/ # App Theme, Colors
+│ ├── usecases/ # Base UseCase
+│ └── ...
 │
-├── domain/                   # Quy tắc nghiệp vụ doanh nghiệp (Lớp trong cùng)
-│   ├── entities/            # Các đối tượng nghiệp vụ thuần túy (Không JSON, Không UI)
-│   ├── repositories/        # Các Interface trừu tượng
-│   └── usecases/            # Quy tắc nghiệp vụ ứng dụng
+├── data/ # Bộ điều hợp giao diện (Data Layer)
+│ ├── datasources/ # Nguồn dữ liệu (Remote, Local)
+│ ├── models/ # DTOs (Data Transfer Objects) mapping JSON
+│ └── repositories/ # Triển khai các Repository của Domain
 │
-├── data/                     # Bộ điều hợp giao diện (Lớp ngoài)
-│   ├── models/              # DTOs (Data Transfer Objects) với phân tích cú pháp JSON
-│   ├── datasources/         # Nguồn dữ liệu từ xa (API) & cục bộ (DB)
-│   └── repositories/        # Triển khai các Repository của Domain
+├── domain/ # Quy tắc nghiệp vụ (Domain Layer)
+│ ├── entities/ # Các đối tượng nghiệp vụ thuần túy
+│ ├── repositories/ # Các Interface trừu tượng (Contracts)
+│ └── usecases/ # Logic nghiệp vụ ứng dụng
 │
-├── presentation/             # UI & Quản lý trạng thái (Lớp ngoài)
-│   ├── bloc/                # Global Blocs (Auth, Theme)
-│   ├── screens/             # Các trang UI (tổ chức theo tính năng)
-│   │   ├── login/
-│   │   │   ├── bloc/
-│   │   │   └── login_screen.dart
-│   │   └── home/
-│   └── common/             # Các thành phần UI tái sử dụng
+├── presentation/ # UI & Quản lý trạng thái (Presentation Layer)
+│ ├── app.dart # Widget Ứng dụng gốc
+│ ├── app_view.dart # Cấu hình View (Theme, Router)
+│ ├── common/ # Widgets, UI components dùng chung
+│ └── screen/ # Các màn hình (tổ chức theo feature)
+│ └── auth/ # Ví dụ feature Auth
+│ ├── login/
+│ │ ├── bloc/
+│ │ └── login_screen.dart
+│ └── ...
 │
-├── injection_container.dart  # Thiết lập DI (Service Locator)
-└── main.dart                 # Điểm khởi chạy
-```
+├── services/ # Services hệ thống & Local Storage
+│ ├── secure_storage_service.dart
+│ └── shared_preferences_service.dart
+│
+├── utils/ # Các tiện ích bổ trợ (Logger, Validator)
+│
+├── injection_container.dart # Thiết lập DI (Service Locator)
+└── main.dart # Điểm khởi chạy
 
 ## 4. Thiết kế chi tiết thành phần
 
@@ -64,7 +75,7 @@ lib/
   - Ví dụ: `UserModel` kế thừa `UserEntity`.
 - **Data Sources**: Truy cập dữ liệu cấp thấp.
   - `RemoteDataSource`: Gọi REST APIs sử dụng Dio.
-  - `LocalDataSource`: Cache dữ liệu sử dụng Hive/SQLite.
+  - `LocalDataSource`: Cache dữ liệu sử dụng Shared Preferences hoặc Secure Storage.
 - **Repositories (Triển khai)**: Triển khai các interface của Domain. Nó điều phối các nguồn dữ liệu (ví dụ: kiểm tra cache trước, sau đó mới gọi network).
 
 ### 4.3. Lớp Giao diện (Flutter)
