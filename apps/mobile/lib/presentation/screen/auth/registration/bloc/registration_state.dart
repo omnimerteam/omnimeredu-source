@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import '../../../../../core/constants/enum_constant.dart';
-import '../../../../../domain/entities/auth/role_entity.dart';
 
 class RegistrationState extends Equatable {
   final bool loading;
@@ -9,9 +8,7 @@ class RegistrationState extends Equatable {
   final bool success;
 
   // roles
-  final List<RoleEntity> roles;
-  final String? selectedRoleId;
-  final String? selectedRoleName;
+  final RoleKeyEnum? selectedRole;
 
   // basic info
   final String? email;
@@ -56,7 +53,6 @@ class RegistrationState extends Equatable {
       loading: false,
       error: null,
       success: false,
-      roles: [],
       gender: "Male",
       isCreateNewSchool: false,
       selectedEducationLevel: EducationSystemLevelsEnum.Preschool,
@@ -67,9 +63,7 @@ class RegistrationState extends Equatable {
     this.loading = false,
     this.error,
     this.success = false,
-    this.roles = const [],
-    this.selectedRoleId,
-    this.selectedRoleName,
+    this.selectedRole,
     this.email,
     this.password,
     this.confirmPassword,
@@ -104,9 +98,7 @@ class RegistrationState extends Equatable {
     bool? loading,
     String? error,
     bool? success,
-    List<RoleEntity>? roles,
-    String? selectedRoleId,
-    String? selectedRoleName,
+    RoleKeyEnum? selectedRole,
     String? email,
     String? password,
     String? confirmPassword,
@@ -141,9 +133,7 @@ class RegistrationState extends Equatable {
       loading: loading ?? this.loading,
       error: error,
       success: success ?? this.success,
-      roles: roles ?? this.roles,
-      selectedRoleId: selectedRoleId ?? this.selectedRoleId,
-      selectedRoleName: selectedRoleName ?? this.selectedRoleName,
+      selectedRole: selectedRole ?? this.selectedRole,
       email: email ?? this.email,
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
@@ -181,9 +171,7 @@ class RegistrationState extends Equatable {
     loading,
     error,
     success,
-    roles,
-    selectedRoleId,
-    selectedRoleName,
+    selectedRole,
     email,
     password,
     confirmPassword,

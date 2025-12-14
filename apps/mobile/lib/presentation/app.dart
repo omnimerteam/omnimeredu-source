@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app_view.dart';
-
-// TODO: Import AuthenticationBloc & ThemeCubit khi đã tạo
-// import 'package:mobile/presentation/common/cubits/theme_cubit.dart';
-// import 'package:mobile/presentation/common/blocs/auth/authentication_bloc.dart';
+import 'common/blocs/auth_bloc/auth_bloc.dart';
+import 'services/locator.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -17,24 +16,15 @@ class App extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        // TODO: Uncomment MultiBlocProvider khi đã có AuthBloc và ThemeCubit
-        /*
-        return MultiBlocProvider(
-          providers: [
-            // Authentication Bloc - global
-            BlocProvider(
-              create: (_) =>
-                  sl<AuthenticationBloc>()..add(AuthenticationStarted()),
-            ),
-            // Theme Cubit - global
-            BlocProvider(create: (_) => sl<ThemeCubit>()),
-          ],
+        return BlocProvider(
+          create: (context) => AuthBloc(
+            loginUseCase: sl(),
+            logoutUseCase: sl(),
+            getCurrentUserUseCase: sl(),
+            registerUserUseCase: sl(),
+          )..add(AuthCheckRequested()),
           child: const AppView(),
         );
-        */
-
-        // Tạm thời trả về AppView trực tiếp
-        return const AppView();
       },
     );
   }

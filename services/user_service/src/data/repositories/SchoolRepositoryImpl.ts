@@ -1,6 +1,7 @@
 import { ISchoolRepository } from "../../domain/repositories/ISchoolRepository";
 import { School } from "../../domain/entities/School";
 import { SchoolModel } from "../datasources/postgres/models/SchoolModel";
+import { Op } from "sequelize";
 
 export class SchoolRepositoryImpl implements ISchoolRepository {
   async create(school: School): Promise<School> {
@@ -61,6 +62,68 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
   async delete(id: string): Promise<boolean> {
     const deletedCount = await SchoolModel.destroy({ where: { id } });
     return deletedCount > 0;
+  }
+
+  async getSchoolsByLevel(params: {
+    educationLevel: string;
+    search?: string;
+  }): Promise<any[]> {
+    const whereCondition: any = {
+      level: params.educationLevel,
+      deletedAt: null,
+    };
+
+    // Add search condition if provided
+    if (params.search) {
+      whereCondition[Op.or] = [
+        {
+          name: {
+            [Op.iLike]: `%${params.search}%`,
+          },
+        },
+        {
+          code: {
+            [Op.iLike]: `%${params.search}%`,
+          },
+        },
+      ];
+    }
+
+    const schools = await SchoolModel.findAll({
+      where: whereCondition,
+      order: [['name', 'ASC']],
+    });
+
+    return schools.map(school => ({
+      id: school.id,
+      name: school.name,
+      code: school.code,
+      address: school.address,
+      level: school.level,
+      logoUrl: school.logoUrl,
+      phone: school.phone,
+      description: school.description,
+      createdAt: school.createdAt,
+      updatedAt: school.updatedAt,
+    }));
+  }
+
+  async getSchoolById(id: string): Promise<any | null> {
+    const school = await SchoolModel.findByPk(id);
+    if (!school) return null;
+
+    return {
+      id: school.id,
+      name: school.name,
+      code: school.code,
+      address: school.address,
+      level: school.level,
+      logoUrl: school.logoUrl,
+      phone: school.phone,
+      description: school.description,
+      createdAt: school.createdAt,
+      updatedAt: school.updatedAt,
+    };
   }
 
   private toEntity(model: SchoolModel): School {

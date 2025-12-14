@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/enum_constant.dart';
 import '../../../../utils/display_mapper.dart';
 import '../bloc/registration_state.dart';
 
@@ -96,7 +97,7 @@ class StepReview extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
 
-          if (state.selectedRoleId != null)
+          if (state.selectedRole != null)
             Container(
               width: double.infinity,
               padding: EdgeInsets.all(16.r),
@@ -121,15 +122,15 @@ class StepReview extends StatelessWidget {
                   SizedBox(height: 12.h),
                   _reviewItem(
                     'Công việc',
-                    DisplayMapper.roleName(state.selectedRoleName!),
+                    state.selectedRole!.displayName,
                   ),
                   if (state.assignSchoolName != null &&
                       !state.isCreateNewSchool)
                     _reviewItem(
-                      'Trường ${state.selectedRoleName!.toLowerCase() != 'student' ? 'công tác' : ''}',
+                      'Trường ${state.selectedRole!.name.toLowerCase() != 'student' ? 'công tác' : ''}',
                       state.assignSchoolName,
                     ),
-                  if (state.selectedRoleName!.toLowerCase() == 'student') ...[
+                  if (state.selectedRole == RoleKeyEnum.Student) ...[
                     _reviewItem('Cấp học', state.educationLevel?.displayName),
                     if (state.classId != null)
                       _reviewItem('Lớp', state.assignClassName),
@@ -138,7 +139,7 @@ class StepReview extends StatelessWidget {
                     _reviewItem('Tên phụ huynh', state.guardianName),
                     _reviewItem('SĐT phụ huynh', state.guardianPhone),
                   ],
-                  if (state.selectedRoleName!.toLowerCase() == 'teacher') ...[
+                  if (state.selectedRole == RoleKeyEnum.Teacher) ...[
                     _reviewItem('Trình độ', state.qualification?.displayName),
                     _reviewItem(
                       'Môn giảng dạy',
@@ -147,8 +148,7 @@ class StepReview extends StatelessWidget {
                           : 'Chưa chọn',
                     ),
                   ],
-                  if (state.selectedRoleName!.toLowerCase() ==
-                      'schooladmin') ...[
+                  if (state.selectedRole == RoleKeyEnum.SchoolAdmin) ...[
                     if (!state.isCreateNewSchool) ...[
                       _reviewItem('Chức vụ', state.position?.displayName),
                     ] else ...[

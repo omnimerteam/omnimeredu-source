@@ -50,4 +50,37 @@ export class UserReadRepositoryImpl implements IUserReadRepository {
       .lean();
     return users;
   }
+
+  async getUserSchoolInfo(userId: string): Promise<{
+    schoolName?: string;
+    className?: string;
+  } | null> {
+    const user = await UserFullReadModel.findOne({ _id: userId })
+      .select("schoolInfo studentInfo.classId teacherInfo.classIds")
+      .populate({
+        path: "schoolInfo.schoolId",
+        select: "name",
+      })
+      .populate({
+        path: "studentInfo.classId",
+        select: "name",
+      })
+      .lean();
+
+    if (!user) return null;
+
+    const result: { schoolName?: string; className?: string } = {};
+
+    // Get school name
+    if (user.schoolInfo?.schoolId) {
+      result.schoolName = (user.schoolInfo.schoolId as any).name;
+    }
+
+    // Get class name for students
+    if (user.studentInfo?.classId) {
+      result.className = (user.studentInfo.classId as any).name;
+    }
+
+    return Object.keys(result).length > 0 ? result : null;
+  }
 }

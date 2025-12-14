@@ -7,4 +7,8 @@ export interface IClassRepository {
   findBySchoolId(schoolId: string): Promise<Class[]>;
   update(classEntity: Class): Promise<Class>;
   delete(id: string): Promise<boolean>;
+  getClassesBySchool(params: {
+    schoolId: string;
+    grade?: string;
+  }): Promise<any[]>;
 }

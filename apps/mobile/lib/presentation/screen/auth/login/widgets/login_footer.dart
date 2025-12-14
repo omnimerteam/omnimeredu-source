@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../common/widgets/snackbar/app_snack_bar.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../../../widgets/common/app_snack_bar.dart';
 
 class LoginFooter extends StatefulWidget {
   const LoginFooter({super.key});
@@ -80,9 +80,9 @@ class _LoginFooterState extends State<LoginFooter>
                   icon: Icons.g_mobiledata,
                   label: "Google",
                   onPressed: () {
-                    AppSnackBars.showComingSoon(
+                    AppSnackBar.showInfo(
                       context,
-                      "Đăng nhập bằng Google",
+                      message: "Đăng nhập bằng Google (Coming Soon)",
                     );
                   },
                 ),
@@ -93,9 +93,9 @@ class _LoginFooterState extends State<LoginFooter>
                   icon: Icons.facebook,
                   label: "Facebook",
                   onPressed: () {
-                    AppSnackBars.showComingSoon(
+                    AppSnackBar.showInfo(
                       context,
-                      "Đăng nhập bằng Facebook",
+                      message: "Đăng nhập bằng Facebook (Coming Soon)",
                     );
                   },
                 ),
@@ -129,7 +129,7 @@ class _LoginFooterState extends State<LoginFooter>
                     Navigator.pushReplacementNamed(context, "/register");
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 8.w,
                       vertical: 4.h,
                     ),

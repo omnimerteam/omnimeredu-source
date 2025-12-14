@@ -2,9 +2,39 @@ import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { User } from "../../domain/entities/User";
 import { Account } from "../../domain/entities/Account";
 import { UserModel } from "../datasources/postgres/models/UserModel";
+import { StudentModel } from "../datasources/postgres/models/StudentModel";
+import { TeacherModel } from "../datasources/postgres/models/TeacherModel";
+import { SchoolAdminModel } from "../datasources/postgres/models/SchoolAdminModel";
 import { AccountModel } from "../datasources/postgres/models/AccountModel";
 
 export class UserRepositoryImpl implements IUserRepository {
+  async createStudentProfile(userId: string, data: any): Promise<void> {
+    await StudentModel.create({
+      userId,
+      classId: data.classId,
+      educationLevel: data.educationLevel,
+      gradeGroup: data.gradeGroup,
+      guardianName: data.guardianName,
+      guardianPhone: data.guardianPhone,
+      meta: data.meta,
+    });
+  }
+
+  async createTeacherProfile(userId: string, data: any): Promise<void> {
+    await TeacherModel.create({
+      userId,
+      qualification: data.qualification,
+      subjects: data.subjects,
+    });
+  }
+
+  async createSchoolAdminProfile(userId: string, data: any): Promise<void> {
+    await SchoolAdminModel.create({
+      userId,
+      position: data.position,
+    });
+  }
+
   async create(user: User): Promise<User> {
     const userModel = await UserModel.create({
       fullName: user.fullName,
@@ -126,6 +156,37 @@ export class UserRepositoryImpl implements IUserRepository {
       model.schoolId,
       model.deletedAt
     );
+  }
+
+  async updateUserSchool(userId: string, schoolId: string): Promise<void> {
+    await UserModel.update(
+      { schoolId },
+      { where: { id: userId } }
+    );
+  }
+
+  async createSchool(data: {
+    name: string;
+    address: string;
+    phone?: string;
+    description?: string;
+    level: string;
+  }): Promise<{ id: string; name: string }> {
+    // Import SchoolModel dynamically to avoid circular dependency
+    const { SchoolModel } = await import("../datasources/postgres/models/SchoolModel");
+
+    const school = await SchoolModel.create({
+      name: data.name,
+      address: data.address,
+      phone: data.phone,
+      description: data.description,
+      level: data.level,
+    });
+
+    return {
+      id: school.id,
+      name: school.name,
+    };
   }
 
   private toAccountEntity(model: AccountModel): Account {

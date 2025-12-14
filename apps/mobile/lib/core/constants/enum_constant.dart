@@ -1,3 +1,23 @@
+enum RoleKeyEnum {
+  Student("Học sinh"),
+  Teacher("Giáo viên"),
+  Staff("Nhân viên"),
+  SchoolAdmin("Quản trị trường"),
+  None("Chưa đăng ký");
+
+  final String displayName;
+  const RoleKeyEnum(this.displayName);
+
+  String get asString => name;
+
+  static RoleKeyEnum fromString(String? value) {
+    return RoleKeyEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => RoleKeyEnum.None,
+    );
+  }
+}
+
 enum EducationSystemLevelsEnum {
   Preschool("Mầm non"),
   Primary("Tiểu học"),

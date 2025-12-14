@@ -8,8 +8,6 @@ abstract class RegistrationEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// load roles từ API
-class LoadRolesEvent extends RegistrationEvent {}
 
 /// update thông tin cơ bản
 class UpdateBasicInfoEvent extends RegistrationEvent {
@@ -37,11 +35,10 @@ class UpdateBasicInfoEvent extends RegistrationEvent {
 
 /// update role
 class UpdateRoleEvent extends RegistrationEvent {
-  final String roleId;
-  final String? roleName;
-  const UpdateRoleEvent(this.roleId, this.roleName);
+  final RoleKeyEnum role;
+  const UpdateRoleEvent(this.role);
   @override
-  List<Object?> get props => [roleId, roleName];
+  List<Object?> get props => [role];
 }
 
 /// update thông tin học sinh

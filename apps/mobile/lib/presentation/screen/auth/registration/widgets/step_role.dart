@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/constants/enum_constant.dart';
 import '../../../../utils/display_mapper.dart';
 import '../../../../utils/validator.dart';
-import '../../../../../domain/entities/auth/role_entity.dart';
 import '../bloc/registration_bloc.dart';
 import '../bloc/registration_event.dart';
 import '../bloc/registration_state.dart';
@@ -14,7 +13,7 @@ import '../../../../widgets/dropdown/register_multi_select_dropdwon.dart';
 import '../../../../widgets/text_field/register_text_field.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-import '../../../common/class_selector/class_selector.dart';
+import 'class_selector.dart';
 
 class StepRole extends StatefulWidget {
   final RegistrationState state;
@@ -78,7 +77,7 @@ class _StepRoleState extends State<StepRole> {
         children: [
           _buildRoleSelector(context, widget.state),
           SizedBox(height: 20.h),
-          if (widget.state.selectedRoleId != null)
+          if (widget.state.selectedRole != null)
             _buildRoleForm(context, widget.state),
           SizedBox(height: 20.h),
         ],
@@ -88,20 +87,16 @@ class _StepRoleState extends State<StepRole> {
 
   /// Selector vai trò
   Widget _buildRoleSelector(BuildContext context, RegistrationState state) {
-    return RegisterDropdown<RoleEntity>(
+    return RegisterDropdown<RoleKeyEnum>(
       label: "Bạn là",
       requiredInput: true,
-      value: state.roles.isEmpty
-          ? null
-          : state.roles.firstWhere(
-              (r) => r.id == state.selectedRoleId,
-              orElse: () => state.roles.first,
-            ),
-      items: state.roles
+      value: state.selectedRole,
+      items: RoleKeyEnum.values
+          .where((role) => role != RoleKeyEnum.None)
           .map(
             (role) => DropdownMenuItem(
               value: role,
-              child: Text(DisplayMapper.roleName(role.name)),
+              child: Text(role.displayName),
             ),
           )
           .toList(),
@@ -110,7 +105,7 @@ class _StepRoleState extends State<StepRole> {
 
         // Reset state theo role mới
         context.read<RegistrationBloc>().add(
-          UpdateRoleEvent(role.id, role.name),
+          UpdateRoleEvent(role),
         );
 
         context.read<RegistrationBloc>().add(
@@ -153,15 +148,17 @@ class _StepRoleState extends State<StepRole> {
 
   /// Render form theo role
   Widget _buildRoleForm(BuildContext context, RegistrationState state) {
-    switch (state.selectedRoleName) {
-      case "Student":
+    switch (state.selectedRole) {
+      case RoleKeyEnum.Student:
         return _buildStudentForm(context, state);
-      case "Teacher":
+      case RoleKeyEnum.Teacher:
         return _buildTeacherForm(context, state);
-      case "SchoolAdmin":
+      case RoleKeyEnum.SchoolAdmin:
         return _buildSchoolAdminForm(context, state);
-      default:
+      case RoleKeyEnum.Staff:
         return _buildOtherRoleForm(context, state);
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -498,21 +495,23 @@ class _StepRoleState extends State<StepRole> {
         );
 
         // Update education level based on role
-        switch (state.selectedRoleName) {
-          case "Student":
+        switch (state.selectedRole) {
+          case RoleKeyEnum.Student:
             context.read<RegistrationBloc>().add(
               UpdateStudentInfoEvent(
-                educationLevel: value, // gửi string về backend
+                educationLevel: value, // gửi enum về backend
                 classId: null, // Reset class khi đổi cấp học
               ),
             );
             break;
-          case "SchoolAdmin":
+          case RoleKeyEnum.SchoolAdmin:
             context.read<RegistrationBloc>().add(
               UpdateSchoolAdminInfoEvent(
-                schoolLevel: value, // gửi string về backend
+                schoolLevel: value, // gửi enum về backend
               ),
             );
+            break;
+          default:
             break;
         }
       },

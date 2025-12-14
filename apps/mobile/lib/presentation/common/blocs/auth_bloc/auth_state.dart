@@ -30,3 +30,5 @@ class AuthFailure extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class AuthRegistered extends AuthState {}

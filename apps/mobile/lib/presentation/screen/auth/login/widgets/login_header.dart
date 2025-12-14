@@ -174,10 +174,7 @@ class _LoginHeaderState extends State<LoginHeader>
               ),
               SizedBox(height: 8.h),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 6.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20.r),
