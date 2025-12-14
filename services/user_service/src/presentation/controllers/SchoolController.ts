@@ -4,6 +4,7 @@ import { GetSchoolByIdUseCase } from "../../domain/usecases/school/GetSchoolById
 import { UpdateSchoolUseCase } from "../../domain/usecases/school/UpdateSchoolUseCase";
 import { DeleteSchoolUseCase } from "../../domain/usecases/school/DeleteSchoolUseCase";
 import { SchoolRepositoryImpl } from "../../data/repositories/SchoolRepositoryImpl";
+import { ClassRepositoryImpl } from "../../data/repositories/ClassRepositoryImpl";
 import { CreateSchoolDto } from "../dtos/CreateSchoolDto";
 import { UpdateSchoolDto } from "../dtos/UpdateSchoolDto";
 
@@ -12,13 +13,16 @@ export class SchoolController {
   private getSchoolByIdUseCase: GetSchoolByIdUseCase;
   private updateSchoolUseCase: UpdateSchoolUseCase;
   private deleteSchoolUseCase: DeleteSchoolUseCase;
+  private schoolRepository: SchoolRepositoryImpl;
+  private classRepository: ClassRepositoryImpl;
 
   constructor() {
-    const schoolRepository = new SchoolRepositoryImpl();
-    this.registerSchoolUseCase = new RegisterSchoolUseCase(schoolRepository);
-    this.getSchoolByIdUseCase = new GetSchoolByIdUseCase(schoolRepository);
-    this.updateSchoolUseCase = new UpdateSchoolUseCase(schoolRepository);
-    this.deleteSchoolUseCase = new DeleteSchoolUseCase(schoolRepository);
+    this.schoolRepository = new SchoolRepositoryImpl();
+    this.classRepository = new ClassRepositoryImpl();
+    this.registerSchoolUseCase = new RegisterSchoolUseCase(this.schoolRepository);
+    this.getSchoolByIdUseCase = new GetSchoolByIdUseCase(this.schoolRepository);
+    this.updateSchoolUseCase = new UpdateSchoolUseCase(this.schoolRepository);
+    this.deleteSchoolUseCase = new DeleteSchoolUseCase(this.schoolRepository);
   }
 
   async registerSchool(req: Request, res: Response): Promise<void> {
@@ -65,6 +69,84 @@ export class SchoolController {
     } catch (error: any) {
       const statusCode = error.message === "School not found" ? 404 : 400;
       res.status(statusCode).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Get schools by education level
+   * GET /api/schools?educationLevel=<level>&search=<query>
+   */
+  async getSchools(req: Request, res: Response): Promise<void> {
+    try {
+      const { educationLevel, search } = req.query;
+
+      if (!educationLevel) {
+        res.status(400).json({
+          success: false,
+          message: "Education level is required"
+        });
+        return;
+      }
+
+      const schools = await this.schoolRepository.getSchoolsByLevel({
+        educationLevel: educationLevel as string,
+        search: search as string,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Schools retrieved successfully",
+        schools: schools.map(school => ({
+          id: school.id,
+          name: school.name,
+          code: school.code,
+          address: school.address,
+          level: school.level,
+          logoUrl: school.logoUrl,
+          phone: school.phone,
+          description: school.description,
+        })),
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to get schools"
+      });
+    }
+  }
+
+  /**
+   * Get classes by school ID
+   * GET /api/schools/:schoolId/classes?grade=<grade>
+   */
+  async getClassesBySchool(req: Request, res: Response): Promise<void> {
+    try {
+      const { schoolId } = req.params;
+      const { grade } = req.query;
+
+      const classes = await this.classRepository.getClassesBySchool({
+        schoolId,
+        grade: grade as string,
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Classes retrieved successfully",
+        classes: classes.map(cls => ({
+          id: cls.id,
+          name: cls.name,
+          code: cls.code,
+          grade: cls.grade,
+          level: cls.level,
+          maxStudents: cls.maxStudents,
+          currentStudents: cls.currentStudents,
+        })),
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Failed to get classes"
+      });
     }
   }
 }

@@ -286,19 +286,54 @@ Data: ${error.response?.data}
     bool requiresAuth = true,
     Duration? receiveTimeout,
     Duration? sendTimeout,
+    Map<String, File>? files,
   }) async {
     try {
-      final response = await dio.post(
-        path,
-        data: data,
-        queryParameters: query,
-        options: Options(
-          headers: headers,
-          extra: {'requiresAuth': requiresAuth},
-          receiveTimeout: receiveTimeout,
-          sendTimeout: sendTimeout,
-        ),
-      );
+      Response response;
+
+      // Handle file upload
+      if (files != null && files.isNotEmpty) {
+        final formData = FormData.fromMap(data ?? {});
+
+        // Add files to form data
+        for (var entry in files.entries) {
+          final file = entry.value;
+          if (file != null) {
+            formData.files.add(MapEntry(
+              entry.key,
+              await MultipartFile.fromFile(
+                file.path,
+                filename: file.uri.pathSegments.last,
+              ),
+            ));
+          }
+        }
+
+        response = await dio.post(
+          path,
+          data: formData,
+          queryParameters: query,
+          options: Options(
+            headers: headers,
+            extra: {'requiresAuth': requiresAuth},
+            receiveTimeout: receiveTimeout,
+            sendTimeout: sendTimeout,
+          ),
+        );
+      } else {
+        response = await dio.post(
+          path,
+          data: data,
+          queryParameters: query,
+          options: Options(
+            headers: headers,
+            extra: {'requiresAuth': requiresAuth},
+            receiveTimeout: receiveTimeout,
+            sendTimeout: sendTimeout,
+          ),
+        );
+      }
+
       return _handleResponse<T>(response, fromJsonT: parser);
     } on DioException catch (e) {
       throw _handleError<T>(e);

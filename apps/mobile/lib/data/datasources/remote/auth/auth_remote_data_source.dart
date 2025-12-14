@@ -4,17 +4,16 @@ import '../../../../core/api/endpoints.dart';
 import '../../../../core/constants/storage_constant.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../domain/entities/auth/login_entity.dart';
+import '../../../../domain/entities/auth/register_user_entity.dart';
 import '../../../../services/secure_storage_service.dart';
 import '../../../models/auth/auth_user_model.dart';
+import 'dart:io';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginEntity params);
   Future<void> logout();
   Future<AuthUserModel?> getCurrentUser();
-  Future<ApiResponse<void>> changePassword(
-    String oldPassword,
-    String newPassword,
-  );
+  Future<AuthUserModel> registerUser(RegisterUserEntity user);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -33,7 +32,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (!response.success) {
-        throw AuthFailure(response.message ?? "Đăng nhập thất bại");
+        throw AuthFailure(response.message);
       }
 
       final data = response.data;
@@ -113,6 +112,91 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<AuthUserModel> registerUser(RegisterUserEntity user) async {
+    try {
+      // Create multipart request for file upload
+      final Map<String, dynamic> data = {
+        'email': user.email,
+        'password': user.password,
+        'roleName': user.baseUserInfo.roleName,
+        'baseUserInfo': {
+          'fullName': user.baseUserInfo.fullName,
+          'gender': user.baseUserInfo.gender,
+          'phone': user.baseUserInfo.phone,
+          'birthday': user.baseUserInfo.birthday?.toIso8601String(),
+          'address': user.baseUserInfo.address,
+        },
+        'specificInfo': user.specificInfo,
+      };
+
+      // Add schoolId and classId if they exist
+      if (user.schoolId != null) {
+        data['schoolId'] = user.schoolId;
+      }
+      if (user.classId != null) {
+        data['classId'] = user.classId;
+      }
+
+      // Add schoolData if it exists (for SchoolAdmin creating new school)
+      if (user.schoolData != null) {
+        data['schoolData'] = {
+          'name': user.schoolData!.name,
+          'address': user.schoolData!.address,
+          'phone': user.schoolData!.phone,
+          'description': user.schoolData!.description,
+          'level': user.schoolData!.level.name,
+        };
+      }
+
+      // Create the request
+      final response = await client.post<Map<String, dynamic>>(
+        Endpoints.user.register,
+        data: data,
+        requiresAuth: false,
+        // Add file if avatar exists
+        files: user.baseUserInfo.avatar != null
+            ? {'avatar': user.baseUserInfo.avatar!}
+            : null,
+      );
+
+      if (!response.success) {
+        throw AuthFailure(response.message);
+      }
+
+      final responseData = response.data;
+      if (responseData == null) {
+        throw const AuthFailure("Phản hồi từ server không có dữ liệu");
+      }
+
+      // Extract tokens
+      String? accessToken = responseData['accessToken'];
+      String? refreshToken = responseData['refreshToken'];
+
+      // Extract User
+      final userJson = responseData['user'];
+
+      if (accessToken == null || refreshToken == null || userJson == null) {
+        throw const AuthFailure(
+          "Cấu trúc phản hồi không hợp lệ (thiếu token hoặc user)",
+        );
+      }
+
+      // Save tokens
+      await secureStorage.update(StorageConstant.kAccessTokenKey, accessToken);
+      await secureStorage.update(
+        StorageConstant.kRefreshTokenKey,
+        refreshToken,
+      );
+
+      // Return Model
+      return AuthUserModel.fromJson(userJson);
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw AuthFailure(e.toString());
     }
   }
 

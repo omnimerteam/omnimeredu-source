@@ -1,4 +1,11 @@
 import { IUserRepository } from "../../repositories/IUserRepository";
+import { IMembershipRequestRepository } from "../../repositories/IMembershipRequestRepository";
+import { MembershipRequest } from "../../entities/MembershipRequest";
+import {
+  MembershipRoleEnum,
+  MembershipActionEnum,
+  MembershipStatusEnum,
+} from "shared-lib";
 import { User } from "../../entities/User";
 import { Account } from "../../entities/Account";
 import { AuthUtils } from "../../../infrastructure/utils/AuthUtils";
@@ -16,9 +23,18 @@ export interface RegisterUserRequest {
   phone?: string;
   address?: string;
   schoolId?: string;
+  classId?: string;
   avatarFile?: {
     buffer: Buffer;
     mimetype: string;
+  };
+  specificInfo?: any;
+  schoolData?: {
+    name: string;
+    address: string;
+    phone?: string;
+    description?: string;
+    level: string;
   };
 }
 
@@ -32,7 +48,10 @@ export interface RegisterUserResponse {
 }
 
 export class RegisterUserUseCase {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(
+    private userRepository: IUserRepository,
+    private membershipRepository: IMembershipRequestRepository
+  ) {}
 
   async execute(request: RegisterUserRequest): Promise<RegisterUserResponse> {
     // 1. Check if email already exists
@@ -104,6 +123,115 @@ export class RegisterUserUseCase {
       email: createdUser.email || request.email,
       roleKey: createdUser.roleKey,
     });
+
+    // 11. Handle school creation for SchoolAdmin
+    let finalSchoolId = request.schoolId;
+    if (request.roleKey === RoleGroup.SchoolAdmin && request.schoolData) {
+      // Create new school
+      const newSchool = await this.userRepository.createSchool({
+        name: request.schoolData.name,
+        address: request.schoolData.address,
+        phone: request.schoolData.phone,
+        description: request.schoolData.description,
+        level: request.schoolData.level,
+      });
+      finalSchoolId = newSchool.id;
+
+      // Update user with school ID
+      await this.userRepository.updateUserSchool(createdUser.id, finalSchoolId);
+      createdUser.schoolId = finalSchoolId;
+    }
+
+    // 12. Handle Role Specific Logic (Profile & Membership)
+    if (request.specificInfo) {
+      switch (request.roleKey) {
+        case RoleGroup.Student:
+          await this.userRepository.createStudentProfile(
+            createdUser.id,
+            request.specificInfo
+          );
+          if (finalSchoolId) {
+            await this.membershipRepository.create(
+              new MembershipRequest(
+                "",
+                createdUser.id,
+                finalSchoolId,
+                MembershipRoleEnum.Student,
+                MembershipActionEnum.Enroll,
+                MembershipStatusEnum.Pending,
+                request.classId || undefined, // classId
+                undefined, // note
+                undefined, // createdAt
+                undefined // updatedAt
+              )
+            );
+          }
+          break;
+        case RoleGroup.Teacher:
+          await this.userRepository.createTeacherProfile(
+            createdUser.id,
+            request.specificInfo
+          );
+          if (finalSchoolId) {
+            await this.membershipRepository.create(
+              new MembershipRequest(
+                "",
+                createdUser.id,
+                finalSchoolId,
+                MembershipRoleEnum.Teacher,
+                MembershipActionEnum.Enroll,
+                MembershipStatusEnum.Pending
+              )
+            );
+          }
+          break;
+        case RoleGroup.SchoolAdmin:
+          await this.userRepository.createSchoolAdminProfile(
+            createdUser.id,
+            request.specificInfo
+          );
+          // SchoolAdmin creating school is auto-approved
+          if (request.schoolData && finalSchoolId) {
+            await this.membershipRepository.create(
+              new MembershipRequest(
+                "",
+                createdUser.id,
+                finalSchoolId,
+                MembershipRoleEnum.SchoolAdmin,
+                MembershipActionEnum.Enroll,
+                MembershipStatusEnum.Approved
+              )
+            );
+          } else if (finalSchoolId) {
+            // SchoolAdmin joining existing school needs approval
+            await this.membershipRepository.create(
+              new MembershipRequest(
+                "",
+                createdUser.id,
+                finalSchoolId,
+                MembershipRoleEnum.SchoolAdmin,
+                MembershipActionEnum.Enroll,
+                MembershipStatusEnum.Pending
+              )
+            );
+          }
+          break;
+        case RoleGroup.Staff:
+          if (finalSchoolId) {
+            await this.membershipRepository.create(
+              new MembershipRequest(
+                "",
+                createdUser.id,
+                finalSchoolId,
+                MembershipRoleEnum.Staff,
+                MembershipActionEnum.Enroll,
+                MembershipStatusEnum.Pending
+              )
+            );
+          }
+          break;
+      }
+    }
 
     return {
       user: createdUser,

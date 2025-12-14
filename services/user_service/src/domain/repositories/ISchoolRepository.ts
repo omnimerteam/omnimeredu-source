@@ -6,4 +6,9 @@ export interface ISchoolRepository {
   findByCode(code: string): Promise<School | null>;
   update(school: School): Promise<School>;
   delete(id: string): Promise<boolean>;
+  getSchoolsByLevel(params: {
+    educationLevel: string;
+    search?: string;
+  }): Promise<any[]>;
+  getSchoolById(id: string): Promise<any | null>;
 }

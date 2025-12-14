@@ -8,6 +8,7 @@ export interface RegisterDto {
   phone?: string;
   address?: string;
   schoolId?: string;
+  specificInfo?: any;
 }
 
 export interface LoginDto {

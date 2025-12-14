@@ -72,6 +72,15 @@ class UserEndpoints {
   String get roles => '$baseUrl/v1/roles';
   String roleById(String roleId) => '$baseUrl/v1/roles/$roleId';
 
+  // ===== School endpoints =====
+  String get getSchools => '$baseUrl/v1/schools';
+
+  /// Get school detail by ID
+  String schoolById(String schoolId) => '$baseUrl/v1/schools/$schoolId';
+
+  /// Get classes by school ID
+  String getClassesBySchool(String schoolId) => '$baseUrl/v1/schools/$schoolId/classes';
+
   // TODO: Thêm các user endpoints khác
 }
 

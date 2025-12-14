@@ -5,16 +5,22 @@ import { RefreshAccessTokenUseCase } from "../../domain/usecases/user/RefreshAcc
 import { GetAuthUseCase } from "../../domain/usecases/user/GetAuthUseCase";
 import { UserRepositoryImpl } from "../../data/repositories/UserRepositoryImpl";
 import { UserReadRepositoryImpl } from "../../data/repositories/UserReadRepositoryImpl";
+import { MembershipRequestRepositoryImpl } from "../../data/repositories/MembershipRequestRepositoryImpl";
 import { AuthUtils } from "../../infrastructure/utils/AuthUtils";
 import { RegisterDto, LoginDto, RefreshTokenDto } from "../dtos/AuthDto";
 import { RoleGroup } from "shared-lib";
 
 // Initialize repositories
+// Initialize repositories
 const userRepository = new UserRepositoryImpl();
 const userReadRepository = new UserReadRepositoryImpl();
+const membershipRequestRepository = new MembershipRequestRepositoryImpl();
 
 // Initialize use cases
-const registerUserUseCase = new RegisterUserUseCase(userRepository);
+const registerUserUseCase = new RegisterUserUseCase(
+  userRepository,
+  membershipRequestRepository
+);
 const loginUseCase = new LoginUseCase(userRepository);
 const refreshAccessTokenUseCase = new RefreshAccessTokenUseCase(userRepository);
 const getAuthUseCase = new GetAuthUseCase(userRepository);
@@ -26,23 +32,19 @@ export class AuthController {
    */
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const registerDto: RegisterDto = req.body;
+      const { email, password, roleName, baseUserInfo, specificInfo, schoolId, classId, schoolData } = req.body;
 
       // Validate required fields
-      if (
-        !registerDto.email ||
-        !registerDto.password ||
-        !registerDto.fullName
-      ) {
+      if (!email || !password || !roleName || !baseUserInfo?.fullName) {
         return res.status(400).json({
           success: false,
-          message: "Email, password, and full name are required",
+          message: "Email, password, role, and full name are required",
         });
       }
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(registerDto.email)) {
+      if (!emailRegex.test(email)) {
         return res.status(400).json({
           success: false,
           message: "Invalid email format",
@@ -50,7 +52,7 @@ export class AuthController {
       }
 
       // Validate password strength (minimum 6 characters)
-      if (registerDto.password.length < 6) {
+      if (password.length < 6) {
         return res.status(400).json({
           success: false,
           message: "Password must be at least 6 characters long",
@@ -66,35 +68,59 @@ export class AuthController {
         };
       }
 
+      // Convert role name to RoleGroup enum
+      let roleKey: RoleGroup;
+      switch (roleName) {
+        case 'Student':
+          roleKey = RoleGroup.Student;
+          break;
+        case 'Teacher':
+          roleKey = RoleGroup.Teacher;
+          break;
+        case 'Staff':
+          roleKey = RoleGroup.Staff;
+          break;
+        case 'SchoolAdmin':
+          roleKey = RoleGroup.SchoolAdmin;
+          break;
+        default:
+          roleKey = RoleGroup.Staff;
+      }
+
       // Execute use case
       const result = await registerUserUseCase.execute({
-        email: registerDto.email,
-        password: registerDto.password,
-        fullName: registerDto.fullName,
-        roleKey: (registerDto.roleKey as RoleGroup) || RoleGroup.Staff,
-        gender: registerDto.gender,
-        birthday: registerDto.birthday
-          ? new Date(registerDto.birthday)
+        email,
+        password,
+        fullName: baseUserInfo.fullName,
+        roleKey,
+        gender: baseUserInfo.gender,
+        birthday: baseUserInfo.birthday
+          ? new Date(baseUserInfo.birthday)
           : undefined,
-        phone: registerDto.phone,
-        address: registerDto.address,
-        schoolId: registerDto.schoolId,
+        phone: baseUserInfo.phone,
+        address: baseUserInfo.address,
+        schoolId,
+        classId,
         avatarFile,
+        specificInfo,
+        schoolData,
       });
+
+      // Get user's school and class info for response
+      const userSchoolInfo = await userReadRepository.getUserSchoolInfo(result.user.id);
 
       return res.status(201).json({
         success: true,
         message: "User registered successfully",
         data: {
           user: {
-            id: result.user.id,
-            fullName: result.user.fullName,
             email: result.user.email,
             roleKey: result.user.roleKey,
-            avatarUrl: result.user.avatarUrl,
-            isVerified: result.user.isVerified,
+            schoolName: userSchoolInfo?.schoolName,
+            className: userSchoolInfo?.className,
           },
-          tokens: result.tokens,
+          accessToken: result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
         },
       });
     } catch (error) {

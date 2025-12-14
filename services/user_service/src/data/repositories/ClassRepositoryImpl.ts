@@ -60,6 +60,48 @@ export class ClassRepositoryImpl implements IClassRepository {
     return deletedCount > 0;
   }
 
+  async getClassesBySchool(params: {
+    schoolId: string;
+    grade?: string;
+  }): Promise<any[]> {
+    const { SchoolModel } = await import("../datasources/postgres/models/SchoolModel");
+
+    const whereCondition: any = {
+      schoolId: params.schoolId,
+      deletedAt: null,
+    };
+
+    // Add grade filter if provided
+    if (params.grade) {
+      whereCondition.grade = params.grade;
+    }
+
+    const classes = await ClassModel.findAll({
+      where: whereCondition,
+      include: [
+        {
+          model: SchoolModel,
+          as: 'school',
+          attributes: ['id', 'name', 'level'],
+        },
+      ],
+      order: [['name', 'ASC']],
+    });
+
+    return classes.map(cls => ({
+      id: cls.id,
+      name: cls.name,
+      code: cls.code,
+      schoolId: cls.schoolId,
+      grade: cls.grade,
+      level: cls.school?.level || '',
+      maxStudents: cls.maxStudents,
+      currentStudents: cls.currentStudents || 0,
+      createdAt: cls.createdAt,
+      updatedAt: cls.updatedAt,
+    }));
+  }
+
   private toEntity(model: ClassModel): Class {
     return new Class(
       model.id,

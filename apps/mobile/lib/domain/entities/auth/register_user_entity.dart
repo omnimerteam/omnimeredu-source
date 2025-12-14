@@ -1,8 +1,10 @@
-import '../../core/constants/enum_constant.dart';
-import 'base_user_entity.dart';
+import 'dart:io';
+
+import 'package:equatable/equatable.dart';
+
 import '../school/school_data_entity.dart';
 
-class RegisterUserEntity {
+class RegisterUserEntity extends Equatable {
   final String email;
   final String password;
   final String? schoolId;
@@ -20,26 +22,35 @@ class RegisterUserEntity {
     required this.specificInfo,
     this.schoolData,
   });
+
+  @override
+  List<Object?> get props => [
+    email,
+    password,
+    schoolId,
+    classId,
+    baseUserInfo,
+    specificInfo,
+    schoolData,
+  ];
 }
 
 class BaseUserForRegisterEntity {
-  final String roleId;
+  final String roleName; // Changed from roleId to roleName
   final String fullName;
   final String gender;
   final String? phone;
   final DateTime? birthday;
   final String? address;
-  final String? avatarUrl;
-  final String? avatarPath;
+  final File? avatar;
 
   BaseUserForRegisterEntity({
-    required this.roleId,
+    required this.roleName, // Changed from roleId to roleName
     required this.fullName,
     required this.gender,
     this.phone,
     this.birthday,
     this.address,
-    this.avatarUrl,
-    this.avatarPath,
+    this.avatar,
   });
 }

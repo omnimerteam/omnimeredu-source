@@ -31,7 +31,7 @@ class RoleRemoteDataSourceImpl implements RoleRemoteDataSource {
       if (response.success && response.data != null) {
         return response.data!.map((e) => e as RoleModel).toList();
       } else {
-        throw ServerFailure(response.message ?? "Lỗi lấy danh sách vai trò");
+        throw ServerFailure(response.message);
       }
     } catch (e) {
       throw ServerFailure(e.toString());

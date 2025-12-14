@@ -19,7 +19,9 @@ const startServer = async () => {
 
     // Start server
     app.listen(port, () => {
-      console.log(`[server]: Payment & Attendance Server is running at http://localhost:${port}`);
+      console.log(
+        `[server]: Payment & Attendance Server is running at http://localhost:${port}`
+      );
     });
   } catch (error) {
     console.error("❌ Stats server failed to start:", error);
