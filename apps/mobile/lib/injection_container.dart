@@ -13,6 +13,9 @@ import 'domain/repositories/school_repository.dart';
 import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/role_repository_impl.dart';
 import 'data/repositories/school_repository_impl.dart';
+import 'data/datasources/remote/user/school_admin_remote_data_source.dart';
+import 'data/repositories/user/school_admin_repository_impl.dart';
+import 'domain/repositories/user/school_admin_repository.dart';
 
 import 'domain/usecases/auth/login_usecase.dart';
 import 'domain/usecases/auth/logout_usecase.dart';
@@ -66,6 +69,14 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<SchoolRemoteDataSource>(
     () => SchoolRemoteDataSourceImpl(sl()),
+  );
+
+  // ! Features - School Admin
+  sl.registerLazySingleton<SchoolAdminRemoteDataSource>(
+    () => SchoolAdminRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<SchoolAdminRepository>(
+    () => SchoolAdminRepositoryImpl(remoteDataSource: sl()),
   );
 
   // ! Core

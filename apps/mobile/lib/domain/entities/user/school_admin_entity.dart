@@ -1,4 +1,4 @@
-import '../../../core/constants/enum_constant.dart';
+import '../../../../core/constants/enum_constant.dart';
 import 'base_user_entity.dart';
 import 'user_role_enum.dart';
 
