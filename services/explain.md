@@ -1,6 +1,6 @@
-# Kiến Trúc và Cơ Chế Hoạt Động OmniMer EDU Services
+# Kiến Trúc và Cơ Chế Hoạt Động OmniMer Edu Services 
+Tài liệu này mô tả chi tiết kiến trúc, cơ chế hoạt động, và đặc tả API Input/Output của hệ thống Microservices OmniMer Edu. Mã nguồn đã được tái cấu trúc theo mô hình CQRS (Command Query Responsibility Segregation) và bảo mật với JWT qua API Gateway.
 
-Tài liệu này mô tả chi tiết kiến trúc, cơ chế hoạt động, và đặc tả API Input/Output của hệ thống Microservices OmniMer EDU. Mã nguồn đã được tái cấu trúc theo mô hình CQRS (Command Query Responsibility Segregation) và bảo mật với JWT qua API Gateway.
 
 ## 1. Tổng Quan Kiến Trúc Hệ Thống
 
