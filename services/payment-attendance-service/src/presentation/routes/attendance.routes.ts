@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { AttendanceRepositoryImpl } from "../../data/repositories/AttendanceRepositoryImpl";
 import { AttendanceRecordRepositoryImpl } from "../../data/repositories/AttendanceRecordRepositoryImpl";
 import { CreateAttendanceUseCase } from "../../domain/usecases/attendance/CreateAttendanceUseCase";
@@ -8,6 +8,11 @@ import { GetAttendanceRecordsByAttendanceIdUseCase } from "../../domain/usecases
 import { UpdateAttendanceRecordUseCase } from "../../domain/usecases/attendance/UpdateAttendanceRecordUseCase";
 import { GenerateQRCodeUseCase } from "../../domain/usecases/attendance/GenerateQRCodeUseCase";
 import { AttendanceController } from "../controllers/AttendanceController";
+import {
+  authMiddleware,
+  roleMiddleware,
+  AuthenticatedRequest,
+} from "../middleware/auth";
 
 const router = Router();
 
@@ -17,7 +22,9 @@ const attendanceRecordRepo = new AttendanceRecordRepositoryImpl();
 
 // Use Cases
 const createAttendanceUseCase = new CreateAttendanceUseCase(attendanceRepo);
-const bulkCreateRecordsUseCase = new BulkCreateAttendanceRecordsUseCase(attendanceRecordRepo);
+const bulkCreateRecordsUseCase = new BulkCreateAttendanceRecordsUseCase(
+  attendanceRecordRepo
+);
 const getAttendanceByIdUseCase = new GetAttendanceByIdUseCase(attendanceRepo);
 const getAttendanceRecordsUseCase = new GetAttendanceRecordsByAttendanceIdUseCase(attendanceRecordRepo);
 const updateAttendanceRecordUseCase = new UpdateAttendanceRecordUseCase(attendanceRecordRepo);

@@ -1,6 +1,88 @@
 version: "3.8"
 
 services:
+  # ========================================
+  # API GATEWAY
+  # ========================================
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: omnimeredu_gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - user_service
+      - payment_service
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  # ========================================
+  # MICROSERVICES
+  # ========================================
+  user_service:
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile
+    container_name: omnimeredu_user_service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=omnimeredu_user_db
+      - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-token-key}
+      - JWT_ACCESS_EXPIRY=15m
+      - JWT_REFRESH_EXPIRY=7d
+    depends_on:
+      - postgres
+      - mongo
+      - redis
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  payment_service:
+    build:
+      context: ./payment-attendance-service
+      dockerfile: Dockerfile
+    container_name: omnimeredu_payment_service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=password
+      - PG_DATABASE=omnimeredu_payment_db
+      - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-token-key}
+    depends_on:
+      - postgres
+      - mongo
+      - redis
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  # ========================================
+  # DATABASES & INFRASTRUCTURE
+  # ========================================
   postgres:
     image: postgres:15-alpine
     container_name: omnimeredu_postgres
@@ -13,6 +95,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
 
   mongo:
     image: mongo:6.0
@@ -24,6 +109,9 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -32,6 +120,13 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+networks:
+  omnimeredu_network:
+    driver: bridge
 
 volumes:
   postgres_data:

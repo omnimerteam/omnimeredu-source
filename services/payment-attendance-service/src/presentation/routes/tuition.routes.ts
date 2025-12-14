@@ -1,10 +1,15 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { TuitionRepositoryImpl } from "../../data/repositories/TuitionRepositoryImpl";
 import { CreateTuitionUseCase } from "../../domain/usecases/tuition/CreateTuitionUseCase";
 import { GetTuitionByIdUseCase } from "../../domain/usecases/tuition/GetTuitionByIdUseCase";
 import { GetTuitionsByPeriodUseCase } from "../../domain/usecases/tuition/GetTuitionsByPeriodUseCase";
 import { ConfirmTuitionUseCase } from "../../domain/usecases/tuition/ConfirmTuitionUseCase";
 import { TuitionController } from "../controllers/TuitionController";
+import {
+  authMiddleware,
+  roleMiddleware,
+  AuthenticatedRequest,
+} from "../middleware/auth";
 
 const router = Router();
 
@@ -16,15 +21,42 @@ const getTuitionsByPeriodUseCase = new GetTuitionsByPeriodUseCase(tuitionRepo);
 const confirmTuitionUseCase = new ConfirmTuitionUseCase(tuitionRepo);
 
 const tuitionController = new TuitionController(
-    createTuitionUseCase,
-    getTuitionByIdUseCase,
-    getTuitionsByPeriodUseCase,
-    confirmTuitionUseCase
+  createTuitionUseCase,
+  getTuitionByIdUseCase,
+  getTuitionsByPeriodUseCase,
+  confirmTuitionUseCase
 );
 
-router.post("/", (req, res) => tuitionController.create(req, res));
-router.get("/:id", (req, res) => tuitionController.getById(req, res));
-router.get("/", (req, res) => tuitionController.getByPeriod(req, res));
-router.post("/:id/confirm", (req, res) => tuitionController.confirm(req, res));
+// ========================================
+// Protected Routes (Require Authentication)
+// ========================================
+
+// Create tuition - SchoolAdmin, SuperAdmin only
+router.post(
+  "/",
+  authMiddleware,
+  roleMiddleware(["SchoolAdmin", "SuperAdmin"]),
+  (req: AuthenticatedRequest, res: Response) =>
+    tuitionController.create(req, res)
+);
+
+// Get tuition by ID - Authenticated users
+router.get("/:id", authMiddleware, (req: AuthenticatedRequest, res: Response) =>
+  tuitionController.getById(req, res)
+);
+
+// Get tuitions by period - Authenticated users
+router.get("/", authMiddleware, (req: AuthenticatedRequest, res: Response) =>
+  tuitionController.getByPeriod(req, res)
+);
+
+// Confirm tuition - SchoolAdmin, SuperAdmin only
+router.post(
+  "/:id/confirm",
+  authMiddleware,
+  roleMiddleware(["SchoolAdmin", "SuperAdmin"]),
+  (req: AuthenticatedRequest, res: Response) =>
+    tuitionController.confirm(req, res)
+);
 
 export default router;
