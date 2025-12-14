@@ -75,6 +75,16 @@ router.get(
     attendanceController.getAllAttendances(req, res, next)
 );
 
+// QR code route must be before /:id to avoid route conflict
+router.get(
+  "/:id/qr",
+  validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
+  verifyFirebaseToken,
+  verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.generateQRCode(req, res, next)
+);
+
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),

@@ -4,6 +4,7 @@ import { BulkCreateAttendanceRecordsUseCase } from "../../domain/usecases/attend
 import { GetAttendanceByIdUseCase } from "../../domain/usecases/attendance/GetAttendanceByIdUseCase";
 import { GetAttendanceRecordsByAttendanceIdUseCase } from "../../domain/usecases/attendance/GetAttendanceRecordsByAttendanceIdUseCase";
 import { UpdateAttendanceRecordUseCase } from "../../domain/usecases/attendance/UpdateAttendanceRecordUseCase";
+import { GenerateQRCodeUseCase } from "../../domain/usecases/attendance/GenerateQRCodeUseCase";
 import { CreateAttendanceDto } from "../dtos/CreateAttendanceDto";
 import { BulkCreateAttendanceRecordsDto, UpdateAttendanceRecordDto } from "../dtos/AttendanceRecordDto";
 
@@ -13,7 +14,8 @@ export class AttendanceController {
         private bulkCreateRecordsUseCase: BulkCreateAttendanceRecordsUseCase,
         private getAttendanceByIdUseCase: GetAttendanceByIdUseCase,
         private getAttendanceRecordsUseCase: GetAttendanceRecordsByAttendanceIdUseCase,
-        private updateAttendanceRecordUseCase: UpdateAttendanceRecordUseCase
+        private updateAttendanceRecordUseCase: UpdateAttendanceRecordUseCase,
+        private generateQRCodeUseCase: GenerateQRCodeUseCase
     ) { }
 
     async create(req: Request, res: Response): Promise<void> {
@@ -73,6 +75,31 @@ export class AttendanceController {
             res.status(200).json(result);
         } catch (error: any) {
             res.status(400).json({ error: error.message });
+        }
+    }
+
+    async generateQRCode(req: Request, res: Response): Promise<void> {
+        try {
+            const attendanceId = req.params.id;
+            const result = await this.generateQRCodeUseCase.execute(attendanceId);
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "QR code generated successfully"
+            });
+        } catch (error: any) {
+            if (error.message === "Attendance not found") {
+                res.status(404).json({
+                    success: false,
+                    error: "Not Found",
+                    message: error.message
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    error: error.message
+                });
+            }
         }
     }
 }

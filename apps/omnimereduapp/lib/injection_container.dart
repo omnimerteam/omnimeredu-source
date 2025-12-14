@@ -116,6 +116,11 @@ import 'core/network/api_client.dart';
 import 'services/firebase_auth_service.dart';
 import 'services/firebase_storage_uploader.dart';
 import 'services/dashboard_cache_service.dart';
+import 'services/location_service.dart';
+import 'services/brightness_service.dart';
+import 'services/offline_queue_service.dart';
+import 'services/connectivity_service.dart';
+import 'services/auto_sync_service.dart';
 
 // DataSources
 import 'data/datasources/remote/auth/auth_remote_data_source.dart';
@@ -123,6 +128,7 @@ import 'data/datasources/remote/auth/role_remote_datasource.dart';
 import 'data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'data/datasources/remote/school/school_remote_data_source.dart';
 import 'data/datasources/remote/dashboard/school_admin_dashboard_remote_data_source.dart';
+import 'data/datasources/remote/qr_attendance/qr_attendance_remote_datasource.dart';
 
 // Repositories
 import 'data/repositories/auth/auth_repository_impl.dart';
@@ -130,6 +136,7 @@ import 'data/repositories/auth/role_repository_impl.dart';
 import 'data/repositories/school/class/class_repository_impl.dart';
 import 'data/repositories/school/school_repository_impl.dart';
 import 'data/repositories/dashboard/dashboard_repository_impl.dart';
+import 'data/repositories/qr_attendance/qr_attendance_repository_impl.dart';
 
 // Domain Repositories
 import 'domain/repositories/auth/auth_repository.dart';
@@ -137,6 +144,7 @@ import 'domain/repositories/auth/role_repository.dart';
 import 'domain/repositories/school/class/class_repository.dart';
 import 'domain/repositories/school/school_repository.dart';
 import 'domain/repositories/dashboard/school_admin_dashboard_repository.dart';
+import 'domain/repositories/qr_attendance/qr_attendance_repository.dart';
 
 // UseCases - Auth
 import 'domain/usecases/auth/register_user_usecase.dart';
@@ -159,6 +167,12 @@ import 'domain/usecases/class/get_all_classes_in_school_usecase.dart';
 import 'domain/usecases/school_admin_dashboard/get_dashboard_overview.dart';
 import 'domain/usecases/school_admin_dashboard/get_school_attendance_stats.dart';
 
+// UseCases - QR Attendance
+import 'domain/usecases/qr_attendance/generate_qr_code_usecase.dart';
+import 'domain/usecases/qr_attendance/submit_attendance_usecase.dart';
+import 'domain/usecases/qr_attendance/verify_location_usecase.dart';
+import 'domain/usecases/qr_attendance/sync_offline_scans_usecase.dart';
+
 // Blocs / Cubits
 import 'core/bloc/authentication/authentication_bloc.dart';
 import 'presentation/screens/auth/login/bloc/login_bloc.dart';
@@ -167,6 +181,8 @@ import 'presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 import 'presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
+import 'presentation/screens/qr_attendance/teacher/bloc/qr_display_bloc.dart';
+import 'presentation/screens/qr_attendance/student/bloc/qr_scanner_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -193,6 +209,13 @@ Future<void> init() async {
   sl.registerLazySingleton<DashboardCacheService>(
     () => DashboardCacheService(),
   );
+
+  // QR Attendance Services
+  sl.registerLazySingleton<LocationService>(() => LocationService());
+  sl.registerLazySingleton<BrightnessService>(() => BrightnessService());
+  sl.registerLazySingleton<OfflineQueueService>(() => OfflineQueueService());
+  sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
+  sl.registerLazySingleton<AutoSyncService>(() => AutoSyncService(sl(), sl()));
 
   // ======================
   // DataSources
@@ -248,6 +271,9 @@ Future<void> init() async {
   sl.registerLazySingleton<StaffRemoteDataSource>(
     () => StaffRemoteDataSource(sl()),
   );
+  sl.registerLazySingleton<QRAttendanceRemoteDatasource>(
+    () => QRAttendanceRemoteDatasource(sl()),
+  );
 
   // ======================
   // Repositories
@@ -288,6 +314,9 @@ Future<void> init() async {
   sl.registerLazySingleton<StaffRepository>(() => StaffRepositoryImpl(sl()));
   sl.registerLazySingleton<TeacherRepository>(
     () => TeacherRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<QRAttendanceRepository>(
+    () => QRAttendanceRepositoryImpl(sl(), sl()),
   );
 
   // ======================
@@ -396,6 +425,14 @@ Future<void> init() async {
 
   // User
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl(), sl(), sl(), sl()));
+
+  // QR Attendance
+  sl.registerLazySingleton(() => GenerateQRCodeUsecase(sl()));
+  sl.registerLazySingleton(
+    () => SubmitAttendanceUsecase(sl(), sl(), sl(), sl()),
+  );
+  sl.registerLazySingleton(() => VerifyLocationUsecase(sl(), sl()));
+  sl.registerLazySingleton(() => SyncOfflineScansUsecase(sl(), sl(), sl()));
 
   // ======================
   // Blocs / Cubits
@@ -567,4 +604,8 @@ Future<void> init() async {
       updateExtraFeeUseCase: sl(),
     ),
   );
+
+  // QR Attendance BLoCs
+  sl.registerFactory(() => QRDisplayBloc(sl(), sl()));
+  sl.registerFactory(() => QRScannerBloc(sl(), sl(), sl(), sl()));
 }

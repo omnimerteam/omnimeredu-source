@@ -464,6 +464,70 @@ class AttendanceService {
    * @param {string} attendanceId
    * @returns {Buffer} Excel file buffer
    */
+  async generateQRCode(
+    attendanceId: string,
+    actorSchoolId: string,
+    actorId: string,
+    userRole: string
+  ) {
+    try {
+      // Verify attendance exists and user has permission
+      const attendance = await this.getAttendanceById(
+        attendanceId,
+        actorSchoolId,
+        actorId,
+        userRole
+      );
+
+      if (!attendance) {
+        throw new HttpError(404, "Attendance not found");
+      }
+
+      // Generate dynamic code (6 digits)
+      const dynamicCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Create QR data payload
+      const payload = {
+        attendanceId: attendance._id?.toString(),
+        timestamp: new Date().toISOString(),
+        dynamicCode: dynamicCode,
+      };
+
+      // Encode QR data (base64)
+      const qrData = Buffer.from(JSON.stringify(payload)).toString("base64");
+
+      // Set expiry time (3 minutes from now)
+      // Có thể thay đổi số phút ở đây (ví dụ: 2, 3, 5, 10 phút)
+      const QR_EXPIRY_MINUTES = 1;
+      const expiry = new Date();
+      expiry.setMinutes(expiry.getMinutes() + QR_EXPIRY_MINUTES);
+
+      await this.logger.log({
+        userId: actorId,
+        action: "GENERATE_QR_CODE",
+        roleSnapshot: userRole,
+        targetId: attendanceId,
+        metadata: { attendanceId },
+      });
+
+      return {
+        attendanceId: attendance._id?.toString() || attendanceId,
+        qrData: qrData,
+        expiry: expiry.toISOString(),
+        dynamicCode: dynamicCode,
+      };
+    } catch (error) {
+      await this.logger.log({
+        userId: actorId,
+        action: "GENERATE_QR_CODE_FAILED",
+        roleSnapshot: userRole,
+        targetId: attendanceId,
+        metadata: { error: (error as Error).message },
+      });
+      throw error;
+    }
+  }
+
   async exportAttendanceExcel(actorId: string, attendanceId: string) {
     try {
       const attendance = await this.attendanceRecordViewRepository.findById(

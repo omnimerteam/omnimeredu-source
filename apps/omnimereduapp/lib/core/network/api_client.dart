@@ -21,19 +21,49 @@ class ApiClient {
       InterceptorsWrapper(
         onRequest: (options, handler) {
           logger.i("👉 [${options.method}] ${options.uri}");
-          //logger.i("Headers: ${options.headers}");
-          logger.i("Query: ${options.queryParameters}");
-          logger.i("Data: ${options.data}");
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          logger.i("✅ Response[${response.statusCode}]: ${response.data}");
+          logger.i("✅ Response[${response.statusCode}]");
           return handler.next(response);
         },
         onError: (e, handler) {
-          logger.e("❌ Error: ${e.message}");
+          final status = e.response?.statusCode;
+          final uri = e.requestOptions.uri;
+          final method = e.requestOptions.method;
+          
+          // Rút gọn error message - bỏ phần giải thích dài của Dio
+          String shortMessage = 'Request failed';
+          if (e.type == DioExceptionType.badResponse) {
+            shortMessage = 'Bad response';
+          } else if (e.type == DioExceptionType.connectionTimeout) {
+            shortMessage = 'Connection timeout';
+          } else if (e.type == DioExceptionType.receiveTimeout) {
+            shortMessage = 'Receive timeout';
+          } else if (e.type == DioExceptionType.connectionError) {
+            shortMessage = 'Connection error';
+          } else {
+            shortMessage = e.message?.split('\n').first ?? 'Request failed';
+          }
+          
+          // Chỉ log error body nếu là JSON (không phải HTML)
           if (e.response?.data != null) {
-            logger.e("❌ Error body: ${e.response?.data}");
+            final errorBody = e.response!.data;
+            if (errorBody is Map) {
+              final errorMsg = errorBody['message'] ?? errorBody['error'] ?? 'Error';
+              logger.e("❌ $method $status ${uri.path}: $errorMsg");
+            } else if (errorBody is String && !errorBody.contains('<!DOCTYPE')) {
+              // Chỉ log string nếu không phải HTML và ngắn
+              final shortError = errorBody.length > 100 
+                  ? '${errorBody.substring(0, 100)}...' 
+                  : errorBody;
+              logger.e("❌ $method $status ${uri.path}: $shortError");
+            } else {
+              // HTML error - chỉ log status và path
+              logger.e("❌ $method $status ${uri.path}: ${status == 404 ? 'Not found' : shortMessage}");
+            }
+          } else {
+            logger.e("❌ $method ${uri.path}: $shortMessage");
           }
           return handler.next(e);
         },
@@ -224,8 +254,6 @@ class ApiClient {
       // fallback nếu backend không theo format chuẩn
       if (body is Map) {
         final backendMessage = body['message']?.toString();
-        final backendDevError =
-            body['error'] ?? body['detail'] ?? body['debug'];
 
         if (backendMessage != null && backendMessage.isNotEmpty) {
           message = backendMessage;
@@ -245,13 +273,9 @@ class ApiClient {
           }
         }
 
-        if (backendDevError != null) {
-          logger.e("Backend error detail: $backendDevError");
-        } else {
-          logger.e("Backend error body: $body");
-        }
-      } else {
-        // body không phải map
+        // Không log lại vì đã log ở interceptor
+      } else if (body is String && !body.contains('<!DOCTYPE')) {
+        // Không log lại vì đã log ở interceptor
         switch (status) {
           case 401:
             message = "Không có quyền truy cập";
@@ -265,7 +289,21 @@ class ApiClient {
           default:
             message = "Lỗi dịch vụ ($status)";
         }
-        logger.e("Backend error (non-map body): ${e.response?.data}");
+      } else {
+        // HTML error hoặc body quá dài - không log chi tiết
+        switch (status) {
+          case 401:
+            message = "Không có quyền truy cập";
+            break;
+          case 404:
+            message = "Không tìm thấy thông tin";
+            break;
+          case 500:
+            message = "Lỗi hệ thống";
+            break;
+          default:
+            message = "Lỗi dịch vụ ($status)";
+        }
       }
     } else {
       message = "Không thể kết nối đến server";
