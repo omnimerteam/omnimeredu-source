@@ -8,23 +8,27 @@ import { initTuitionModel, TuitionModel } from "./models/TuitionModel";
 import { initPaymentModel, PaymentModel } from "./models/PaymentModel";
 import { initHolidayModel, HolidayModel } from "./models/HolidayModel";
 
-const sequelize = new Sequelize(
-  process.env.PG_DATABASE || "omnimeredu_payment_db",
-  process.env.PG_USER || "postgres",
-  process.env.PG_PASSWORD || "postgres",
-  {
-    host: process.env.PG_HOST || "localhost",
-    port: parseInt(process.env.PG_PORT || "5432"),
-    dialect: "postgres",
-    logging: process.env.NODE_ENV === "development" ? console.log : false,
-    pool: {
-      max: 10,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
-    },
-  }
-);
+import { connectPostgres } from "shared-lib";
+
+const dbName = process.env.PG_DATABASE || "omnimeredu_payment_db";
+const dbUser = process.env.PG_USER || "postgres";
+const dbPass = process.env.PG_PASSWORD || "postgres";
+const dbHost = process.env.PG_HOST || "localhost";
+const dbPort = process.env.PG_PORT || "5432";
+
+const uri =
+  process.env.DATABASE_URL ||
+  `postgres://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
+
+const sequelize = connectPostgres(uri, {
+  logging: process.env.NODE_ENV === "development" ? console.log : false,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+});
 
 // Initialize all models
 initAttendanceModel(sequelize);

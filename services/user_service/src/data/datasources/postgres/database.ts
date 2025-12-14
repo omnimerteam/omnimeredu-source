@@ -26,7 +26,9 @@ const dbPass = process.env.DB_PASS || "password";
 const dbHost = process.env.DB_HOST || "localhost";
 const dbPort = process.env.DB_PORT || "5432";
 
-const uri = `postgres://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
+const uri =
+  process.env.DATABASE_URL ||
+  `postgres://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
 
 export const sequelize = connectPostgres(uri);
 
