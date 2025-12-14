@@ -31,27 +31,26 @@ class QuickAccessButton extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Stack(
-                clipBehavior: Clip.none,
                 children: [
                   Container(
                     padding: EdgeInsets.all(10.w),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Icon(icon, color: color, size: 26.sp),
+                    child: Icon(icon, color: color, size: 26.w),
                   ),
                   if (badge != null)
                     Positioned(
-                      right: -4.w,
-                      top: -4.h,
+                      right: 0,
+                      top: 0,
                       child: Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 6.w,
                           vertical: 2.h,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
+                          color: Colors.red,
                           borderRadius: BorderRadius.circular(10.r),
                         ),
                         child: Text(
@@ -70,12 +69,12 @@ class QuickAccessButton extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
                   fontSize: 12.sp,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
