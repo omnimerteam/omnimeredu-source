@@ -109,6 +109,10 @@ class Endpoints {
   // ================== DETAIL RECORD ==================
   static String staffId(String id) => "/v1/details-records/update-status/$id";
 
+  // ================== QR ATTENDANCE ==================
+  static String generateQRCode(String attendanceId) => "/v1/attendance/$attendanceId/qr";
+  static const String submitAttendanceScan = "/v1/attendance/scan";
+
   // ================== UPLOAD ==================
   static const String uploadAvatar = "/v1/upload/avatar-temp";
 

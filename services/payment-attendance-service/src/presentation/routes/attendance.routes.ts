@@ -6,6 +6,7 @@ import { BulkCreateAttendanceRecordsUseCase } from "../../domain/usecases/attend
 import { GetAttendanceByIdUseCase } from "../../domain/usecases/attendance/GetAttendanceByIdUseCase";
 import { GetAttendanceRecordsByAttendanceIdUseCase } from "../../domain/usecases/attendance/GetAttendanceRecordsByAttendanceIdUseCase";
 import { UpdateAttendanceRecordUseCase } from "../../domain/usecases/attendance/UpdateAttendanceRecordUseCase";
+import { GenerateQRCodeUseCase } from "../../domain/usecases/attendance/GenerateQRCodeUseCase";
 import { AttendanceController } from "../controllers/AttendanceController";
 
 const router = Router();
@@ -20,6 +21,7 @@ const bulkCreateRecordsUseCase = new BulkCreateAttendanceRecordsUseCase(attendan
 const getAttendanceByIdUseCase = new GetAttendanceByIdUseCase(attendanceRepo);
 const getAttendanceRecordsUseCase = new GetAttendanceRecordsByAttendanceIdUseCase(attendanceRecordRepo);
 const updateAttendanceRecordUseCase = new UpdateAttendanceRecordUseCase(attendanceRecordRepo);
+const generateQRCodeUseCase = new GenerateQRCodeUseCase(attendanceRepo);
 
 // Controller
 const attendanceController = new AttendanceController(
@@ -27,14 +29,17 @@ const attendanceController = new AttendanceController(
     bulkCreateRecordsUseCase,
     getAttendanceByIdUseCase,
     getAttendanceRecordsUseCase,
-    updateAttendanceRecordUseCase
+    updateAttendanceRecordUseCase,
+    generateQRCodeUseCase
 );
 
 // Routes
+// Note: More specific routes must come before generic ones
 router.post("/", (req, res) => attendanceController.create(req, res));
-router.get("/:id", (req, res) => attendanceController.getById(req, res));
+router.get("/:id/qr", (req, res) => attendanceController.generateQRCode(req, res)); // Must be before /:id
 router.post("/:id/records/bulk", (req, res) => attendanceController.bulkCreateRecords(req, res));
 router.get("/:id/records", (req, res) => attendanceController.getRecords(req, res));
+router.get("/:id", (req, res) => attendanceController.getById(req, res));
 router.patch("/records/:recordId", (req, res) => attendanceController.updateRecord(req, res));
 
 export default router;

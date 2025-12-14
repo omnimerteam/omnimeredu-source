@@ -299,6 +299,43 @@ class AttendanceController {
       return next(error);
     }
   }
+  async generateQRCode(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      const userRole = req.role;
+      const actorSchoolId = req.user?.schoolId?.toString();
+
+      if (!actorId || !userRole) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      if (!actorSchoolId) {
+        sendError(res, "Người dùng chưa tham gia trường nào", 400);
+        return;
+      }
+
+      const attendanceId = req.params.id;
+      const qrData = await this.attendanceService.generateQRCode(
+        attendanceId,
+        actorSchoolId,
+        actorId,
+        userRole
+      );
+
+      console.log(chalk.green("[Attendance] QR code generated successfully"));
+      sendSuccess(res, qrData, "Tạo mã QR thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error generating QR code:", error));
+      return next(error);
+    }
+  }
+
   /**
    * Xuất file Excel điểm danh (tải xuống hoặc trả JSON base64)
    */
