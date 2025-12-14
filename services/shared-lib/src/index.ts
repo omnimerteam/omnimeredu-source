@@ -3,6 +3,7 @@ export * from "./utils";
 export * from "./constants";
 export * from "./types";
 export * from "./middleware";
+export * from "./auth";
 export * from "./enums/gender.enum";
 export * from "./enums/role.enum";
 export * from "./enums/education.enum";

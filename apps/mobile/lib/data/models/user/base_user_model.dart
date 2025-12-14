@@ -1,5 +1,6 @@
 import '../../../core/constants/app_constant.dart';
 import '../../../domain/entities/user/base_user_entity.dart';
+import '../../../domain/entities/user/user_role_enum.dart';
 
 abstract class BaseUserModel {
   final String? id;
@@ -13,7 +14,7 @@ abstract class BaseUserModel {
   final bool isVerified;
   final String? schoolId;
   final String? avatarUrl;
-  final String roleKey;
+  final UserRole roleKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -66,7 +67,7 @@ abstract class BaseUserModel {
               DateTime.tryParse(json['updatedAt'] as String),
             )
           : null,
-      roleKey: roleKey,
+      roleKey: UserRole.fromString(roleKey),
     );
   }
 
@@ -83,7 +84,7 @@ abstract class BaseUserModel {
       'isVerified': isVerified,
       'schoolId': schoolId,
       'avatarUrl': avatarUrl,
-      'roleKey': roleKey,
+      'roleKey': roleKey.key,
       'createdAt': createdAt?.toUtc().toIso8601String(),
       'updatedAt': updatedAt?.toUtc().toIso8601String(),
     };
@@ -142,11 +143,49 @@ class BasicUserEntity extends BaseUserEntity {
     super.birthday,
     super.phone,
     super.address,
-    super.isVerified,
+    super.isVerified = false,
     super.schoolId,
     super.avatarUrl,
     required super.roleKey,
     super.createdAt,
     super.updatedAt,
   });
+
+  @override
+  BasicUserEntity copyWith({
+    String? id,
+    String? fullName,
+    String? roleId,
+    String? email,
+    String? gender,
+    DateTime? birthday,
+    String? phone,
+    String? address,
+    bool? isVerified,
+    String? schoolId,
+    String? avatarUrl,
+    UserRole? roleKey,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return BasicUserEntity(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      roleId: roleId ?? this.roleId,
+      email: email ?? this.email,
+      gender: gender ?? this.gender,
+      birthday: birthday ?? this.birthday,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+      isVerified: isVerified ?? this.isVerified,
+      schoolId: schoolId ?? this.schoolId,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      roleKey: roleKey ?? this.roleKey,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => super.props;
 }

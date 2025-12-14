@@ -1,4 +1,8 @@
-abstract class BaseUserEntity {
+import 'package:equatable/equatable.dart';
+
+import 'user_role_enum.dart';
+
+abstract class BaseUserEntity extends Equatable {
   final String? id;
   final String fullName;
   final String? roleId;
@@ -10,7 +14,7 @@ abstract class BaseUserEntity {
   final bool isVerified;
   final String? schoolId;
   final String? avatarUrl;
-  final String roleKey;
+  final UserRole roleKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -29,5 +33,41 @@ abstract class BaseUserEntity {
     this.createdAt,
     this.updatedAt,
     required this.roleKey,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    fullName,
+    roleId,
+    email,
+    gender,
+    birthday,
+    phone,
+    address,
+    isVerified,
+    schoolId,
+    avatarUrl,
+    roleKey,
+    createdAt,
+    updatedAt,
+  ];
+
+  /// Abstract copyWith method to be implemented by subclasses
+  BaseUserEntity copyWith({
+    String? id,
+    String? fullName,
+    String? roleId,
+    String? email,
+    String? gender,
+    DateTime? birthday,
+    String? phone,
+    String? address,
+    bool? isVerified,
+    String? schoolId,
+    String? avatarUrl,
+    UserRole? roleKey,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   });
 }

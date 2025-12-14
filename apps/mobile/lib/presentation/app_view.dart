@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile/core/theme/app_theme.dart';
 // import 'package:mobile/core/routing/route_config.dart';
 // import 'package:receive_intent/receive_intent.dart' as ri;
 // import 'package:url_launcher/url_launcher.dart';
+import '../../core/theme/app_theme.dart';
 
 // TODO: Import AuthenticationBloc, LoginCubit, BlocListener...
 
@@ -82,9 +82,6 @@ class _AppViewState extends State<AppView> {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.light, // TODO: Lấy từ ThemeCubit
       // home: const AuthWrapper(), // TODO: Dùng AuthWrapper sau khi có Bloc
-      home: const Scaffold(
-        body: Center(child: Text("Welcome to OmniMer EDU (Setup Mode)")),
-      ),
       // onGenerateRoute: ... // TODO: Setup RouteConfig
     );
   }
@@ -109,12 +106,16 @@ class _AppViewState extends State<AppView> {
 }
 
 /// Wrapper để quản lý login/logout và routing tự động
-/*
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
+// class AuthWrapper extends StatelessWidget {
+//   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  // Widget build(BuildContext context) {
+    // TODO: Replace with BlocConsumer when AuthenticationBloc is implemented
+    // For now, we'll show the login screen by default
+    // return const LoginScreen();
+
+    /*
     return BlocConsumer<AuthenticationBloc, AuthenticationState>(
       listenWhen: (previous, current) =>
           previous.runtimeType != current.runtimeType,
@@ -130,7 +131,7 @@ class AuthWrapper extends StatelessWidget {
           return const HomeScreen(); // TODO: Import HomeScreen
         } else if (state is AuthenticationUnauthenticated ||
             state is AuthenticationError) {
-          return const LoginScreen(); // TODO: Import LoginScreen
+          return const LoginScreen();
         } else {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
@@ -138,6 +139,6 @@ class AuthWrapper extends StatelessWidget {
         }
       },
     );
-  }
-}
-*/
+    */
+  // }
+// }

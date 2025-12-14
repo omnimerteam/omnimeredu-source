@@ -5,6 +5,7 @@ import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/
 import '../../../../domain/entities/view_model/attendance_record_view_entity.dart';
 import '../../common/class_selector/bloc/class_selector_bloc.dart';
 import '../../common/class_selector/bloc/class_selector_state.dart';
+import '../../qr_attendance/teacher/qr_display_screen.dart';
 import 'bloc/teacher_attendance_bloc.dart';
 import 'bloc/teacher_attendance_event.dart';
 import 'bloc/teacher_attendance_state.dart';
@@ -114,6 +115,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
       onDateChanged: _handleDateChanged,
       onRefresh: () => _handleRefresh(state),
       onNewOrDelete: () => _handleCreateOrDelete(state),
+      onQRAttendance: () => _handleQRAttendance(state),
     );
   }
 
@@ -304,6 +306,32 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
           },
         );
       },
+    );
+  }
+
+  void _handleQRAttendance(TeacherAttendanceState state) {
+    if (state.attendanceRecord == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng tạo bảng điểm danh trước'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Navigate to QR Display Screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QRDisplayScreen(
+          attendanceId: state.attendanceRecord!.id,
+          className: state.attendanceRecord!.classInfo.name,
+          subject: null, // subject không có trong entity này
+          date: state.selectedDate,
+        ),
+      ),
     );
   }
 }

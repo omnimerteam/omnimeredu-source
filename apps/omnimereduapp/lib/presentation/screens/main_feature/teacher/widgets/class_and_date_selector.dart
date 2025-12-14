@@ -15,6 +15,7 @@ class ClassAndDateSelector extends StatefulWidget {
   final ValueChanged<DateTime> onDateChanged;
   final VoidCallback onRefresh;
   final VoidCallback onNewOrDelete;
+  final VoidCallback? onQRAttendance;
   final String queryString;
   final bool isLoading;
   final bool hasAttendance;
@@ -29,6 +30,7 @@ class ClassAndDateSelector extends StatefulWidget {
     required this.onDateChanged,
     required this.onRefresh,
     required this.onNewOrDelete,
+    this.onQRAttendance,
     this.queryString = "",
     this.isLoading = false,
     this.hasAttendance = false,
@@ -195,6 +197,36 @@ class _ClassAndDateSelectorState extends State<ClassAndDateSelector> {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 12),
+
+                // 📱 QR Attendance button
+                if (widget.onQRAttendance != null)
+                  Tooltip(
+                    message: widget.hasAttendance && _canPerformAction
+                        ? 'Điểm danh bằng QR'
+                        : 'Cần có bảng điểm danh',
+                    child: Material(
+                      color: widget.hasAttendance && _canPerformAction
+                          ? const Color(0xFF6C63FF)
+                          : Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        onTap: widget.hasAttendance && _canPerformAction
+                            ? widget.onQRAttendance
+                            : null,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.all(12.0),
+                          child: const Icon(
+                            Icons.qr_code_2,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                 const SizedBox(height: 12),
 

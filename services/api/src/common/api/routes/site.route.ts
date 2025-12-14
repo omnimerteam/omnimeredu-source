@@ -30,7 +30,8 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/classes", classRoutes); // Class API Version 1: /api/v1/classes
   app.use("/api/v1/school-admins", schoolAdmin); // School Admin API: /api/v1/schooladmins
   app.use("/api/v1/details-records", detailsRecord); // Details Record API: /api/v1/detailsrecords
-  app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendance
+  app.use("/api/v1/attendances", attendance); // Attendance API: /api/v1/attendances
+  app.use("/api/v1/attendance", attendance); // Attendance API (singular): /api/v1/attendance (for QR code)
   app.use("/api/v1/news", newsRoute); // News API: /api/v1/news
   app.use("/api/v1/students", studentRoute); // Student API: /api/v1/students
   app.use("/api/v1/vip-packages", vipPackageRoute); // VIP Package API: /api/v1/vip-packages

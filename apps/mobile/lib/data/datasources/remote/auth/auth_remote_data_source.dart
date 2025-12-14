@@ -1,16 +1,20 @@
 import '../../../../core/api/api_client.dart';
+import '../../../../core/api/api_response.dart';
 import '../../../../core/api/endpoints.dart';
 import '../../../../core/constants/storage_constant.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../domain/entities/auth/login_entity.dart';
 import '../../../../services/secure_storage_service.dart';
 import '../../../models/auth/auth_user_model.dart';
-import 'package:mobile/core/error/failures.dart' as error;
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginEntity params);
   Future<void> logout();
   Future<AuthUserModel?> getCurrentUser();
+  Future<ApiResponse<void>> changePassword(
+    String oldPassword,
+    String newPassword,
+  );
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -63,7 +67,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       // Return Model
       return AuthUserModel.fromJson(userJson);
     } catch (e) {
-      if (e is error.Failure) rethrow; // Disambiguate Failure
+      if (e is Failure) rethrow;
       throw AuthFailure(e.toString());
     }
   }
@@ -109,6 +113,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<ApiResponse<void>> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    try {
+      final response = await client.post<Map<String, dynamic>>(
+        Endpoints.user.changePassword,
+        data: {"oldPassword": oldPassword, "newPassword": newPassword},
+      );
+
+      return ApiResponse<void>(
+        success: response.success,
+        message: response.message,
+        data: null,
+      );
+    } catch (e) {
+      return ApiResponse<void>.error(e.toString(), error: e);
     }
   }
 }
