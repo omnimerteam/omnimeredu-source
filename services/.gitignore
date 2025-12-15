@@ -1,0 +1,49 @@
+# 1. DEPENDENCIES (Quan trọng nhất)
+# Không bao giờ commit thư mục này, vì nó nặng và phụ thuộc vào OS của mỗi người
+node_modules/
+**/node_modules/
+
+# 2. COMPILED CODE (File đã build)
+# Chúng ta chỉ commit code nguồn (.ts), không commit code đã biên dịch (.js trong dist)
+dist/
+**/dist/
+build/
+**/build/
+
+# 3. ENVIRONMENT & SECRETS (Bảo mật tuyệt đối)
+# Không bao giờ để lộ key lên mạng
+.env
+.env.test
+.env.production
+.env.local
+*.env
+
+# Giữ lại file mẫu để đồng đội biết cần cấu hình biến gì
+! .env.example
+! .env.template
+
+# 4. LOGS
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 5. OS & IDE FILES (File rác hệ thống)
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 6. TESTING & COVERAGE
+coverage/
+**/coverage/
+.nyc_output/
+
+# 7. TEMPORARY FILES
+tmp/
+temp/

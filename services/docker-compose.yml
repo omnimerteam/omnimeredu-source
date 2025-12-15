@@ -1,13 +1,14 @@
 version: "3.8"
 
 services:
+
   # ========================================
   # API GATEWAY
   # ========================================
   gateway:
     build:
-      context: ./gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gateway/dockerfile
     container_name: omnimeredu_gateway
     ports:
       - "80:80"
@@ -19,16 +20,15 @@ services:
       - omnimeredu_network
     restart: unless-stopped
 
+
   # ========================================
   # MICROSERVICES
   # ========================================
   user_service:
     build:
-      context: ./user_service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: user_service/dockerfile
     container_name: omnimeredu_user_service
-    ports:
-      - "3001:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -54,11 +54,9 @@ services:
 
   payment_service:
     build:
-      context: ./payment-attendance-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: payment_service/dockerfile
     container_name: omnimeredu_payment_service
-    ports:
-      - "3002:3002"
     environment:
       - NODE_ENV=production
       - PORT=3002

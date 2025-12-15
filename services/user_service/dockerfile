@@ -1,0 +1,15 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY shared-lib ./shared-lib
+
+COPY package*.json ./
+
+RUN npm install --production
+
+COPY user_service ./user_service
+
+EXPOSE 3001
+
+CMD ["npm", "start"]
