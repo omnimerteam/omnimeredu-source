@@ -9,6 +9,7 @@ const UserFullReadSchema = new Schema(
     _id: { type: String }, // UUID from Postgres (User ID)
     fullName: { type: String, required: true },
     roleKey: { type: String, required: true },
+    roleId: { type: String, required: true },
     email: { type: String },
     gender: { type: String },
     birthday: Date,
@@ -23,7 +24,6 @@ const UserFullReadSchema = new Schema(
     account: {
       id: String,
       email: String,
-      uid: String,
       isActive: Boolean,
       lastLogin: Date,
     },
@@ -101,7 +101,6 @@ const UserFullReadSchema = new Schema(
 UserFullReadSchema.index({ email: 1 });
 UserFullReadSchema.index({ roleKey: 1 });
 UserFullReadSchema.index({ schoolId: 1 });
-UserFullReadSchema.index({ "account.uid": 1 });
 UserFullReadSchema.index({ "studentInfo.classId": 1 });
 UserFullReadSchema.index({ "teacherInfo.classIds": 1 });
 

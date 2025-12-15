@@ -1,10 +1,11 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
 import { GenderEnum, RoleGroup } from "shared-lib";
 
 export class UserModel extends Model {
   public id!: string;
   public fullName!: string;
   public roleKey!: RoleGroup;
+  public roleId!: string;
   public email?: string;
   public gender?: GenderEnum;
   public birthday?: Date;
@@ -37,6 +38,15 @@ export const initUserModel = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: RoleGroup.Staff,
         field: "role_key",
+      },
+      roleId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        field: "role_id",
+        references: {
+          model: "roles",
+          key: "id",
+        },
       },
       email: {
         type: DataTypes.STRING,

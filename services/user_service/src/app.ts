@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import routes from "./presentation/routes";
 
 // import { connectMongoDB } from "./common/configs/mongoDBConfig";
 
@@ -21,18 +22,8 @@ app.use(morgan("dev"));
 
 // Khi production thì  sẽ thêm một middleware giới hạn request tránh sập
 
-import userRoutes from "./presentation/routes/user.routes";
-import schoolRoutes from "./presentation/routes/school.routes";
-import gradeRoutes from "./presentation/routes/grade.routes";
-import classRoutes from "./presentation/routes/class.routes";
-import authRoutes from "./presentation/routes/auth.routes";
-
 // Mount routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/schools", schoolRoutes);
-app.use("/api/grades", gradeRoutes);
-app.use("/api/classes", classRoutes);
+app.use("/api", routes);
 
 // app.use(errorHandler);
 

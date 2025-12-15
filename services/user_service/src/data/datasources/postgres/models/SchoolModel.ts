@@ -1,4 +1,4 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
 import { EducationSystemLevelsEnum } from "shared-lib";
 import { UserModel } from "./UserModel";
 

@@ -25,3 +25,5 @@ export const connectPostgres = (
   });
   return sequelize;
 };
+
+export { Sequelize, Model, DataTypes } from "sequelize";

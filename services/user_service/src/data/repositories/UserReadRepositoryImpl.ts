@@ -12,11 +12,6 @@ export class UserReadRepositoryImpl implements IUserReadRepository {
     return user;
   }
 
-  async getUserFullInfoByUid(uid: string): Promise<any> {
-    const user = await UserFullReadModel.findOne({ "account.uid": uid }).lean();
-    return user;
-  }
-
   async getUsersBySchoolId(schoolId: string): Promise<any[]> {
     const users = await UserFullReadModel.find({ schoolId })
       .sort({ fullName: 1 })
@@ -56,29 +51,21 @@ export class UserReadRepositoryImpl implements IUserReadRepository {
     className?: string;
   } | null> {
     const user = await UserFullReadModel.findOne({ _id: userId })
-      .select("schoolInfo studentInfo.classId teacherInfo.classIds")
-      .populate({
-        path: "schoolInfo.schoolId",
-        select: "name",
-      })
-      .populate({
-        path: "studentInfo.classId",
-        select: "name",
-      })
+      .select("school studentInfo")
       .lean();
 
     if (!user) return null;
 
     const result: { schoolName?: string; className?: string } = {};
 
-    // Get school name
-    if (user.schoolInfo?.schoolId) {
-      result.schoolName = (user.schoolInfo.schoolId as any).name;
+    // Get school name from denormalized data
+    if (user.school?.name) {
+      result.schoolName = user.school.name;
     }
 
-    // Get class name for students
-    if (user.studentInfo?.classId) {
-      result.className = (user.studentInfo.classId as any).name;
+    // Get class name for students from denormalized data
+    if (user.studentInfo?.class?.name) {
+      result.className = user.studentInfo.class.name;
     }
 
     return Object.keys(result).length > 0 ? result : null;

@@ -5,6 +5,7 @@ export class User {
     public id: string,
     public fullName: string,
     public roleKey: RoleGroup,
+    public roleId: string,
     public email?: string, // Contact email
     public gender?: GenderEnum,
     public birthday?: Date,

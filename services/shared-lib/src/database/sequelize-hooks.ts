@@ -1,4 +1,3 @@
-import { Model } from "sequelize";
 import { ISyncService } from "./sync-service";
 
 export const registerSyncHooks = (

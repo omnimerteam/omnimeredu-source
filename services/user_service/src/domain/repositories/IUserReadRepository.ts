@@ -18,13 +18,6 @@ export interface IUserReadRepository {
   getUserFullInfoByEmail(email: string): Promise<any>;
 
   /**
-   * Get user full information by UID
-   * @param uid - Account UID
-   * @returns Full user information with all joined data
-   */
-  getUserFullInfoByUid(uid: string): Promise<any>;
-
-  /**
    * Get all users by school ID
    * @param schoolId - School ID
    * @returns Array of users with full information

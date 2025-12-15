@@ -5,16 +5,22 @@ import { MembershipRequestModel } from "../datasources/postgres/models/Membershi
 export class MembershipRequestRepositoryImpl
   implements IMembershipRequestRepository
 {
-  async create(request: MembershipRequest): Promise<MembershipRequest> {
-    const model = await MembershipRequestModel.create({
-      userId: request.userId,
-      schoolId: request.schoolId,
-      classId: request.classId,
-      role: request.role,
-      action: request.action,
-      status: request.status,
-      note: request.note,
-    });
+  async create(
+    request: MembershipRequest,
+    options?: { transaction?: any }
+  ): Promise<MembershipRequest> {
+    const model = await MembershipRequestModel.create(
+      {
+        userId: request.userId,
+        schoolId: request.schoolId,
+        classId: request.classId,
+        role: request.role,
+        action: request.action,
+        status: request.status,
+        note: request.note,
+      },
+      { transaction: options?.transaction }
+    );
     return this.toEntity(model);
   }
 

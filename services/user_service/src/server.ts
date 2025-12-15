@@ -16,6 +16,10 @@ app.listen(PORT, "0.0.0.0", async () => {
     await sequelize.authenticate();
     console.log("✅ PostgreSQL connected successfully");
 
+    // Sync database models
+    // await sequelize.sync({ alter: true });
+    // console.log("✅ Database models synced successfully");
+
     // Connect to MongoDB
     await noSQLClient.connect();
     initMongoDBModels();
