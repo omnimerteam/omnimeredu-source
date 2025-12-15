@@ -3,20 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/core/constants/enum_constant.dart';
 import 'package:mobile/domain/entities/school/school_data_entity.dart';
-import 'package:mobile/domain/repositories/class_repository.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/registration_event.dart';
+import 'package:mobile/core/routing/route_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'bloc/registration_bloc.dart';
 import 'bloc/registration_state.dart' as registration_state;
-import 'bloc/school/school_bloc.dart';
-import 'bloc/class/class_bloc.dart';
 import 'widgets/already_have_account.dart';
 import 'widgets/step_basic_info.dart';
 import 'widgets/step_review.dart';
 import 'widgets/step_role.dart';
-import '../../../../domain/usecases/school/get_schools_by_level_usecase.dart';
-import '../../../../domain/usecases/school/get_classes_by_school_usecase.dart';
-import '../../../../domain/repositories/school_repository.dart';
 import '../../../../domain/entities/auth/register_user_entity.dart';
 import '../../../common/blocs/auth_bloc/auth_bloc.dart';
 
@@ -120,189 +115,164 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => RegistrationBloc()),
-        BlocProvider(
-          create: (context) => SchoolBloc(
-            getSchoolsByLevelUseCase: GetSchoolsByLevelUseCase(
-              context.read<SchoolRepository>(),
-            ),
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.textLight,
+        title: const Text(
+          'Đăng ký tài khoản',
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        BlocProvider(
-          create: (context) => ClassBloc(
-            getClassesBySchoolUseCase: GetClassesBySchoolUseCase(
-              context.read<ClassRepository>(),
-            ),
-          ),
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: AppColors.backgroundLight,
-        appBar: AppBar(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textLight,
-          title: const Text(
-            'Đăng ký tài khoản',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevation: 0,
-        ),
-        body:
-            BlocListener<
-              RegistrationBloc,
-              registration_state.RegistrationState
-            >(
-              listener: (context, state) {
-                if (state.error != null) {
-                  // Hiển thị lỗi
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.error!),
-                      backgroundColor: AppColors.red,
-                    ),
-                  );
-                }
-              },
-              child: MultiBlocListener(
-                listeners: [
-                  BlocListener<AuthBloc, AuthState>(
-                    listener: (context, authState) {
-                      if (authState is AuthRegistered) {
-                        // Nếu đăng ký thành công
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Đăng ký thành công!'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-
-                        context.read<RegistrationBloc>().add(
-                          ResetRegistration(),
-                        );
-
-                        // Điều hướng về màn hình login
-                        Navigator.pushReplacementNamed(context, '/login');
-                      } else if (authState is AuthFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authState.message),
-                            backgroundColor: AppColors.red,
-                          ),
-                        );
-                      }
-                    },
+        elevation: 0,
+      ),
+      body:
+          BlocListener<RegistrationBloc, registration_state.RegistrationState>(
+            listener: (context, state) {
+              if (state.error != null) {
+                // Hiển thị lỗi
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.error!),
+                    backgroundColor: AppColors.red,
                   ),
-                ],
-                child:
-                    BlocBuilder<
-                      RegistrationBloc,
-                      registration_state.RegistrationState
-                    >(
-                      builder: (context, state) {
-                        return Column(
-                          children: [
-                            // Progress bar
-                            Container(
-                              padding: EdgeInsets.all(16.r),
-                              child: Row(
-                                children: List.generate(totalPages, (index) {
-                                  return Expanded(
-                                    child: Container(
-                                      margin: EdgeInsets.only(
-                                        right: index < totalPages - 1 ? 8.w : 0,
-                                      ),
-                                      height: 4.h,
-                                      decoration: BoxDecoration(
-                                        color: index <= currentPage
-                                            ? AppColors.primary
-                                            : AppColors.extraLightBlue,
-                                        borderRadius: BorderRadius.circular(
-                                          2.r,
-                                        ),
-                                      ),
+                );
+              }
+            },
+            child: MultiBlocListener(
+              listeners: [
+                BlocListener<AuthBloc, AuthState>(
+                  listener: (context, authState) {
+                    if (authState is AuthAuthenticated) {
+                      // Đăng ký thành công -> tự động đăng nhập
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Đăng ký thành công! Đang đăng nhập...',
+                          ),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+
+                      context.read<RegistrationBloc>().add(ResetRegistration());
+
+                      // AppView sẽ tự động điều hướng đến MainScreen
+                      // khi AuthAuthenticated được emit
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    } else if (authState is AuthFailure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(authState.message),
+                          backgroundColor: AppColors.red,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+              child:
+                  BlocBuilder<
+                    RegistrationBloc,
+                    registration_state.RegistrationState
+                  >(
+                    builder: (context, state) {
+                      return Column(
+                        children: [
+                          // Progress bar
+                          Container(
+                            padding: EdgeInsets.all(16.r),
+                            child: Row(
+                              children: List.generate(totalPages, (index) {
+                                return Expanded(
+                                  child: Container(
+                                    margin: EdgeInsets.only(
+                                      right: index < totalPages - 1 ? 8.w : 0,
                                     ),
-                                  );
-                                }),
+                                    height: 4.h,
+                                    decoration: BoxDecoration(
+                                      color: index <= currentPage
+                                          ? AppColors.primary
+                                          : AppColors.extraLightBlue,
+                                      borderRadius: BorderRadius.circular(2.r),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+
+                          // PageView steps
+                          Expanded(
+                            child: Form(
+                              key: _formKey,
+                              child: PageView(
+                                controller: _pageController,
+                                onPageChanged: (p) =>
+                                    setState(() => currentPage = p),
+                                physics: const NeverScrollableScrollPhysics(),
+                                children: [
+                                  StepBasicInfo(state: state),
+                                  StepRole(state: state),
+                                  StepReview(state: state),
+                                ],
                               ),
                             ),
+                          ),
 
-                            // PageView steps
-                            Expanded(
-                              child: Form(
-                                key: _formKey,
-                                child: PageView(
-                                  controller: _pageController,
-                                  onPageChanged: (p) =>
-                                      setState(() => currentPage = p),
-                                  physics: const NeverScrollableScrollPhysics(),
+                          // Navigation buttons
+                          Container(
+                            padding: EdgeInsets.all(16.r),
+                            child: BlocBuilder<AuthBloc, AuthState>(
+                              builder: (context, authState) {
+                                return Row(
                                   children: [
-                                    StepBasicInfo(state: state),
-                                    StepRole(state: state),
-                                    StepReview(state: state),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            // Navigation buttons
-                            Container(
-                              padding: EdgeInsets.all(16.r),
-                              child: BlocBuilder<AuthBloc, AuthState>(
-                                builder: (context, authState) {
-                                  return Row(
-                                    children: [
-                                      if (currentPage > 0)
-                                        Expanded(
-                                          child: AppButton(
-                                            text: 'Quay lại',
-                                            onPressed: _previousPage,
-                                            type: AppButtonType.cancel,
-                                          ),
-                                        ),
-                                      if (currentPage > 0)
-                                        SizedBox(width: 16.w),
+                                    if (currentPage > 0)
                                       Expanded(
                                         child: AppButton(
-                                          text: currentPage == totalPages - 1
-                                              ? 'Đăng ký'
-                                              : 'Tiếp tục',
-                                          onPressed:
-                                              currentPage == totalPages - 1
-                                              ? _submitRegistration
-                                              : _nextPage,
-                                          loading:
-                                              (currentPage == totalPages - 1) &&
-                                              (authState is AuthLoading),
-                                          type: AppButtonType.primary,
+                                          text: 'Quay lại',
+                                          onPressed: _previousPage,
+                                          type: AppButtonType.cancel,
                                         ),
                                       ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 16.h),
-                            AlreadyHaveAccount(
-                              onLoginTap: () {
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  '/login',
+                                    if (currentPage > 0) SizedBox(width: 16.w),
+                                    Expanded(
+                                      child: AppButton(
+                                        text: currentPage == totalPages - 1
+                                            ? 'Đăng ký'
+                                            : 'Tiếp tục',
+                                        onPressed: currentPage == totalPages - 1
+                                            ? _submitRegistration
+                                            : _nextPage,
+                                        loading:
+                                            (currentPage == totalPages - 1) &&
+                                            (authState is AuthLoading),
+                                        type: AppButtonType.primary,
+                                      ),
+                                    ),
+                                  ],
                                 );
                               },
                             ),
-                          ],
-                        );
-                      },
-                    ),
-              ),
+                          ),
+                          SizedBox(height: 16.h),
+                          AlreadyHaveAccount(
+                            onLoginTap: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                RouteConfig.login,
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
             ),
-      ),
+          ),
     );
   }
 }

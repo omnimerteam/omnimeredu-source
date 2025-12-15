@@ -22,7 +22,7 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
   }) async {
     try {
       final response = await client.get<Map<String, dynamic>>(
-        Endpoints.user.getSchools,
+        Endpoints.user.schools,
         query: {
           'educationLevel': educationLevel,
           if (search != null) 'search': search,

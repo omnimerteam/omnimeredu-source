@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../common/widgets/snackbar/app_snack_bar.dart';
 import '../../../../../core/theme/app_colors.dart';
 
+import '../../../../../core/routing/route_config.dart';
+
 class LoginFooter extends StatefulWidget {
   const LoginFooter({super.key});
 
@@ -126,7 +128,7 @@ class _LoginFooterState extends State<LoginFooter>
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushReplacementNamed(context, "/register");
+                    RouteConfig.navigateToRegister(context);
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(

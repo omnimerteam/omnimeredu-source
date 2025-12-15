@@ -74,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await registerUserUseCase(event.userEntity);
     result.fold(
       (failure) => emit(AuthFailure(failure.message)),
-      (_) => emit(AuthRegistered()),
+      (user) => emit(AuthAuthenticated(user)), // Auto-login after registration
     );
   }
 }

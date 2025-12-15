@@ -4,7 +4,6 @@ import 'package:dropdown_search/dropdown_search.dart';
 import '../../../../../core/constants/enum_constant.dart';
 import '../../../../../domain/entities/school/class_selector_entity.dart';
 import '../../../../../core/theme/app_colors.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../bloc/class/class_bloc.dart';
 import '../bloc/class/class_event.dart';

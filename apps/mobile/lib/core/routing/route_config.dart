@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/core/routing/role_guard.dart';
-// TODO: Import các screen, cubit, bloc cần thiết ở đây
+import 'package:mobile/presentation/screen/auth/registration/bloc/registration_bloc.dart';
+import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
+import 'package:mobile/presentation/screen/auth/registration/bloc/class/class_bloc.dart';
+import 'package:mobile/presentation/screen/auth/registration/registration_screen.dart';
+import 'package:mobile/presentation/screen/auth/login/login_screen.dart';
+import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
+import 'package:mobile/presentation/screen/main_screen.dart';
+import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
 ///
@@ -15,7 +23,7 @@ class RouteConfig {
   // ==================== ROUTE NAMES ====================
   // Auth routes - Không cần authentication
   static const String login = '/login';
-  static const String register = '/register';
+  static const String register = '/registration';
 
   // Main routes - Cần authentication và role-based access
   static const String main = '/main';
@@ -49,10 +57,24 @@ class RouteConfig {
   /// ```
   static Widget buildAuthPage(String? routeName) {
     switch (routeName) {
+      case register:
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider<RegistrationBloc>(create: (_) => RegistrationBloc()),
+            BlocProvider<SchoolBloc>(create: (_) => di.sl<SchoolBloc>()),
+            BlocProvider<ClassBloc>(create: (_) => di.sl<ClassBloc>()),
+          ],
+          child: const RegistrationScreen(),
+        );
       case login:
       default:
-        // TODO: Implement LoginScreen với BlocProvider
-        return const Scaffold(body: Center(child: Text('Login Screen')));
+        return Builder(
+          builder: (context) => BlocProvider(
+            create: (_) =>
+                LoginBloc(authenticationBloc: context.read<AuthBloc>()),
+            child: const LoginScreen(),
+          ),
+        );
     }
   }
 
@@ -105,8 +127,7 @@ class RouteConfig {
     switch (routeName) {
       case main:
       case home:
-        // TODO: Implement HomeScreen với BlocProvider
-        return const Scaffold(body: Center(child: Text('Home Screen')));
+        return const MainScreen();
 
       // TODO: Thêm các route khác ở đây
 
@@ -142,6 +163,10 @@ class RouteConfig {
 
   static void navigateToHome(BuildContext context) {
     Navigator.of(context).pushNamed(home);
+  }
+
+  static void navigateToRegister(BuildContext context) {
+    Navigator.of(context).pushNamedAndRemoveUntil(register, (route) => false);
   }
 
   // TODO: Thêm các navigation helpers khác ở đây

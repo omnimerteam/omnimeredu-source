@@ -50,10 +50,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> registerUser(RegisterUserEntity user) async {
+  Future<Either<Failure, AuthUserEntity>> registerUser(
+    RegisterUserEntity user,
+  ) async {
     try {
-      await remoteDataSource.registerUser(user);
-      return const Right(null);
+      final model = await remoteDataSource.registerUser(user);
+      return Right(model.toEntity());
     } on Failure catch (e) {
       return Left(e);
     } catch (e) {

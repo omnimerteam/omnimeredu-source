@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/routing/route_config.dart';
 
 class AlreadyHaveAccount extends StatelessWidget {
-  final VoidCallback onLoginTap;
+  const AlreadyHaveAccount({super.key, this.onLoginTap});
 
-  const AlreadyHaveAccount({Key? key, required this.onLoginTap})
-    : super(key: key);
+  final VoidCallback? onLoginTap;
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,13 @@ class AlreadyHaveAccount extends StatelessWidget {
       children: [
         const Text("Đã có tài khoản? "),
         TextButton(
-          onPressed: onLoginTap,
+          onPressed: () {
+            if (onLoginTap != null) {
+              onLoginTap!();
+            } else {
+              RouteConfig.navigateToLogin(context);
+            }
+          },
           child: const Text(
             "Đăng nhập",
             style: TextStyle(

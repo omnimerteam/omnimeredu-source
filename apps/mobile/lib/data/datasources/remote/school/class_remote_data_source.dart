@@ -22,7 +22,7 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
   }) async {
     try {
       final response = await client.get<Map<String, dynamic>>(
-        Endpoints.user.getClassesBySchool(schoolId),
+        Endpoints.user.classesBySchool(schoolId),
         query: {if (grade != null) 'grade': grade},
         requiresAuth: false,
       );

@@ -29,6 +29,8 @@ import 'domain/usecases/school/get_schools_by_level_usecase.dart';
 import 'domain/usecases/school/get_classes_by_school_usecase.dart';
 
 import 'presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
+import 'presentation/screen/auth/registration/bloc/class/class_bloc.dart';
 
 // Service Locator
 final sl = GetIt.instance;
@@ -44,6 +46,10 @@ Future<void> init() async {
       registerUserUseCase: sl(),
     ),
   );
+
+  sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
+
+  sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
