@@ -3,8 +3,11 @@ import { BaseSyncService } from "shared-lib";
 export class SyncService extends BaseSyncService {
   transform(data: any): any {
     // Basic transformation: remove sensitive data, format dates if needed
-    // For now, return data as is, but ensure IDs are strings if needed by Mongo
-    const { passwordHash, ...rest } = data;
-    return rest;
+    // Convert PostgreSQL 'id' to MongoDB '_id'
+    const { passwordHash, id, ...rest } = data;
+    return {
+      _id: id, // Use PostgreSQL UUID as MongoDB _id
+      ...rest,
+    };
   }
 }

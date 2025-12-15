@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
+import { mongooseInstance as mongoose } from "shared-lib";
 
 /**
  * Enhanced User Read Schema with denormalized data for fast reads
