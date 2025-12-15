@@ -4,7 +4,7 @@ FROM nginx:alpine
 RUN rm  /etc/nginx/nginx.conf
 
 # Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY gateway/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Create custom error page
 RUN echo '{"status":"error","message":"Service temporarily unavailable"}' > /usr/share/nginx/html/50x.html

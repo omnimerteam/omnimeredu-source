@@ -28,22 +28,28 @@ FROM node:20-slim
 
 WORKDIR /app
 
-
-COPY --from=builder /app/shared-lib/package.json ./shared-lib/
+# 1. Setup Shared Lib trước (Để User Service link tới được)
+# Dùng package*.json để copy cả package-lock.json (quan trọng!)
+COPY --from=builder /app/shared-lib/package*.json ./shared-lib/
 COPY --from=builder /app/shared-lib/dist ./shared-lib/dist
 
+# Cài dependencies cho shared-lib
 WORKDIR /app/shared-lib
 RUN npm install --omit=dev
 
+# 2. Setup User Service
 WORKDIR /app/user_service
 
-COPY --from=builder /app/user_service/package.json ./
+# Copy package và lock file từ builder sang
+COPY --from=builder /app/user_service/package*.json ./
+# Copy code đã build (dist)
 COPY --from=builder /app/user_service/dist ./dist
 
-# Cài đặt dependencies production
+# 3. Cài dependencies cho User Service
+# Lúc này nó sẽ link tới ../shared-lib mà bạn đã setup ở bước 1
 RUN npm install --omit=dev
 
-# --- 3. START ---
+# 4. Start
 ENV NODE_ENV=production
 EXPOSE 3001
 CMD ["npm", "start"]

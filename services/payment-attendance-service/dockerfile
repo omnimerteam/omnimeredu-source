@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY shared-lib ./shared-lib
 
-COPY package*.json ./
+COPY payment-attendance-service/package*.json ./
 
 RUN npm install --production
 
