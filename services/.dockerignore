@@ -1,0 +1,41 @@
+# 1. GIT & VERSION CONTROL (Rất nặng, không bao giờ cần trong Docker)
+.git
+.gitignore
+.gitlab-ci.yml
+.github
+
+# 2. DEPENDENCIES & LOGS (Quan trọng nhất)
+# Bỏ qua node_modules ở mọi nơi để Docker tự cài mới (tránh xung đột OS)
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+**/pnpm-lock.yaml
+
+
+
+# 3. BUILD ARTIFACTS (File build cũ)
+# Bỏ qua folder dist/build ở máy local để đảm bảo Docker build code mới tinh
+**/dist
+**/build
+**/coverage
+
+# 4. ENVIRONMENT SECRETS (Bảo mật)
+# Không được copy file .env chứa key xịn vào Image (chỉ inject lúc chạy container)
+.env
+.env.production
+.env.development
+.env.example
+*.env
+
+# Giữ lại file ví dụ (nếu cần tham khảo biến môi trường)
+! .env.example
+
+# 5. IDE & SYSTEM FILES (File rác của Editor)
+**/.vscode
+**/.idea
+**/.DS_Store
+Thumbs.db
+
+# 6. DOCUMENTATION (Tiết kiệm dung lượng)
+README.md
+docs/

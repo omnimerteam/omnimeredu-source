@@ -1,0 +1,15 @@
+FROM node:24-alpine
+
+WORKDIR /app
+
+COPY shared-lib ./shared-lib
+
+COPY package*.json ./
+
+RUN npm install --production
+
+COPY payment-attendance-service ./payment-attendance-service
+
+EXPOSE 3002
+
+CMD ["npm", "start"]
