@@ -32,15 +32,22 @@ export class Student extends User {
       id,
       fullName,
       RoleGroup.Student,
-      email,
-      gender,
-      birthday,
-      phone,
-      address,
+      email || "", // Email
+
+      // --- SỬA TẠI ĐÂY: THÊM PASSWORD ---
+      "", // Thêm chuỗi rỗng vào đây để làm placeholder cho 'password' (nếu User yêu cầu)
+      // ----------------------------------
+
+      gender, // Bây giờ gender mới rơi đúng vào ô GenderEnum
+
+      birthday || new Date(), // Bây giờ birthday mới rơi đúng vào ô Date
+
+      phone || "",
+      address || "",
       isVerified,
       avatarUrl,
-      schoolId,
-      deletedAt
+      schoolId || null,
+      deletedAt || null
     );
   }
 }
