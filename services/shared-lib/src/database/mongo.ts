@@ -62,3 +62,5 @@ export class MongoDBClient implements INoSQLClient {
     return this.client;
   }
 }
+
+export const mongooseInstance = mongoose;

@@ -1,6 +1,6 @@
 export class CreateClassDto {
   name!: string;
-  code!: string;
+  code?: string;
   schoolId!: string;
   gradeId!: string;
   maxStudents?: number;

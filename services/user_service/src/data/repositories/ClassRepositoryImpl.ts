@@ -64,7 +64,9 @@ export class ClassRepositoryImpl implements IClassRepository {
     schoolId: string;
     grade?: string;
   }): Promise<any[]> {
-    const { SchoolModel } = await import("../datasources/postgres/models/SchoolModel");
+    const { SchoolModel } = await import(
+      "../datasources/postgres/models/SchoolModel"
+    );
 
     const whereCondition: any = {
       schoolId: params.schoolId,
@@ -81,25 +83,28 @@ export class ClassRepositoryImpl implements IClassRepository {
       include: [
         {
           model: SchoolModel,
-          as: 'school',
-          attributes: ['id', 'name', 'level'],
+          as: "school",
+          attributes: ["id", "name", "level"],
         },
       ],
-      order: [['name', 'ASC']],
+      order: [["name", "ASC"]],
     });
 
-    return classes.map(cls => ({
-      id: cls.id,
-      name: cls.name,
-      code: cls.code,
-      schoolId: cls.schoolId,
-      grade: cls.grade,
-      level: cls.school?.level || '',
-      maxStudents: cls.maxStudents,
-      currentStudents: cls.currentStudents || 0,
-      createdAt: cls.createdAt,
-      updatedAt: cls.updatedAt,
-    }));
+    return classes.map((cls) => {
+      const clsAny = cls as any;
+      return {
+        id: cls.id,
+        name: cls.name,
+        code: cls.code,
+        schoolId: cls.schoolId,
+        grade: cls.gradeId,
+        level: clsAny.school?.level || "",
+        maxStudents: cls.maxStudents,
+        currentStudents: clsAny.currentStudents || 0,
+        createdAt: cls.createdAt,
+        updatedAt: cls.updatedAt,
+      };
+    });
   }
 
   private toEntity(model: ClassModel): Class {

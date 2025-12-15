@@ -59,7 +59,7 @@ export class AuthUtils {
   static generateAccessToken(payload: TokenPayload): string {
     const { tokenId, ...payloadWithoutTokenId } = payload;
     return jwt.sign(payloadWithoutTokenId, JWT_ACCESS_SECRET, {
-      expiresIn: JWT_ACCESS_EXPIRY,
+      expiresIn: JWT_ACCESS_EXPIRY as any,
     });
   }
 
@@ -75,7 +75,7 @@ export class AuthUtils {
     };
 
     return jwt.sign(tokenWithId, JWT_REFRESH_SECRET, {
-      expiresIn: JWT_REFRESH_EXPIRY,
+      expiresIn: JWT_REFRESH_EXPIRY as any,
     });
   }
 

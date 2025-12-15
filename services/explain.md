@@ -229,3 +229,152 @@ Kiến trúc này đảm bảo:
 2.  **Tính toàn vẹn (Integrity):** PostgreSQL đảm bảo dữ liệu tài chính chính xác tuyệt đối.
 3.  **Bảo mật:** JWT + Role-based access control bảo vệ từng endpoint.
 4.  **Khả năng mở rộng:** API Gateway cho phép thêm services mới dễ dàng mà không đổi cấu trúc client.
+
+## 6. Chi tiết Authentication API (User Service)
+
+Dưới đây là đặc tả chi tiết cho các API: Register, Login, Refresh Token, và GetAuth.
+
+### 6.1. `POST /api/auth/register` (Command)
+
+Đăng ký tài khoản mới.
+
+- **Input (Body):**
+  ```json
+  {
+    "email": "teacher@school.com",
+    "password": "strongPassword123",
+    "roleName": "Teacher", // Giá trị: "Student", "Teacher", "Staff", "SchoolAdmin"
+    "baseUserInfo": {
+      "fullName": "Nguyen Van A",
+      "gender": "Male", // "Male", "Female", "Other"
+      "birthday": "1990-01-01",
+      "phone": "0901234567",
+      "address": "123 Street, City"
+    },
+    // Optional
+    "schoolId": "uuid-school-id", // Bắt buộc nếu join trường có sẵn
+    "classId": "uuid-class-id", // Dành cho Student
+    "specificInfo": {
+      // Thông tin thêm tùy vào Role
+      "qualification": "PhD", // Ví dụ cho Teacher
+      "subjects": ["Math", "Physics"]
+    },
+    "schoolData": {
+      // Bắt buộc nếu SchoolAdmin tạo trường mới
+      "name": "New School Name",
+      "address": "School Address",
+      "level": "HighSchool",
+      "phone": "028..."
+    }
+  }
+  ```
+- **Output (Success - 201):**
+  ```json
+  {
+    "success": true,
+    "message": "User registered successfully",
+    "data": {
+      "user": {
+        "email": "teacher@school.com",
+        "roleKey": "Teacher",
+        "schoolName": "High School A",
+        "className": "10A1"
+      },
+      "accessToken": "eyJhbGci...",
+      "refreshToken": "eyJhbGci..."
+    }
+  }
+  ```
+
+### 6.2. `POST /api/auth/login` (Command)
+
+Đăng nhập hệ thống bằng email và password.
+
+- **Input (Body):**
+  ```json
+  {
+    "email": "teacher@school.com",
+    "password": "strongPassword123"
+  }
+  ```
+- **Output (Success - 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Login successful",
+    "data": {
+      "user": {
+        "id": "uuid-user-id",
+        "fullName": "Nguyen Van A",
+        "email": "teacher@school.com",
+        "roleKey": "Teacher",
+        "avatarUrl": "https://s3.bucket...",
+        "isVerified": false,
+        "schoolId": "uuid-school-id"
+      },
+      "tokens": {
+        "accessToken": "eyJhbGci...",
+        "refreshToken": "eyJhbGci..."
+      }
+    }
+  }
+  ```
+
+### 6.3. `POST /api/auth/refresh-token` (Command)
+
+Cấp lại Access Token mới khi token cũ hết hạn.
+
+- **Input (Body):**
+  ```json
+  {
+    "refreshToken": "eyJhbGci..."
+  }
+  ```
+- **Output (Success - 200):**
+  ```json
+  {
+    "success": true,
+    "message": "Token refreshed successfully",
+    "data": {
+      "tokens": {
+        "accessToken": "new-access-token...",
+        "refreshToken": "new-refresh-token..."
+      }
+    }
+  }
+  ```
+
+### 6.4. `GET /api/auth/me` (Query)
+
+Lấy thông tin người dùng hiện tại dựa trên Access Token.
+
+- **Headers:**
+  - `Authorization`: `Bearer <accessToken>`
+- **Output (Success - 200):**
+  ```json
+  {
+    "success": true,
+    "message": "User information retrieved successfully",
+    "data": {
+      "user": {
+        "id": "uuid-user-id",
+        "fullName": "Nguyen Van A",
+        "email": "teacher@school.com",
+        "roleKey": "Teacher",
+        "avatarUrl": "https://s3...",
+        "isVerified": false,
+        "schoolId": "uuid-school-id",
+        "gender": "Male",
+        "birthday": "1990-01-01",
+        "phone": "0901234567",
+        "address": "123 Street, City"
+      },
+      "account": {
+        "id": "uuid-account-id",
+        "email": "teacher@school.com",
+        "isActive": true,
+        "lastLogin": "2024-01-01T10:00:00Z"
+      }
+    }
+  }
+  ```

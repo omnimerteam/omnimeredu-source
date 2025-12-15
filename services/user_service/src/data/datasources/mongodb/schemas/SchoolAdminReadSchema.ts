@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
+import { mongooseInstance as mongoose } from "shared-lib";
 import { UserReadModel } from "./UserReadSchema";
 
 const SchoolAdminReadSchema = new Schema({

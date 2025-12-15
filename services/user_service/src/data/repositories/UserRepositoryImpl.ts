@@ -8,46 +8,89 @@ import { SchoolAdminModel } from "../datasources/postgres/models/SchoolAdminMode
 import { AccountModel } from "../datasources/postgres/models/AccountModel";
 
 export class UserRepositoryImpl implements IUserRepository {
-  async createStudentProfile(userId: string, data: any): Promise<void> {
-    await StudentModel.create({
-      userId,
-      classId: data.classId,
-      educationLevel: data.educationLevel,
-      gradeGroup: data.gradeGroup,
-      guardianName: data.guardianName,
-      guardianPhone: data.guardianPhone,
-      meta: data.meta,
-    });
+  // Transaction Handlers
+  async startTransaction(): Promise<any> {
+    const { sequelize } = await import("../datasources/postgres/database");
+    return await sequelize.transaction();
   }
 
-  async createTeacherProfile(userId: string, data: any): Promise<void> {
-    await TeacherModel.create({
-      userId,
-      qualification: data.qualification,
-      subjects: data.subjects,
-    });
+  async commitTransaction(transaction: any): Promise<void> {
+    if (transaction) {
+      await transaction.commit();
+    }
   }
 
-  async createSchoolAdminProfile(userId: string, data: any): Promise<void> {
-    await SchoolAdminModel.create({
-      userId,
-      position: data.position,
-    });
+  async rollbackTransaction(transaction: any): Promise<void> {
+    if (transaction) {
+      await transaction.rollback();
+    }
   }
 
-  async create(user: User): Promise<User> {
-    const userModel = await UserModel.create({
-      fullName: user.fullName,
-      roleKey: user.roleKey,
-      email: user.email,
-      gender: user.gender,
-      birthday: user.birthday,
-      phone: user.phone,
-      address: user.address,
-      isVerified: user.isVerified,
-      avatarUrl: user.avatarUrl,
-      schoolId: user.schoolId,
-    });
+  async createStudentProfile(
+    userId: string,
+    data: any,
+    options?: { transaction?: any }
+  ): Promise<void> {
+    await StudentModel.create(
+      {
+        userId,
+        classId: data.classId,
+        educationLevel: data.educationLevel,
+        gradeGroup: data.gradeGroup,
+        guardianName: data.guardianName,
+        guardianPhone: data.guardianPhone,
+        meta: data.meta,
+      },
+      { transaction: options?.transaction }
+    );
+  }
+
+  async createTeacherProfile(
+    userId: string,
+    data: any,
+    options?: { transaction?: any }
+  ): Promise<void> {
+    await TeacherModel.create(
+      {
+        userId,
+        qualification: data.qualification,
+        subjects: data.subjects,
+      },
+      { transaction: options?.transaction }
+    );
+  }
+
+  async createSchoolAdminProfile(
+    userId: string,
+    data: any,
+    options?: { transaction?: any }
+  ): Promise<void> {
+    await SchoolAdminModel.create(
+      {
+        userId,
+        position: data.position,
+      },
+      { transaction: options?.transaction }
+    );
+  }
+
+  async create(user: User, options?: { transaction?: any }): Promise<User> {
+    const userModel = await UserModel.create(
+      {
+        fullName: user.fullName,
+        roleKey: user.roleKey,
+        roleId: user.roleId,
+        email: user.email,
+        gender: user.gender,
+        birthday: user.birthday,
+        phone: user.phone,
+        address: user.address,
+        isVerified: user.isVerified,
+        avatarUrl: user.avatarUrl,
+        schoolId: user.schoolId,
+      },
+      { transaction: options?.transaction }
+    );
     return this.toUserEntity(userModel);
   }
 
@@ -63,11 +106,12 @@ export class UserRepositoryImpl implements IUserRepository {
     return this.toUserEntity(userModel);
   }
 
-  async update(user: User): Promise<User> {
+  async update(user: User, options?: { transaction?: any }): Promise<User> {
     const [affectedCount, updatedModels] = await UserModel.update(
       {
         fullName: user.fullName,
         roleKey: user.roleKey,
+        roleId: user.roleId,
         email: user.email,
         gender: user.gender,
         birthday: user.birthday,
@@ -80,6 +124,7 @@ export class UserRepositoryImpl implements IUserRepository {
       {
         where: { id: user.id },
         returning: true,
+        transaction: options?.transaction,
       }
     );
 
@@ -90,30 +135,36 @@ export class UserRepositoryImpl implements IUserRepository {
     return this.toUserEntity(updatedModels[0]);
   }
 
-  async updateAvatar(userId: string, avatarUrl: string): Promise<void> {
-    await UserModel.update({ avatarUrl }, { where: { id: userId } });
+  async updateAvatar(
+    userId: string,
+    avatarUrl: string,
+    options?: { transaction?: any }
+  ): Promise<void> {
+    await UserModel.update(
+      { avatarUrl },
+      { where: { id: userId }, transaction: options?.transaction }
+    );
   }
 
-  async createAccount(account: Account): Promise<Account> {
-    const accountModel = await AccountModel.create({
-      userId: account.userId,
-      email: account.email,
-      passwordHash: account.passwordHash,
-      uid: account.uid,
-      isActive: account.isActive,
-      lastLogin: account.lastLogin,
-    });
+  async createAccount(
+    account: Account,
+    options?: { transaction?: any }
+  ): Promise<Account> {
+    const accountModel = await AccountModel.create(
+      {
+        userId: account.userId,
+        email: account.email,
+        passwordHash: account.passwordHash,
+        isActive: account.isActive,
+        lastLogin: account.lastLogin,
+      },
+      { transaction: options?.transaction }
+    );
     return this.toAccountEntity(accountModel);
   }
 
   async findAccountByEmail(email: string): Promise<Account | null> {
     const accountModel = await AccountModel.findOne({ where: { email } });
-    if (!accountModel) return null;
-    return this.toAccountEntity(accountModel);
-  }
-
-  async findAccountByUid(uid: string): Promise<Account | null> {
-    const accountModel = await AccountModel.findOne({ where: { uid } });
     if (!accountModel) return null;
     return this.toAccountEntity(accountModel);
   }
@@ -146,6 +197,7 @@ export class UserRepositoryImpl implements IUserRepository {
       model.id,
       model.fullName,
       model.roleKey,
+      model.roleId,
       model.email,
       model.gender,
       model.birthday,
@@ -158,30 +210,44 @@ export class UserRepositoryImpl implements IUserRepository {
     );
   }
 
-  async updateUserSchool(userId: string, schoolId: string): Promise<void> {
+  async updateUserSchool(
+    userId: string,
+    schoolId: string,
+    options?: { transaction?: any }
+  ): Promise<void> {
     await UserModel.update(
       { schoolId },
-      { where: { id: userId } }
+      { where: { id: userId }, transaction: options?.transaction }
     );
   }
 
-  async createSchool(data: {
-    name: string;
-    address: string;
-    phone?: string;
-    description?: string;
-    level: string;
-  }): Promise<{ id: string; name: string }> {
+  async createSchool(
+    data: {
+      name: string;
+      code: string;
+      address: string;
+      phone?: string;
+      description?: string;
+      level: string;
+    },
+    options?: { transaction?: any }
+  ): Promise<{ id: string; name: string }> {
     // Import SchoolModel dynamically to avoid circular dependency
-    const { SchoolModel } = await import("../datasources/postgres/models/SchoolModel");
+    const { SchoolModel } = await import(
+      "../datasources/postgres/models/SchoolModel"
+    );
 
-    const school = await SchoolModel.create({
-      name: data.name,
-      address: data.address,
-      phone: data.phone,
-      description: data.description,
-      level: data.level,
-    });
+    const school = await SchoolModel.create(
+      {
+        name: data.name,
+        code: data.code,
+        address: data.address,
+        phone: data.phone,
+        description: data.description,
+        level: data.level as any,
+      },
+      { transaction: options?.transaction }
+    );
 
     return {
       id: school.id,
@@ -195,7 +261,6 @@ export class UserRepositoryImpl implements IUserRepository {
       model.userId,
       model.email,
       model.passwordHash,
-      model.uid,
       model.isActive,
       model.lastLogin
     );

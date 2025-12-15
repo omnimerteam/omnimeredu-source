@@ -46,6 +46,9 @@ initSuperAdminModel(sequelize);
 initTeacherModel(sequelize);
 
 // Define Associations
+// Role & User
+RoleModel.hasMany(UserModel, { foreignKey: "roleId", as: "users" });
+UserModel.belongsTo(RoleModel, { foreignKey: "roleId", as: "role" });
 
 // User & Account
 UserModel.hasOne(AccountModel, { foreignKey: "userId", as: "account" });

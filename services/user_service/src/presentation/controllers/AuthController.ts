@@ -7,56 +7,93 @@ import { UserRepositoryImpl } from "../../data/repositories/UserRepositoryImpl";
 import { UserReadRepositoryImpl } from "../../data/repositories/UserReadRepositoryImpl";
 import { MembershipRequestRepositoryImpl } from "../../data/repositories/MembershipRequestRepositoryImpl";
 import { AuthUtils } from "../../infrastructure/utils/AuthUtils";
+import { ResponseUtil } from "../../infrastructure/utils/ResponseUtil";
 import { RegisterDto, LoginDto, RefreshTokenDto } from "../dtos/AuthDto";
 import { RoleGroup } from "shared-lib";
+
+import { RoleRepositoryImpl } from "../../data/repositories/RoleRepositoryImpl";
 
 // Initialize repositories
 // Initialize repositories
 const userRepository = new UserRepositoryImpl();
 const userReadRepository = new UserReadRepositoryImpl();
 const membershipRequestRepository = new MembershipRequestRepositoryImpl();
+const roleRepository = new RoleRepositoryImpl();
 
 // Initialize use cases
 const registerUserUseCase = new RegisterUserUseCase(
   userRepository,
-  membershipRequestRepository
+  membershipRequestRepository,
+  roleRepository
 );
 const loginUseCase = new LoginUseCase(userRepository);
 const refreshAccessTokenUseCase = new RefreshAccessTokenUseCase(userRepository);
 const getAuthUseCase = new GetAuthUseCase(userRepository);
 
 export class AuthController {
+  private buildUserResponse(
+    user: any,
+    schoolInfo?: { schoolName?: string; className?: string }
+  ) {
+    return {
+      id: user.id || user._id, // Handle both Entity and MongoDB doc
+      email: user.email,
+      fullName: user.fullName,
+      roleKey: user.roleKey,
+      roleId: user.roleId,
+      avatarUrl: user.avatarUrl,
+      phone: user.phone,
+      address: user.address,
+      gender: user.gender,
+      birthday: user.birthday,
+      schoolId: user.schoolId,
+      isVerified: user.isVerified,
+      schoolName: schoolInfo?.schoolName || user.school?.name,
+      className: schoolInfo?.className || user.studentInfo?.class?.name,
+    };
+  }
+
   /**
    * Register a new user
    * POST /api/auth/register
    */
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, roleName, baseUserInfo, specificInfo, schoolId, classId, schoolData } = req.body;
+      const {
+        email,
+        password,
+        roleName,
+        baseUserInfo,
+        specificInfo,
+        schoolId,
+        classId,
+        schoolData,
+      } = req.body;
 
       // Validate required fields
       if (!email || !password || !roleName || !baseUserInfo?.fullName) {
-        return res.status(400).json({
-          success: false,
-          message: "Email, password, role, and full name are required",
-        });
+        return ResponseUtil.sendError(
+          res,
+          "Email, password, role, and full name are required",
+          null,
+          400
+        );
       }
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid email format",
-        });
+        return ResponseUtil.sendError(res, "Invalid email format", null, 400);
       }
 
       // Validate password strength (minimum 6 characters)
       if (password.length < 6) {
-        return res.status(400).json({
-          success: false,
-          message: "Password must be at least 6 characters long",
-        });
+        return ResponseUtil.sendError(
+          res,
+          "Password must be at least 6 characters long",
+          null,
+          400
+        );
       }
 
       // Handle avatar file if uploaded
@@ -71,16 +108,16 @@ export class AuthController {
       // Convert role name to RoleGroup enum
       let roleKey: RoleGroup;
       switch (roleName) {
-        case 'Student':
+        case "Student":
           roleKey = RoleGroup.Student;
           break;
-        case 'Teacher':
+        case "Teacher":
           roleKey = RoleGroup.Teacher;
           break;
-        case 'Staff':
+        case "Staff":
           roleKey = RoleGroup.Staff;
           break;
-        case 'SchoolAdmin':
+        case "SchoolAdmin":
           roleKey = RoleGroup.SchoolAdmin;
           break;
         default:
@@ -107,28 +144,42 @@ export class AuthController {
       });
 
       // Get user's school and class info for response
-      const userSchoolInfo = await userReadRepository.getUserSchoolInfo(result.user.id);
+      // Wait for Sync Service to populate MongoDB (simple retry mechanism)
+      let userSchoolInfo;
+      let retries = 5;
+      while (retries > 0) {
+        try {
+          userSchoolInfo = await userReadRepository.getUserSchoolInfo(
+            result.user.id
+          );
+          if (userSchoolInfo) break;
+        } catch (error) {
+          console.warn(
+            "Read DB unavailable or query failed (skipping extended info):",
+            error
+          );
+          break; // Stop retrying if DB is down/unreachable
+        }
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Wait 500ms
+        retries--;
+      }
 
-      return res.status(201).json({
-        success: true,
-        message: "User registered successfully",
-        data: {
-          user: {
-            email: result.user.email,
-            roleKey: result.user.roleKey,
-            schoolName: userSchoolInfo?.schoolName,
-            className: userSchoolInfo?.className,
-          },
+      return ResponseUtil.sendSuccess(
+        res,
+        "User registered successfully",
+        {
+          user: this.buildUserResponse(
+            result.user,
+            userSchoolInfo || undefined
+          ),
           accessToken: result.tokens.accessToken,
           refreshToken: result.tokens.refreshToken,
         },
-      });
+        201
+      );
     } catch (error) {
       console.error("Register error:", error);
-      return res.status(400).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Registration failed",
-      });
+      return ResponseUtil.sendError(res, "Registration failed", error, 400);
     }
   }
 
@@ -142,10 +193,12 @@ export class AuthController {
 
       // Validate required fields
       if (!loginDto.email || !loginDto.password) {
-        return res.status(400).json({
-          success: false,
-          message: "Email and password are required",
-        });
+        return ResponseUtil.sendError(
+          res,
+          "Email and password are required",
+          null,
+          400
+        );
       }
 
       // Execute use case
@@ -154,28 +207,23 @@ export class AuthController {
         password: loginDto.password,
       });
 
-      return res.status(200).json({
-        success: true,
-        message: "Login successful",
-        data: {
-          user: {
-            id: result.user.id,
-            fullName: result.user.fullName,
-            email: result.user.email,
-            roleKey: result.user.roleKey,
-            avatarUrl: result.user.avatarUrl,
-            isVerified: result.user.isVerified,
-            schoolId: result.user.schoolId,
-          },
-          tokens: result.tokens,
-        },
+      // Get user's school and class info for response to be consistent
+      let userSchoolInfo;
+      try {
+        userSchoolInfo = await userReadRepository.getUserSchoolInfo(
+          result.user.id
+        );
+      } catch (e) {
+        // Ignore if fails, just return base info
+      }
+
+      return ResponseUtil.sendSuccess(res, "Login successful", {
+        user: this.buildUserResponse(result.user, userSchoolInfo || undefined),
+        tokens: result.tokens,
       });
     } catch (error) {
       console.error("Login error:", error);
-      return res.status(401).json({
-        success: false,
-        message: error instanceof Error ? error.message : "Login failed",
-      });
+      return ResponseUtil.sendError(res, "Login failed", error, 401);
     }
   }
 
@@ -189,10 +237,12 @@ export class AuthController {
 
       // Validate required fields
       if (!refreshTokenDto.refreshToken) {
-        return res.status(400).json({
-          success: false,
-          message: "Refresh token is required",
-        });
+        return ResponseUtil.sendError(
+          res,
+          "Refresh token is required",
+          null,
+          400
+        );
       }
 
       // Execute use case
@@ -200,23 +250,15 @@ export class AuthController {
         refreshToken: refreshTokenDto.refreshToken,
       });
 
-      return res.status(200).json({
-        success: true,
-        message: "Token refreshed successfully",
-        data: {
-          tokens: {
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          },
+      return ResponseUtil.sendSuccess(res, "Token refreshed successfully", {
+        tokens: {
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
         },
       });
     } catch (error) {
       console.error("Refresh token error:", error);
-      return res.status(401).json({
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Token refresh failed",
-      });
+      return ResponseUtil.sendError(res, "Token refresh failed", error, 401);
     }
   }
 
@@ -231,10 +273,7 @@ export class AuthController {
       const token = AuthUtils.extractBearerToken(authHeader);
 
       if (!token) {
-        return res.status(401).json({
-          success: false,
-          message: "No token provided",
-        });
+        return ResponseUtil.sendError(res, "No token provided", null, 401);
       }
 
       // Execute use case
@@ -250,39 +289,26 @@ export class AuthController {
         console.warn("Could not fetch full user info from read DB:", error);
       }
 
-      return res.status(200).json({
-        success: true,
-        message: "User information retrieved successfully",
-        data: {
-          user: fullUserInfo || {
-            id: result.user.id,
-            fullName: result.user.fullName,
-            email: result.user.email,
-            roleKey: result.user.roleKey,
-            avatarUrl: result.user.avatarUrl,
-            isVerified: result.user.isVerified,
-            schoolId: result.user.schoolId,
-            gender: result.user.gender,
-            birthday: result.user.birthday,
-            phone: result.user.phone,
-            address: result.user.address,
-          },
+      const userResponse = fullUserInfo
+        ? this.buildUserResponse(fullUserInfo)
+        : this.buildUserResponse(result.user);
+
+      return ResponseUtil.sendSuccess(
+        res,
+        "User information retrieved successfully",
+        {
+          user: userResponse,
           account: {
             id: result.account.id,
             email: result.account.email,
-            uid: result.account.uid,
             isActive: result.account.isActive,
             lastLogin: result.account.lastLogin,
           },
-        },
-      });
+        }
+      );
     } catch (error) {
       console.error("Get auth error:", error);
-      return res.status(401).json({
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Authentication failed",
-      });
+      return ResponseUtil.sendError(res, "Authentication failed", error, 401);
     }
   }
 }

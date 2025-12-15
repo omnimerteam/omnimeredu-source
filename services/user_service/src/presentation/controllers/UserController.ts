@@ -3,12 +3,18 @@ import { CreateUserUseCase } from "../../domain/usecases/user/CreateUserUseCase"
 import { UserRepositoryImpl } from "../../data/repositories/UserRepositoryImpl";
 import { CreateUserDto } from "../dtos/CreateUserDto";
 
+import { RoleRepositoryImpl } from "../../data/repositories/RoleRepositoryImpl";
+
 export class UserController {
   private createUserUseCase: CreateUserUseCase;
 
   constructor() {
     const userRepository = new UserRepositoryImpl();
-    this.createUserUseCase = new CreateUserUseCase(userRepository);
+    const roleRepository = new RoleRepositoryImpl();
+    this.createUserUseCase = new CreateUserUseCase(
+      userRepository,
+      roleRepository
+    );
   }
 
   async createUser(req: Request, res: Response): Promise<void> {

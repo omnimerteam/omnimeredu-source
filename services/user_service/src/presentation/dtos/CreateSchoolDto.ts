@@ -2,7 +2,7 @@ import { EducationSystemLevelsEnum } from "shared-lib";
 
 export class CreateSchoolDto {
   name!: string;
-  code!: string;
+  code?: string;
   address!: string;
   level!: EducationSystemLevelsEnum;
   adminId?: string;

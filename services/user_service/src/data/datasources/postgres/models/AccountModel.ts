@@ -1,11 +1,10 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
 
 export class AccountModel extends Model {
   public id!: string;
   public userId!: string;
   public email!: string;
   public passwordHash!: string;
-  public uid!: string;
   public isActive!: boolean;
   public lastLogin?: Date;
 
@@ -39,11 +38,6 @@ export const initAccountModel = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         field: "password_hash",
-      },
-      uid: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
       },
       isActive: {
         type: DataTypes.BOOLEAN,

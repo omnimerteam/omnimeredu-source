@@ -1,4 +1,4 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
 import { SchoolAdminPositionEnum } from "shared-lib";
 
 export class SchoolAdminModel extends Model {

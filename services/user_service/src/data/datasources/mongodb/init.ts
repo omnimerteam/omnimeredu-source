@@ -1,4 +1,5 @@
 import "./schemas/UserReadSchema";
+import "./schemas/UserFullReadSchema";
 import "./schemas/SchoolReadSchema";
 import "./schemas/GradeReadSchema";
 import "./schemas/ClassReadSchema";

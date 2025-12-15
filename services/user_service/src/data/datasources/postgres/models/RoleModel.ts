@@ -1,4 +1,4 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
 import { RoleEnum, RoleGroup } from "shared-lib";
 
 export class RoleModel extends Model {

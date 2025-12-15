@@ -1,10 +1,12 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
+import { mongooseInstance as mongoose } from "shared-lib";
 
 const UserReadSchema = new Schema(
   {
     _id: { type: String }, // UUID from Postgres
     fullName: { type: String, required: true },
     roleKey: { type: String, required: true },
+    roleId: { type: String, required: true },
     email: { type: String },
     gender: { type: String },
     birthday: Date,
