@@ -39,7 +39,9 @@ RUN npm run build
 # SAU KHI BUILD XONG RỒI, giờ chúng ta mới quay lại xóa node_modules của shared-lib.
 # Mục đích: Để khi app chạy (runtime), nó không bị xung đột phiên bản Sequelize.
 WORKDIR /usr/src/app/shared-lib
-RUN rm -rf node_modules
+
+RUN rm -rf node_modules && \
+    ln -s /usr/src/app/payment-attendance-service/node_modules node_modules
 
 # Quay lại thư mục service để thiết lập lệnh chạy
 WORKDIR /usr/src/app/payment-attendance-service

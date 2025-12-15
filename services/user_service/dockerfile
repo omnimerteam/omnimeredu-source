@@ -38,7 +38,9 @@ RUN npm run build
 # [QUAN TRỌNG] Bây giờ mới quay lại xóa node_modules của Lib
 # Để khi chạy app, code buộc phải dùng thư viện từ User Service
 WORKDIR /usr/src/app/shared-lib
-RUN rm -rf node_modules
+
+RUN rm -rf node_modules && \
+    ln -s /usr/src/app/user_service/node_modules node_modules
 
 # Quay lại thư mục service để chạy
 WORKDIR /usr/src/app/user_service
