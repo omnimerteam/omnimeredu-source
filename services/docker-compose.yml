@@ -5,20 +5,20 @@ services:
   # ========================================
   # API GATEWAY
   # ========================================
-  gateway:
-    build:
-      context: .
-      dockerfile: gateway/Dockerfile
-    container_name: omnimeredu_gateway
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - user_service
-      - payment-attendance-service
-    networks:
-      - omnimeredu_network
-    restart: unless-stopped
+  # gateway:
+  #   build:
+  #     context: .
+  #     dockerfile: gateway/Dockerfile
+  #   container_name: omnimeredu_gateway
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - user_service
+  #     - payment-attendance-service
+  #   networks:
+  #     - omnimeredu_network
+  #   restart: unless-stopped
 
 
   # ========================================
@@ -32,11 +32,11 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=omnimeredu_user_db
+      # - DB_HOST=postgres
+      # - DB_PORT=5432
+      # - DB_USER=postgres
+      # - DB_PASSWORD=password
+      # - DB_NAME=omnimeredu_user_db
       - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -45,7 +45,7 @@ services:
       - JWT_ACCESS_EXPIRY=15m
       - JWT_REFRESH_EXPIRY=7d
     depends_on:
-      - postgres
+      # - postgres
       - mongo
       - redis
     networks:
@@ -60,18 +60,18 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3002
-      - PG_HOST=postgres
-      - PG_PORT=5432
-      - PG_USER=postgres
-      - PG_PASSWORD=password
-      - PG_DATABASE=omnimeredu_payment_db
+      # - PG_HOST=postgres
+      # - PG_PORT=5432
+      # - PG_USER=postgres
+      # - PG_PASSWORD=password
+      # - PG_DATABASE=omnimeredu_payment_db
       - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-token-key}
     depends_on:
-      - postgres
+      # - postgres
       - mongo
       - redis
     networks:
@@ -81,21 +81,22 @@ services:
   # ========================================
   # DATABASES & INFRASTRUCTURE
   # ========================================
-  postgres:
-    image: postgres:15-alpine
-    container_name: omnimeredu_postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: omnimeredu_user_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts/postgres:/docker-entrypoint-initdb.d
-    networks:
-      - omnimeredu_network
-    restart: unless-stopped
+
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: omnimeredu_postgres
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: omnimeredu_user_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+  #   networks:
+  #     - omnimeredu_network
+  #   restart: unless-stopped
 
   mongo:
     image: mongo:6.0

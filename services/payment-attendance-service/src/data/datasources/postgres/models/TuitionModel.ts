@@ -1,4 +1,5 @@
-import { DataTypes, Model, Sequelize } from "sequelize";
+// 1. Thêm Op vào phần import
+import { DataTypes, Model, Sequelize, Op } from "sequelize";
 
 export class TuitionModel extends Model {
   public id!: string;
@@ -158,7 +159,8 @@ export const initTuitionModel = (sequelize: Sequelize) => {
           fields: ["student_id", "school_id", "period_start"],
           where: {
             period_start: {
-              [sequelize.Sequelize.Op.ne]: null,
+              // 2. Sửa đoạn này: Dùng trực tiếp Op.ne
+              [Op.ne]: null,
             },
           },
         },

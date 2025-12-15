@@ -1,15 +1,51 @@
 FROM node:24-alpine
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
+# -----------------------------------------------------------
+# 1. SETUP SHARED LIB
+# -----------------------------------------------------------
 COPY shared-lib ./shared-lib
+WORKDIR /usr/src/app/shared-lib
+
+# Cài dependency
+RUN npm install
+
+# Build Lib (Tạo ra dist/...)
+RUN npm run build
+
+# [ĐÚNG] KHÔNG XÓA node_modules Ở ĐÂY 
+# Để User Service bên dưới có thể tìm thấy type definition khi build.
+
+# -----------------------------------------------------------
+# 2. SETUP & BUILD USER SERVICE
+# -----------------------------------------------------------
+WORKDIR /usr/src/app/user_service
 
 COPY user_service/package*.json ./
 
-RUN npm install --production
+RUN npm install
 
-COPY user_service ./user_service
+COPY user_service .
+
+# Build Service
+# (Lúc này tsc tìm thấy module trong ../shared-lib/node_modules nên không lỗi)
+RUN npm run build
+
+# -----------------------------------------------------------
+# 3. CLEANUP (XỬ LÝ LỖI SEQUELIZE)
+# -----------------------------------------------------------
+# [QUAN TRỌNG] Bây giờ mới quay lại xóa node_modules của Lib
+# Để khi chạy app, code buộc phải dùng thư viện từ User Service
+WORKDIR /usr/src/app/shared-lib
+RUN rm -rf node_modules
+
+# Quay lại thư mục service để chạy
+WORKDIR /usr/src/app/user_service
 
 EXPOSE 3001
+
+# (Tùy chọn) Xóa bớt devDependencies
+RUN npm prune --production
 
 CMD ["npm", "start"]
