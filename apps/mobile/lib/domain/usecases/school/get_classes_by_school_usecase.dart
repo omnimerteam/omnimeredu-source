@@ -1,14 +1,14 @@
 import '../../../core/error/failures.dart';
 import '../../../core/utils/either.dart';
-import '../../repositories/school_repository.dart';
-import '../../entities/school/class_entity.dart';
+import '../../entities/school/class_selector_entity.dart';
+import '../../repositories/class_repository.dart';
 
 class GetClassesBySchoolUseCase {
-  final SchoolRepository repository;
+  final ClassRepository repository;
 
   GetClassesBySchoolUseCase(this.repository);
 
-  Future<Either<Failure, List<ClassEntity>>> call({
+  Future<Either<Failure, List<ClassSelectorEntity>>> call({
     required String schoolId,
     String? grade,
   }) async {

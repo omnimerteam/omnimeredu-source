@@ -6,6 +6,7 @@ import 'services/secure_storage_service.dart';
 import 'data/datasources/remote/auth/auth_remote_data_source.dart';
 import 'data/datasources/remote/auth/role_remote_datasource.dart';
 import 'data/datasources/remote/school/school_remote_data_source.dart';
+import 'data/datasources/remote/school/class_remote_data_source.dart';
 
 import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/role_repository.dart';
@@ -15,6 +16,9 @@ import 'data/repositories/role_repository_impl.dart';
 import 'data/repositories/school_repository_impl.dart';
 import 'data/datasources/remote/user/school_admin_remote_data_source.dart';
 import 'data/repositories/user/school_admin_repository_impl.dart';
+import 'domain/repositories/class_repository.dart';
+import 'data/repositories/class_repository_impl.dart';
+
 import 'domain/repositories/user/school_admin_repository.dart';
 
 import 'domain/usecases/auth/login_usecase.dart';
@@ -57,7 +61,10 @@ Future<void> init() async {
     () => RoleRepositoryImpl(remoteDataSource: sl()),
   );
   sl.registerLazySingleton<SchoolRepository>(
-    () => SchoolRepositoryImpl(remoteDataSource: sl()),
+    () => SchoolRepositoryImpl(schoolRemoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ClassRepository>(
+    () => ClassRepositoryImpl(remoteDataSource: sl()),
   );
 
   // Data sources
@@ -69,6 +76,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<SchoolRemoteDataSource>(
     () => SchoolRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<ClassRemoteDataSource>(
+    () => ClassRemoteDataSourceImpl(sl()),
   );
 
   // ! Features - School Admin

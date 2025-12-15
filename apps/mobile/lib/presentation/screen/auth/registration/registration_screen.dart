@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/core/constants/enum_constant.dart';
 import 'package:mobile/domain/entities/school/school_data_entity.dart';
+import 'package:mobile/domain/repositories/class_repository.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/registration_event.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'bloc/registration_bloc.dart';
@@ -132,7 +133,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         BlocProvider(
           create: (context) => ClassBloc(
             getClassesBySchoolUseCase: GetClassesBySchoolUseCase(
-              context.read<SchoolRepository>(),
+              context.read<ClassRepository>(),
             ),
           ),
         ),

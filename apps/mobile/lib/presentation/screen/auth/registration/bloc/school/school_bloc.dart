@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../../core/constants/enum_constant.dart';
 import '../../../../../../domain/usecases/school/get_schools_by_level_usecase.dart';
-import '../../../../../../domain/entities/school/school_search_entity.dart';
 import 'school_event.dart';
 import 'school_state.dart';
 
@@ -28,18 +27,10 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
         (schools) => schools,
       );
 
-      // Convert to SchoolSearchEntity
-      final schoolSearchEntities = schools.map((school) => SchoolSearchEntity(
-        id: school.id,
-        name: school.name,
-        code: school.code,
-        address: school.address,
-      )).toList();
-
-      if (schoolSearchEntities.isEmpty) {
+      if (schools.isEmpty) {
         emit(SchoolError("Không có trường phù hợp"));
       } else {
-        emit(SchoolLoaded(schools: schoolSearchEntities));
+        emit(SchoolLoaded(schools: schools));
       }
     } catch (e) {
       emit(SchoolError("Không có trường phù hợp"));

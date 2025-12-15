@@ -40,13 +40,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, AuthUserEntity?>> getCurrentUser() async {
     try {
-      // TODO: Remove mock data implementation when backend is ready
-      if (_isMockMode) {
-        // For now, return null (user not logged in)
-        // In a real implementation, this would check stored tokens
-        return const Right(null);
-      }
-
       final model = await remoteDataSource.getCurrentUser();
       return Right(model?.toEntity());
     } on Failure catch (e) {

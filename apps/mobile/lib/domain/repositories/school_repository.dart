@@ -1,15 +1,10 @@
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../entities/school/school_entity.dart';
-import '../entities/school/class_entity.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
+import 'package:mobile/domain/entities/school/school_selector_entity.dart';
 
 abstract class SchoolRepository {
-  Future<Either<Failure, List<SchoolEntity>>> getSchoolsByLevel({
+  Future<Either<Failure, List<SchoolSelectorEntity>>> getSchoolsByLevel({
     required String educationLevel,
     String? search,
-  });
-  Future<Either<Failure, List<ClassEntity>>> getClassesBySchool({
-    required String schoolId,
-    String? grade,
   });
 }

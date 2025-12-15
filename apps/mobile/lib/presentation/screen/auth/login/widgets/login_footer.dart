@@ -80,9 +80,9 @@ class _LoginFooterState extends State<LoginFooter>
                   icon: Icons.g_mobiledata,
                   label: "Google",
                   onPressed: () {
-                    AppSnackBar.showInfo(
+                    AppSnackBars.showComingSoon(
                       context,
-                      message: "Đăng nhập bằng Google (Coming Soon)",
+                      "Đăng nhập bằng Google (Coming Soon)",
                     );
                   },
                 ),
@@ -93,9 +93,9 @@ class _LoginFooterState extends State<LoginFooter>
                   icon: Icons.facebook,
                   label: "Facebook",
                   onPressed: () {
-                    AppSnackBar.showInfo(
+                    AppSnackBars.showComingSoon(
                       context,
-                      message: "Đăng nhập bằng Facebook (Coming Soon)",
+                      "Đăng nhập bằng Facebook (Coming Soon)",
                     );
                   },
                 ),
