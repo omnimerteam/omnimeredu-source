@@ -165,7 +165,7 @@ Data: ${error.response?.data}
       }
 
       final response = await dio.post(
-        Endpoints.user.createNewAccessToken,
+        Endpoints.user.refreshToken,
         data: {'refreshToken': refreshToken},
         options: Options(
           extra: {'requiresAuth': false}, // Không cần auth cho endpoint này
@@ -299,13 +299,15 @@ Data: ${error.response?.data}
         for (var entry in files.entries) {
           final file = entry.value;
           if (file != null) {
-            formData.files.add(MapEntry(
-              entry.key,
-              await MultipartFile.fromFile(
-                file.path,
-                filename: file.uri.pathSegments.last,
+            formData.files.add(
+              MapEntry(
+                entry.key,
+                await MultipartFile.fromFile(
+                  file.path,
+                  filename: file.uri.pathSegments.last,
+                ),
               ),
-            ));
+            );
           }
         }
 

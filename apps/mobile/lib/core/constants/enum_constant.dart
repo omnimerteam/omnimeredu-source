@@ -335,3 +335,21 @@ enum AttendanceSessionTypeEnum {
     );
   }
 }
+
+enum GenderEnum {
+  Male("Nam"),
+  Female("Nữ"),
+  Other("Khác");
+
+  final String displayName;
+  const GenderEnum(this.displayName);
+
+  String get asString => name;
+
+  static GenderEnum fromString(String? value) {
+    return GenderEnum.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => GenderEnum.Other,
+    );
+  }
+}

@@ -1,12 +1,12 @@
 import 'package:equatable/equatable.dart';
 
-class SchoolSearchEntity extends Equatable {
+class SchoolSelectorEntity extends Equatable {
   final String id;
   final String name;
   final String code;
   final String address;
 
-  const SchoolSearchEntity({
+  const SchoolSelectorEntity({
     required this.id,
     required this.name,
     required this.code,

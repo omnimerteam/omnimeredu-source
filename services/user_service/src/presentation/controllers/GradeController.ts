@@ -7,6 +7,7 @@ import { DeleteGradeUseCase } from "../../domain/usecases/grade/DeleteGradeUseCa
 import { GradeRepositoryImpl } from "../../data/repositories/GradeRepositoryImpl";
 import { CreateGradeDto } from "../dtos/CreateGradeDto";
 import { UpdateGradeDto } from "../dtos/UpdateGradeDto";
+import { ResponseUtil } from "../../infrastructure/utils/ResponseUtil";
 
 export class GradeController {
   private createGradeUseCase: CreateGradeUseCase;
@@ -30,9 +31,9 @@ export class GradeController {
     try {
       const dto: CreateGradeDto = req.body;
       const grade = await this.createGradeUseCase.execute(dto);
-      res.status(201).json(grade);
+      ResponseUtil.sendSuccess(res, "Grade created successfully", grade, 201);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, 400);
     }
   }
 
@@ -41,12 +42,12 @@ export class GradeController {
       const { id } = req.params;
       const grade = await this.getGradeByIdUseCase.execute(id);
       if (!grade) {
-        res.status(404).json({ error: "Grade not found" });
+        ResponseUtil.sendError(res, "Grade not found", null, 404);
         return;
       }
-      res.status(200).json(grade);
+      ResponseUtil.sendSuccess(res, "Grade retrieved successfully", grade);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, 400);
     }
   }
 
@@ -54,9 +55,9 @@ export class GradeController {
     try {
       const { schoolId } = req.params;
       const grades = await this.getGradesBySchoolIdUseCase.execute(schoolId);
-      res.status(200).json(grades);
+      ResponseUtil.sendSuccess(res, "Grades retrieved successfully", grades);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, 400);
     }
   }
 
@@ -65,10 +66,10 @@ export class GradeController {
       const { id } = req.params;
       const dto: UpdateGradeDto = req.body;
       const grade = await this.updateGradeUseCase.execute(id, dto);
-      res.status(200).json(grade);
+      ResponseUtil.sendSuccess(res, "Grade updated successfully", grade);
     } catch (error: any) {
       const statusCode = error.message === "Grade not found" ? 404 : 400;
-      res.status(statusCode).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, statusCode);
     }
   }
 
@@ -76,10 +77,10 @@ export class GradeController {
     try {
       const { id } = req.params;
       const success = await this.deleteGradeUseCase.execute(id);
-      res.status(200).json({ success, message: "Grade deleted successfully" });
+      ResponseUtil.sendSuccess(res, "Grade deleted successfully", { success });
     } catch (error: any) {
       const statusCode = error.message === "Grade not found" ? 404 : 400;
-      res.status(statusCode).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, statusCode);
     }
   }
 }
