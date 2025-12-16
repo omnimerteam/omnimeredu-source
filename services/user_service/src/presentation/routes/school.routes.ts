@@ -11,6 +11,7 @@ import {
   searchSchoolsQuerySchema,
   getSchoolClassesQuerySchema,
 } from "../middleware/validation/school.schemas";
+import { RoleGroup } from "shared-lib";
 import {
   JWTMiddleware,
   requireRole,
@@ -32,7 +33,7 @@ router.get(
 router.get(
   "/school-admin",
   JWTMiddleware.verifyToken,
-  requireRole("SchoolAdmin"),
+  requireRole(RoleGroup.SchoolAdmin),
   (req: Request, res: Response) =>
     schoolController.getSchoolDetailForSchoolAdmin(req, res)
 );
@@ -80,7 +81,7 @@ router.get(
 router.post(
   "/",
   JWTMiddleware.verifyToken,
-  requireRole("SuperAdmin"),
+  requireRole(RoleGroup.SuperAdmin),
   requirePermission("schools:create"),
   createSchoolSchema,
   (req: Request, res: Response) => schoolController.registerSchool(req, res)
@@ -90,7 +91,7 @@ router.post(
 router.put(
   "/:id",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("schools:update"),
   objectIdSchema,
   updateSchoolSchema,
@@ -101,7 +102,7 @@ router.put(
 router.delete(
   "/:id",
   JWTMiddleware.verifyToken,
-  requireRole("SuperAdmin"),
+  requireRole(RoleGroup.SuperAdmin),
   requirePermission("schools:delete"),
   objectIdSchema,
   handleValidationErrors,
