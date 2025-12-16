@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from "uuid";
 
 // JWT Configuration - Should be set via environment variables

@@ -9,19 +9,24 @@ export const connectPostgres = (
   const defaultOptions: Options = {
     dialect: "postgres",
     logging: false,
-    dialectOptions: isLocal
-      ? {}
-      : {
-          ssl: {
-            require: true,
-            rejectUnauthorized: false,
-          },
-        },
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    }
+
   };
 
   const sequelize = new Sequelize(uri, {
     ...defaultOptions,
     ...additionalOptions,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   });
   return sequelize;
 };
