@@ -5,6 +5,8 @@ import { UpdateSchoolUseCase } from "../../domain/usecases/school/UpdateSchoolUs
 import { DeleteSchoolUseCase } from "../../domain/usecases/school/DeleteSchoolUseCase";
 import { GetSchoolsByLevelUseCase } from "../../domain/usecases/school/GetSchoolsByLevelUseCase";
 import { GetClassesBySchoolUseCase } from "../../domain/usecases/class/GetClassesBySchoolUseCase";
+import { SearchSchoolsUseCase } from "../../domain/usecases/school/SearchSchoolsUseCase";
+import { GetSchoolDetailsForAdminUseCase } from "../../domain/usecases/school/GetSchoolDetailsForAdminUseCase";
 import { SchoolRepositoryImpl } from "../../data/repositories/SchoolRepositoryImpl";
 import { ClassRepositoryImpl } from "../../data/repositories/ClassRepositoryImpl";
 import { CreateSchoolDto } from "../dtos/CreateSchoolDto";
@@ -18,6 +20,8 @@ export class SchoolController {
   private deleteSchoolUseCase: DeleteSchoolUseCase;
   private getSchoolsByLevelUseCase: GetSchoolsByLevelUseCase;
   private getClassesBySchoolUseCase: GetClassesBySchoolUseCase;
+  private searchSchoolsUseCase: SearchSchoolsUseCase;
+  private getSchoolDetailsForAdminUseCase: GetSchoolDetailsForAdminUseCase;
   private schoolRepository: SchoolRepositoryImpl;
   private classRepository: ClassRepositoryImpl;
 
@@ -36,6 +40,8 @@ export class SchoolController {
     this.getClassesBySchoolUseCase = new GetClassesBySchoolUseCase(
       this.classRepository
     );
+    this.searchSchoolsUseCase = new SearchSchoolsUseCase(this.schoolRepository);
+    this.getSchoolDetailsForAdminUseCase = new GetSchoolDetailsForAdminUseCase(this.schoolRepository);
   }
 
   async registerSchool(req: Request, res: Response): Promise<void> {
@@ -169,6 +175,91 @@ export class SchoolController {
       ResponseUtil.sendError(
         res,
         error.message || "Failed to get classes",
+        error,
+        500
+      );
+    }
+  }
+
+  async searchSchoolByEducationLevel(req: Request, res: Response): Promise<void> {
+    try {
+      const { educationLevel, search, limit, offset } = req.query;
+
+      const schools = await this.searchSchoolsUseCase.execute({
+        educationLevel: educationLevel as string,
+        search: search as string,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined
+      });
+
+      const schoolsData = schools.map((school) => ({
+        id: school.id,
+        name: school.name,
+        code: school.code,
+        address: school.address,
+        level: school.level,
+        logoUrl: school.logoUrl,
+        phone: school.phone,
+        description: school.description,
+        studentCount: school.studentCount,
+      }));
+
+      ResponseUtil.sendSuccess(
+        res,
+        "Schools searched successfully",
+        schoolsData
+      );
+    } catch (error: any) {
+      ResponseUtil.sendError(
+        res,
+        error.message || "Failed to search schools",
+        error,
+        500
+      );
+    }
+  }
+
+  async getSchoolDetailForSchoolAdmin(req: Request, res: Response): Promise<void> {
+    try {
+      // Assuming userId is attached to the request from authentication middleware
+      const userId = (req as any).user?.id || (req as any).user?.userId;
+
+      if (!userId) {
+        ResponseUtil.sendError(res, "User ID not found in request", null, 401);
+        return;
+      }
+
+      const school = await this.getSchoolDetailsForAdminUseCase.execute(userId);
+
+      if (!school) {
+        ResponseUtil.sendError(res, "School not found for this admin", null, 404);
+        return;
+      }
+
+      const schoolData = {
+        id: school.id,
+        name: school.name,
+        code: school.code,
+        address: school.address,
+        level: school.level,
+        logoUrl: school.logoUrl,
+        phone: school.phone,
+        description: school.description,
+        studentCount: school.studentCount,
+        customTheme: school.customTheme,
+        createdAt: school.createdAt,
+        updatedAt: school.updatedAt,
+      };
+
+      ResponseUtil.sendSuccess(
+        res,
+        "School details retrieved successfully",
+        schoolData
+      );
+    } catch (error: any) {
+      ResponseUtil.sendError(
+        res,
+        error.message || "Failed to get school details",
         error,
         500
       );
