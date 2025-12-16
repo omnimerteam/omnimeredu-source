@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mobile/presentation/common/widgets/input/app_image_picker.dart';
 import '../../../../../core/constants/enum_constant.dart';
 import '../../../../../domain/entities/school/school_data_entity.dart';
 import '../../../../../core/validation/field_validator.dart';
 import '../../../../common/widgets/input/primary_dropdown.dart';
-import '../../../../common/widgets/input/app_image_picker.dart';
 import '../../../../common/widgets/input/primary_multiline_text_field.dart';
 import '../../../../common/widgets/input/primary_text_field.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -108,7 +108,7 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                       Center(
                         child: Column(
                           children: [
-                            AppImagePicker(
+                            ImagePickerWidget(
                               imageFile: _logoFile,
                               onTap: () {
                                 // TODO: Implement image picker
@@ -149,8 +149,9 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         hintText: 'Nhập tên trường...',
                         prefixIcon: Icons.school,
                         isFocused: _nameFocus.hasFocus,
-                        validator: (v) =>
-                            FieldValidators.required<String>(fieldName: 'Tên trường')(v),
+                        validator: (v) => FieldValidators.required<String>(
+                          fieldName: 'Tên trường',
+                        )(v),
                       ),
 
                       SizedBox(height: 20.h),
@@ -170,8 +171,9 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         prefixIcon: Icons.school_outlined,
                         isFocused: _selectedLevel != null,
                         onChanged: (v) => setState(() => _selectedLevel = v),
-                        validator: (v) =>
-                            FieldValidators.required(fieldName: "Cấp trường")(v),
+                        validator: (v) => FieldValidators.required(
+                          fieldName: "Cấp trường",
+                        )(v),
                       ),
 
                       SizedBox(height: 32.h),
@@ -199,8 +201,9 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         prefixIcon: Icons.phone,
                         isFocused: _phoneFocus.hasFocus,
                         keyboardType: TextInputType.phone,
-                        validator: (v) =>
-                            FieldValidators.phone(fieldName: "Số điện thoại")(v),
+                        validator: (v) => FieldValidators.phone(
+                          fieldName: "Số điện thoại",
+                        )(v),
                       ),
 
                       SizedBox(height: 32.h),
@@ -214,7 +217,6 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
                         focusNode: _descriptionFocus,
                         hintText: "Nhập mô tả về trường...",
                         prefixIcon: Icons.description,
-                        isFocused: _descriptionFocus.hasFocus,
                       ),
 
                       SizedBox(height: 32.h),
@@ -305,7 +307,10 @@ class _SchoolFormDialogState extends State<SchoolFormDialog> {
       padding: EdgeInsets.all(24.w),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: AppColors.grey300.withOpacity(0.5), width: 1.h),
+          top: BorderSide(
+            color: AppColors.grey300.withOpacity(0.5),
+            width: 1.h,
+          ),
         ),
       ),
       child: Row(

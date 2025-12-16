@@ -19,7 +19,7 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
 
     try {
       final result = await getSchoolsByLevelUseCase.call(
-        educationLevel: event.level.name,
+        educationLevel: event.level,
       );
 
       final schools = result.fold(

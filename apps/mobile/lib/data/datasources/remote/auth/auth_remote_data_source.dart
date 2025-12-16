@@ -170,7 +170,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'address': user.schoolData!.address,
           'phone': user.schoolData!.phone,
           'description': user.schoolData!.description,
-          'level': user.schoolData!.level.name,
+          'level': user.schoolData!.level?.name,
         };
       }
 

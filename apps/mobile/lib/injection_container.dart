@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/repositories/school/school_repository.dart';
 
 import 'core/api/api_client.dart';
 import 'services/secure_storage_service.dart';
@@ -10,7 +11,6 @@ import 'data/datasources/remote/school/class_remote_data_source.dart';
 
 import 'domain/repositories/auth_repository.dart';
 import 'domain/repositories/role_repository.dart';
-import 'domain/repositories/school_repository.dart';
 import 'data/repositories/auth_repository_impl.dart';
 import 'data/repositories/role_repository_impl.dart';
 import 'data/repositories/school_repository_impl.dart';
@@ -30,9 +30,9 @@ import 'domain/usecases/school/get_classes_by_school_usecase.dart';
 
 import 'presentation/common/blocs/auth_bloc/auth_bloc.dart';
 import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
-import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
 import 'presentation/screen/auth/registration/bloc/class/class_bloc.dart';
-import 'presentation/screen/school_admin/school/bloc/school_bloc.dart' as school_admin; // Alias to avoid conflict if any, but class names are different now.
+import 'presentation/screen/school_admin/school/bloc/school_bloc.dart'
+    as school_admin; // Alias to avoid conflict if any, but class names are different now.
 import 'domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
 import 'domain/usecases/school/create_school_usecase.dart';
 import 'domain/usecases/school/update_school_usecase.dart';

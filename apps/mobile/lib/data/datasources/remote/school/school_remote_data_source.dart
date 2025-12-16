@@ -3,12 +3,12 @@ import '../../../../../core/api/api_client.dart';
 import '../../../../../core/api/endpoints.dart';
 import '../../../../../core/error/failures.dart';
 import '../../../../../domain/entities/school/school_data_entity.dart';
-import '../../../../../domain/entities/school/school_search_entity.dart';
+
 import '../../../../../core/constants/enum_constant.dart';
 
 abstract class SchoolRemoteDataSource {
   Future<List<SchoolSelectorModel>> getSchoolsByLevel({
-    required String educationLevel,
+    required EducationSystemLevelsEnum educationLevel,
     String? search,
   });
 
@@ -16,10 +16,6 @@ abstract class SchoolRemoteDataSource {
   Future<SchoolDataEntity> createSchool(SchoolDataEntity createSchoolData);
   Future<SchoolDataEntity> updateSchool(SchoolDataEntity updateSchoolData);
   Future<void> deleteSchool();
-  Future<List<SchoolSearchEntity>> searchSchoolsByLevel(
-    EducationSystemLevelsEnum educationLevel,
-    String? query,
-  );
 }
 
 class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
@@ -29,7 +25,7 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
 
   @override
   Future<List<SchoolSelectorModel>> getSchoolsByLevel({
-    required String educationLevel,
+    required EducationSystemLevelsEnum educationLevel,
     String? search,
   }) async {
     try {
@@ -87,7 +83,9 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
   }
 
   @override
-  Future<SchoolDataEntity> createSchool(SchoolDataEntity createSchoolData) async {
+  Future<SchoolDataEntity> createSchool(
+    SchoolDataEntity createSchoolData,
+  ) async {
     try {
       final res = await client.post<Map<String, dynamic>>(
         Endpoints.user.schools,
@@ -107,10 +105,14 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
   }
 
   @override
-  Future<SchoolDataEntity> updateSchool(SchoolDataEntity updateSchoolData) async {
+  Future<SchoolDataEntity> updateSchool(
+    SchoolDataEntity updateSchoolData,
+  ) async {
     try {
       final res = await client.put<Map<String, dynamic>>(
-        Endpoints.user.schools, // Assuming PUT to /schools updates or /schools/:id
+        Endpoints
+            .user
+            .schools, // Assuming PUT to /schools updates or /schools/:id
         // Omnimereduapp code used `Endpoints.schools` (PUT) implies /v1/schools
         // Usually you need an ID. If the backend infers ID from body or token, this works.
         // If it needs ID in URL, I might need Endpoints.user.schoolById(id).
@@ -147,18 +149,6 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
     }
   }
 
-  @override
-  Future<List<SchoolSearchEntity>> searchSchoolsByLevel(
-    EducationSystemLevelsEnum educationLevel,
-    String? query,
-  ) async {
-    // This looks redundant with getSchoolsByLevel but returns different entity.
-    // I'll implement it similarly.
-      // TODO: Implement actual endpoint if different from getSchoolsByLevel
-      // For now, I'll return empty list or throw to avoid breakage if endpoint missing
-      return []; 
-  }
-
   // Helper mappers (In real app, use Model.fromJson)
   SchoolDataEntity _mapJsonToSchoolDataEntity(Map<String, dynamic> json) {
     return SchoolDataEntity(
@@ -168,10 +158,10 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
       address: json['address'],
       phone: json['phone'],
       description: json['description'],
-      level: json['educationLevel'] != null 
+      level: json['educationLevel'] != null
           ? EducationSystemLevelsEnum.values.firstWhere(
               (e) => e.name == json['educationLevel'],
-              orElse: () => EducationSystemLevelsEnum.Primary // Fallback
+              orElse: () => EducationSystemLevelsEnum.Primary, // Fallback
             )
           : null,
       adminId: json['schoolAdmin'],
