@@ -7,6 +7,7 @@ import 'bloc/grade_management_state.dart';
 import 'widgets/grade_form_dialog.dart';
 import 'widgets/grade_list_view.dart';
 import 'widgets/grade_sort_controls.dart';
+import 'widgets/grade_screen_header.dart';
 
 class GradeManagementScreen extends StatelessWidget {
   const GradeManagementScreen({super.key});
@@ -71,24 +72,7 @@ class GradeManagementView extends StatelessWidget {
                   children: [
                     const GradeSortControls(),
                     SizedBox(height: 16.h),
-
-                    // Title + Create button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Danh sách khối',
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20.sp,
-                              ),
-                        ),
-
-                        _buildCreateButton(context, Theme.of(context)),
-                      ],
-                    ),
-
+                    const GradeScreenHeader(),
                     SizedBox(height: 12.h),
                     const GradeListView(),
                   ],
@@ -96,49 +80,6 @@ class GradeManagementView extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCreateButton(BuildContext context, ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(10.r),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.primary.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          context.read<GradeManagementBloc>().add(const ShowCreateFormEvent());
-        },
-        icon: Icon(Icons.add_rounded, size: 18.sp),
-        label: Text(
-          'Tạo khối mới',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: theme.colorScheme.onPrimary,
-          shadowColor: Colors.transparent,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.r),
-          ),
-          minimumSize: Size(140.w, 40.h),
         ),
       ),
     );

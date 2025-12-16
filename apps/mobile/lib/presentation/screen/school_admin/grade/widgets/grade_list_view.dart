@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:mobile/presentation/common/widgets/skeleton/common_skeleton.dart';
-import '../bloc/grade_management_bloc.dart';
-import '../bloc/grade_management_event.dart';
-import '../bloc/grade_management_state.dart';
-import 'grade_list_item.dart';
+import 'package:mobile/presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+import 'package:mobile/presentation/screen/school_admin/grade/bloc/grade_management_event.dart';
+import 'package:mobile/presentation/screen/school_admin/grade/bloc/grade_management_state.dart';
+import 'package:mobile/presentation/screen/school_admin/grade/widgets/grade_list_item.dart';
+import 'grade_list_skeleton.dart';
 
 class GradeListView extends StatelessWidget {
   const GradeListView({super.key});
@@ -15,7 +15,7 @@ class GradeListView extends StatelessWidget {
     return BlocBuilder<GradeManagementBloc, GradeManagementState>(
       builder: (context, state) {
         if (state is GradeManagementLoading) {
-          return _buildLoadingView();
+          return const GradeListSkeleton();
         }
 
         if (state is GradeManagementError) {
@@ -83,50 +83,6 @@ class GradeListView extends StatelessWidget {
 
         return const SizedBox.shrink();
       },
-    );
-  }
-
-  Widget _buildLoadingView() {
-    return Column(
-      children: List.generate(
-        5,
-        (index) => Padding(
-          padding: EdgeInsets.only(bottom: 12.h),
-          child: Container(
-            padding: EdgeInsets.all(16.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    SkeletonBox(height: 20.h, width: 150.w),
-                    const Spacer(),
-                    SkeletonBox(height: 20.h, width: 60.w),
-                  ],
-                ),
-                SizedBox(height: 8.h),
-                Row(
-                  children: [
-                    SkeletonBox(height: 16.h, width: 100.w),
-                    SizedBox(width: 16.w),
-                    SkeletonBox(height: 16.h, width: 80.w),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
