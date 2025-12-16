@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../../../../../core/constants/enum_constant.dart';
-import '../../../../../domain/entities/school/school_search_entity.dart';
+import '../../../../../domain/entities/school/school_selector_entity.dart';
 import '../../../../../core/theme/app_colors.dart';
 
 import '../bloc/school/school_bloc.dart';
@@ -11,8 +11,8 @@ import '../bloc/school/school_state.dart';
 
 class SchoolSelector extends StatefulWidget {
   final EducationSystemLevelsEnum educationLevel; // để load school theo cấp học
-  final void Function(SchoolSearchEntity?) onSchoolSelected;
-  final String? Function(SchoolSearchEntity?)? validator;
+  final void Function(SchoolSelectorEntity?) onSchoolSelected;
+  final String? Function(SchoolSelectorEntity?)? validator;
 
   const SchoolSelector({
     super.key,
@@ -26,7 +26,7 @@ class SchoolSelector extends StatefulWidget {
 }
 
 class _SchoolSelectorState extends State<SchoolSelector> {
-  SchoolSearchEntity? selectedSchool;
+  SchoolSelectorEntity? selectedSchool;
 
   @override
   void initState() {
@@ -70,7 +70,7 @@ class _SchoolSelectorState extends State<SchoolSelector> {
                 ),
               );
             } else if (state is SchoolLoaded) {
-              return DropdownSearch<SchoolSearchEntity>(
+              return DropdownSearch<SchoolSelectorEntity>(
                 items: (String filter, LoadProps? props) async {
                   if (filter.isNotEmpty) {
                     return state.schools.where((school) {

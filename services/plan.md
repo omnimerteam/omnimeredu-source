@@ -1,145 +1,170 @@
-# Kế hoạch Triển khai Hệ thống Microservices (OmniMer EDU)
+# Plan for Enhancing User Service API
 
-Dựa trên kiến trúc hệ thống đã định nghĩa trong `docs/architecture/system_architecture/architecture.md`, dưới đây là kế hoạch triển khai chi tiết theo từng giai đoạn.
+## Overview
 
-## Giai đoạn 1: Chuẩn bị Hạ tầng & Môi trường (Infrastructure & Setup)
+Based on analysis of the current monolithic API service and the new user_service microservice, the following features need to be added to achieve parity and improve functionality.
 
-**Mục tiêu:** Thiết lập môi trường phát triển và cấu hình cơ sở dữ liệu cơ bản.
+## Current Status
 
-1.  **Cấu trúc Dự án (Monorepo/Microservices):**
+✅ **Implemented:**
 
-    - [x] Khởi tạo cấu trúc thư mục cho các services: `services/user-service` cho auth và các thông tin người dùng và thông tin trường học, `services/payment-attendance-service` cho các thông tin thanh toán và điểm danh,
-    - [x] Thiết lập `shared-lib` (thư viện dùng chung) chứa:
-      - Cấu hình Database (Sequelize, Mongoose/DynamoDB wrapper).
-      - Các Utils, Constants, Types/Interfaces chung.
-      - Middleware (Auth, Error Handling).
+- Basic CRUD operations for Schools, Grades, Classes, Users
+- Authentication (login, register, token refresh)
+- Clean Architecture with CQRS pattern
+- Basic routing structure
 
-2.  **Database Setup:**
+❌ **Missing Features from Monolithic API:**
 
-    - [x] **PostgreSQL (Write DB):**
-      - Cài đặt PostgreSQL (Local/Docker).
-      - Tạo Database: `omnimeredu_user_db`, `omnimeredu_payment_db`.
-    - [x] **MongoDB (Read DB):**
-      - Cài đặt MongoDB (Local/Docker).
-      - Tạo Database: `omnimeredu_read_db`.
-    - [x] **Redis (Cache):**
-      - Cài đặt Redis.
+### 1. **Enhanced Route Features**
 
-3.  **Environment Configuration:**
-    - [x] Thiết lập biến môi trường (`.env`) để chuyển đổi linh hoạt giữa MongoDB (VPS) và DynamoDB (AWS).
-    - [x] Cấu hình Docker Compose để chạy toàn bộ hệ thống local.
+#### School Routes (`/api/schools`)
 
-## Giai đoạn 2: Phát triển Core & Shared Modules
+Missing from user_service:
 
-**Mục tiêu:** Xây dựng nền tảng kỹ thuật và cơ chế đồng bộ CQRS.
+- `GET /school-admin` - Get school details for school admin
+- Advanced search with filters
+- Pagination support
 
-1.  **Database Connectors:**
+#### Grade Routes (`/api/grades`)
 
-    - [x] **Sequelize Client:** Module kết nối Postgres, cấu hình migration, seeder.
-    - [x] **NoSQL Client Factory:** Module Factory Pattern để trả về instance của MongoDB Client hoặc DynamoDB Client dựa trên config.
+Missing from user_service:
 
-2.  **Cơ chế CQRS Sync (Synchronization Logic):**
-    - [x] Xây dựng `SyncService`:
-      - Input: Dữ liệu vừa ghi vào RDS.
-      - Process: Transform dữ liệu sang định dạng NoSQL (Denormalization nếu cần).
-      - Output: Ghi vào MongoDB/DynamoDB.
-    - [x] Implement `Hooks` trong Sequelize (afterCreate, afterUpdate, afterDestroy) để tự động kích hoạt `SyncService`.
+- `GET /` - Get all grades with pagination and filtering
+- `GET /select/box` - Get grades for select dropdown (optimized for UI)
+- Advanced filtering by schoolId, level, active status
+- Sorting by name, level, order
+- Pagination
 
-## Giai đoạn 3: Phát triển User Module
+#### Class Routes (`/api/classes`)
 
-**Mục tiêu:** Quản lý thông tin người dùng, trường học, lớp học.
+Missing from user_service:
 
-1.  **Authentication \u0026 Authorization:**
+- `GET /` - Get all classes with pagination and filtering
+- `GET /view-model/class-detail` - Get classes with detailed view
+- `GET /view-model/class-detail/:id` - Get specific class detail view
+- `POST /:id/students/add` - Add students to class
+- `POST /:id/students/remove` - Remove students from class
+- `POST /:id/students/transfer` - Transfer students between classes
+- `GET /schools/search` - Search classes within schools
+- Class detail view with related data (Grade info, Student count, etc.)
 
-    - [x] Implement JWT-based authentication (thay thế Firebase Auth)
-    - [x] Register user với bcryptjs password hashing
-    - [x] Login với JWT token generation
-    - [x] Refresh access token functionality
-    - [x] Get authenticated user info (getAuth)
-    - [x] Upload avatar to Amazon S3 với naming convention `avatar-{userId}`
-    - [x] Auth utilities: hashPassword, comparePassword, generateToken, verifyToken
-    - [x] S3 utilities: uploadAvatar, deleteAvatar
+### 2. **Middleware & Security**
 
-2.  **Write Side (PostgreSQL + Sequelize):**
+Missing from user_service:
 
-    - [x] Define Models:
-      - `Account`: Quản lý thông tin đăng ký, đăng nhập
-      - `User` (Thông tin tài khoản, profile).
-      - `School` (Thông tin trường).
-      - `Grade` (Khối).
-      - `Class` (Lớp học - quan hệ với Grade, School).
-      - `MembershipRequest` (Yêu cầu tham gia trường/lớp).
-    - [x] Implement Auth Use Cases: RegisterUserUseCase, LoginUseCase, RefreshAccessTokenUseCase, GetAuthUseCase
-    - [x] Implement Auth Controller & Routes with transaction support
-    - [x] Implement CRUD Services & Controllers for School, Grade, Class.
-    - [x] Tích hợp `SyncService` vào các Models trên.
+- Role-based access control (RBAC) middleware
+- Request validation middleware
+- Activity logging middleware
+- Error handling middleware
+- Rate limiting
+- Request/response caching
 
-3.  **Read Side (MongoDB):**
-    - [x] Define Enhanced Schema: `users_full` với denormalized data (join account, school, role-specific info)
-    - [x] Implement UserReadRepository với các query methods
-    - [x] Define Schemas (Collections): `schools`, `classes`, `grades`.
-    - [x] Implement Read APIs:
-      - API lấy danh sách học sinh theo lớp (tối ưu query từ Mongo).
-      - API xem profile, lịch sử hoạt động.
+### 3. **Validation Schemas**
 
-## Giai đoạn 4: Phát triển Payment & Attendance Module
+Missing from user_service:
 
-**Mục tiêu:** Quản lý điểm danh và thanh toán.
+- Comprehensive input validation for all endpoints
+- Header validation (authentication headers)
+- Parameter validation (ObjectId validation)
+- Query parameter validation for pagination, sorting, filtering
+- Body validation for create/update operations
 
-1.  **Write Side (PostgreSQL + Sequelize):**
+### 4. **Advanced Features**
 
-    - [x] Define Models:
-      - `Attendance` (Dữ liệu điểm danh hàng ngày).
-      - `Tuition` (Thông tin học phí).
-      - `Payment` (Giao dịch thanh toán).
-      - `Holiday` (Ngày nghỉ).
-    - [x] Implement Logic nghiệp vụ:
-      - Điểm danh (Check-in/Check-out).
-      - Tạo hóa đơn học phí.
-      - Xử lý callback thanh toán.
-    - [x] Tích hợp `SyncService`.
+Missing from user_service:
 
-2.  **Read Side (MongoDB):**
-    - Đồng bộ: Dữ liệu từ Write DB sẽ được đồng bộ sang Read DB qua Events (sử dụng Message Broker như Kafka, RabbitMQ).
-    - `ActivityLog` (Lịch sử hoạt động).
-    - [x] Define Schemas: `attendances`, `tuitions`, `payments`.
-    - [x] Implement Read APIs:
-      - API báo cáo điểm danh tháng (Aggregate dữ liệu từ Mongo).
-      - API lịch sử thanh toán.
+- Pagination for list endpoints
+- Advanced search with filters
+- Sorting capabilities
+- Field selection (partial responses)
+- Bulk operations
+- Export functionality
+- Import functionality
 
-## Giai đoạn 5: API Gateway & Auth Integration
+### 5. **Infrastructure Components**
 
-**Mục tiêu:** Hợp nhất các services và bảo mật.
+Missing from user_service:
 
-1.  **User Service:**
+- Activity logging system
+- Error monitoring
+- Metrics collection
+- Health check endpoints
+- API documentation (Swagger/OpenAPI)
+- Response caching layer
 
-    - [x] Đảm bảo Auth Service cấp phát JWT chuẩn.
-    - [x] Share Public Key hoặc Secret cho User/Payment modules để verify token.
+## Implementation Priority
 
-2.  **API Gateway / Routing:**
-    - [x] Cấu hình Nginx hoặc Application Gateway để route request:
-      - `/api/users/*` -> User Service.
-      - `/api/payments/*`, `/api/attendance/*` -> Payment Service.
+### Phase 1: Core Missing API Endpoints (High Priority)
 
-## Giai đoạn 6: Deployment & Testing
+1. Implement missing grade endpoints:
 
-**Mục tiêu:** Đưa hệ thống lên môi trường Staging/Production.
+   - GET /grades (with pagination)
+   - GET /grades/select/box
 
-1.  **Containerization:**
+2. Implement missing class endpoints:
 
-    - [ ] Viết `Dockerfile` cho từng service.
-    - [ ] Tối ưu image size (Multi-stage build).
+   - GET /classes (with pagination)
+   - POST /classes/:id/students/add
+   - POST /classes/:id/students/remove
+   - POST /classes/:id/students/transfer
 
-2.  **CI/CD & AWS/VPS Setup:**
+3. Implement missing school endpoints:
+   - GET /schools/search/query
+   - GET /schools/school-admin
 
-    - [ ] **VPS Case:** Setup Script deploy MongoDB, Postgres, Redis và Docker Compose app.
-    - [ ] **AWS Case:**
-      - Setup RDS (Postgres).
-      - Setup DynamoDB (hoặc DocumentDB).
-      - Push images lên ECR.
-      - Deploy Fargate.
+### Phase 2: Middleware & Security (High Priority)
 
-3.  **Testing:**
-    - [ ] Unit Test cho Logic tính toán (Payment).
-    - [ ] Integration Test cho luồng CQRS (Ghi RDS -> Check Mongo).
-    - [ ] Load Test để kiểm chứng hiệu năng Read từ Mongo.
+1. Create validation schemas for all endpoints
+2. Implement RBAC middleware
+3. Add activity logging middleware
+4. Implement error handling middleware
+
+### Phase 3: Advanced Features (Medium Priority)
+
+1. Add pagination to all list endpoints
+2. Implement advanced search functionality
+3. Add sorting capabilities
+4. Create class detail view endpoints
+
+### Phase 4: Infrastructure & Monitoring (Low Priority)
+
+1. Add health check endpoints
+2. Implement metrics collection
+3. Set up API documentation
+4. Add response caching
+
+## Technical Considerations
+
+1. **Database Schema Updates**:
+
+   - Ensure MongoDB read models support new query patterns
+   - Add indexes for frequently queried fields
+   - Consider denormalization for performance
+
+2. **API Consistency**:
+
+   - Maintain consistent response formats
+   - Use standard HTTP status codes
+   - Implement proper error responses
+
+3. **Performance**:
+
+   - Implement caching for frequently accessed data
+   - Use database connections efficiently
+   - Consider implementing query optimization
+
+4. **Security**:
+   - Validate all inputs
+   - Sanitize outputs
+   - Implement proper authentication and authorization
+   - Add rate limiting
+
+## Next Steps
+
+1. Begin with Phase 1 implementation
+2. Create necessary use cases and repositories
+3. Update controllers with new endpoints
+4. Add validation schemas
+5. Implement middleware
+6. Test all new endpoints thoroughly
+7. Update API documentation

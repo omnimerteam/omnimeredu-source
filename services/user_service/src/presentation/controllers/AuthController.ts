@@ -172,8 +172,10 @@ export class AuthController {
             result.user,
             userSchoolInfo || undefined
           ),
-          accessToken: result.tokens.accessToken,
-          refreshToken: result.tokens.refreshToken,
+          tokens: {
+            accessToken: result.tokens.accessToken,
+            refreshToken: result.tokens.refreshToken,
+          },
         },
         201
       );

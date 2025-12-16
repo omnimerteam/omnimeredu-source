@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import '../../../../../core/constants/enum_constant.dart';
-import '../../../../../domain/entities/school/class_entity.dart';
+import '../../../../../domain/entities/school/class_selector_entity.dart';
 import '../../../../../core/theme/app_colors.dart';
-import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 import '../bloc/class/class_bloc.dart';
 import '../bloc/class/class_event.dart';
@@ -13,8 +12,8 @@ import '../bloc/class/class_state.dart';
 class ClassSelector extends StatefulWidget {
   final String schoolId;
   final EducationGradesEnum? gradeGroup;
-  final void Function(ClassEntity?) onClassSelected;
-  final String? Function(ClassEntity?)? validator;
+  final void Function(ClassSelectorEntity?) onClassSelected;
+  final String? Function(ClassSelectorEntity?)? validator;
 
   const ClassSelector({
     super.key,
@@ -29,16 +28,18 @@ class ClassSelector extends StatefulWidget {
 }
 
 class _ClassSelectorState extends State<ClassSelector> {
-  ClassEntity? selectedClass;
+  ClassSelectorEntity? selectedClass;
 
   @override
   void initState() {
     super.initState();
     if (widget.schoolId.isNotEmpty && widget.gradeGroup != null) {
-      context.read<ClassBloc>().add(LoadClassesBySchool(
-        schoolId: widget.schoolId,
-        grade: widget.gradeGroup!.name,
-      ));
+      context.read<ClassBloc>().add(
+        LoadClassesBySchool(
+          schoolId: widget.schoolId,
+          grade: widget.gradeGroup!.name,
+        ),
+      );
     }
   }
 
@@ -48,10 +49,12 @@ class _ClassSelectorState extends State<ClassSelector> {
     if (oldWidget.schoolId != widget.schoolId ||
         oldWidget.gradeGroup != widget.gradeGroup) {
       if (widget.schoolId.isNotEmpty && widget.gradeGroup != null) {
-        context.read<ClassBloc>().add(LoadClassesBySchool(
-          schoolId: widget.schoolId,
-          grade: widget.gradeGroup!.name,
-        ));
+        context.read<ClassBloc>().add(
+          LoadClassesBySchool(
+            schoolId: widget.schoolId,
+            grade: widget.gradeGroup!.name,
+          ),
+        );
       }
     }
   }
@@ -92,7 +95,7 @@ class _ClassSelectorState extends State<ClassSelector> {
                 ),
               );
             } else if (state is ClassLoaded) {
-              return DropdownSearch<ClassEntity>(
+              return DropdownSearch<ClassSelectorEntity>(
                 items: (String filter, LoadProps? props) async {
                   if (filter.isNotEmpty) {
                     return state.classes.where((cls) {
