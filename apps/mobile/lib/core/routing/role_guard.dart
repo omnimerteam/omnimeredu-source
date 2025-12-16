@@ -18,6 +18,7 @@ class RoleGuard {
   /// ```
   static const Map<String, String> roleAlias = {
     'User': 'user',
+    'SchoolAdmin': 'school_admin',
     // TODO: Thêm các role mapping khác ở đây
   };
 
@@ -32,7 +33,15 @@ class RoleGuard {
   /// };
   /// ```
   static const Map<String, List<String>> accessRules = {
-    '/home': ['user'],
+    '/home': ['user', 'school_admin'],
+    '/school-admin/school': ['school_admin'],
+    '/school-admin/classes': ['school_admin'],
+    '/school-admin/grades': ['school_admin'],
+    '/school-admin/membership-requests': ['school_admin'],
+    '/school-admin/students': ['school_admin'],
+    '/school-admin/personnel': ['school_admin'],
+    '/school-admin/attendance': ['school_admin'],
+    '/school-admin/tuition': ['school_admin'],
     // TODO: Thêm các route và quyền truy cập ở đây
   };
 
