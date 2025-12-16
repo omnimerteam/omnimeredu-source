@@ -8,14 +8,14 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: gateway/dockerfile
+      dockerfile: gateway/Dockerfile
     container_name: omnimeredu_gateway
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - user_service
-      - payment_service
+      - payment-attendance-service
     networks:
       - omnimeredu_network
     restart: unless-stopped
@@ -27,7 +27,7 @@ services:
   user_service:
     build:
       context: .
-      dockerfile: user_service/dockerfile
+      dockerfile: user_service/Dockerfile
     container_name: omnimeredu_user_service
     environment:
       - NODE_ENV=production
@@ -52,11 +52,11 @@ services:
       - omnimeredu_network
     restart: unless-stopped
 
-  payment_service:
+  payment-attendance-service:
     build:
       context: .
-      dockerfile: payment_service/dockerfile
-    container_name: omnimeredu_payment_service
+      dockerfile: payment-attendance-service/Dockerfile
+    container_name: omnimeredu_payment_attendance_service
     environment:
       - NODE_ENV=production
       - PORT=3002
