@@ -30,7 +30,13 @@ import 'domain/usecases/school/get_classes_by_school_usecase.dart';
 
 import 'presentation/common/blocs/auth_bloc/auth_bloc.dart';
 import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
+import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
 import 'presentation/screen/auth/registration/bloc/class/class_bloc.dart';
+import 'presentation/screen/school_admin/school/bloc/school_bloc.dart' as school_admin; // Alias to avoid conflict if any, but class names are different now.
+import 'domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
+import 'domain/usecases/school/create_school_usecase.dart';
+import 'domain/usecases/school/update_school_usecase.dart';
+import 'domain/usecases/school/delete_school_usecase.dart';
 
 // Service Locator
 final sl = GetIt.instance;
@@ -94,6 +100,22 @@ Future<void> init() async {
   sl.registerLazySingleton<SchoolAdminRepository>(
     () => SchoolAdminRepositoryImpl(remoteDataSource: sl()),
   );
+
+  // School Admin Features
+  sl.registerFactory(
+    () => school_admin.SchoolAdminSchoolBloc(
+      getSchoolDetailUseCase: sl(),
+      createSchoolUseCase: sl(),
+      updateSchoolUseCase: sl(),
+      deleteSchoolUseCase: sl(),
+      authBloc: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton(() => GetSchoolDetailForSchoolAdminUseCase(sl()));
+  sl.registerLazySingleton(() => CreateSchoolUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateSchoolUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteSchoolUseCase(sl()));
 
   // ! Core
   sl.registerLazySingleton(() => ApiClient(secureStorage: sl()));

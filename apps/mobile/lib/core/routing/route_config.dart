@@ -6,6 +6,8 @@ import 'package:mobile/presentation/screen/auth/registration/bloc/registration_b
 import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/class/class_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/registration_screen.dart';
+import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
+import '../../presentation/screen/school_admin/school/school_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/login_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
 import 'package:mobile/presentation/screen/main_screen.dart';
@@ -31,8 +33,18 @@ class RouteConfig {
 
   // TODO: Thêm các route names khác ở đây
   // Ví dụ:
-  // static const String profile = '/profile';
-  // static const String settings = '/settings';
+  static const String profile = '/profile';
+  static const String settings = '/settings';
+
+  // School Admin Routes
+  static const String schoolAdminSchool = '/school-admin/school';
+  static const String schoolAdminClasses = '/school-admin/classes';
+  static const String schoolAdminGrades = '/school-admin/grades';
+  static const String schoolAdminMembershipRequests = '/school-admin/membership-requests';
+  static const String schoolAdminStudents = '/school-admin/students';
+  static const String schoolAdminPersonnel = '/school-admin/personnel';
+  static const String schoolAdminAttendance = '/school-admin/attendance';
+  static const String schoolAdminTuition = '/school-admin/tuition';
 
   // ==================== BUILD AUTH PAGES ====================
   /// Build các trang không cần authentication (login, register, forgot password)
@@ -128,6 +140,21 @@ class RouteConfig {
       case main:
       case home:
         return const MainScreen();
+
+      case schoolAdminSchool:
+        return const SchoolAdminSchoolScreen();
+
+      case schoolAdminClasses:
+      case schoolAdminGrades:
+      case schoolAdminMembershipRequests:
+      case schoolAdminStudents:
+      case schoolAdminPersonnel:
+      case schoolAdminAttendance:
+      case schoolAdminTuition:
+        return Scaffold(
+          appBar: AppBar(title: Text(routeName.split('/').last)),
+          body: const Center(child: Text("Tính năng đang phát triển")),
+        );
 
       // TODO: Thêm các route khác ở đây
 

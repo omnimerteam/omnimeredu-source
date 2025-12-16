@@ -34,59 +34,53 @@ class SchoolAdminDashboardScreen extends StatelessWidget {
             children: [
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(16.w),
-                margin: EdgeInsets.all(16.w),
+                padding: EdgeInsets.all(20.w),
                 decoration: BoxDecoration(
                   color: Theme.of(context).brightness == Brightness.dark
                       ? Colors.grey[850]
-                      : Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8.r),
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(12.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                   border: Border.all(
                     color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.grey[700]!
-                        : Colors.grey[300]!,
+                        : Colors.grey[200]!,
                   ),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.school,
-                          color: Colors.blue,
-                          size: 20.w,
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: Text(
-                            'Chưa có trường nào được tạo',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.sp,
-                                ),
+                    Icon(
+                      Icons.school_outlined,
+                      color: Colors.blue,
+                      size: 48.w,
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Chào mừng School Admin',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.sp,
                           ),
-                        ),
-                      ],
                     ),
                     SizedBox(height: 8.h),
-                    Padding(
-                      padding: EdgeInsets.only(left: 28.w),
-                      child: Text(
-                        'Vui lòng tạo trường đầu tiên để bắt đầu quản lý.',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white.withValues(alpha: 0.8)
-                              : Colors.black.withValues(alpha: 0.7),
-                          fontSize: 14.sp,
-                        ),
-                      ),
+                    Text(
+                      'Bạn chưa thiết lập trường học. Hãy bắt đầu bằng cách tạo trường mới.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey[600],
+                            fontSize: 14.sp,
+                          ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 24.h),
+              SizedBox(height: 32.h),
               const SchoolAdminDashboardQuickAccess(highlightSchool: true),
             ],
           ),
@@ -96,15 +90,18 @@ class SchoolAdminDashboardScreen extends StatelessWidget {
 
     // Nếu có dữ liệu => hiển thị dashboard bình thường
     return Scaffold(
-      appBar: AppBar(title: const Text("School Admin")),
+      appBar: AppBar(
+        title: const Text("School Admin"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 80.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DashboardQuickOverview(overview: data!.overview),
-            SizedBox(height: 24.h),
-            // AttendanceChart removed for now (missing dependencies)
             SizedBox(height: 24.h),
             const SchoolAdminDashboardQuickAccess(),
           ],

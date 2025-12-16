@@ -114,10 +114,10 @@ class _MainScreenState extends State<MainScreen> {
     switch (role) {
       case 'SchoolAdmin':
         return [
-          const Center(
-            child: Text("School Admin Home"),
-          ), // Use a dedicated screen if available
           SchoolAdminDashboardScreen(roleName: role),
+          const Center(
+            child: Text("Báo cáo & Thống kê"),
+          ), // Placeholder for Reports/Stats
           const SettingsScreen(),
         ];
       case 'Teacher':
@@ -158,20 +158,20 @@ class _MainScreenState extends State<MainScreen> {
         return [
           CurvedNavigationBarItem(
             child: Icon(
-              Icons.home_rounded,
+              Icons.dashboard_rounded,
               size: 26,
               color: _selectedIndex == 0 ? Colors.white : AppColors.grey600,
             ),
-            label: 'Home',
+            label: 'Dashboard',
             labelStyle: _getLabelStyle(_selectedIndex == 0),
           ),
           CurvedNavigationBarItem(
             child: Icon(
-              Icons.dashboard_rounded,
+              Icons.bar_chart_rounded,
               size: 26,
               color: _selectedIndex == 1 ? Colors.white : AppColors.grey600,
             ),
-            label: 'Dashboard',
+            label: 'Báo cáo',
             labelStyle: _getLabelStyle(_selectedIndex == 1),
           ),
           settingsItem,

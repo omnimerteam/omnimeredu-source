@@ -41,6 +41,8 @@ class UserEndpoints {
 
   // ===== School endpoints =====
   String get schools => '$baseUrl/schools'; // GET (List), POST (Create)
+  String get schoolAdminDetail => '$baseUrl/schools/school-admin'; // GET
+
   String schoolById(String id) => '$baseUrl/schools/$id'; // GET, PUT, DELETE
   String classesOnSchool(String schoolId) =>
       '$baseUrl/schools/$schoolId/classes'; // GET
