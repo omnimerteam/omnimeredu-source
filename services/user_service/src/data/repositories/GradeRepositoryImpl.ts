@@ -1,4 +1,8 @@
-import { IGradeRepository, FilterOptions, GradeSelectOption } from "../../domain/repositories/IGradeRepository";
+import {
+  IGradeRepository,
+  FilterOptions,
+  GradeSelectOption,
+} from "../../domain/repositories/IGradeRepository";
 import { Grade } from "../../domain/entities/Grade";
 import { GradeModel } from "../datasources/postgres/models/GradeModel";
 import { Op } from "sequelize";
@@ -65,7 +69,7 @@ export class GradeRepositoryImpl implements IGradeRepository {
     skip: number,
     limit: number,
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: "asc" | "desc",
     filters: FilterOptions,
     fields?: string[]
   ): Promise<Grade[]> {
@@ -80,7 +84,7 @@ export class GradeRepositoryImpl implements IGradeRepository {
     if (filters.search) {
       whereClause[Op.or] = [
         { name: { [Op.iLike]: `%${filters.search}%` } },
-        { description: { [Op.iLike]: `%${filters.search}%` } }
+        { description: { [Op.iLike]: `%${filters.search}%` } },
       ];
     }
 
@@ -97,10 +101,9 @@ export class GradeRepositoryImpl implements IGradeRepository {
       limit: limit,
       attributes,
       order: [
-        [sortBy, sortOrder.toUpperCase() as 'ASC' | 'DESC'],
-        ['id', sortOrder.toUpperCase() as 'ASC' | 'DESC'] // Secondary sort for consistency
+        [sortBy, sortOrder.toUpperCase() as "ASC" | "DESC"],
+        ["id", sortOrder.toUpperCase() as "ASC" | "DESC"], // Secondary sort for consistency
       ],
-      distinct: true
     });
 
     return models.map((model) => this.toEntity(model));
@@ -117,7 +120,7 @@ export class GradeRepositoryImpl implements IGradeRepository {
     if (filters.search) {
       whereClause[Op.or] = [
         { name: { [Op.iLike]: `%${filters.search}%` } },
-        { description: { [Op.iLike]: `%${filters.search}%` } }
+        { description: { [Op.iLike]: `%${filters.search}%` } },
       ];
     }
 
@@ -134,15 +137,18 @@ export class GradeRepositoryImpl implements IGradeRepository {
 
     const models = await GradeModel.findAll({
       where: whereClause,
-      attributes: ['id', 'name', 'level', 'schoolId'],
-      order: [['level', 'ASC'], ['name', 'ASC']]
+      attributes: ["id", "name", "level", "schoolId"],
+      order: [
+        ["level", "ASC"],
+        ["name", "ASC"],
+      ],
     });
 
     return models.map((model) => ({
       _id: model.id,
       name: model.name,
       level: model.level,
-      schoolId: model.schoolId
+      schoolId: model.schoolId,
     }));
   }
 

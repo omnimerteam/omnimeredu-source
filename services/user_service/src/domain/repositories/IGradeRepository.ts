@@ -12,6 +12,8 @@ export interface FilterOptions {
   schoolId?: string;
   level?: EducationSystemLevelsEnum;
   active?: boolean;
+  name?: string;
+  search?: string;
 }
 
 export interface GradeSelectOption {
