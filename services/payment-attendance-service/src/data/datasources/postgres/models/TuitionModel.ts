@@ -1,5 +1,6 @@
 // 1. Thêm Op vào phần import
-import { DataTypes, Model, Sequelize, Op } from "sequelize";
+import { DataTypes, Model, Sequelize } from "shared-lib";
+import { Op } from "sequelize";
 
 export class TuitionModel extends Model {
   public id!: string;
