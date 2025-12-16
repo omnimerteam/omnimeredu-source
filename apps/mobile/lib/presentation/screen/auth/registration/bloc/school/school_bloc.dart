@@ -17,23 +17,18 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
   ) async {
     emit(SchoolLoading());
 
-    try {
-      final result = await getSchoolsByLevelUseCase.call(
-        educationLevel: event.level,
-      );
+    final result = await getSchoolsByLevelUseCase.call(
+      GetSchoolsByLevelParams(educationLevel: event.level),
+    );
 
-      final schools = result.fold(
-        (error) => throw Exception(error.message),
-        (schools) => schools,
-      );
-
+    result.fold((error) => emit(SchoolError("Không có trường phù hợp")), (
+      schools,
+    ) {
       if (schools.isEmpty) {
         emit(SchoolError("Không có trường phù hợp"));
       } else {
         emit(SchoolLoaded(schools: schools));
       }
-    } catch (e) {
-      emit(SchoolError("Không có trường phù hợp"));
-    }
+    });
   }
 }

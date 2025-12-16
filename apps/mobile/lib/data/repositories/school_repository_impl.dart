@@ -2,6 +2,7 @@ import 'package:mobile/domain/repositories/school/school_repository.dart';
 
 import '../../core/error/failures.dart';
 import '../../core/utils/either.dart';
+import '../../core/utils/api_utils.dart';
 import '../../domain/entities/school/school_selector_entity.dart';
 import '../../domain/entities/school/school_data_entity.dart';
 
@@ -19,18 +20,12 @@ class SchoolRepositoryImpl implements SchoolRepository {
     required EducationSystemLevelsEnum educationLevel,
     String? search,
   }) async {
-    try {
+    return safeApiCall(() async {
       final schools = await schoolRemoteDataSource.getSchoolsByLevel(
         educationLevel: educationLevel,
         search: search,
       );
-      // Map Model to Entity if needed.
-      // Assuming SchoolSelectorModel extends or is compatible with SchoolSelectorEntity.
-      // If not, explicit mapping is needed.
-      // Mobile code usually has Models extend Entities.
-      // checking compatibility: SchoolSelectorEntity props [id, name, code, address].
-      // I'll assume it works or cast.
-      final entities = schools
+      return schools
           .map(
             (e) => SchoolSelectorEntity(
               id: e.id,
@@ -40,36 +35,39 @@ class SchoolRepositoryImpl implements SchoolRepository {
             ),
           )
           .toList();
-      return Right(entities);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    });
   }
 
   @override
-  Future<SchoolDataEntity?> getSchoolDetailForSchoolAdmin() async {
-    // Direct call, exceptions handled by caller (Bloc)
-    return await schoolRemoteDataSource.getSchoolDetailForSchoolAdmin();
+  Future<Either<Failure, SchoolDataEntity?>>
+  getSchoolDetailForSchoolAdmin() async {
+    return safeApiCall(() async {
+      return await schoolRemoteDataSource.getSchoolDetailForSchoolAdmin();
+    });
   }
 
   @override
-  Future<SchoolDataEntity> createSchool(
+  Future<Either<Failure, SchoolDataEntity>> createSchool(
     SchoolDataEntity createSchoolData,
   ) async {
-    return await schoolRemoteDataSource.createSchool(createSchoolData);
+    return safeApiCall(() async {
+      return await schoolRemoteDataSource.createSchool(createSchoolData);
+    });
   }
 
   @override
-  Future<SchoolDataEntity> updateSchool(
+  Future<Either<Failure, SchoolDataEntity>> updateSchool(
     SchoolDataEntity updateSchoolData,
   ) async {
-    return await schoolRemoteDataSource.updateSchool(updateSchoolData);
+    return safeApiCall(() async {
+      return await schoolRemoteDataSource.updateSchool(updateSchoolData);
+    });
   }
 
   @override
-  Future<void> deleteSchool() async {
-    return await schoolRemoteDataSource.deleteSchool();
+  Future<Either<Failure, void>> deleteSchool() async {
+    return safeApiCall(() async {
+      await schoolRemoteDataSource.deleteSchool();
+    });
   }
 }

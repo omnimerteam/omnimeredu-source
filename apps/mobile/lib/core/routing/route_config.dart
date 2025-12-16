@@ -6,7 +6,6 @@ import 'package:mobile/presentation/screen/auth/registration/bloc/registration_b
 import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/class/class_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/registration_screen.dart';
-import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
 import '../../presentation/screen/school_admin/school/school_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/login_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
@@ -15,6 +14,8 @@ import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
 import '../../presentation/screen/school_admin/grade/grade_management_screen.dart';
 import '../../presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
 import '../../presentation/screen/school_admin/grade/bloc/grade_management_event.dart';
+import '../../presentation/screen/school_admin/membership_request/membership_request_screen.dart';
+import '../../presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
 import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
@@ -157,6 +158,11 @@ class RouteConfig {
 
       case schoolAdminClasses:
       case schoolAdminMembershipRequests:
+        return BlocProvider(
+          create: (_) => di.sl<MembershipRequestBloc>(),
+          child: const MembershipRequestScreen(),
+        );
+
       case schoolAdminStudents:
       case schoolAdminPersonnel:
       case schoolAdminAttendance:

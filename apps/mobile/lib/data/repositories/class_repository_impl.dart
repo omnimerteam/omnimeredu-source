@@ -1,5 +1,6 @@
 import '../../core/error/failures.dart';
 import '../../core/utils/either.dart';
+import '../../core/utils/api_utils.dart';
 import '../../domain/entities/class/class_entity.dart';
 import '../../domain/entities/class/class_selector_entity.dart';
 import '../../domain/entities/query/default_query_entity.dart';
@@ -17,38 +18,28 @@ class ClassRepositoryImpl implements ClassRepository {
     required String schoolId,
     String? grade,
   }) async {
-    try {
-      final classes = await remoteDataSource.getClassesBySchool(
+    return safeApiCall(() async {
+      return await remoteDataSource.getClassesBySchool(
         schoolId: schoolId,
         grade: grade,
       );
-      return Right(classes);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    });
   }
 
   @override
   Future<Either<Failure, List<ClassModel>>> getAllClasses(
     DefaultQueryEntity query,
   ) async {
-    try {
-      final classes = await remoteDataSource.getAllClasses(query);
-      return Right(classes);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    return safeApiCall(() async {
+      return await remoteDataSource.getAllClasses(query);
+    });
   }
 
   @override
   Future<Either<Failure, ClassModel>> createClass(
     ClassEntity createClassData,
   ) async {
-    try {
+    return safeApiCall(() async {
       final model = ClassModel(
         id: createClassData.id,
         name: createClassData.name,
@@ -61,32 +52,22 @@ class ClassRepositoryImpl implements ClassRepository {
         createdAt: createClassData.createdAt,
         updatedAt: createClassData.updatedAt,
       );
-      final result = await remoteDataSource.createClass(model);
-      return Right(result);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+      return await remoteDataSource.createClass(model);
+    });
   }
 
   @override
   Future<Either<Failure, ClassModel>> getClassById(String id) async {
-    try {
-      final result = await remoteDataSource.getClassById(id);
-      return Right(result);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    return safeApiCall(() async {
+      return await remoteDataSource.getClassById(id);
+    });
   }
 
   @override
   Future<Either<Failure, ClassModel>> updateClass(
     ClassEntity updateClassData,
   ) async {
-    try {
+    return safeApiCall(() async {
       final model = ClassModel(
         id: updateClassData.id,
         name: updateClassData.name,
@@ -99,24 +80,14 @@ class ClassRepositoryImpl implements ClassRepository {
         createdAt: updateClassData.createdAt,
         updatedAt: updateClassData.updatedAt,
       );
-      final result = await remoteDataSource.updateClass(model);
-      return Right(result);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+      return await remoteDataSource.updateClass(model);
+    });
   }
 
   @override
   Future<Either<Failure, void>> deleteClass(String id) async {
-    try {
+    return safeApiCall(() async {
       await remoteDataSource.deleteClass(id);
-      return const Right(null);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+    });
   }
 }

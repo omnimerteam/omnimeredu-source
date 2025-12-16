@@ -1,5 +1,6 @@
 import '../../core/error/failures.dart';
 import '../../core/utils/either.dart';
+import '../../core/utils/api_utils.dart';
 import '../../domain/entities/auth/role_entity.dart';
 import '../../domain/repositories/role_repository.dart';
 import '../datasources/remote/auth/role_remote_datasource.dart';
@@ -11,25 +12,17 @@ class RoleRepositoryImpl implements RoleRepository {
 
   @override
   Future<Either<Failure, List<RoleEntity>>> getAllRoles() async {
-    try {
+    return safeApiCall(() async {
       final models = await remoteDataSource.getAllRoles();
-      return Right(models.map((e) => e.toEntity()).toList());
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+      return models.map((e) => e.toEntity()).toList();
+    });
   }
 
   @override
   Future<Either<Failure, List<RoleEntity>>> getRolesPersonnel() async {
-    try {
+    return safeApiCall(() async {
       final models = await remoteDataSource.getRolesPersonnel();
-      return Right(models.map((e) => e.toEntity()).toList());
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
+      return models.map((e) => e.toEntity()).toList();
+    });
   }
 }

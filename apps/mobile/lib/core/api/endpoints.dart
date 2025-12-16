@@ -62,6 +62,12 @@ class UserEndpoints {
 
   // ===== User endpoints =====
   String get users => '$baseUrl/users'; // POST (Create)
+
+  // ===== Membership Request endpoints =====
+  String get membershipRequests => '$baseUrl/membership-requests';
+  String membershipRequestId(String id) => '$baseUrl/membership-requests/$id';
+  String membershipRequestStatus(String id) =>
+      '$baseUrl/membership-requests/$id/status';
 }
 
 // ==================== PAYMENT & ATTENDANCE SERVICE ENDPOINTS ====================

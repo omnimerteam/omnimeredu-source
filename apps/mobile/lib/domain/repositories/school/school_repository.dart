@@ -7,14 +7,17 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/utils/either.dart';
 
 abstract class SchoolRepository {
-  // Existing - Registration etc.
   Future<Either<Failure, List<SchoolSelectorEntity>>> getSchoolsByLevel({
     required EducationSystemLevelsEnum educationLevel,
     String? search,
   });
-  // New - School Admin management
-  Future<SchoolDataEntity?> getSchoolDetailForSchoolAdmin();
-  Future<SchoolDataEntity> createSchool(SchoolDataEntity createSchoolData);
-  Future<SchoolDataEntity> updateSchool(SchoolDataEntity updateSchoolData);
-  Future<void> deleteSchool();
+
+  Future<Either<Failure, SchoolDataEntity?>> getSchoolDetailForSchoolAdmin();
+  Future<Either<Failure, SchoolDataEntity>> createSchool(
+    SchoolDataEntity createSchoolData,
+  );
+  Future<Either<Failure, SchoolDataEntity>> updateSchool(
+    SchoolDataEntity updateSchoolData,
+  );
+  Future<Either<Failure, void>> deleteSchool();
 }

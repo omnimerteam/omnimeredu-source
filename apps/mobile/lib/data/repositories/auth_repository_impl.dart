@@ -1,7 +1,6 @@
-import '../../core/api/api_response.dart';
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../../core/constants/enum_constant.dart';
+import '../../core/error/failures.dart'; // Needed for type
+import '../../core/utils/either.dart'; // Needed for type
+import '../../core/utils/api_utils.dart'; // Import safeApiCall
 import '../../domain/entities/auth/auth_user_entity.dart';
 import '../../domain/entities/auth/login_entity.dart';
 import '../../domain/entities/auth/register_user_entity.dart';
@@ -15,51 +14,34 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, AuthUserEntity>> login(LoginEntity params) async {
-    try {
+    return safeApiCall(() async {
       final model = await remoteDataSource.login(params);
-      return Right(model.toEntity());
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(AuthFailure(e.toString()));
-    }
+      return model.toEntity();
+    });
   }
 
   @override
   Future<Either<Failure, void>> logout() async {
-    try {
+    return safeApiCall(() async {
       await remoteDataSource.logout();
-      return const Right(null);
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(AuthFailure(e.toString()));
-    }
+    });
   }
 
   @override
   Future<Either<Failure, AuthUserEntity?>> getCurrentUser() async {
-    try {
+    return safeApiCall(() async {
       final model = await remoteDataSource.getCurrentUser();
-      return Right(model?.toEntity());
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(AuthFailure(e.toString()));
-    }
+      return model?.toEntity();
+    });
   }
 
   @override
   Future<Either<Failure, AuthUserEntity>> registerUser(
     RegisterUserEntity user,
   ) async {
-    try {
+    return safeApiCall(() async {
       final model = await remoteDataSource.registerUser(user);
-      return Right(model.toEntity());
-    } on Failure catch (e) {
-      return Left(e);
-    } catch (e) {
-      return Left(AuthFailure(e.toString()));
-    }
+      return model.toEntity();
+    });
   }
 }

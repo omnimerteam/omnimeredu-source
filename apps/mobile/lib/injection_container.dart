@@ -54,6 +54,17 @@ import 'domain/usecases/class/delete_class_usecase.dart';
 import 'domain/usecases/class/get_class_by_id_usecase.dart';
 import 'presentation/common/grade_select/cubit/grade_select_cubit.dart';
 
+import 'data/datasources/remote/school/membership_request_remote_datasource.dart';
+import 'data/repositories/school/membership_request_repository_impl.dart';
+import 'domain/repositories/school/membership_request_repository.dart';
+import 'domain/usecases/membership_request/get_all_membership_requests_usecase.dart';
+import 'domain/usecases/membership_request/create_membership_request_usecase.dart';
+import 'domain/usecases/membership_request/update_membership_request_usecase.dart';
+import 'domain/usecases/membership_request/delete_membership_request_usecase.dart';
+import 'domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
+import 'domain/usecases/membership_request/update_status_membership_request_usecase.dart';
+import 'presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
+
 // Service Locator
 final sl = GetIt.instance;
 
@@ -178,6 +189,33 @@ Future<void> init() async {
   // Data sources
   sl.registerLazySingleton<GradeRemoteDataSource>(
     () => GradeRemoteDataSourceImpl(sl()),
+  );
+
+  // ! Features - Membership Request
+  // Bloc
+  sl.registerFactory(
+    () => MembershipRequestBloc(
+      getAllMembershipRequests: sl(),
+      updateStatusMembershipRequest: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetAllMembershipRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => CreateMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMembershipRequestUseCase(sl()));
+  sl.registerLazySingleton(() => GetMembershipRequestByIdUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateStatusMembershipRequestUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<MembershipRequestRepository>(
+    () => MembershipRequestRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
+    () => MembershipRequestRemoteDataSource(sl()),
   );
 
   // ! Core
