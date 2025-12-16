@@ -12,6 +12,7 @@ import { ClassRepositoryImpl } from "../../data/repositories/ClassRepositoryImpl
 import { CreateSchoolDto } from "../dtos/CreateSchoolDto";
 import { UpdateSchoolDto } from "../dtos/UpdateSchoolDto";
 import { ResponseUtil } from "../../infrastructure/utils/ResponseUtil";
+import { EducationSystemLevelsEnum } from "shared-lib";
 
 export class SchoolController {
   private registerSchoolUseCase: RegisterSchoolUseCase;
@@ -41,7 +42,9 @@ export class SchoolController {
       this.classRepository
     );
     this.searchSchoolsUseCase = new SearchSchoolsUseCase(this.schoolRepository);
-    this.getSchoolDetailsForAdminUseCase = new GetSchoolDetailsForAdminUseCase(this.schoolRepository);
+    this.getSchoolDetailsForAdminUseCase = new GetSchoolDetailsForAdminUseCase(
+      this.schoolRepository
+    );
   }
 
   async registerSchool(req: Request, res: Response): Promise<void> {
@@ -110,7 +113,7 @@ export class SchoolController {
       }
 
       const schools = await this.getSchoolsByLevelUseCase.execute({
-        educationLevel: educationLevel as string,
+        educationLevel: educationLevel as unknown as EducationSystemLevelsEnum,
         search: search as string,
       });
 
@@ -181,15 +184,18 @@ export class SchoolController {
     }
   }
 
-  async searchSchoolByEducationLevel(req: Request, res: Response): Promise<void> {
+  async searchSchoolByEducationLevel(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const { educationLevel, search, limit, offset } = req.query;
 
       const schools = await this.searchSchoolsUseCase.execute({
-        educationLevel: educationLevel as string,
+        educationLevel: educationLevel as unknown as EducationSystemLevelsEnum,
         search: search as string,
         limit: limit ? parseInt(limit as string) : undefined,
-        offset: offset ? parseInt(offset as string) : undefined
+        offset: offset ? parseInt(offset as string) : undefined,
       });
 
       const schoolsData = schools.map((school) => ({
@@ -219,7 +225,10 @@ export class SchoolController {
     }
   }
 
-  async getSchoolDetailForSchoolAdmin(req: Request, res: Response): Promise<void> {
+  async getSchoolDetailForSchoolAdmin(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       // Assuming userId is attached to the request from authentication middleware
       const userId = (req as any).user?.id || (req as any).user?.userId;
@@ -232,7 +241,12 @@ export class SchoolController {
       const school = await this.getSchoolDetailsForAdminUseCase.execute(userId);
 
       if (!school) {
-        ResponseUtil.sendError(res, "School not found for this admin", null, 404);
+        ResponseUtil.sendError(
+          res,
+          "School not found for this admin",
+          null,
+          404
+        );
         return;
       }
 

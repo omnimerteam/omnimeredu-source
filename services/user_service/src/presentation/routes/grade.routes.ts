@@ -16,6 +16,7 @@ import {
   bulkDeleteGradesSchema,
   bulkActivateDeactivateGradesSchema,
 } from "../middleware/validation/grade.schemas";
+import { RoleGroup } from "shared-lib";
 import {
   JWTMiddleware,
   requireRole,
@@ -32,7 +33,7 @@ router.post(
   "/",
   activityLogger("create", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:create"),
   requireSameSchool(),
   createGradeSchema,
@@ -82,7 +83,7 @@ router.put(
   "/:id",
   activityLogger("update", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:update"),
   objectIdSchema,
   updateGradeSchema,
@@ -94,7 +95,7 @@ router.delete(
   "/:id",
   activityLogger("delete", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:delete"),
   objectIdSchema,
   handleValidationErrors,
@@ -106,7 +107,7 @@ router.post(
   "/bulk/create",
   activityLogger("bulk-create", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:create"),
   bulkCreateGradesSchema,
   (req: Request, res: Response) => gradeController.bulkCreateGrades(req, res)
@@ -116,7 +117,7 @@ router.put(
   "/bulk/update",
   activityLogger("bulk-update", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:update"),
   bulkUpdateGradesSchema,
   (req: Request, res: Response) => gradeController.bulkUpdateGrades(req, res)
@@ -126,7 +127,7 @@ router.delete(
   "/bulk/delete",
   activityLogger("bulk-delete", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:delete"),
   bulkDeleteGradesSchema,
   (req: Request, res: Response) => gradeController.bulkDeleteGrades(req, res)
@@ -136,7 +137,7 @@ router.post(
   "/bulk/activate",
   activityLogger("bulk-activate", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:update"),
   bulkActivateDeactivateGradesSchema,
   (req: Request, res: Response) => gradeController.bulkActivateGrades(req, res)
@@ -146,7 +147,7 @@ router.post(
   "/bulk/deactivate",
   activityLogger("bulk-deactivate", "grade"),
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("grades:update"),
   bulkActivateDeactivateGradesSchema,
   (req: Request, res: Response) =>

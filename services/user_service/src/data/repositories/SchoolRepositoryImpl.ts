@@ -72,7 +72,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
   async getSchoolsByLevel(params: {
     educationLevel: EducationSystemLevelsEnum;
     search?: string;
-  }): Promise<any[]> {
+  }): Promise<School[]> {
     const whereCondition: any = {
       level: params.educationLevel,
       deletedAt: null,
@@ -99,36 +99,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
       order: [["name", "ASC"]],
     });
 
-    return schools.map((school) => ({
-      id: school.id,
-      name: school.name,
-      code: school.code,
-      address: school.address,
-      level: school.level,
-      logoUrl: school.logoUrl,
-      phone: school.phone,
-      description: school.description,
-      createdAt: school.createdAt,
-      updatedAt: school.updatedAt,
-    }));
-  }
-
-  async getSchoolById(id: string): Promise<any | null> {
-    const school = await SchoolModel.findByPk(id);
-    if (!school) return null;
-
-    return {
-      id: school.id,
-      name: school.name,
-      code: school.code,
-      address: school.address,
-      level: school.level,
-      logoUrl: school.logoUrl,
-      phone: school.phone,
-      description: school.description,
-      createdAt: school.createdAt,
-      updatedAt: school.updatedAt,
-    };
+    return schools.map((school) => this.toEntity(school));
   }
 
   async searchSchools(options: SearchSchoolsOptions): Promise<School[]> {

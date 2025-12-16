@@ -17,8 +17,7 @@ export interface ISchoolRepository {
   getSchoolsByLevel(params: {
     educationLevel: EducationSystemLevelsEnum;
     search?: string;
-  }): Promise<any[]>;
-  getSchoolById(id: string): Promise<any | null>;
+  }): Promise<School[]>;
   searchSchools(options: SearchSchoolsOptions): Promise<School[]>;
   findSchoolAdminByUserId(userId: string): Promise<{ schoolId: string } | null>;
 }

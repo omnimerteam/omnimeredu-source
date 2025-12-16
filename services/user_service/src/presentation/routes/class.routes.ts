@@ -13,6 +13,7 @@ import {
   modifyStudentsBodySchema,
   transferStudentsBodySchema,
 } from "../middleware/validation/class.schemas";
+import { RoleGroup } from "shared-lib";
 import {
   JWTMiddleware,
   requireRole,
@@ -27,7 +28,7 @@ const classController = new ClassController();
 router.post(
   "/",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("classes:create"),
   requireSameSchool(),
   createClassSchema,
@@ -89,7 +90,7 @@ router.get(
 router.post(
   "/:id/students/add",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin, RoleGroup.Teacher]),
   requirePermission("classes:addStudents"),
   objectIdSchema,
   modifyStudentsBodySchema,
@@ -100,7 +101,7 @@ router.post(
 router.post(
   "/:id/students/remove",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin, RoleGroup.Teacher]),
   requirePermission("classes:removeStudents"),
   objectIdSchema,
   modifyStudentsBodySchema,
@@ -112,7 +113,7 @@ router.post(
 router.post(
   "/:id/students/transfer",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin, RoleGroup.Teacher]),
   requirePermission("classes:transferStudents"),
   objectIdSchema,
   transferStudentsBodySchema,
@@ -123,7 +124,7 @@ router.post(
 router.put(
   "/:id",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("classes:update"),
   objectIdSchema,
   updateClassSchema,
@@ -134,7 +135,7 @@ router.put(
 router.delete(
   "/:id",
   JWTMiddleware.verifyToken,
-  requireRole(["SuperAdmin", "SchoolAdmin"]),
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
   requirePermission("classes:delete"),
   objectIdSchema,
   handleValidationErrors,
