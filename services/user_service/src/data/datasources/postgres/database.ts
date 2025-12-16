@@ -20,15 +20,7 @@ import { initTeacherModel, TeacherModel } from "./models/TeacherModel";
 
 dotenv.config();
 
-const dbName = process.env.DB_NAME || "auth_service_db";
-const dbUser = process.env.DB_USER || "postgres";
-const dbPass = process.env.DB_PASS || "password";
-const dbHost = process.env.DB_HOST || "localhost";
-const dbPort = process.env.DB_PORT || "5432";
-
-const uri =
-  process.env.DATABASE_URL ||
-  `postgres://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}`;
+const uri = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_p3QKAVy0TXzY@ep-red-dust-a4oslx74-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 export const sequelize = connectPostgres(uri);
 

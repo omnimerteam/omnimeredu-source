@@ -6,8 +6,13 @@
     "rootDir": "./src",
     "declaration": true,
     "strict": true,
-    "esModuleInterop": true,
+    "esModuleInterop": true, // Dòng này cực quan trọng để fix lỗi import bên dưới
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  // Nếu muốn exclude/include thì để ở đây
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
