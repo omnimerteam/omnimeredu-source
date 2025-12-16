@@ -12,6 +12,9 @@ import 'package:mobile/presentation/screen/auth/login/login_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
 import 'package:mobile/presentation/screen/main_screen.dart';
 import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import '../../presentation/screen/school_admin/grade/grade_management_screen.dart';
+import '../../presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+import '../../presentation/screen/school_admin/grade/bloc/grade_management_event.dart';
 import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
@@ -40,7 +43,8 @@ class RouteConfig {
   static const String schoolAdminSchool = '/school-admin/school';
   static const String schoolAdminClasses = '/school-admin/classes';
   static const String schoolAdminGrades = '/school-admin/grades';
-  static const String schoolAdminMembershipRequests = '/school-admin/membership-requests';
+  static const String schoolAdminMembershipRequests =
+      '/school-admin/membership-requests';
   static const String schoolAdminStudents = '/school-admin/students';
   static const String schoolAdminPersonnel = '/school-admin/personnel';
   static const String schoolAdminAttendance = '/school-admin/attendance';
@@ -144,8 +148,14 @@ class RouteConfig {
       case schoolAdminSchool:
         return const SchoolAdminSchoolScreen();
 
-      case schoolAdminClasses:
       case schoolAdminGrades:
+        return BlocProvider(
+          create: (_) =>
+              di.sl<GradeManagementBloc>()..add(const LoadGradesEvent()),
+          child: const GradeManagementScreen(),
+        );
+
+      case schoolAdminClasses:
       case schoolAdminMembershipRequests:
       case schoolAdminStudents:
       case schoolAdminPersonnel:

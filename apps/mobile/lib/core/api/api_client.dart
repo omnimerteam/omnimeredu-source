@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:mobile/core/constants/storage_constant.dart';
 import 'package:mobile/services/secure_storage_service.dart';
-import 'package:mobile/utils/logger.dart';
+import 'package:mobile/core/utils/logger.dart';
 
 import 'api_response.dart';
 import 'api_exception.dart';

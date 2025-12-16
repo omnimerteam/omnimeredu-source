@@ -1,6 +1,5 @@
-import 'package:mobile/utils/query_util/query_builder.dart';
-
 import '../../../core/constants/app_constant.dart';
+import '../../../core/utils/query_builder.dart';
 
 class DefaultQueryEntity {
   final int page;

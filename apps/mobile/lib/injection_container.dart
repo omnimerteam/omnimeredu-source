@@ -38,6 +38,15 @@ import 'domain/usecases/school/create_school_usecase.dart';
 import 'domain/usecases/school/update_school_usecase.dart';
 import 'domain/usecases/school/delete_school_usecase.dart';
 
+import 'data/datasources/remote/grade/grade_remote_data_source.dart';
+import 'domain/repositories/grade/grade_repository.dart';
+import 'data/repositories/grade/grade_repository_impl.dart';
+import 'domain/usecases/grade/get_all_grades_usecase.dart';
+import 'domain/usecases/grade/create_grade_usecase.dart';
+import 'domain/usecases/grade/update_grade_usecase.dart';
+import 'domain/usecases/grade/delete_grade_usecase.dart';
+import 'presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+
 // Service Locator
 final sl = GetIt.instance;
 
@@ -116,6 +125,33 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateSchoolUseCase(sl()));
   sl.registerLazySingleton(() => UpdateSchoolUseCase(sl()));
   sl.registerLazySingleton(() => DeleteSchoolUseCase(sl()));
+
+  // ! Features - Grade
+  // Bloc
+  sl.registerFactory(
+    () => GradeManagementBloc(
+      getAllGradesUseCase: sl(),
+      createGradeUseCase: sl(),
+      updateGradeUseCase: sl(),
+      deleteGradeUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetAllGradesUseCase(sl()));
+  sl.registerLazySingleton(() => CreateGradeUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateGradeUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteGradeUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<GradeRepository>(
+    () => GradeRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<GradeRemoteDataSource>(
+    () => GradeRemoteDataSourceImpl(sl()),
+  );
 
   // ! Core
   sl.registerLazySingleton(() => ApiClient(secureStorage: sl()));

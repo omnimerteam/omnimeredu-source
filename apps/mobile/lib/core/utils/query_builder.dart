@@ -1,5 +1,4 @@
-import 'package:mobile/core/constants/app_constant.dart';
-
+import '../constants/app_constant.dart';
 import 'filter_util.dart';
 import 'sort_util.dart';
 
