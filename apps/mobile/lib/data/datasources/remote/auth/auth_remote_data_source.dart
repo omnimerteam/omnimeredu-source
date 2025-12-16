@@ -7,7 +7,6 @@ import '../../../../domain/entities/auth/login_entity.dart';
 import '../../../../domain/entities/auth/register_user_entity.dart';
 import '../../../../services/secure_storage_service.dart';
 import '../../../models/auth/auth_user_model.dart';
-import 'dart:io';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginEntity params);
