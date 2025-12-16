@@ -46,6 +46,13 @@ import 'domain/usecases/grade/create_grade_usecase.dart';
 import 'domain/usecases/grade/update_grade_usecase.dart';
 import 'domain/usecases/grade/delete_grade_usecase.dart';
 import 'presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+import 'presentation/screen/school_admin/class/bloc/class_management_bloc.dart';
+import 'domain/usecases/class/get_all_classes_usecase.dart';
+import 'domain/usecases/class/create_class_usecase.dart';
+import 'domain/usecases/class/update_class_usecase.dart';
+import 'domain/usecases/class/delete_class_usecase.dart';
+import 'domain/usecases/class/get_class_by_id_usecase.dart';
+import 'presentation/common/grade_select/cubit/grade_select_cubit.dart';
 
 // Service Locator
 final sl = GetIt.instance;
@@ -65,6 +72,8 @@ Future<void> init() async {
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
 
   sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
+
+  sl.registerFactory(() => GradeSelectCubit(getAllGradesUseCase: sl()));
 
   // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -142,6 +151,24 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateGradeUseCase(sl()));
   sl.registerLazySingleton(() => UpdateGradeUseCase(sl()));
   sl.registerLazySingleton(() => DeleteGradeUseCase(sl()));
+
+  // ! Features - Class Management
+  // Bloc
+  sl.registerFactory(
+    () => ClassManagementBloc(
+      getAllClassUseCase: sl(),
+      createClassUseCase: sl(),
+      updateClassUseCase: sl(),
+      deleteClassUseCase: sl(),
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetAllClassesUseCase(sl()));
+  sl.registerLazySingleton(() => CreateClassUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateClassUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteClassUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassByIdUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<GradeRepository>(

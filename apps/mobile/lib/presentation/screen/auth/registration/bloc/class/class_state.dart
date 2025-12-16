@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../../domain/entities/school/class_selector_entity.dart';
+import '../../../../../../domain/entities/class/class_selector_entity.dart';
 
 /// Base state cho ClassBloc
 abstract class ClassState extends Equatable {

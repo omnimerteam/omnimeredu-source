@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app_view.dart';
 import 'common/blocs/auth_bloc/auth_bloc.dart';
-import 'services/locator.dart';
+import '../services/locator.dart';
 
 class App extends StatelessWidget {
   const App({super.key});

@@ -1,6 +1,6 @@
 import '../../../core/error/failures.dart';
 import '../../../core/utils/either.dart';
-import '../../entities/school/class_selector_entity.dart';
+import '../../entities/class/class_selector_entity.dart';
 import '../../repositories/class_repository.dart';
 
 class GetClassesBySchoolUseCase {

@@ -1,5 +1,5 @@
 import '../../../../core/constants/enum_constant.dart';
-import '../../../domain/entities/school/class_selector_entity.dart';
+import '../../../domain/entities/class/class_selector_entity.dart';
 
 class ClassSelectorModel extends ClassSelectorEntity {
   const ClassSelectorModel({
