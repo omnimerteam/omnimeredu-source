@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../../domain/entities/query/default_query_entity.dart';
-import '../../../../../domain/usecases/class/create_class_usecase.dart';
-import '../../../../../domain/usecases/class/delete_class_usecase.dart';
-import '../../../../../domain/usecases/class/get_all_classes_usecase.dart';
-import '../../../../../domain/usecases/class/update_class_usecase.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
+import 'package:mobile/domain/usecases/class/create_class_usecase.dart';
+import 'package:mobile/domain/usecases/class/delete_class_usecase.dart';
+import 'package:mobile/domain/usecases/class/get_all_classes_usecase.dart';
+import 'package:mobile/domain/usecases/class/update_class_usecase.dart';
 import 'class_management_event.dart';
 import 'class_management_state.dart';
 

@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../domain/usecases/school/create_school_usecase.dart';
-import '../../../../../domain/usecases/school/delete_school_usecase.dart';
-import '../../../../../domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
-import '../../../../../domain/usecases/school/update_school_usecase.dart';
-import '../../../../common/blocs/auth_bloc/auth_bloc.dart';
-import '../../../../../core/usecases/usecase.dart';
+import 'package:mobile/domain/usecases/school/create_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/delete_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
+import 'package:mobile/domain/usecases/school/update_school_usecase.dart';
+import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/core/usecases/usecase.dart';
 import 'school_event.dart';
 import 'school_state.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../../domain/entities/school/school_data_entity.dart';
+import 'package:mobile/domain/entities/school/school_data_entity.dart';
 import 'bloc/school_bloc.dart';
 import 'bloc/school_event.dart';
 import 'bloc/school_state.dart';
@@ -10,8 +10,8 @@ import 'widgets/school_empty_state.dart';
 import 'widgets/school_error_state.dart';
 import 'widgets/school_form_dialog.dart';
 import 'widgets/school_skeleton_loader.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../injection_container.dart' as di;
+import 'package:mobile/core/theme/app_colors.dart';
+import 'package:mobile/injection_container.dart' as di;
 
 class SchoolAdminSchoolScreen extends StatelessWidget {
   const SchoolAdminSchoolScreen({super.key});
@@ -110,7 +110,9 @@ class _SchoolAdminSchoolScreenView extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
+        ),
         title: Row(
           children: [
             const Icon(Icons.warning_amber, color: AppColors.warning),
@@ -134,9 +136,7 @@ class _SchoolAdminSchoolScreenView extends StatelessWidget {
             child: TextButton(
               child: const Text('Xóa', style: TextStyle(color: Colors.white)),
               onPressed: () {
-                context.read<SchoolAdminSchoolBloc>().add(
-                  DeleteSchool(),
-                );
+                context.read<SchoolAdminSchoolBloc>().add(DeleteSchool());
                 Navigator.of(context).pop();
               },
             ),

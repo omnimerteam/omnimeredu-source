@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../../core/constants/enum_constant.dart';
-import '../../../../../../domain/usecases/school/get_schools_by_level_usecase.dart';
+
+import 'package:mobile/domain/usecases/school/get_schools_by_level_usecase.dart';
 import 'school_event.dart';
 import 'school_state.dart';
 

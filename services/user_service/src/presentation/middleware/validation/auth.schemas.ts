@@ -10,28 +10,27 @@ export const registerUserSchema = [
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long"),
-  body("firstName")
+  body("roleName")
     .notEmpty()
-    .isLength({ min: 1, max: 50 })
-    .withMessage("First name must be 1-50 characters"),
-  body("lastName")
-    .notEmpty()
-    .isLength({ min: 1, max: 50 })
-    .withMessage("Last name must be 1-50 characters"),
-  body("role")
-    .optional()
     .isIn(["Student", "Teacher", "Parent", "SchoolAdmin", "SuperAdmin"])
     .withMessage("Invalid role"),
-  body("phone")
+  body("baseUserInfo.fullName")
+    .notEmpty()
+    .isLength({ min: 1, max: 100 })
+    .withMessage("Full name is required"),
+  body("baseUserInfo.phone")
     .optional()
     .isMobilePhone("any")
     .withMessage("Invalid phone number format"),
-  body("dateOfBirth")
+  body("baseUserInfo.birthday")
     .optional()
     .isISO8601()
     .toDate()
     .withMessage("Invalid date format"),
-  body("address").optional().isString().withMessage("Address must be a string"),
+  body("baseUserInfo.address")
+    .optional()
+    .isString()
+    .withMessage("Address must be a string"),
   handleValidationErrors,
 ];
 

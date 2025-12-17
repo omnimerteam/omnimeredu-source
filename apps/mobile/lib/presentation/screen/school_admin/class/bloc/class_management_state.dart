@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../domain/entities/class/class_entity.dart';
-import '../../../../../../domain/entities/query/default_query_entity.dart';
+import 'package:mobile/domain/entities/class/class_entity.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
 
 abstract class ClassManagementState extends Equatable {
   const ClassManagementState();

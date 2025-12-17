@@ -12,10 +12,16 @@ import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
 import 'package:mobile/presentation/screen/main_screen.dart';
 import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
 import '../../presentation/screen/school_admin/grade/grade_management_screen.dart';
+import '../../presentation/screen/school_admin/class/class_management_screen.dart';
 import '../../presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
 import '../../presentation/screen/school_admin/grade/bloc/grade_management_event.dart';
 import '../../presentation/screen/school_admin/membership_request/membership_request_screen.dart';
 import '../../presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
+import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
+import '../../presentation/screen/teacher/teacher_home_screen.dart';
+import '../../presentation/screen/teacher/attendance/create_attendance_screen.dart';
+import '../../presentation/screen/student/student_home_screen.dart';
+import '../../presentation/screen/student/attendance/scan_qr_screen.dart';
 import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
@@ -40,7 +46,14 @@ class RouteConfig {
   static const String profile = '/profile';
   static const String settings = '/settings';
 
-  // School Admin Routes
+  static const String schoolAdminDashboard = '/school-admin/dashboard';
+  static const String schoolAdminReports =
+      '/school-admin/reports'; // Placeholder
+  static const String teacherHome = '/teacher/home';
+  static const String teacherAttendance = '/teacher/attendance';
+  static const String studentHome = '/student/home';
+  static const String studentScanQr = '/student/scan-qr';
+
   static const String schoolAdminSchool = '/school-admin/school';
   static const String schoolAdminClasses = '/school-admin/classes';
   static const String schoolAdminGrades = '/school-admin/grades';
@@ -157,6 +170,8 @@ class RouteConfig {
         );
 
       case schoolAdminClasses:
+        return const ClassManagementScreen();
+
       case schoolAdminMembershipRequests:
         return BlocProvider(
           create: (_) => di.sl<MembershipRequestBloc>(),
@@ -171,6 +186,29 @@ class RouteConfig {
           appBar: AppBar(title: Text(routeName.split('/').last)),
           body: const Center(child: Text("Tính năng đang phát triển")),
         );
+
+      case schoolAdminDashboard:
+        return SchoolAdminDashboardScreen(
+          roleName: role?.first ?? 'SchoolAdmin',
+        );
+
+      case schoolAdminReports:
+        return const Center(child: Text("Báo cáo & Thống kê"));
+
+      case teacherHome:
+        return const TeacherHomeScreen();
+
+      case teacherAttendance:
+        return const CreateAttendanceScreen();
+
+      case studentHome:
+        return const StudentHomeScreen();
+
+      case studentScanQr:
+        return const ScanQrScreen();
+
+      case settings:
+        return const SettingsScreen();
 
       // TODO: Thêm các route khác ở đây
 

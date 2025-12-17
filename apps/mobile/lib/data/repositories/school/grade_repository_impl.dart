@@ -1,10 +1,10 @@
-import '../../../../core/error/failures.dart';
-import '../../../../core/utils/either.dart';
-import '../../../../domain/entities/grade/grade_entity.dart';
-import '../../../../domain/entities/query/default_query_entity.dart';
-import '../../../domain/repositories/school/grade_repository.dart';
-import '../../datasources/remote/school/grade_remote_data_source.dart';
-import '../../models/grade/grade_model.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
+import 'package:mobile/domain/entities/grade/grade_entity.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
+import 'package:mobile/domain/repositories/school/grade_repository.dart';
+import 'package:mobile/data/datasources/remote/school/grade_remote_data_source.dart';
+import 'package:mobile/data/models/grade/grade_model.dart';
 
 class GradeRepositoryImpl implements GradeRepository {
   final GradeRemoteDataSource remoteDataSource;

@@ -1,10 +1,10 @@
-import '../../../models/school/school_selector_model.dart';
-import '../../../../../core/api/api_client.dart';
-import '../../../../../core/api/endpoints.dart';
-import '../../../../../core/error/failures.dart';
-import '../../../../../domain/entities/school/school_data_entity.dart';
+import 'package:mobile/data/models/school/school_selector_model.dart';
+import 'package:mobile/core/api/api_client.dart';
+import 'package:mobile/core/api/endpoints.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/domain/entities/school/school_data_entity.dart';
 
-import '../../../../../core/constants/enum_constant.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
 
 abstract class SchoolRemoteDataSource {
   Future<List<SchoolSelectorModel>> getSchoolsByLevel({
@@ -29,10 +29,10 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
     String? search,
   }) async {
     try {
-      final response = await client.get<Map<String, dynamic>>(
+      final response = await client.get<dynamic>(
         Endpoints.user.schools,
         query: {
-          'educationLevel': educationLevel,
+          'educationLevel': educationLevel.name,
           if (search != null) 'search': search,
         },
         requiresAuth: false,
@@ -43,11 +43,13 @@ class SchoolRemoteDataSourceImpl implements SchoolRemoteDataSource {
       }
 
       final data = response.data;
-      if (data == null || data['schools'] == null) {
+      if (data == null) {
         return [];
       }
 
-      final List<dynamic> schoolsJson = data['schools'];
+      final List<dynamic> schoolsJson = data is List
+          ? data
+          : (data['schools'] ?? []);
       return schoolsJson
           .map((json) => SchoolSelectorModel.fromJson(json))
           .toList();

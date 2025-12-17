@@ -4,11 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/core/theme/app_colors.dart';
 import '../common/blocs/auth_bloc/auth_bloc.dart';
-import '../screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
-import '../screen/teacher/teacher_home_screen.dart';
-import '../screen/teacher/attendance/create_attendance_screen.dart';
-import '../screen/student/student_home_screen.dart';
-import '../screen/student/attendance/scan_qr_screen.dart';
+import 'package:mobile/core/routing/route_config.dart';
 
 // Placeholder for Settings Screen
 class SettingsScreen extends StatelessWidget {
@@ -111,32 +107,49 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> _getPages(String role) {
+    final roles = [role];
     switch (role) {
       case 'SchoolAdmin':
         return [
-          SchoolAdminDashboardScreen(roleName: role),
-          const Center(
-            child: Text("Báo cáo & Thống kê"),
-          ), // Placeholder for Reports/Stats
-          const SettingsScreen(),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.schoolAdminDashboard,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.schoolAdminReports,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
         ];
       case 'Teacher':
         return [
-          const TeacherHomeScreen(),
-          const CreateAttendanceScreen(),
-          const SettingsScreen(),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.teacherHome,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.teacherAttendance,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
         ];
       case 'Student':
         return [
-          const StudentHomeScreen(),
-          const ScanQrScreen(),
-          const SettingsScreen(),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.studentHome,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.studentScanQr,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
         ];
       default:
         return [
           const Center(child: Text("Home")),
           const Center(child: Text("Feature")),
-          const SettingsScreen(),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
         ];
     }
   }

@@ -1,5 +1,5 @@
-import '../../../../core/constants/enum_constant.dart';
-import '../../../domain/entities/class/class_entity.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/domain/entities/class/class_entity.dart';
 
 class ClassModel extends ClassEntity {
   const ClassModel({

@@ -1,7 +1,7 @@
 import 'base_user_model.dart';
-import '../../../domain/entities/user/base_user_entity.dart';
-import '../../../domain/entities/user/teacher_entity.dart';
-import '../../../domain/entities/user/user_role_enum.dart';
+import 'package:mobile/domain/entities/user/base_user_entity.dart';
+import 'package:mobile/domain/entities/user/teacher_entity.dart';
+import 'package:mobile/domain/entities/user/user_role_enum.dart';
 
 class TeacherModel extends BaseUserModel {
   const TeacherModel({

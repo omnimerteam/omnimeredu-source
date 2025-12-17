@@ -1,13 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../domain/entities/auth/auth_user_entity.dart';
-import '../../../../domain/entities/auth/login_entity.dart';
-import '../../../../domain/usecases/auth/get_current_user_usecase.dart';
-import '../../../../domain/usecases/auth/login_usecase.dart';
-import '../../../../domain/usecases/auth/logout_usecase.dart';
-import '../../../../domain/usecases/auth/register_user_usecase.dart';
-import '../../../../domain/entities/auth/register_user_entity.dart';
-import '../../../../core/usecases/usecase.dart';
+import 'package:mobile/domain/entities/auth/auth_user_entity.dart';
+import 'package:mobile/domain/entities/auth/login_entity.dart';
+import 'package:mobile/domain/usecases/auth/get_current_user_usecase.dart';
+import 'package:mobile/domain/usecases/auth/login_usecase.dart';
+import 'package:mobile/domain/usecases/auth/logout_usecase.dart';
+import 'package:mobile/domain/usecases/auth/register_user_usecase.dart';
+import 'package:mobile/domain/entities/auth/register_user_entity.dart';
+import 'package:mobile/core/usecases/usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

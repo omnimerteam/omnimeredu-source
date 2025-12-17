@@ -2,9 +2,9 @@
 import 'package:mobile/domain/entities/school/school_data_entity.dart';
 import 'package:mobile/domain/entities/school/school_selector_entity.dart';
 
-import '../../../../core/constants/enum_constant.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../core/utils/either.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
 
 abstract class SchoolRepository {
   Future<Either<Failure, List<SchoolSelectorEntity>>> getSchoolsByLevel({

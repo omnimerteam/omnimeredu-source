@@ -75,7 +75,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
   }): Promise<School[]> {
     const whereCondition: any = {
       level: params.educationLevel,
-      deletedAt: null,
+      // deletedAt: null, // Removed because SchoolModel does not have paranoid: true enabled
     };
 
     // Add search condition if provided

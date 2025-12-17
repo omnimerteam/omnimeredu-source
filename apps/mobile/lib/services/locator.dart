@@ -1,4 +1,4 @@
-import '../../injection_container.dart' as di;
+import 'package:mobile/injection_container.dart' as di;
 
 /// Service locator for presentation layer
 final sl = di.sl;

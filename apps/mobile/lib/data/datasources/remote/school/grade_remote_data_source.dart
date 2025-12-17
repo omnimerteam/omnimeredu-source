@@ -1,8 +1,8 @@
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/endpoints.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/query/default_query_entity.dart';
-import '../../../models/grade/grade_model.dart';
+import 'package:mobile/core/api/api_client.dart';
+import 'package:mobile/core/api/endpoints.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
+import 'package:mobile/data/models/grade/grade_model.dart';
 
 abstract class GradeRemoteDataSource {
   Future<List<GradeModel>> getAllGrades(DefaultQueryEntity query);

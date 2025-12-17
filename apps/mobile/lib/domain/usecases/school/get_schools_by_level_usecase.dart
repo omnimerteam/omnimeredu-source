@@ -1,10 +1,10 @@
 import 'package:mobile/core/constants/enum_constant.dart';
 import 'package:mobile/domain/repositories/school/school_repository.dart';
 
-import '../../../core/error/failures.dart';
-import '../../../core/utils/either.dart';
-import '../../../core/usecases/usecase.dart';
-import '../../entities/school/school_selector_entity.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
+import 'package:mobile/core/usecases/usecase.dart';
+import 'package:mobile/domain/entities/school/school_selector_entity.dart';
 
 class GetSchoolsByLevelUseCase
     implements

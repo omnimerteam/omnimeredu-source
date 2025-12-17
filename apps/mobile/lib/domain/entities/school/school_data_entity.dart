@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/constants/enum_constant.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
 
 class SchoolDataEntity extends Equatable {
   final String? id;

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../domain/entities/grade/grade_entity.dart';
+import 'package:mobile/domain/entities/grade/grade_entity.dart';
 
 abstract class GradeSelectState extends Equatable {
   const GradeSelectState();

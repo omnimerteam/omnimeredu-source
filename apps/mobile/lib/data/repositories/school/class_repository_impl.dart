@@ -1,12 +1,12 @@
-import '../../../core/error/failures.dart';
-import '../../../core/utils/either.dart';
-import '../../../core/utils/api_utils.dart';
-import '../../../domain/entities/class/class_entity.dart';
-import '../../../domain/entities/class/class_selector_entity.dart';
-import '../../../domain/entities/query/default_query_entity.dart';
-import '../../../domain/repositories/school/class_repository.dart';
-import '../../models/school/class_model.dart';
-import '../../datasources/remote/school/class_remote_data_source.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
+import 'package:mobile/core/utils/api_utils.dart';
+import 'package:mobile/domain/entities/class/class_entity.dart';
+import 'package:mobile/domain/entities/class/class_selector_entity.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
+import 'package:mobile/domain/repositories/school/class_repository.dart';
+import 'package:mobile/data/models/school/class_model.dart';
+import 'package:mobile/data/datasources/remote/school/class_remote_data_source.dart';
 
 class ClassRepositoryImpl implements ClassRepository {
   final ClassRemoteDataSource remoteDataSource;

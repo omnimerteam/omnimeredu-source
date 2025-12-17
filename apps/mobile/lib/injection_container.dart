@@ -1,69 +1,69 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/repositories/school/school_repository.dart';
 
-import 'core/api/api_client.dart';
-import 'services/secure_storage_service.dart';
+import 'package:mobile/core/api/api_client.dart';
+import 'package:mobile/services/secure_storage_service.dart';
 
-import 'data/datasources/remote/auth/auth_remote_data_source.dart';
-import 'data/datasources/remote/auth/role_remote_datasource.dart';
-import 'data/datasources/remote/school/school_remote_data_source.dart';
-import 'data/datasources/remote/school/class_remote_data_source.dart';
+import 'package:mobile/data/datasources/remote/auth/auth_remote_data_source.dart';
+import 'package:mobile/data/datasources/remote/auth/role_remote_datasource.dart';
+import 'package:mobile/data/datasources/remote/school/school_remote_data_source.dart';
+import 'package:mobile/data/datasources/remote/school/class_remote_data_source.dart';
 
-import 'domain/repositories/auth/auth_repository.dart';
-import 'domain/repositories/auth/role_repository.dart';
-import 'data/repositories/auth/auth_repository_impl.dart';
-import 'data/repositories/auth/role_repository_impl.dart';
-import 'data/repositories/school/school_repository_impl.dart';
-import 'data/datasources/remote/user/school_admin_remote_data_source.dart';
-import 'data/repositories/user/school_admin_repository_impl.dart';
-import 'domain/repositories/school/class_repository.dart';
-import 'data/repositories/school/class_repository_impl.dart';
+import 'package:mobile/domain/repositories/auth/auth_repository.dart';
+import 'package:mobile/domain/repositories/auth/role_repository.dart';
+import 'package:mobile/data/repositories/auth/auth_repository_impl.dart';
+import 'package:mobile/data/repositories/auth/role_repository_impl.dart';
+import 'package:mobile/data/repositories/school/school_repository_impl.dart';
+import 'package:mobile/data/datasources/remote/user/school_admin_remote_data_source.dart';
+import 'package:mobile/data/repositories/user/school_admin_repository_impl.dart';
+import 'package:mobile/domain/repositories/school/class_repository.dart';
+import 'package:mobile/data/repositories/school/class_repository_impl.dart';
 
-import 'domain/repositories/user/school_admin_repository.dart';
+import 'package:mobile/domain/repositories/user/school_admin_repository.dart';
 
-import 'domain/usecases/auth/login_usecase.dart';
-import 'domain/usecases/auth/logout_usecase.dart';
-import 'domain/usecases/auth/get_current_user_usecase.dart';
-import 'domain/usecases/auth/register_user_usecase.dart';
-import 'domain/usecases/school/get_schools_by_level_usecase.dart';
-import 'domain/usecases/school/get_classes_by_school_usecase.dart';
+import 'package:mobile/domain/usecases/auth/login_usecase.dart';
+import 'package:mobile/domain/usecases/auth/logout_usecase.dart';
+import 'package:mobile/domain/usecases/auth/get_current_user_usecase.dart';
+import 'package:mobile/domain/usecases/auth/register_user_usecase.dart';
+import 'package:mobile/domain/usecases/school/get_schools_by_level_usecase.dart';
+import 'package:mobile/domain/usecases/school/get_classes_by_school_usecase.dart';
 
-import 'presentation/common/blocs/auth_bloc/auth_bloc.dart';
-import 'presentation/screen/auth/registration/bloc/school/school_bloc.dart';
-import 'presentation/screen/auth/registration/bloc/class/class_bloc.dart';
-import 'presentation/screen/school_admin/school/bloc/school_bloc.dart'
+import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
+import 'package:mobile/presentation/screen/auth/registration/bloc/class/class_bloc.dart';
+import 'package:mobile/presentation/screen/school_admin/school/bloc/school_bloc.dart'
     as school_admin; // Alias to avoid conflict if any, but class names are different now.
-import 'domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
-import 'domain/usecases/school/create_school_usecase.dart';
-import 'domain/usecases/school/update_school_usecase.dart';
-import 'domain/usecases/school/delete_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
+import 'package:mobile/domain/usecases/school/create_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/update_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/delete_school_usecase.dart';
 
-import 'data/datasources/remote/school/grade_remote_data_source.dart';
-import 'domain/repositories/school/grade_repository.dart';
-import 'data/repositories/school/grade_repository_impl.dart';
-import 'domain/usecases/grade/get_all_grades_usecase.dart';
-import 'domain/usecases/grade/create_grade_usecase.dart';
-import 'domain/usecases/grade/update_grade_usecase.dart';
-import 'domain/usecases/grade/delete_grade_usecase.dart';
-import 'presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
-import 'presentation/screen/school_admin/class/bloc/class_management_bloc.dart';
-import 'domain/usecases/class/get_all_classes_usecase.dart';
-import 'domain/usecases/class/create_class_usecase.dart';
-import 'domain/usecases/class/update_class_usecase.dart';
-import 'domain/usecases/class/delete_class_usecase.dart';
-import 'domain/usecases/class/get_class_by_id_usecase.dart';
-import 'presentation/common/grade_select/cubit/grade_select_cubit.dart';
+import 'package:mobile/data/datasources/remote/school/grade_remote_data_source.dart';
+import 'package:mobile/domain/repositories/school/grade_repository.dart';
+import 'package:mobile/data/repositories/school/grade_repository_impl.dart';
+import 'package:mobile/domain/usecases/grade/get_all_grades_usecase.dart';
+import 'package:mobile/domain/usecases/grade/create_grade_usecase.dart';
+import 'package:mobile/domain/usecases/grade/update_grade_usecase.dart';
+import 'package:mobile/domain/usecases/grade/delete_grade_usecase.dart';
+import 'package:mobile/presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+import 'package:mobile/presentation/screen/school_admin/class/bloc/class_management_bloc.dart';
+import 'package:mobile/domain/usecases/class/get_all_classes_usecase.dart';
+import 'package:mobile/domain/usecases/class/create_class_usecase.dart';
+import 'package:mobile/domain/usecases/class/update_class_usecase.dart';
+import 'package:mobile/domain/usecases/class/delete_class_usecase.dart';
+import 'package:mobile/domain/usecases/class/get_class_by_id_usecase.dart';
+import 'package:mobile/presentation/common/grade_select/cubit/grade_select_cubit.dart';
 
-import 'data/datasources/remote/school/membership_request_remote_datasource.dart';
-import 'data/repositories/school/membership_request_repository_impl.dart';
-import 'domain/repositories/school/membership_request_repository.dart';
-import 'domain/usecases/membership_request/get_all_membership_requests_usecase.dart';
-import 'domain/usecases/membership_request/create_membership_request_usecase.dart';
-import 'domain/usecases/membership_request/update_membership_request_usecase.dart';
-import 'domain/usecases/membership_request/delete_membership_request_usecase.dart';
-import 'domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
-import 'domain/usecases/membership_request/update_status_membership_request_usecase.dart';
-import 'presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
+import 'package:mobile/data/datasources/remote/school/membership_request_remote_datasource.dart';
+import 'package:mobile/data/repositories/school/membership_request_repository_impl.dart';
+import 'package:mobile/domain/repositories/school/membership_request_repository.dart';
+import 'package:mobile/domain/usecases/membership_request/get_all_membership_requests_usecase.dart';
+import 'package:mobile/domain/usecases/membership_request/create_membership_request_usecase.dart';
+import 'package:mobile/domain/usecases/membership_request/update_membership_request_usecase.dart';
+import 'package:mobile/domain/usecases/membership_request/delete_membership_request_usecase.dart';
+import 'package:mobile/domain/usecases/membership_request/get_membership_request_by_id_usecase.dart';
+import 'package:mobile/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
+import 'package:mobile/presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
 
 // Service Locator
 final sl = GetIt.instance;

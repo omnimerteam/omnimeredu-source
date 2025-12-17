@@ -177,11 +177,23 @@ Data: ${error.response?.data}
 
         // Xử lý response dựa trên format của server
         if (data is Map && data.containsKey('data')) {
-          return data['data']?.toString();
-        } else if (data is Map && data.containsKey('accessToken')) {
+          final innerData = data['data'];
+          if (innerData is Map && innerData.containsKey('tokens')) {
+            return innerData['tokens']['accessToken']?.toString();
+          }
+          if (innerData is Map && innerData.containsKey('accessToken')) {
+            return innerData['accessToken']?.toString();
+          }
+          // Fallback if data is the token string itself
+          if (innerData is String) return innerData;
+        }
+
+        if (data is Map && data.containsKey('accessToken')) {
           return data['accessToken']?.toString();
-        } else if (data is String) {
-          return data;
+        }
+
+        if (data is Map && data.containsKey('tokens')) {
+          return data['tokens']['accessToken']?.toString();
         }
       }
 

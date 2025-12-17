@@ -1,5 +1,5 @@
-import '../../../core/constants/enum_constant.dart';
-import '../../../domain/entities/grade/grade_entity.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/domain/entities/grade/grade_entity.dart';
 
 class GradeModel extends GradeEntity {
   const GradeModel({

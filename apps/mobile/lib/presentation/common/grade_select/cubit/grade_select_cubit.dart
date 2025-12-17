@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../domain/entities/query/default_query_entity.dart';
-import '../../../../../domain/usecases/grade/get_all_grades_usecase.dart';
+import 'package:mobile/domain/entities/query/default_query_entity.dart';
+import 'package:mobile/domain/usecases/grade/get_all_grades_usecase.dart';
 import 'grade_select_state.dart';
 
 class GradeSelectCubit extends Cubit<GradeSelectState> {

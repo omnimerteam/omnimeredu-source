@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import '../../../core/constants/enum_constant.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
 
 class AuthUserEntity extends Equatable {
   final String id;

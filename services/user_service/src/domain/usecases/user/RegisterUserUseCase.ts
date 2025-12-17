@@ -168,13 +168,11 @@ export class RegisterUserUseCase {
         );
         finalSchoolId = newSchool.id;
 
-        // Update user with school ID with transaction
-        await this.userRepository.updateUserSchool(
-          createdUser.id,
-          finalSchoolId,
-          { transaction }
-        );
+        // Update user with school ID and Auto-verify with transaction
         createdUser.schoolId = finalSchoolId;
+        createdUser.isVerified = true;
+
+        await this.userRepository.update(createdUser, { transaction });
       }
 
       // 12. Handle Role Specific Logic (Profile & Membership)

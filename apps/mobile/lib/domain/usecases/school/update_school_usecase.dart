@@ -1,8 +1,8 @@
-import '../../../core/error/failures.dart';
-import '../../../core/usecases/usecase.dart';
-import '../../../core/utils/either.dart';
-import '../../entities/school/school_data_entity.dart';
-import '../../repositories/school/school_repository.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/usecases/usecase.dart';
+import 'package:mobile/core/utils/either.dart';
+import 'package:mobile/domain/entities/school/school_data_entity.dart';
+import 'package:mobile/domain/repositories/school/school_repository.dart';
 
 class UpdateSchoolUseCase
     implements UseCase<Either<Failure, SchoolDataEntity>, SchoolDataEntity> {
