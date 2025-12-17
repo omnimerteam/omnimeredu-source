@@ -1,6 +1,8 @@
+import 'package:equatable/equatable.dart';
+
 import '../../../core/constants/enum_constant.dart';
 
-class AuthUserEntity {
+class AuthUserEntity extends Equatable {
   final String id;
   final String fullName;
   final String roleName;
@@ -32,4 +34,22 @@ class AuthUserEntity {
     this.educationLevel,
     this.gradeGroup,
   });
+
+  @override
+  List<Object?> get props => [
+    id,
+    fullName,
+    roleName,
+    isVerified,
+    schoolId,
+    schoolName,
+    schoolLevel,
+    avatarUrl,
+    position,
+    qualification,
+    classId,
+    className,
+    educationLevel,
+    gradeGroup,
+  ];
 }

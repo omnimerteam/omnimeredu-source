@@ -2,8 +2,8 @@ import '../../../../core/error/failures.dart';
 import '../../../../core/utils/either.dart';
 import '../../../../domain/entities/grade/grade_entity.dart';
 import '../../../../domain/entities/query/default_query_entity.dart';
-import '../../../../domain/repositories/grade/grade_repository.dart';
-import '../../datasources/remote/grade/grade_remote_data_source.dart';
+import '../../../domain/repositories/school/grade_repository.dart';
+import '../../datasources/remote/school/grade_remote_data_source.dart';
 import '../../models/grade/grade_model.dart';
 
 class GradeRepositoryImpl implements GradeRepository {

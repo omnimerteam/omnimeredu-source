@@ -1,11 +1,11 @@
-import '../../core/error/failures.dart'; // Needed for type
-import '../../core/utils/either.dart'; // Needed for type
-import '../../core/utils/api_utils.dart'; // Import safeApiCall
-import '../../domain/entities/auth/auth_user_entity.dart';
-import '../../domain/entities/auth/login_entity.dart';
-import '../../domain/entities/auth/register_user_entity.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../datasources/remote/auth/auth_remote_data_source.dart';
+import '../../../core/error/failures.dart'; // Needed for type
+import '../../../core/utils/either.dart'; // Needed for type
+import '../../../core/utils/api_utils.dart'; // Import safeApiCall
+import '../../../domain/entities/auth/auth_user_entity.dart';
+import '../../../domain/entities/auth/login_entity.dart';
+import '../../../domain/entities/auth/register_user_entity.dart';
+import '../../../domain/repositories/auth/auth_repository.dart';
+import '../../datasources/remote/auth/auth_remote_data_source.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;

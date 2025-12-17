@@ -1,13 +1,15 @@
+import '../../../core/usecases/usecase.dart';
 import '../../../core/error/failures.dart';
 import '../../../core/utils/either.dart';
-import '../../repositories/class_repository.dart';
+import '../../repositories/school/class_repository.dart';
 
-class DeleteClassUseCase {
+class DeleteClassUseCase implements UseCase<Either<Failure, void>, String> {
   final ClassRepository repository;
 
   DeleteClassUseCase(this.repository);
 
-  Future<Either<Failure, void>> call(String classId) async {
-    return await repository.deleteClass(classId);
+  @override
+  Future<Either<Failure, void>> call(String params) async {
+    return await repository.deleteClass(params);
   }
 }

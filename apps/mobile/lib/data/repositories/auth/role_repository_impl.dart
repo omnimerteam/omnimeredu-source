@@ -1,9 +1,9 @@
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../../core/utils/api_utils.dart';
-import '../../domain/entities/auth/role_entity.dart';
-import '../../domain/repositories/role_repository.dart';
-import '../datasources/remote/auth/role_remote_datasource.dart';
+import '../../../core/error/failures.dart';
+import '../../../core/utils/either.dart';
+import '../../../core/utils/api_utils.dart';
+import '../../../domain/entities/auth/role_entity.dart';
+import '../../../domain/repositories/auth/role_repository.dart';
+import '../../datasources/remote/auth/role_remote_datasource.dart';
 
 class RoleRepositoryImpl implements RoleRepository {
   final RoleRemoteDataSource remoteDataSource;

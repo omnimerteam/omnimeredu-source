@@ -3,7 +3,7 @@ import '../../../core/usecases/usecase.dart';
 import '../../../core/utils/either.dart';
 import '../../entities/grade/grade_entity.dart';
 import '../../entities/query/default_query_entity.dart';
-import '../../repositories/grade/grade_repository.dart';
+import '../../repositories/school/grade_repository.dart';
 
 class GetAllGradesUseCase
     implements UseCase<Either<Failure, List<GradeEntity>>, DefaultQueryEntity> {

@@ -9,15 +9,15 @@ import 'data/datasources/remote/auth/role_remote_datasource.dart';
 import 'data/datasources/remote/school/school_remote_data_source.dart';
 import 'data/datasources/remote/school/class_remote_data_source.dart';
 
-import 'domain/repositories/auth_repository.dart';
-import 'domain/repositories/role_repository.dart';
-import 'data/repositories/auth_repository_impl.dart';
-import 'data/repositories/role_repository_impl.dart';
-import 'data/repositories/school_repository_impl.dart';
+import 'domain/repositories/auth/auth_repository.dart';
+import 'domain/repositories/auth/role_repository.dart';
+import 'data/repositories/auth/auth_repository_impl.dart';
+import 'data/repositories/auth/role_repository_impl.dart';
+import 'data/repositories/school/school_repository_impl.dart';
 import 'data/datasources/remote/user/school_admin_remote_data_source.dart';
 import 'data/repositories/user/school_admin_repository_impl.dart';
-import 'domain/repositories/class_repository.dart';
-import 'data/repositories/class_repository_impl.dart';
+import 'domain/repositories/school/class_repository.dart';
+import 'data/repositories/school/class_repository_impl.dart';
 
 import 'domain/repositories/user/school_admin_repository.dart';
 
@@ -38,9 +38,9 @@ import 'domain/usecases/school/create_school_usecase.dart';
 import 'domain/usecases/school/update_school_usecase.dart';
 import 'domain/usecases/school/delete_school_usecase.dart';
 
-import 'data/datasources/remote/grade/grade_remote_data_source.dart';
-import 'domain/repositories/grade/grade_repository.dart';
-import 'data/repositories/grade/grade_repository_impl.dart';
+import 'data/datasources/remote/school/grade_remote_data_source.dart';
+import 'domain/repositories/school/grade_repository.dart';
+import 'data/repositories/school/grade_repository_impl.dart';
 import 'domain/usecases/grade/get_all_grades_usecase.dart';
 import 'domain/usecases/grade/create_grade_usecase.dart';
 import 'domain/usecases/grade/update_grade_usecase.dart';

@@ -126,6 +126,22 @@ class PaymentAttendanceEndpoints {
   String get attendanceStats => '$baseUrl/attendances/statistics';
 
   // TODO: Thêm các payment & attendance endpoints khác
+
+  // ===== Specific Attendance Operations =====
+  String get initializeClassAttendance => '$baseUrl/attendances/class-init';
+  String get getClassAttendanceRecordView => '$baseUrl/attendances/record-view';
+  String exportAttendanceExcel(String id) => '$baseUrl/attendances/$id/export';
+
+  // ===== Detail Record Endpoints =====
+  String getAttendanceRecordsById(String attendanceId) =>
+      '$baseUrl/attendances/$attendanceId/records';
+  String updateStatusDetailRecord(String id) =>
+      '$baseUrl/attendance-records/$id/status';
+
+  // ===== QR Attendance Endpoints =====
+  String generateQRCode(String attendanceId) =>
+      '$baseUrl/attendances/$attendanceId/qr-code';
+  String get submitAttendanceScan => '$baseUrl/attendances/scan';
 }
 
 // ==================== MONGODB SERVICE ENDPOINTS ====================

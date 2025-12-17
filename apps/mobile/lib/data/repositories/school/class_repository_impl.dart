@@ -1,12 +1,12 @@
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../../core/utils/api_utils.dart';
-import '../../domain/entities/class/class_entity.dart';
-import '../../domain/entities/class/class_selector_entity.dart';
-import '../../domain/entities/query/default_query_entity.dart';
-import '../../domain/repositories/class_repository.dart';
-import '../models/school/class_model.dart';
-import '../datasources/remote/school/class_remote_data_source.dart';
+import '../../../core/error/failures.dart';
+import '../../../core/utils/either.dart';
+import '../../../core/utils/api_utils.dart';
+import '../../../domain/entities/class/class_entity.dart';
+import '../../../domain/entities/class/class_selector_entity.dart';
+import '../../../domain/entities/query/default_query_entity.dart';
+import '../../../domain/repositories/school/class_repository.dart';
+import '../../models/school/class_model.dart';
+import '../../datasources/remote/school/class_remote_data_source.dart';
 
 class ClassRepositoryImpl implements ClassRepository {
   final ClassRemoteDataSource remoteDataSource;
@@ -27,7 +27,7 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<Either<Failure, List<ClassModel>>> getAllClasses(
+  Future<Either<Failure, List<ClassEntity>>> getAllClasses(
     DefaultQueryEntity query,
   ) async {
     return safeApiCall(() async {
@@ -36,7 +36,7 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<Either<Failure, ClassModel>> createClass(
+  Future<Either<Failure, ClassEntity>> createClass(
     ClassEntity createClassData,
   ) async {
     return safeApiCall(() async {
@@ -57,14 +57,14 @@ class ClassRepositoryImpl implements ClassRepository {
   }
 
   @override
-  Future<Either<Failure, ClassModel>> getClassById(String id) async {
+  Future<Either<Failure, ClassEntity>> getClassById(String id) async {
     return safeApiCall(() async {
       return await remoteDataSource.getClassById(id);
     });
   }
 
   @override
-  Future<Either<Failure, ClassModel>> updateClass(
+  Future<Either<Failure, ClassEntity>> updateClass(
     ClassEntity updateClassData,
   ) async {
     return safeApiCall(() async {

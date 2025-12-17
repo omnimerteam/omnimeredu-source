@@ -1,14 +1,14 @@
 import 'package:mobile/domain/repositories/school/school_repository.dart';
 
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../../core/utils/api_utils.dart';
-import '../../domain/entities/school/school_selector_entity.dart';
-import '../../domain/entities/school/school_data_entity.dart';
+import '../../../core/error/failures.dart';
+import '../../../core/utils/either.dart';
+import '../../../core/utils/api_utils.dart';
+import '../../../domain/entities/school/school_selector_entity.dart';
+import '../../../domain/entities/school/school_data_entity.dart';
 
-import '../../core/constants/enum_constant.dart';
+import '../../../core/constants/enum_constant.dart';
 
-import '../datasources/remote/school/school_remote_data_source.dart';
+import '../../datasources/remote/school/school_remote_data_source.dart';
 
 class SchoolRepositoryImpl implements SchoolRepository {
   final SchoolRemoteDataSource schoolRemoteDataSource;

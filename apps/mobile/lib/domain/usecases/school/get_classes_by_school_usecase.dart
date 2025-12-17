@@ -2,7 +2,7 @@ import '../../../core/error/failures.dart';
 import '../../../core/usecases/usecase.dart';
 import '../../../core/utils/either.dart';
 import '../../entities/class/class_selector_entity.dart';
-import '../../repositories/class_repository.dart';
+import '../../repositories/school/class_repository.dart';
 
 class GetClassesBySchoolUseCase
     implements

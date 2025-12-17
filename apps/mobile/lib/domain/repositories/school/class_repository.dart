@@ -1,8 +1,8 @@
-import '../../core/error/failures.dart';
-import '../../core/utils/either.dart';
-import '../entities/class/class_entity.dart';
-import '../entities/class/class_selector_entity.dart';
-import '../entities/query/default_query_entity.dart';
+import '../../../core/error/failures.dart';
+import '../../../core/utils/either.dart';
+import '../../entities/class/class_entity.dart';
+import '../../entities/class/class_selector_entity.dart';
+import '../../entities/query/default_query_entity.dart';
 
 abstract class ClassRepository {
   Future<Either<Failure, List<ClassSelectorEntity>>> getClassesBySchool({
