@@ -1,103 +1,233 @@
-# Kiến trúc Ứng dụng Di động Flutter
+# 🏗️ Flutter Architecture of OmniMer EDU
 
-## 1. Tổng quan
+This document outlines the **Clean Architecture** implementation in the `apps/mobile` Flutter project. The architecture is designed for **scalability, testability, and maintainability** by separating concerns into distinct layers: **Domain**, **Data**, and **Presentation**.
 
-Ứng dụng Di động được xây dựng bằng **Flutter** và tuân theo **Clean Architecture** kết hợp với mẫu **BLoC (Business Logic Component)**. Điều này đảm bảo sự tách biệt các mối quan tâm, khả năng kiểm thử và khả năng mở rộng trên các nền tảng iOS và Android.
+---
 
-## 2. Tech Stack
+## 🏛️ High-Level Layer View
 
-- **Framework**: Flutter (Dart)
-- **Quản lý trạng thái**: BLoC / Cubit (flutter_bloc)
-- **Dependency Injection**: get_it
-- **Networking**: Dio
-- **Lưu trữ cục bộ**: Shared Preferences & Flutter Secure Storage
-- **Điều hướng**: Navigator (Custom RouteConfig)
+The project structure adheres to Clean Architecture principles:
 
-## 3. Cấu trúc dự án
+- **`lib/domain`** (Inner Layer): The pure core of the application. Contains business logic, entities, and abstract repository definitions. It knows nothing about databases, APIs, or UI.
+- **`lib/data`** (Middle Layer): The implementation layer. It handles data retrieval from APIs, local storage, mapping data to domain entities, and implementing the repositories defined in the domain layer.
+- **`lib/presentation`** (Outer Layer): The UI and state management layer. It uses BLoC/Cubit to manage state and interacts with the domain layer via UseCases.
 
-Dự án được tổ chức thành các lớp, tuân thủ nghiêm ngặt Quy tắc Phụ thuộc (Dependency Rule):
+---
 
-lib/
-├── core/ # Shared Kernel (Cấu hình, Tiện ích cốt lõi)
-│ ├── api/ # API Client, Interceptors
-│ ├── bloc/ # Global BLoCs
-│ ├── constants/ # Hằng số (Assets, Strings)
-│ ├── error/ # Failures & Exceptions
-│ ├── routing/ # Cấu hình điều hướng
-│ ├── theme/ # App Theme, Colors
-│ ├── usecases/ # Base UseCase
-│ └── ...
-│
-├── data/ # Bộ điều hợp giao diện (Data Layer)
-│ ├── datasources/ # Nguồn dữ liệu (Remote, Local)
-│ ├── models/ # DTOs (Data Transfer Objects) mapping JSON
-│ └── repositories/ # Triển khai các Repository của Domain
-│
-├── domain/ # Quy tắc nghiệp vụ (Domain Layer)
-│ ├── entities/ # Các đối tượng nghiệp vụ thuần túy
-│ ├── repositories/ # Các Interface trừu tượng (Contracts)
-│ └── usecases/ # Logic nghiệp vụ ứng dụng
-│
-├── presentation/ # UI & Quản lý trạng thái (Presentation Layer)
-│ ├── app.dart # Widget Ứng dụng gốc
-│ ├── app_view.dart # Cấu hình View (Theme, Router)
-│ ├── common/ # Widgets, UI components dùng chung
-│ └── screen/ # Các màn hình (tổ chức theo feature)
-│ └── auth/ # Ví dụ feature Auth
-│ ├── login/
-│ │ ├── bloc/
-│ │ └── login_screen.dart
-│ └── ...
-│
-├── services/ # Services hệ thống & Local Storage
-│ ├── secure_storage_service.dart
-│ └── shared_preferences_service.dart
-│
-├── utils/ # Các tiện ích bổ trợ (Logger, Validator)
-│
-├── injection_container.dart # Thiết lập DI (Service Locator)
-└── main.dart # Điểm khởi chạy
+## 📂 1. Domain Layer (`lib/domain`)
 
-## 4. Thiết kế chi tiết thành phần
+This is the most stable layer and should change least frequently. It depends on NO other layers.
 
-### 4.1. Lớp Domain (Pure Dart)
+### 🧱 Entities (`lib/domain/entities`)
 
-- **Entities**: Các đối tượng nghiệp vụ cốt lõi. Chúng bất biến và độc lập với bất kỳ framework nào.
-  - Ví dụ: `UserEntity`, `CourseEntity`.
-- **Repositories (Interfaces)**: Định nghĩa hợp đồng cho các hoạt động dữ liệu.
-  - Ví dụ: `IAuthRepository` định nghĩa `Future<Either<Failure, UserEntity>> login(String email, String password);`.
-- **Use Cases**: Đóng gói một quy tắc nghiệp vụ hoặc hành động người dùng cụ thể.
-  - Ví dụ: `LoginUseCase` gọi `repository.login()`.
+- **Purpose**: Represent the core business objects. These should be pure Dart classes (POJOs) extending `Equatable` for value comparison.
+- **Structure**:
+  - Simple fields representing the data.
+  - **NO** JSON parsing logic (fromJson/toJson).
+  - **NO** formatting or display logic.
+- **Example**: `AuthUserEntity` containing `id`, `fullName`, `roleName`, etc.
 
-### 4.2. Lớp Dữ liệu (Triển khai)
+```dart
+// domain/entities/auth/auth_user_entity.dart
+class AuthUserEntity extends Equatable {
+  final String id;
+  final String fullName;
+  // ...
 
-- **Models**: Kế thừa Entities để thêm logic serialization (`fromJson`, `toJson`).
-  - Ví dụ: `UserModel` kế thừa `UserEntity`.
-- **Data Sources**: Truy cập dữ liệu cấp thấp.
-  - `RemoteDataSource`: Gọi REST APIs sử dụng Dio.
-  - `LocalDataSource`: Cache dữ liệu sử dụng Shared Preferences hoặc Secure Storage.
-- **Repositories (Triển khai)**: Triển khai các interface của Domain. Nó điều phối các nguồn dữ liệu (ví dụ: kiểm tra cache trước, sau đó mới gọi network).
+  const AuthUserEntity({required this.id, required this.fullName /*...*/});
 
-### 4.3. Lớp Giao diện (Flutter)
+  @override
+  List<Object?> get props => [id, fullName /*...*/];
+}
+```
 
-- **BLoC/Cubit**: Quản lý trạng thái. Nhận **Events** từ UI, thực thi **Use Cases**, và phát ra **States**.
-- **Screens/common**: Các thành phần "dumb" chỉ render UI dựa trên State và gửi Events đến BLoC.
+### 📝 Repositories (Interfaces) (`lib/domain/repositories`)
 
-## 5. Luồng dữ liệu
+- **Purpose**: Define the _contract_ for data operations. The domain layer asks "What data do I need?" without caring "How do I get it?".
+- **Return Types**: Always return `Future<Either<Failure, Type>>` to force error handling using functional programming principles (`fpdart` or custom `Either`).
+- **Structure**: Abstract classes defining methods.
 
-1. **Hành động người dùng**: Người dùng nhấn nút "Đăng nhập" trên `LoginScreen`.
-2. **Event**: `LoginBloc` nhận event `LoginRequested`.
-3. **Use Case**: Bloc gọi `LoginUseCase.execute(params)`.
-4. **Repository**: Use Case gọi `IAuthRepository.login()`.
-5. **Data Source**: `AuthRepositoryImpl` gọi `AuthRemoteDataSource.login()`.
-6. **Network**: `Dio` gửi HTTP POST request đến Backend.
-7. **Response**: Phản hồi JSON được phân tích thành `UserModel`.
-8. **Return**: `UserModel` được map sang `UserEntity` và trả về ngược lại chuỗi gọi.
-9. **State Change**: `LoginBloc` phát ra `LoginSuccess(user)`.
-10. **UI Update**: `LoginScreen` lắng nghe state và điều hướng đến `HomeScreen`.
+```dart
+// domain/repositories/auth/auth_repository.dart
+abstract class AuthRepository {
+  Future<Either<Failure, AuthUserEntity>> login(LoginEntity params);
+  Future<Either<Failure, void>> logout();
+}
+```
 
-## 6. Các nguyên tắc chính
+### ⚙️ Use Cases (`lib/domain/usecases`)
 
-- **Quy tắc Phụ thuộc**: Các phụ thuộc mã nguồn chỉ hướng vào trong. Domain không biết gì về Data hay Presentation.
-- **Khả năng kiểm thử**: Use Cases và BLoCs có thể được unit test dễ dàng bằng cách mock Repositories.
-- **Tách biệt Model & Entity**: `Model` dành cho API/DB (cấu trúc JSON), `Entity` dành cho App (Logic nghiệp vụ).
+- **Purpose**: Encapsulate a specific business rule or task (e.g., "Login User", "Get School Details").
+- **Structure**:
+  - Implement the `UseCase<Type, Params>` interface.
+  - Single responsibility (one `call` or `execute` method).
+  - Inject the abstract Repository.
+
+```dart
+// domain/usecases/auth/login_usecase.dart
+class LoginUseCase implements UseCase<Either<Failure, AuthUserEntity>, LoginEntity> {
+  final AuthRepository repository;
+
+  LoginUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, AuthUserEntity>> call(LoginEntity params) async {
+    return await repository.login(params);
+  }
+}
+```
+
+---
+
+## 💾 2. Data Layer (`lib/data`)
+
+This layer implements the domain contracts and talks to the outside world.
+
+### 📦 Models (`lib/data/models`)
+
+- **Purpose**: Data Transfer Objects (DTOs) that extend Entities. They handle JSON serialization/deserialization.
+- **Structure**:
+  - Extend the corresponding Domain Entity.
+  - Include `fromJson` factories and `toJson` methods.
+  - Include `toEntity()` mapper methods (optional if extending directly).
+
+```dart
+// data/models/auth/auth_user_model.dart
+class AuthUserModel extends AuthUserEntity {
+  const AuthUserModel({required String id, /*...*/}) : super(id: id, /*...*/);
+
+  factory AuthUserModel.fromJson(Map<String, dynamic> json) {
+    return AuthUserModel(
+      id: json['id'] ?? '',
+      // ... safe parsing logic
+    );
+  }
+
+  Map<String, dynamic> toJson() => { ... };
+}
+```
+
+### 📡 Data Sources (`lib/data/datasources`)
+
+- **Purpose**: Low-level data fetching. Divided into **Remote** (API) and **Local** (Cache/DB).
+- **Remote**: Uses `ApiClient` (Dio wrapper) to call REST APIs. Returns `Models` (not Entities). Throws Exceptions (not Failures).
+- **Local**: Uses `SecureStorage` or databases.
+
+```dart
+// data/datasources/remote/auth/auth_remote_data_source.dart
+abstract class AuthRemoteDataSource {
+  Future<AuthUserModel> login(LoginEntity params);
+}
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  final ApiClient client;
+
+  @override
+  Future<AuthUserModel> login(LoginEntity params) async {
+    final response = await client.post(Endpoints.login, data: ...);
+    if (!response.success) throw ServerException(response.message);
+    return AuthUserModel.fromJson(response.data);
+  }
+}
+```
+
+### 🛠️ Repositories (Implementation) (`lib/data/repositories`)
+
+- **Purpose**: Implement the Domain Repository interface. Coordinate data sources and handle error catching.
+- **Key Pattern**: Use a `safeApiCall` utility to wrap data source calls, catching Exceptions and converting them to `Failure` objects (Left side of Either).
+
+```dart
+// data/repositories/auth/auth_repository_impl.dart
+class AuthRepositoryImpl implements AuthRepository {
+  final AuthRemoteDataSource remoteDataSource;
+
+  @override
+  Future<Either<Failure, AuthUserEntity>> login(LoginEntity params) async {
+    return safeApiCall(() async {
+      final model = await remoteDataSource.login(params);
+      return model; // Polymorphism: Model IS an Entity
+    });
+  }
+}
+```
+
+---
+
+## 🎨 3. Presentation Layer (`lib/presentation`)
+
+Handles UI and user interaction.
+
+### 🧠 State Management (BLoC)
+
+- **Bloc**: Receives Events, processes them via UseCases, and emits States.
+- **Event**: User actions (e.g., `AuthLoginRequested`).
+- **State**: UI status (e.g., `AuthLoading`, `AuthAuthenticated`).
+- **Dependency Injection**: UseCases are injected into BLoCs via `GetIt` (`sl()`).
+
+```dart
+// presentation/common/blocs/auth_bloc/auth_bloc.dart
+class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final LoginUseCase loginUseCase;
+
+  AuthBloc({required this.loginUseCase}) : super(AuthInitial()) {
+    on<AuthLoginRequested>((event, emit) async {
+      emit(AuthLoading());
+      final result = await loginUseCase(event.params);
+      result.fold(
+        (failure) => emit(AuthFailure(failure.message)),
+        (user) => emit(AuthAuthenticated(user)),
+      );
+    });
+  }
+}
+```
+
+### 📱 Screens & Widgets
+
+- **Screens**: Top-level pages (e.g., `LoginScreen`). Use `BlocProvider` to scope logic if needed, or access global BLoCs.
+- **Widgets**: Reusable UI components.
+- **View**: `AppView` handles global navigation logic based on Authentication state.
+
+---
+
+## 🔗 Key Patterns & Utilities
+
+1.  **Dependency Injection (`lib/services/locator.dart`)**:
+
+    - Uses `get_it` to register:
+      - **External**: Dio/ApiClient, SecureStorage.
+      - **Data Sources**: Impls as singleton.
+      - **Repositories**: Impls as singleton (bind interface to impl).
+      - **Use Cases**: As lazy singletons/factory.
+      - **BLoCs**: As factory (new instance per need).
+
+2.  **Either Pattern**:
+
+    - Strictly enforces error handling: `Left(Failure)` vs `Right(Success)`.
+    - Prevents unhandled runtime exceptions in UI code.
+
+3.  **ApiClient Wrapper**:
+
+    - Centralized Dio configuration.
+    - Automatic Token Interceptor (attach Bearer token).
+    - Centralized Error Handling (convert 401/403/500 to Exceptions).
+    - Token Refresh Logic (automatic retry on 401).
+
+4.  **Routing (`lib/core/routing`)**:
+    - Uses named routes (`RouteConfig`).
+    - `AppView` handles the main `MaterialApp` and `onGenerateRoute`.
+    - Supports dynamic routing and arguments.
+
+---
+
+## 🚀 Workflow for New Features
+
+1.  **Define Entity** in Domain (`lib/domain/entities`).
+2.  **Define Repository Interface** in Domain (`lib/domain/repositories`).
+3.  ** create Use Case** in Domain (`lib/domain/usecases`).
+4.  **Create Model** in Data (`lib/data/models`) implementing Entity & `fromJson`.
+5.  **Add/Update Data Source** in Data (`lib/data/datasources`).
+6.  **Implement Repository** in Data (`lib/data/repositories`), connecting Source to Domain.
+7.  **Register DI** in `locator.dart`.
+8.  **Create BLoC** in Presentation, injecting UseCase.
+9.  **Build UI** connecting to BLoC.

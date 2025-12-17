@@ -1,9 +1,9 @@
-import '../../../../core/api/api_response.dart';
-import '../../../../core/constants/enum_constant.dart';
-import '../../../../domain/entities/user/school_admin_entity.dart';
-import '../../../../domain/repositories/user/school_admin_repository.dart';
-import '../../datasources/remote/user/school_admin_remote_data_source.dart';
-import '../../models/user/school_admin_model.dart';
+import 'package:mobile/core/api/api_response.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/domain/entities/user/school_admin_entity.dart';
+import 'package:mobile/domain/repositories/user/school_admin_repository.dart';
+import 'package:mobile/data/datasources/remote/user/school_admin_remote_data_source.dart';
+import 'package:mobile/data/models/user/school_admin_model.dart';
 
 class SchoolAdminRepositoryImpl implements SchoolAdminRepository {
   final SchoolAdminRemoteDataSource remoteDataSource;
@@ -29,7 +29,7 @@ class SchoolAdminRepositoryImpl implements SchoolAdminRepository {
     // Assuming we can create Model from Entity or have a mapper.
     // Since SchoolAdminModel extends SchoolAdminEntity (via BaseUserModel/Entity hierarchy mismatch? No, Model extends BaseUserModel, Entity extends BaseUserEntity)
     // We need to construct Model manually.
-    
+
     final model = SchoolAdminModel(
       id: updateSchoolAdminData.id,
       fullName: updateSchoolAdminData.fullName,
@@ -48,7 +48,7 @@ class SchoolAdminRepositoryImpl implements SchoolAdminRepository {
     );
 
     final result = await remoteDataSource.updateSchoolAdmin(model);
-    
+
     return ApiResponse<SchoolAdminEntity?>(
       success: result.success,
       message: result.message,

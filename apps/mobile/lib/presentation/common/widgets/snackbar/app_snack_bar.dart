@@ -1,63 +1,43 @@
 import 'package:flutter/material.dart';
 
-class AppSnackBar {
-  static void show(
-    BuildContext context, {
-    required String message,
-    Color? backgroundColor,
-    Color? textColor,
-    Duration duration = const Duration(seconds: 3),
-  }) {
+class AppSnackBars {
+  static void showComingSoon(BuildContext context, String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(color: textColor ?? Colors.white),
-        ),
-        backgroundColor: backgroundColor ?? Colors.black87,
-        duration: duration,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        content: Text('$feature sẽ sớm có mặt!'),
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  static void showSuccess(
-    BuildContext context, {
-    required String message,
-    Duration duration = const Duration(seconds: 3),
-  }) {
-    show(
-      context,
-      message: message,
-      backgroundColor: Colors.green,
-      duration: duration,
+  static void showWarning(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
-  static void showError(
-    BuildContext context, {
-    required String message,
-    Duration duration = const Duration(seconds: 3),
-  }) {
-    show(
-      context,
-      message: message,
-      backgroundColor: Colors.red,
-      duration: duration,
+  static void showSuccess(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
-  static void showInfo(
-    BuildContext context, {
-    required String message,
-    Duration duration = const Duration(seconds: 3),
-  }) {
-    show(
-      context,
-      message: message,
-      backgroundColor: Colors.blue,
-      duration: duration,
+  static void showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import '../../../core/error/failures.dart';
 import '../../../core/usecases/usecase.dart';
 import '../../../core/utils/either.dart';
-import '../../repositories/auth_repository.dart';
+import '../../repositories/auth/auth_repository.dart';
 
 class LogoutUseCase implements UseCase<Either<Failure, void>, NoParams> {
   final AuthRepository repository;

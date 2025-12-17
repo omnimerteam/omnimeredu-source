@@ -163,18 +163,17 @@ export class RegisterUserUseCase {
             phone: request.schoolData.phone,
             description: request.schoolData.description,
             level: request.schoolData.level,
+            adminId: createdUser.id,
           },
           { transaction }
         );
         finalSchoolId = newSchool.id;
 
-        // Update user with school ID with transaction
-        await this.userRepository.updateUserSchool(
-          createdUser.id,
-          finalSchoolId,
-          { transaction }
-        );
+        // Update user with school ID and Auto-verify with transaction
         createdUser.schoolId = finalSchoolId;
+        createdUser.isVerified = true;
+
+        await this.userRepository.update(createdUser, { transaction });
       }
 
       // 12. Handle Role Specific Logic (Profile & Membership)

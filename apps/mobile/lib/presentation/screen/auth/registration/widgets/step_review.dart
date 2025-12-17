@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/constants/enum_constant.dart';
-import '../../../../utils/display_mapper.dart';
 import '../bloc/registration_state.dart';
 
 class StepReview extends StatelessWidget {
@@ -80,7 +79,9 @@ class StepReview extends StatelessWidget {
                 _reviewItem('Họ và tên', state.fullName),
                 _reviewItem(
                   'Giới tính',
-                  DisplayMapper.genderName(state.gender),
+                  state.gender != null
+                      ? GenderEnum.fromString(state.gender).displayName
+                      : '',
                 ),
                 if (state.phone != null) _reviewItem('SĐT', state.phone),
                 if (state.birthday != null)
@@ -120,10 +121,7 @@ class StepReview extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 12.h),
-                  _reviewItem(
-                    'Công việc',
-                    state.selectedRole!.displayName,
-                  ),
+                  _reviewItem('Công việc', state.selectedRole!.displayName),
                   if (state.assignSchoolName != null &&
                       !state.isCreateNewSchool)
                     _reviewItem(

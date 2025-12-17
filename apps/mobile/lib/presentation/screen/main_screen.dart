@@ -1,15 +1,37 @@
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/core/theme/app_colors.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import '../../core/bloc/authentication/authentication_bloc.dart';
-// import '../../core/bloc/authentication/authentication_state.dart';
+import '../common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/core/routing/route_config.dart';
 
-// TODO: Import các màn hình con khi đã tạo
-// import 'dashboard/dashboard_screen.dart';
-// import 'main_feature/main_feature_screen.dart';
-// import 'more/more_screen.dart';
+// Placeholder for Settings Screen
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('Settings Screen'),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(AuthLogoutRequested());
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -22,10 +44,6 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
-
-  // Mock data cho role (khi chưa có AuthBloc)
-  final String _currentRole =
-      'Student'; // Test: 'Student', 'Teacher', 'SchoolAdmin'
 
   @override
   void dispose() {
@@ -42,67 +60,140 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Sử dụng BlocBuilder<AuthenticationBloc> để lấy role thực tế
-    /*
-    return BlocBuilder<AuthenticationBloc, AuthenticationState>(
+    return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
-        if (state is AuthenticationAuthenticated) {
-           final role = state.user.roleName;
-           return _buildScaffold(role);
+        if (state is AuthAuthenticated) {
+          final role = state.user.roleName;
+          return _buildScaffold(role);
         }
+        // Fallback or loading state if needed, though AppView handles Auth check
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      }
+      },
     );
-    */
-
-    return _buildScaffold(_currentRole);
   }
 
   Widget _buildScaffold(String role) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
+    final List<Widget> pages = _getPages(role);
+    final List<CurvedNavigationBarItem> navItems = _getNavItems(role);
+
     return Scaffold(
-      extendBody: true, // Quan trọng để background tràn xuống dưới bottom bar
+      extendBody: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: PageView(
         controller: _pageController,
-        physics:
-            const NeverScrollableScrollPhysics(), // Chặn swipe để tránh xung đột
+        physics: const NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
           });
         },
-        children: [
-          // Index 0: Dashboard
-          _buildPlaceholderScreen("Dashboard Screen", Colors.blue.shade50),
-
-          // Index 1: Main Feature (Role based)
-          _buildPlaceholderScreen(
-            "${_getLabelMainFeature(role)} Screen",
-            Colors.green.shade50,
-          ),
-
-          // Index 2: More / Settings
-          _buildPlaceholderScreen("Menu & Settings", Colors.orange.shade50),
-        ],
+        children: pages,
       ),
       bottomNavigationBar: CurvedNavigationBar(
         key: _bottomNavigationKey,
         index: _selectedIndex,
-        backgroundColor: Colors.transparent, // Để nhìn thấy nội dung phía sau
+        backgroundColor: Colors.transparent,
         color: isDarkMode ? AppColors.grey900 : Colors.white,
         buttonBackgroundColor: AppColors.primary,
         animationDuration: const Duration(milliseconds: 300),
         animationCurve: Curves.easeInOut,
         iconPadding: 12,
-        onTap: (index) {
-          _onItemTapped(index);
-        },
-        items: [
+        onTap: _onItemTapped,
+        items: navItems,
+      ),
+    );
+  }
+
+  List<Widget> _getPages(String role) {
+    final roles = [role];
+    switch (role) {
+      case 'SchoolAdmin':
+        return [
+          RouteConfig.buildPage(
+            routeName: RouteConfig.schoolAdminDashboard,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.schoolAdminReports,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
+        ];
+      case 'Teacher':
+        return [
+          RouteConfig.buildPage(
+            routeName: RouteConfig.teacherHome,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.teacherAttendance,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
+        ];
+      case 'Student':
+        return [
+          RouteConfig.buildPage(
+            routeName: RouteConfig.studentHome,
+            role: roles,
+          ),
+          RouteConfig.buildPage(
+            routeName: RouteConfig.studentScanQr,
+            role: roles,
+          ),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
+        ];
+      default:
+        return [
+          const Center(child: Text("Home")),
+          const Center(child: Text("Feature")),
+          RouteConfig.buildPage(routeName: RouteConfig.settings, role: roles),
+        ];
+    }
+  }
+
+  List<CurvedNavigationBarItem> _getNavItems(String role) {
+    // Common Settings Item
+    final settingsItem = CurvedNavigationBarItem(
+      child: Icon(
+        Icons.settings_rounded,
+        size: 26,
+        color: _selectedIndex == 2 ? Colors.white : AppColors.grey600,
+      ),
+      label: 'Cài đặt',
+      labelStyle: _getLabelStyle(_selectedIndex == 2),
+    );
+
+    switch (role) {
+      case 'SchoolAdmin':
+        return [
           CurvedNavigationBarItem(
             child: Icon(
               Icons.dashboard_rounded,
+              size: 26,
+              color: _selectedIndex == 0 ? Colors.white : AppColors.grey600,
+            ),
+            label: 'Dashboard',
+            labelStyle: _getLabelStyle(_selectedIndex == 0),
+          ),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.bar_chart_rounded,
+              size: 26,
+              color: _selectedIndex == 1 ? Colors.white : AppColors.grey600,
+            ),
+            label: 'Báo cáo',
+            labelStyle: _getLabelStyle(_selectedIndex == 1),
+          ),
+          settingsItem,
+        ];
+      case 'Teacher':
+        return [
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.home_rounded,
               size: 26,
               color: _selectedIndex == 0 ? Colors.white : AppColors.grey600,
             ),
@@ -111,25 +202,58 @@ class _MainScreenState extends State<MainScreen> {
           ),
           CurvedNavigationBarItem(
             child: Icon(
-              _getIconMainFeature(role),
+              Icons.post_add_rounded,
               size: 26,
               color: _selectedIndex == 1 ? Colors.white : AppColors.grey600,
             ),
-            label: _getLabelMainFeature(role),
+            label: 'Điểm danh',
             labelStyle: _getLabelStyle(_selectedIndex == 1),
+          ),
+          settingsItem,
+        ];
+      case 'Student':
+        return [
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.home_rounded,
+              size: 26,
+              color: _selectedIndex == 0 ? Colors.white : AppColors.grey600,
+            ),
+            label: 'Home',
+            labelStyle: _getLabelStyle(_selectedIndex == 0),
           ),
           CurvedNavigationBarItem(
             child: Icon(
-              Icons.menu_rounded,
+              Icons.qr_code_scanner_rounded,
               size: 26,
-              color: _selectedIndex == 2 ? Colors.white : AppColors.grey600,
+              color: _selectedIndex == 1 ? Colors.white : AppColors.grey600,
             ),
-            label: 'Menu',
-            labelStyle: _getLabelStyle(_selectedIndex == 2),
+            label: 'Quét mã',
+            labelStyle: _getLabelStyle(_selectedIndex == 1),
           ),
-        ],
-      ),
-    );
+          settingsItem,
+        ];
+      default:
+        return [
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.home,
+              color: _selectedIndex == 0 ? Colors.white : AppColors.grey600,
+            ),
+            label: 'Home',
+            labelStyle: _getLabelStyle(_selectedIndex == 0),
+          ),
+          CurvedNavigationBarItem(
+            child: Icon(
+              Icons.star,
+              color: _selectedIndex == 1 ? Colors.white : AppColors.grey600,
+            ),
+            label: 'Feature',
+            labelStyle: _getLabelStyle(_selectedIndex == 1),
+          ),
+          settingsItem,
+        ];
+    }
   }
 
   TextStyle _getLabelStyle(bool isSelected) {
@@ -137,55 +261,7 @@ class _MainScreenState extends State<MainScreen> {
       fontSize: 12,
       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
       color: isSelected ? AppColors.primary : AppColors.grey600,
-      fontFamily: 'Inter', // From AppTheme
-    );
-  }
-
-  String _getLabelMainFeature(String roleKey) {
-    switch (roleKey) {
-      case 'Student':
-        return 'Học tập';
-      case 'Teacher':
-        return 'Điểm danh';
-      case 'SchoolAdmin':
-        return 'Báo cáo';
-      default:
-        return 'Tiến trình';
-    }
-  }
-
-  IconData _getIconMainFeature(String roleKey) {
-    switch (roleKey) {
-      case 'Student':
-        return Icons.school_rounded;
-      case 'Teacher':
-        return Icons.how_to_reg_rounded;
-      case 'SchoolAdmin':
-        return Icons.bar_chart_rounded;
-      default:
-        return Icons.timeline_rounded;
-    }
-  }
-
-  // Placeholder widget tạm thời
-  Widget _buildPlaceholderScreen(String title, Color bgColor) {
-    return Container(
-      color: bgColor,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: AppColors.primary),
-            ),
-            const SizedBox(height: 16),
-            const Text("Coming Soon..."),
-          ],
-        ),
-      ),
+      fontFamily: 'Inter',
     );
   }
 }

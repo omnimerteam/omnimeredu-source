@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../../domain/entities/school/school_search_entity.dart';
+import '../../../../../../domain/entities/school/school_selector_entity.dart';
 
 /// Base state cho SchoolBloc
 abstract class SchoolState extends Equatable {
@@ -21,7 +21,7 @@ class SchoolLoading extends SchoolState {
 
 /// State khi tải thành công danh sách trường
 class SchoolLoaded extends SchoolState {
-  final List<SchoolSearchEntity> schools;
+  final List<SchoolSelectorEntity> schools;
 
   const SchoolLoaded({required this.schools});
 

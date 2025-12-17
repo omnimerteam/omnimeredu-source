@@ -1,7 +1,12 @@
-import { ISchoolRepository } from "../../domain/repositories/ISchoolRepository";
+import {
+  ISchoolRepository,
+  SearchSchoolsOptions,
+} from "../../domain/repositories/ISchoolRepository";
 import { School } from "../../domain/entities/School";
 import { SchoolModel } from "../datasources/postgres/models/SchoolModel";
+import { SchoolAdminModel } from "../datasources/postgres/models/SchoolAdminModel";
 import { Op } from "sequelize";
+import { EducationSystemLevelsEnum } from "shared-lib";
 
 export class SchoolRepositoryImpl implements ISchoolRepository {
   async create(school: School): Promise<School> {
@@ -65,12 +70,12 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
   }
 
   async getSchoolsByLevel(params: {
-    educationLevel: string;
+    educationLevel: EducationSystemLevelsEnum;
     search?: string;
-  }): Promise<any[]> {
+  }): Promise<School[]> {
     const whereCondition: any = {
       level: params.educationLevel,
-      deletedAt: null,
+      // deletedAt: null, // Removed because SchoolModel does not have paranoid: true enabled
     };
 
     // Add search condition if provided
@@ -91,38 +96,54 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
 
     const schools = await SchoolModel.findAll({
       where: whereCondition,
-      order: [['name', 'ASC']],
+      order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
     });
 
-    return schools.map(school => ({
-      id: school.id,
-      name: school.name,
-      code: school.code,
-      address: school.address,
-      level: school.level,
-      logoUrl: school.logoUrl,
-      phone: school.phone,
-      description: school.description,
-      createdAt: school.createdAt,
-      updatedAt: school.updatedAt,
-    }));
+    return schools.map((school) => this.toEntity(school));
   }
 
-  async getSchoolById(id: string): Promise<any | null> {
-    const school = await SchoolModel.findByPk(id);
-    if (!school) return null;
+  async searchSchools(options: SearchSchoolsOptions): Promise<School[]> {
+    const { educationLevel, search, limit = 20, offset = 0 } = options;
+
+    const whereClause: any = {};
+
+    if (educationLevel) {
+      whereClause.level = educationLevel;
+    }
+
+    if (search) {
+      whereClause[Op.or] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { code: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+
+    const models = await SchoolModel.findAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
+    });
+
+    return models.map((model) => this.toEntity(model));
+  }
+
+  async findSchoolAdminByUserId(
+    userId: string
+  ): Promise<{ schoolId: string } | null> {
+    const school = await SchoolModel.findOne({
+      where: { adminId: userId },
+      attributes: ["id"],
+    });
+
+    if (!school) {
+      return null;
+    }
 
     return {
-      id: school.id,
-      name: school.name,
-      code: school.code,
-      address: school.address,
-      level: school.level,
-      logoUrl: school.logoUrl,
-      phone: school.phone,
-      description: school.description,
-      createdAt: school.createdAt,
-      updatedAt: school.updatedAt,
+      schoolId: school.id,
     };
   }
 

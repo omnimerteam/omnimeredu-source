@@ -1,5 +1,5 @@
 import '../../../../core/api/api_client.dart';
-import '../../../../core/api/endpoints.dart';
+
 import '../../../../core/error/failures.dart';
 import '../../../models/auth/role_model.dart';
 
@@ -17,7 +17,8 @@ class RoleRemoteDataSourceImpl implements RoleRemoteDataSource {
   Future<List<RoleModel>> getAllRoles() async {
     try {
       final response = await client.get<List>(
-        Endpoints.user.roles,
+        // Endpoints.user.roles,
+        "api/v1/roles", // Temporary placeholder or mocked path
         parser: (data) {
           if (data is List) {
             return data
