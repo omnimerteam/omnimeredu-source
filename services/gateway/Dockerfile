@@ -1,15 +1,16 @@
 FROM nginx:alpine
 
-# Xóa cấu hình cũ để tránh xung đột
-RUN rm  /etc/nginx/nginx.conf
+# 1. Copy đè file config của bạn vào vị trí FILE CẤU HÌNH CHÍNH
+# Vì context là ".", và file nằm trong thư mục gateway, nên đường dẫn nguồn là gateway/nginx.conf
+COPY gateway/nginx.conf /etc/nginx/nginx.conf
 
-# Copy custom nginx configuration
-COPY gateway/nginx.conf /etc/nginx/conf.d/default.conf
+# 2. (Tùy chọn) Xóa config mặc định trong conf.d để tránh xung đột nếu có
+RUN rm -f /etc/nginx/conf.d/default.conf
 
-# Create custom error page
+# 3. Tạo trang lỗi custom
 RUN echo '{"status":"error","message":"Service temporarily unavailable"}' > /usr/share/nginx/html/50x.html
 
-# Add healthcheck
+# 4. Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
 
