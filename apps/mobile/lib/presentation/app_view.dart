@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/theme/app_theme.dart';
-import 'common/blocs/auth_bloc/auth_bloc.dart';
-import 'screen/main_screen.dart';
-import '../../core/routing/route_config.dart';
+import 'package:mobile/core/theme/app_theme.dart';
+import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/presentation/screen/main_screen.dart';
+import 'package:mobile/core/routing/route_config.dart';
 
 /// Global navigator key để có thể điều khiển navigation từ bất kỳ đâu
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -20,7 +20,14 @@ class _AppViewState extends State<AppView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthUnauthenticated) {
+        if (state is AuthAuthenticated) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+              RouteConfig.main,
+              (route) => false,
+            );
+          });
+        } else if (state is AuthUnauthenticated) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             navigatorKey.currentState?.pushAndRemoveUntil(
               MaterialPageRoute(
@@ -57,6 +64,19 @@ class _AppViewState extends State<AppView> {
               RouteConfig.register: (context) =>
                   RouteConfig.buildAuthPage(RouteConfig.register),
               RouteConfig.main: (context) => const MainScreen(),
+            },
+            onGenerateRoute: (settings) {
+              if (state is AuthAuthenticated) {
+                return MaterialPageRoute(
+                  settings: settings,
+                  builder: (_) => RouteConfig.buildPage(
+                    routeName: settings.name ?? '',
+                    role: [state.user.roleName],
+                    arguments: settings.arguments as Map<String, dynamic>?,
+                  ),
+                );
+              }
+              return null;
             },
           );
         },

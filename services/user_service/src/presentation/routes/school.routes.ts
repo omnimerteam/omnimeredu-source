@@ -46,7 +46,7 @@ router.get(
       .notEmpty()
       .withMessage("Education level is required"),
     query("educationLevel")
-      .isIn(["Primary", "Secondary", "HighSchool", "University"])
+      .isIn(["Preschool", "Primary", "Secondary", "HighSchool", "University"])
       .withMessage("Invalid education level"),
     query("search")
       .optional()

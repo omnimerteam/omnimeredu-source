@@ -6,12 +6,22 @@ import 'package:mobile/presentation/screen/auth/registration/bloc/registration_b
 import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/class/class_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/registration_screen.dart';
-import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
 import '../../presentation/screen/school_admin/school/school_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/login_screen.dart';
 import 'package:mobile/presentation/screen/auth/login/bloc/login_bloc.dart';
 import 'package:mobile/presentation/screen/main_screen.dart';
 import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import '../../presentation/screen/school_admin/grade/grade_management_screen.dart';
+import '../../presentation/screen/school_admin/class/class_management_screen.dart';
+import '../../presentation/screen/school_admin/grade/bloc/grade_management_bloc.dart';
+import '../../presentation/screen/school_admin/grade/bloc/grade_management_event.dart';
+import '../../presentation/screen/school_admin/membership_request/membership_request_screen.dart';
+import '../../presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
+import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
+import '../../presentation/screen/student/student_home_screen.dart';
+import '../../presentation/screen/student/attendance/scan_qr_screen.dart';
+import '../../presentation/screen/teacher/home/teacher_home_screen.dart';
+import '../../presentation/screen/teacher/qr/qr_display_screen.dart';
 import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
@@ -36,11 +46,20 @@ class RouteConfig {
   static const String profile = '/profile';
   static const String settings = '/settings';
 
-  // School Admin Routes
+  static const String schoolAdminDashboard = '/school-admin/dashboard';
+  static const String schoolAdminReports =
+      '/school-admin/reports'; // Placeholder
+  static const String teacherHome = '/teacher/home';
+  static const String teacherAttendance = '/teacher/attendance';
+  static const String teacherQR = '/teacher/qr';
+  static const String studentHome = '/student/home';
+  static const String studentScanQr = '/student/scan-qr';
+
   static const String schoolAdminSchool = '/school-admin/school';
   static const String schoolAdminClasses = '/school-admin/classes';
   static const String schoolAdminGrades = '/school-admin/grades';
-  static const String schoolAdminMembershipRequests = '/school-admin/membership-requests';
+  static const String schoolAdminMembershipRequests =
+      '/school-admin/membership-requests';
   static const String schoolAdminStudents = '/school-admin/students';
   static const String schoolAdminPersonnel = '/school-admin/personnel';
   static const String schoolAdminAttendance = '/school-admin/attendance';
@@ -144,9 +163,22 @@ class RouteConfig {
       case schoolAdminSchool:
         return const SchoolAdminSchoolScreen();
 
-      case schoolAdminClasses:
       case schoolAdminGrades:
+        return BlocProvider(
+          create: (_) =>
+              di.sl<GradeManagementBloc>()..add(const LoadGradesEvent()),
+          child: const GradeManagementScreen(),
+        );
+
+      case schoolAdminClasses:
+        return const ClassManagementScreen();
+
       case schoolAdminMembershipRequests:
+        return BlocProvider(
+          create: (_) => di.sl<MembershipRequestBloc>(),
+          child: const MembershipRequestScreen(),
+        );
+
       case schoolAdminStudents:
       case schoolAdminPersonnel:
       case schoolAdminAttendance:
@@ -155,6 +187,43 @@ class RouteConfig {
           appBar: AppBar(title: Text(routeName.split('/').last)),
           body: const Center(child: Text("Tính năng đang phát triển")),
         );
+
+      case schoolAdminDashboard:
+        return SchoolAdminDashboardScreen(
+          roleName: role?.first ?? 'SchoolAdmin',
+        );
+
+      case schoolAdminReports:
+        return const Center(child: Text("Báo cáo & Thống kê"));
+
+      case teacherHome:
+        return const TeacherHomeScreen();
+
+      case teacherQR:
+        final attendanceId = arguments?['attendanceId'] as String?;
+        final className = arguments?['className'] as String?;
+        final date = arguments?['date'] as DateTime?;
+        final subject = arguments?['subject'] as String?;
+
+        if (attendanceId == null || className == null || date == null) {
+          return const _ErrorPage(message: 'Thiếu thông tin QR');
+        }
+
+        return QRDisplayScreen(
+          attendanceId: attendanceId,
+          className: className,
+          date: date,
+          subject: subject,
+        );
+
+      case studentHome:
+        return const StudentHomeScreen();
+
+      case studentScanQr:
+        return const ScanQrScreen();
+
+      case settings:
+        return const SettingsScreen();
 
       // TODO: Thêm các route khác ở đây
 

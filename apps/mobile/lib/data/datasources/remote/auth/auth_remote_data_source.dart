@@ -1,12 +1,12 @@
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/api_response.dart';
-import '../../../../core/api/endpoints.dart';
-import '../../../../core/constants/storage_constant.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/auth/login_entity.dart';
-import '../../../../domain/entities/auth/register_user_entity.dart';
-import '../../../../services/secure_storage_service.dart';
-import '../../../models/auth/auth_user_model.dart';
+import 'package:mobile/core/api/api_client.dart';
+import 'package:mobile/core/api/api_response.dart';
+import 'package:mobile/core/api/endpoints.dart';
+import 'package:mobile/core/constants/storage_constant.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/domain/entities/auth/login_entity.dart';
+import 'package:mobile/domain/entities/auth/register_user_entity.dart';
+import 'package:mobile/services/secure_storage_service.dart';
+import 'package:mobile/data/models/auth/auth_user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginEntity params);
@@ -170,7 +170,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'address': user.schoolData!.address,
           'phone': user.schoolData!.phone,
           'description': user.schoolData!.description,
-          'level': user.schoolData!.level.name,
+          'level': user.schoolData!.level?.name,
         };
       }
 
@@ -196,8 +196,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       // Extract tokens from tokens object
       final tokensJson = responseData['tokens'];
-      String? accessToken = tokensJson?['accessToken'];
-      String? refreshToken = tokensJson?['refreshToken'];
+      String? accessToken;
+      String? refreshToken;
+
+      if (tokensJson is Map) {
+        accessToken = tokensJson['accessToken'];
+        refreshToken = tokensJson['refreshToken'];
+      }
 
       // Extract User
       final userJson = responseData['user'];

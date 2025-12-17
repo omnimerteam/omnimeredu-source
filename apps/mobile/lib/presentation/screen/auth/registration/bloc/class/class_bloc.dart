@@ -16,24 +16,16 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
   ) async {
     emit(ClassLoading());
 
-    try {
-      final result = await getClassesBySchoolUseCase.call(
-        schoolId: event.schoolId,
-        grade: event.grade,
-      );
+    final result = await getClassesBySchoolUseCase.call(
+      GetClassesBySchoolParams(schoolId: event.schoolId, grade: event.grade),
+    );
 
-      final classes = result.fold(
-        (error) => throw Exception(error.message),
-        (classes) => classes,
-      );
-
+    result.fold((error) => emit(ClassError("Không có lớp phù hợp")), (classes) {
       if (classes.isEmpty) {
         emit(ClassError("Không có lớp phù hợp"));
       } else {
         emit(ClassLoaded(classes: classes));
       }
-    } catch (e) {
-      emit(ClassError("Không có lớp phù hợp"));
-    }
+    });
   }
 }

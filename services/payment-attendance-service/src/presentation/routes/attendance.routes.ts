@@ -10,6 +10,7 @@ import { GenerateQRCodeUseCase } from "../../domain/usecases/attendance/Generate
 import { InitializeClassAttendanceUseCase } from "../../domain/usecases/attendance/InitializeClassAttendanceUseCase";
 import { ManualAttendanceUseCase } from "../../domain/usecases/attendance/ManualAttendanceUseCase";
 import { VerifyQRAttendanceUseCase } from "../../domain/usecases/attendance/VerifyQRAttendanceUseCase";
+import { GetAttendanceByClassAndDateUseCase } from "../../domain/usecases/attendance/GetAttendanceByClassAndDateUseCase";
 import { AttendanceController } from "../controllers/AttendanceController";
 import {
   authMiddleware,
@@ -67,6 +68,8 @@ const verifyQRAttendanceUseCase = new VerifyQRAttendanceUseCase(
   attendanceRepo,
   attendanceRecordRepo
 );
+const getAttendanceByClassAndDateUseCase =
+  new GetAttendanceByClassAndDateUseCase(attendanceRepo);
 
 // =============================================================================
 // Controller Initialization
@@ -80,7 +83,8 @@ const attendanceController = new AttendanceController(
   generateQRCodeUseCase,
   initializeClassAttendanceUseCase,
   manualAttendanceUseCase,
-  verifyQRAttendanceUseCase
+  verifyQRAttendanceUseCase,
+  getAttendanceByClassAndDateUseCase
 );
 
 // =============================================================================
@@ -108,6 +112,19 @@ router.post(
 // ---------------------------------------------------------------------------
 // Teacher/Admin Routes (require specific roles)
 // ---------------------------------------------------------------------------
+
+/**
+ * @route   GET /api/attendance/find
+ * @desc    Find attendance by class and date
+ * @access  Private (Teacher, SchoolAdmin, SuperAdmin)
+ */
+router.get(
+  "/find",
+  authMiddleware,
+  roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.findByClassAndDate(req, res)
+);
 
 /**
  * @route   POST /api/attendance

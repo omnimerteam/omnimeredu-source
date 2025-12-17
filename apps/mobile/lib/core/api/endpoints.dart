@@ -22,10 +22,6 @@ class Endpoints {
   /// Payment & Attendance Service Endpoints - Thanh toán và điểm danh
   static PaymentAttendanceEndpoints get paymentAttendance =>
       PaymentAttendanceEndpoints();
-
-  // ==================== MONGODB SERVICE ====================
-  /// MongoDB Service Endpoints - Courses, Content từ MongoDB
-  static MongoDBEndpoints get mongodb => MongoDBEndpoints();
 }
 
 // ==================== USER SERVICE ENDPOINTS ====================
@@ -62,6 +58,12 @@ class UserEndpoints {
 
   // ===== User endpoints =====
   String get users => '$baseUrl/users'; // POST (Create)
+
+  // ===== Membership Request endpoints =====
+  String get membershipRequests => '$baseUrl/membership-requests';
+  String membershipRequestId(String id) => '$baseUrl/membership-requests/$id';
+  String membershipRequestStatus(String id) =>
+      '$baseUrl/membership-requests/$id/status';
 }
 
 // ==================== PAYMENT & ATTENDANCE SERVICE ENDPOINTS ====================
@@ -120,65 +122,23 @@ class PaymentAttendanceEndpoints {
   String get attendanceStats => '$baseUrl/attendances/statistics';
 
   // TODO: Thêm các payment & attendance endpoints khác
-}
 
-// ==================== MONGODB SERVICE ENDPOINTS ====================
-class MongoDBEndpoints {
-  static String get baseUrl => '${AppConfig.mongodbServiceUrl}/api';
+  // ===== Specific Attendance Operations =====
+  String get initializeClassAttendance => '$baseUrl/attendance/initialize';
+  String get getClassAttendanceRecordView =>
+      '$baseUrl/attendance/find'; // New endpoint we will create
+  String exportAttendanceExcel(String id) => '$baseUrl/attendance/$id/export';
 
-  // ===== Course endpoints =====
-  String get courses => '$baseUrl/courses';
-  String get createCourse => '$baseUrl/courses';
+  // ===== Detail Record Endpoints =====
+  String getAttendanceRecordsById(String attendanceId) =>
+      '$baseUrl/attendance/$attendanceId/records';
+  String updateStatusDetailRecord(String id) =>
+      '$baseUrl/attendance/records/$id/status';
 
-  /// Get course detail by ID
-  String courseById(String courseId) => '$baseUrl/courses/$courseId';
-
-  /// Update course by ID
-  String updateCourse(String courseId) => '$baseUrl/courses/$courseId';
-
-  /// Delete course by ID
-  String deleteCourse(String courseId) => '$baseUrl/courses/$courseId';
-
-  /// Get courses with query params (pagination, filter, search)
-  String coursesWithQuery({Map<String, String>? queryParams}) {
-    final uri = Uri.parse('$baseUrl/courses');
-    if (queryParams != null && queryParams.isNotEmpty) {
-      return uri.replace(queryParameters: queryParams).toString();
-    }
-    return uri.toString();
-  }
-
-  // ===== Lesson endpoints =====
-  String lessonsOfCourse(String courseId) =>
-      '$baseUrl/courses/$courseId/lessons';
-  String lessonById(String courseId, String lessonId) =>
-      '$baseUrl/courses/$courseId/lessons/$lessonId';
-
-  // ===== Category endpoints =====
-  String get categories => '$baseUrl/categories';
-  String categoryById(String categoryId) => '$baseUrl/categories/$categoryId';
-
-  // ===== Content endpoints =====
-  String get contents => '$baseUrl/contents';
-  String contentById(String contentId) => '$baseUrl/contents/$contentId';
-
-  // ===== Post/Article endpoints =====
-  String get posts => '$baseUrl/posts';
-  String postById(String postId) => '$baseUrl/posts/$postId';
-
-  // ===== Assignment endpoints =====
-  String assignmentsOfCourse(String courseId) =>
-      '$baseUrl/courses/$courseId/assignments';
-  String assignmentById(String assignmentId) =>
-      '$baseUrl/assignments/$assignmentId';
-
-  // ===== Submission endpoints =====
-  String submissionsOfAssignment(String assignmentId) =>
-      '$baseUrl/assignments/$assignmentId/submissions';
-  String submissionById(String submissionId) =>
-      '$baseUrl/submissions/$submissionId';
-
-  // TODO: Thêm các MongoDB endpoints khác
+  // ===== QR Attendance Endpoints =====
+  String generateQRCode(String attendanceId) =>
+      '$baseUrl/attendance/$attendanceId/qr';
+  String get submitAttendanceScan => '$baseUrl/attendance/qr/verify';
 }
 
 // ==================== HELPER METHODS ====================

@@ -59,7 +59,7 @@ router.get(
   "/school/:schoolId",
   JWTMiddleware.verifyToken,
   requirePermission("classes:read"),
-  param("schoolId").isMongoId().withMessage("Invalid school ID format"),
+  // param("schoolId").isMongoId().withMessage("Invalid school ID format"),
   handleValidationErrors,
   (req: Request, res: Response) =>
     classController.getClassesBySchoolId(req, res)

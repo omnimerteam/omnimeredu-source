@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../domain/usecases/school/create_school_usecase.dart';
-import '../../../../../domain/usecases/school/delete_school_usecase.dart';
-import '../../../../../domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
-import '../../../../../domain/usecases/school/update_school_usecase.dart';
-import '../../../../common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/domain/usecases/school/create_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/delete_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/get_school_detail_for_schooladmin_usecase.dart';
+import 'package:mobile/domain/usecases/school/update_school_usecase.dart';
+import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
+import 'package:mobile/core/usecases/usecase.dart';
 import 'school_event.dart';
 import 'school_state.dart';
 
@@ -32,16 +33,14 @@ class SchoolAdminSchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     Emitter<SchoolState> emit,
   ) async {
     emit(SchoolLoading());
-    try {
-      final school = await getSchoolDetailUseCase.call();
+    final result = await getSchoolDetailUseCase.call(NoParams());
+    result.fold((failure) => emit(SchoolError(failure.message)), (school) {
       if (school == null) {
         emit(SchoolEmpty());
       } else {
         emit(SchoolLoaded(school));
       }
-    } catch (e) {
-      emit(SchoolError(e.toString()));
-    }
+    });
   }
 
   Future<void> _onCreateSchool(
@@ -49,18 +48,11 @@ class SchoolAdminSchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     Emitter<SchoolState> emit,
   ) async {
     emit(SchoolLoading());
-    try {
-      final school = await createSchoolUseCase.call(event.school);
-      
-      // Update auth bloc with new school info if needed
-      // Note: AuthBloc events might be different in mobile vs omnimereduapp
-      // Checking AuthBloc definition in mobile might be needed, but assuming for now or commenting out
-      // authBloc.add(AuthSchoolUpdated(schoolName: school.name)); 
-
-      emit(SchoolLoaded(school));
-    } catch (e) {
-      emit(SchoolError(e.toString()));
-    }
+    final result = await createSchoolUseCase.call(event.school);
+    result.fold(
+      (failure) => emit(SchoolError(failure.message)),
+      (school) => emit(SchoolLoaded(school)),
+    );
   }
 
   Future<void> _onUpdateSchool(
@@ -68,13 +60,11 @@ class SchoolAdminSchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     Emitter<SchoolState> emit,
   ) async {
     emit(SchoolLoading());
-    try {
-      final school = await updateSchoolUseCase.call(event.school);
-       // authBloc.add(AuthSchoolUpdated(schoolName: school.name));
-      emit(SchoolLoaded(school));
-    } catch (e) {
-      emit(SchoolError(e.toString()));
-    }
+    final result = await updateSchoolUseCase.call(event.school);
+    result.fold(
+      (failure) => emit(SchoolError(failure.message)),
+      (school) => emit(SchoolLoaded(school)),
+    );
   }
 
   Future<void> _onDeleteSchool(
@@ -82,12 +72,10 @@ class SchoolAdminSchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     Emitter<SchoolState> emit,
   ) async {
     emit(SchoolLoading());
-    try {
-      await deleteSchoolUseCase.call();
-      // authBloc.add(AuthSchoolUpdated(schoolName: null));
-      emit(SchoolEmpty());
-    } catch (e) {
-      emit(SchoolError(e.toString()));
-    }
+    final result = await deleteSchoolUseCase.call(NoParams());
+    result.fold(
+      (failure) => emit(SchoolError(failure.message)),
+      (_) => emit(SchoolEmpty()),
+    );
   }
 }

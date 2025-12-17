@@ -1,4 +1,8 @@
-import { IClassRepository, ClassFilterOptions, SearchClassesOptions } from "../../domain/repositories/IClassRepository";
+import {
+  IClassRepository,
+  ClassFilterOptions,
+  SearchClassesOptions,
+} from "../../domain/repositories/IClassRepository";
 import { Class } from "../../domain/entities/Class";
 import { ClassModel } from "../datasources/postgres/models/ClassModel";
 import { Op } from "sequelize";
@@ -76,7 +80,7 @@ export class ClassRepositoryImpl implements IClassRepository {
 
     // Add grade filter if provided
     if (params.grade) {
-      whereCondition.grade = params.grade;
+      whereCondition.gradeId = params.grade;
     }
 
     const classes = await ClassModel.findAll({
@@ -112,7 +116,7 @@ export class ClassRepositoryImpl implements IClassRepository {
     skip: number,
     limit: number,
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: "asc" | "desc",
     filters: ClassFilterOptions
   ): Promise<Class[]> {
     const whereClause: any = {};
@@ -126,7 +130,7 @@ export class ClassRepositoryImpl implements IClassRepository {
       where: whereClause,
       offset: skip,
       limit: limit,
-      order: [[sortBy, sortOrder.toUpperCase() as 'ASC' | 'DESC']]
+      order: [[sortBy, sortOrder.toUpperCase() as "ASC" | "DESC"]],
     });
 
     return models.map((model) => this.toEntity(model));
@@ -151,7 +155,7 @@ export class ClassRepositoryImpl implements IClassRepository {
     if (query) {
       whereClause[Op.or] = [
         { name: { [Op.iLike]: `%${query}%` } },
-        { code: { [Op.iLike]: `%${query}%` } }
+        { code: { [Op.iLike]: `%${query}%` } },
       ];
     }
 
@@ -162,7 +166,7 @@ export class ClassRepositoryImpl implements IClassRepository {
       where: whereClause,
       limit,
       offset,
-      order: [['name', 'ASC']]
+      order: [["name", "ASC"]],
     });
 
     return models.map((model) => this.toEntity(model));

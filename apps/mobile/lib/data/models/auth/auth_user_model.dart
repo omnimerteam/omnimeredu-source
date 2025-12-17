@@ -1,5 +1,5 @@
-import '../../../core/constants/enum_constant.dart';
-import '../../../domain/entities/auth/auth_user_entity.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/domain/entities/auth/auth_user_entity.dart';
 
 class AuthUserModel {
   final String id;
@@ -36,17 +36,19 @@ class AuthUserModel {
 
   factory AuthUserModel.fromJson(Map<String, dynamic> json) {
     return AuthUserModel(
-      id: json['_id'] ?? '',
+      id: json['id'] ?? json['_id'] ?? '',
       fullName: json['fullName'] ?? '',
-      roleName: json['roleId'] is Map
-          ? json['roleId']['name']
-          : (json['roleName'] ?? ''),
+      roleName:
+          json['roleKey'] ??
+          (json['roleId'] is Map
+              ? json['roleId']['name']
+              : (json['roleName'] ?? '')),
       isVerified: json['isVerified'] ?? false,
       avatarUrl: json['avatarUrl'] ?? '',
-      schoolId: json['schoolId'] is Map
-          ? json['schoolId']['_id']
-          : json['schoolId'],
-      schoolName: json['schoolId'] is Map ? json['schoolId']['name'] : null,
+      schoolId: json['schoolId'],
+      schoolName:
+          json['schoolName'] ??
+          (json['schoolId'] is Map ? json['schoolId']['name'] : null),
       schoolLevel: EducationSystemLevelsEnum.fromString(
         json['schoolId'] is Map ? json['schoolId']['level'] : null,
       ),
@@ -57,7 +59,9 @@ class AuthUserModel {
       classId: json['classId'] is Map
           ? json['classId']['_id']
           : json['classId'],
-      className: json['classId'] is Map ? json['classId']['name'] : null,
+      className:
+          json['className'] ??
+          (json['classId'] is Map ? json['classId']['name'] : null),
       educationLevel: EducationSystemLevelsEnum.fromString(
         json['educationLevel'] as String?,
       ),

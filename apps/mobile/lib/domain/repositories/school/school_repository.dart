@@ -1,26 +1,23 @@
 // domain/repositories/school_repository.dart
-import '../../../../core/constants/enum_constant.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../core/utils/either.dart';
-import '../entities/school/school_data_entity.dart';
-import '../entities/school/school_search_entity.dart';
-import '../entities/school/school_selector_entity.dart';
+import 'package:mobile/domain/entities/school/school_data_entity.dart';
+import 'package:mobile/domain/entities/school/school_selector_entity.dart';
+
+import 'package:mobile/core/constants/enum_constant.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/core/utils/either.dart';
 
 abstract class SchoolRepository {
-  // Existing - Registration etc.
   Future<Either<Failure, List<SchoolSelectorEntity>>> getSchoolsByLevel({
-    required String educationLevel,
+    required EducationSystemLevelsEnum educationLevel,
     String? search,
   });
 
-  // New - School Admin management
-  Future<SchoolDataEntity?> getSchoolDetailForSchoolAdmin();
-  Future<SchoolDataEntity> createSchool(SchoolDataEntity createSchoolData);
-  Future<SchoolDataEntity> updateSchool(SchoolDataEntity updateSchoolData);
-  Future<void> deleteSchool();
-  
-  Future<List<SchoolSearchEntity>> searchSchoolsByLevel(
-    EducationSystemLevelsEnum educationLevel,
-    String? query,
+  Future<Either<Failure, SchoolDataEntity?>> getSchoolDetailForSchoolAdmin();
+  Future<Either<Failure, SchoolDataEntity>> createSchool(
+    SchoolDataEntity createSchoolData,
   );
+  Future<Either<Failure, SchoolDataEntity>> updateSchool(
+    SchoolDataEntity updateSchoolData,
+  );
+  Future<Either<Failure, void>> deleteSchool();
 }

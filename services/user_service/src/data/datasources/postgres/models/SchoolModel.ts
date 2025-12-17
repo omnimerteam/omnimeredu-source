@@ -82,6 +82,17 @@ export const initSchoolModel = (sequelize: Sequelize) => {
       tableName: "schools",
       timestamps: true,
       underscored: true,
+      indexes: [
+        {
+          fields: ["level"],
+        },
+        {
+          fields: ["admin_id"],
+        },
+        {
+          fields: ["name"],
+        },
+      ],
     }
   );
 };

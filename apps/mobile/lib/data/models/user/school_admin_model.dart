@@ -1,7 +1,7 @@
-import '../../../core/constants/enum_constant.dart';
+import 'package:mobile/core/constants/enum_constant.dart';
 
-import '../../../domain/entities/user/school_admin_entity.dart';
-import '../../../domain/entities/user/user_role_enum.dart';
+import 'package:mobile/domain/entities/user/school_admin_entity.dart';
+import 'package:mobile/domain/entities/user/user_role_enum.dart';
 import 'base_user_model.dart';
 
 class SchoolAdminModel extends BaseUserModel {

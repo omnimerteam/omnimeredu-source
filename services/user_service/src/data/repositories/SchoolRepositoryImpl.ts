@@ -75,7 +75,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
   }): Promise<School[]> {
     const whereCondition: any = {
       level: params.educationLevel,
-      deletedAt: null,
+      // deletedAt: null, // Removed because SchoolModel does not have paranoid: true enabled
     };
 
     // Add search condition if provided
@@ -97,6 +97,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
     const schools = await SchoolModel.findAll({
       where: whereCondition,
       order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
     });
 
     return schools.map((school) => this.toEntity(school));
@@ -123,6 +124,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
       limit,
       offset,
       order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
     });
 
     return models.map((model) => this.toEntity(model));
