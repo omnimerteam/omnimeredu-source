@@ -8,6 +8,7 @@ import 'package:mobile/domain/entities/school/school_data_entity.dart';
 
 import 'package:mobile/core/constants/enum_constant.dart';
 
+import 'package:mobile/data/models/school/school_data_model.dart';
 import 'package:mobile/data/datasources/remote/school/school_remote_data_source.dart';
 
 class SchoolRepositoryImpl implements SchoolRepository {
@@ -51,7 +52,9 @@ class SchoolRepositoryImpl implements SchoolRepository {
     SchoolDataEntity createSchoolData,
   ) async {
     return safeApiCall(() async {
-      return await schoolRemoteDataSource.createSchool(createSchoolData);
+      return await schoolRemoteDataSource.createSchool(
+        SchoolDataModel.fromEntity(createSchoolData),
+      );
     });
   }
 
@@ -60,7 +63,9 @@ class SchoolRepositoryImpl implements SchoolRepository {
     SchoolDataEntity updateSchoolData,
   ) async {
     return safeApiCall(() async {
-      return await schoolRemoteDataSource.updateSchool(updateSchoolData);
+      return await schoolRemoteDataSource.updateSchool(
+        SchoolDataModel.fromEntity(updateSchoolData),
+      );
     });
   }
 

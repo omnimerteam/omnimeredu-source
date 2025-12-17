@@ -97,6 +97,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
     const schools = await SchoolModel.findAll({
       where: whereCondition,
       order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
     });
 
     return schools.map((school) => this.toEntity(school));
@@ -123,6 +124,7 @@ export class SchoolRepositoryImpl implements ISchoolRepository {
       limit,
       offset,
       order: [["name", "ASC"]],
+      attributes: { exclude: ["customTheme"] },
     });
 
     return models.map((model) => this.toEntity(model));

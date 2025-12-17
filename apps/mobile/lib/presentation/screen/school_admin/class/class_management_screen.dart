@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../injection_container.dart';
 import '../../../common/grade_select/cubit/grade_select_cubit.dart';
-import '../../../common/widgets/button/app_button.dart';
 import 'bloc/class_management_bloc.dart';
 import 'bloc/class_management_event.dart';
 import 'bloc/class_management_state.dart';
@@ -31,8 +30,13 @@ class ClassManagementScreen extends StatelessWidget {
           if (state is ClassManagementLoaded && state.isFormVisible) {
             showDialog(
               context: context,
-              builder: (_) => BlocProvider.value(
-                value: context.read<ClassManagementBloc>(),
+              builder: (_) => MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(
+                    value: context.read<ClassManagementBloc>(),
+                  ),
+                  BlocProvider.value(value: context.read<GradeSelectCubit>()),
+                ],
                 child: ClassFormDialog(classToEdit: state.classToEdit),
               ),
             ).then((_) {

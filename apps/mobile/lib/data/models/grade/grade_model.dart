@@ -26,7 +26,7 @@ class GradeModel extends GradeEntity {
     }
 
     return GradeModel(
-      id: json['_id'] as String?,
+      id: (json['id'] ?? json['_id']) as String?,
       schoolId: json['schoolId'] as String,
       name: json['name'] as String,
       level: EducationSystemLevelsEnum.fromString(json['level']),
@@ -50,7 +50,7 @@ class GradeModel extends GradeEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      if (id != null) '_id': id,
+      if (id != null) 'id': id,
       'schoolId': schoolId,
       'name': name,
       'level': level.asString,

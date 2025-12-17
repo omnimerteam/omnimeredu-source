@@ -29,17 +29,12 @@ export interface GradeListOptions extends PaginationOptions {
 export class GetAllGradesUseCase {
   constructor(private gradeRepository: GradeRepositoryImpl) {}
 
-  async execute(
-    options: GradeListOptions = {}
-  ): Promise<PaginatedResponse<Grade>> {
+  async execute(options: GradeListOptions = {}): Promise<Grade[]> {
     const { filters = {}, ...paginationOptions } = options;
 
     // Parse pagination options
-    const { page, limit, sortBy, sortOrder, offset } =
+    const { limit, sortBy, sortOrder, offset } =
       PaginationUtil.parseOptions(paginationOptions);
-
-    // Build order clause
-    const orderClause = PaginationUtil.buildOrderClause(sortBy, sortOrder);
 
     // Get grades with enhanced filtering
     const grades = await this.gradeRepository.findAllWithPagination(
@@ -51,15 +46,6 @@ export class GetAllGradesUseCase {
       paginationOptions.fields
     );
 
-    // Get total count
-    const total = await this.gradeRepository.count(filters);
-
-    // Create paginated response
-    return PaginationUtil.createResponse(
-      grades,
-      total,
-      paginationOptions,
-      filters
-    );
+    return grades;
   }
 }

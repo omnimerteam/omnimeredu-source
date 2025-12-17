@@ -4,10 +4,11 @@ import 'package:mobile/presentation/common/widgets/button/app_button.dart';
 import 'package:mobile/presentation/common/widgets/input/primary_text_field.dart';
 import '../../../../../../core/utils/validator.dart';
 import '../../../../../domain/entities/class/class_entity.dart';
-import '../../../../../../core/constants/enum_constant.dart';
 import '../bloc/class_management_bloc.dart';
 import '../bloc/class_management_event.dart';
 import '../bloc/class_management_state.dart';
+import '../../../../common/grade_select/grade_select_dropdown.dart';
+import '../../../../common/grade_select/cubit/grade_select_cubit.dart';
 
 class ClassFormDialog extends StatefulWidget {
   final ClassEntity? classToEdit;
@@ -24,12 +25,14 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
   late TextEditingController _nameController;
   late TextEditingController _codeController;
   late TextEditingController _maxStudentsController;
+  late TextEditingController _baseFeeController;
 
   final _nameFocusNode = FocusNode();
   final _codeFocusNode = FocusNode();
   final _maxStudentsFocusNode = FocusNode();
+  final _baseFeeFocusNode = FocusNode();
 
-  EducationGradesEnum? _selectedGradeEnum;
+  String? _selectedGradeId;
 
   bool get isEditMode => widget.classToEdit != null;
 
@@ -39,10 +42,12 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
     _nameController = TextEditingController();
     _codeController = TextEditingController();
     _maxStudentsController = TextEditingController();
+    _baseFeeController = TextEditingController();
 
     _nameFocusNode.addListener(_onFocusChange);
     _codeFocusNode.addListener(_onFocusChange);
     _maxStudentsFocusNode.addListener(_onFocusChange);
+    _baseFeeFocusNode.addListener(_onFocusChange);
 
     _initFormData();
   }
@@ -54,51 +59,47 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
   void _initFormData() {
     if (isEditMode && widget.classToEdit != null) {
       _nameController.text = widget.classToEdit!.name;
-      _codeController.text = widget.classToEdit!.code;
+      _codeController.text = widget.classToEdit!.code ?? '';
       _maxStudentsController.text =
           widget.classToEdit!.maxStudents?.toString() ?? '';
-      _selectedGradeEnum = widget.classToEdit!.grade;
+      _selectedGradeId = widget.classToEdit!.gradeId;
+      _baseFeeController.text = widget.classToEdit!.baseFee.toString();
     }
   }
 
-  List<DropdownMenuItem<EducationGradesEnum>> _getGradeItems() {
-    return EducationGradesEnum.values
-        .where((e) => e != EducationGradesEnum.None)
-        .map((e) {
-          return DropdownMenuItem(value: e, child: Text(e.displayName));
-        })
-        .toList();
-  }
+  // Removed _getGradeItems
 
   @override
   void dispose() {
     _nameController.dispose();
     _codeController.dispose();
     _maxStudentsController.dispose();
+    _baseFeeController.dispose();
     _nameFocusNode.dispose();
     _codeFocusNode.dispose();
     _maxStudentsFocusNode.dispose();
+    _baseFeeFocusNode.dispose();
     super.dispose();
   }
 
   void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      if (_selectedGradeEnum == null) {
-        // Should be handled by dropdown validator usually, but double check
+      if (_selectedGradeId == null) {
+        // Should be handled by dropdown validator
         return;
       }
 
       final classEntity = ClassEntity(
         id: isEditMode ? widget.classToEdit!.id : '',
         name: _nameController.text.trim(),
-        code: _codeController.text.trim(),
+        code: _codeController.text.trim().isEmpty
+            ? null
+            : _codeController.text.trim(),
         schoolId: '', // Will be handled by Bloc/Repo/Backend
-        grade: _selectedGradeEnum!,
-        level: EducationSystemLevelsEnum
-            .Primary, // Defaulting to Primary for now as per constant check
-        // Ideally should select Level too, but often Grade implies Level or backend validation.
+        gradeId: _selectedGradeId!,
         maxStudents: int.tryParse(_maxStudentsController.text.trim()),
         currentStudents: widget.classToEdit?.currentStudents ?? 0,
+        baseFee: num.tryParse(_baseFeeController.text.trim()) ?? 0,
       );
 
       if (isEditMode) {
@@ -179,19 +180,13 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                           focusNode: _codeFocusNode,
                           isFocused: _codeFocusNode.hasFocus,
                           prefixIcon: Icons.tag,
-                          hintText: 'Mã lớp',
-                          validator: (v) => Validators.required(v),
+                          hintText: 'Mã lớp (Tự động nếu trống)',
                         ),
                         const SizedBox(height: 16),
-                        DropdownButtonFormField<EducationGradesEnum>(
-                          value: _selectedGradeEnum,
-                          decoration: const InputDecoration(
-                            labelText: 'Khối',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _getGradeItems(),
+                        GradeSelectDropdown(
+                          selectedGradeId: _selectedGradeId,
                           onChanged: (v) =>
-                              setState(() => _selectedGradeEnum = v),
+                              setState(() => _selectedGradeId = v),
                           validator: (v) => v == null ? 'Bắt buộc' : null,
                         ),
                         const SizedBox(height: 16),
@@ -202,6 +197,16 @@ class _ClassFormDialogState extends State<ClassFormDialog> {
                           prefixIcon: Icons.people_outline,
                           hintText: 'Sĩ số tối đa',
                           keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 16),
+                        PrimaryTextField(
+                          controller: _baseFeeController,
+                          focusNode: _baseFeeFocusNode,
+                          isFocused: _baseFeeFocusNode.hasFocus,
+                          prefixIcon: Icons.attach_money,
+                          hintText: 'Học phí cơ bản',
+                          keyboardType: TextInputType.number,
+                          validator: (v) => Validators.required(v),
                         ),
                       ],
                     ),

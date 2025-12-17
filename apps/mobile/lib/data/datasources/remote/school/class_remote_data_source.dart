@@ -44,7 +44,7 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
       }
 
       final data = response.data;
-      if (data == null || data['classes'] == null) {
+      if (data == null) {
         return [];
       }
 
@@ -61,7 +61,7 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
   @override
   Future<List<ClassModel>> getAllClasses(DefaultQueryEntity query) async {
     try {
-      final response = await client.get<Map<String, dynamic>>(
+      final response = await client.get<List<dynamic>>(
         Endpoints.user.classes,
         query: query.toQueryBuilder().build(),
       );
@@ -71,13 +71,11 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
       }
 
       final data = response.data;
-      // Depending on API structure, it might be in 'data' or 'items' or directly 'classes'
-      // Assuming standard pagination structure: data['items'] or data['classes']
-      // Checking omnimereduapp code (or response structure) would be improved,
-      // but assuming 'items' or 'classes' is safe for now if I handle null.
-      final list = data?['items'] ?? data?['classes'] ?? [];
+      if (data == null) {
+        return [];
+      }
 
-      return (list as List).map((json) => ClassModel.fromJson(json)).toList();
+      return data.map((json) => ClassModel.fromJson(json)).toList();
     } catch (e) {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());

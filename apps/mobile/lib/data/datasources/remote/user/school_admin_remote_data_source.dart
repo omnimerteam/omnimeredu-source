@@ -31,19 +31,6 @@ class SchoolAdminRemoteDataSourceImpl implements SchoolAdminRemoteDataSource {
     // Note: Endpoint paths taken from legacy app, assuming same backend structure under User Service
     final url = '$_baseUrl/v1/school-admins/update-position/$schoolAdminId';
 
-    // Auth token is handled by ApiClient if requiresAuth is true (default)
-    // or we can manually pass it if ApiClient doesn't auto-inject.
-    // Looking at auth_remote_data_source, it doesn't pass header manually for authorized requests
-    // relative to client usage? Wait, auth_remote_data_source used requiresAuth: false for login.
-    // For protected routes, ApiClient usually attaches interceptors.
-    // But checking old code, it manually added Authorization header.
-    // I will let ApiClient handle it if it has interceptor, but given I don't see the interceptor setup here,
-    // I will check if ApiClient has default auth header referencing SecureStorage.
-    // But to be safe, I'll rely on ApiClient interceptor logic or pass if needed.
-    // Since I can't check ApiClient implementation deeply right now, I'll assume it handles it or I shouldn't manually add if I want to be clean.
-    // However, existing AuthRemoteDataSource writes token to SecureStorage.
-    // I will assume ApiClient reads from there.
-
     final res = await client.patch<SchoolAdminPositionEnum>(
       url,
       data: {"position": position.name},

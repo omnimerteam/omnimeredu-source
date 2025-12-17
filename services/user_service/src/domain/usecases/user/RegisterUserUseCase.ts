@@ -163,6 +163,7 @@ export class RegisterUserUseCase {
             phone: request.schoolData.phone,
             description: request.schoolData.description,
             level: request.schoolData.level,
+            adminId: createdUser.id,
           },
           { transaction }
         );

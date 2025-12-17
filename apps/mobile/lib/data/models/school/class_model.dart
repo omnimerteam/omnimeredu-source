@@ -5,12 +5,12 @@ class ClassModel extends ClassEntity {
   const ClassModel({
     required super.id,
     required super.name,
-    required super.code,
+    super.code,
     required super.schoolId,
-    required super.grade,
-    required super.level,
+    required super.gradeId,
     super.maxStudents,
-    super.currentStudents = 0,
+    required super.currentStudents,
+    required super.baseFee,
     super.createdAt,
     super.updatedAt,
   });
@@ -19,12 +19,12 @@ class ClassModel extends ClassEntity {
     return ClassModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      code: json['code'] as String,
+      code: json['code'] as String?,
       schoolId: json['schoolId'] as String,
-      grade: EducationGradesEnum.fromString(json['grade']),
-      level: EducationSystemLevelsEnum.fromString(json['level']),
+      gradeId: json['gradeId'] as String,
       maxStudents: json['maxStudents'] as int?,
       currentStudents: (json['currentStudents'] as int?) ?? 0,
+      baseFee: json['baseFee'] as num,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -38,12 +38,12 @@ class ClassModel extends ClassEntity {
     return {
       'id': id,
       'name': name,
-      'code': code,
+      if (code != null) 'code': code,
       'schoolId': schoolId,
-      'grade': grade.name,
-      'level': level.name,
+      'gradeId': gradeId,
       'maxStudents': maxStudents,
       'currentStudents': currentStudents,
+      'baseFee': baseFee,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };
@@ -55,10 +55,10 @@ class ClassModel extends ClassEntity {
       name: name,
       code: code,
       schoolId: schoolId,
-      grade: grade,
-      level: level,
+      gradeId: gradeId,
       maxStudents: maxStudents,
       currentStudents: currentStudents,
+      baseFee: baseFee,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

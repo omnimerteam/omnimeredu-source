@@ -22,7 +22,7 @@ class GradeRemoteDataSourceImpl implements GradeRemoteDataSource {
     try {
       final queryParams = query.toQueryBuilder().build();
 
-      final response = await client.get<Map<String, dynamic>>(
+      final response = await client.get<List<dynamic>>(
         Endpoints.user.grades,
         query: queryParams,
       );
@@ -32,13 +32,11 @@ class GradeRemoteDataSourceImpl implements GradeRemoteDataSource {
       }
 
       final data = response.data;
-      if (data == null || data['items'] == null) {
+      if (data == null) {
         return [];
       }
 
-      return (data['items'] as List)
-          .map((item) => GradeModel.fromJson(item))
-          .toList();
+      return data.map((item) => GradeModel.fromJson(item)).toList();
     } catch (e) {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());

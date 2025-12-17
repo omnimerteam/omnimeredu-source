@@ -47,6 +47,7 @@ export interface IUserRepository {
       phone?: string;
       description?: string;
       level: string;
+      adminId?: string;
     },
     options?: { transaction?: any }
   ): Promise<{ id: string; name: string }>;

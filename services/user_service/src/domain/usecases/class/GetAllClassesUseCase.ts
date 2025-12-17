@@ -5,7 +5,7 @@ export interface PaginationOptions {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface ClassFilterOptions {
@@ -33,12 +33,12 @@ export class GetAllClassesUseCase {
   async execute(
     pagination: PaginationOptions = {},
     filters: ClassFilterOptions = {}
-  ): Promise<PaginatedResult<Class>> {
+  ): Promise<Class[]> {
     const page = pagination.page || 1;
     const limit = Math.min(pagination.limit || 20, 100); // Max 100 items per page
     const skip = (page - 1) * limit;
-    const sortBy = pagination.sortBy || 'name';
-    const sortOrder = pagination.sortOrder || 'asc';
+    const sortBy = pagination.sortBy || "name";
+    const sortOrder = pagination.sortOrder || "asc";
 
     const classes = await this.classRepository.findAllWithPagination(
       skip,
@@ -48,19 +48,6 @@ export class GetAllClassesUseCase {
       filters
     );
 
-    const total = await this.classRepository.count(filters);
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data: classes,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1
-      }
-    };
+    return classes;
   }
 }

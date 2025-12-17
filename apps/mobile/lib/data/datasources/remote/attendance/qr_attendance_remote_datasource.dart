@@ -24,7 +24,7 @@ class QRAttendanceRemoteDatasource {
         AppLogger.info('QR code generated: $attendanceId');
         return response.data!;
       } else {
-        final errorMsg = response.message ?? 'Failed to generate QR code';
+        final errorMsg = response.message;
         throw Exception(errorMsg);
       }
     } catch (e) {
