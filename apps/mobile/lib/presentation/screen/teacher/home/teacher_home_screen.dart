@@ -2,33 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../domain/entities/attendance/attendance_record_view_entity.dart';
-import '../../../../domain/usecases/attendance/delete_attendance_usecase.dart';
-import '../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
-import '../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
-import 'bloc/attendance/teacher_attendance_bloc.dart';
-import 'bloc/attendance/teacher_attendance_event.dart';
-import 'bloc/attendance/teacher_attendance_state.dart';
-import 'qr_display_screen.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/routing/route_config.dart';
+import '../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
+import '../../../../../domain/usecases/attendance/delete_attendance_usecase.dart';
+import '../../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
+import '../../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import '../../../common/blocs/auth_bloc/auth_bloc.dart';
+import 'bloc/teacher_attendance_bloc.dart';
+import 'bloc/teacher_attendance_event.dart';
+import 'bloc/teacher_attendance_state.dart';
 import 'widgets/attendance_action_dialog.dart';
 import 'widgets/attendance_dialog.dart';
 import 'widgets/attendance_stats_card.dart';
 import 'widgets/attendance_table_section.dart';
 import 'widgets/class_and_date_selector.dart';
 
-class TeacherAttendanceScreen extends StatefulWidget {
-  final String schoolId;
-
-  const TeacherAttendanceScreen({Key? key, required this.schoolId})
-    : super(key: key);
+class TeacherHomeScreen extends StatefulWidget {
+  const TeacherHomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<TeacherAttendanceScreen> createState() =>
-      _TeacherAttendanceScreenState();
+  State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
 }
 
-class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
+class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   // Placeholder for classes. In real app, fetch this from ClassBloc/Repository
   List<AttendanceClassInfoEntity> _classes = [];
 
@@ -101,11 +98,18 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
         }
       },
       builder: (context, state) {
+        // Retrieve schoolId from AuthBloc
+        final authState = context.read<AuthBloc>().state;
+        String schoolId = '';
+        if (authState is AuthAuthenticated && authState.user.schoolId != null) {
+          schoolId = authState.user.schoolId!;
+        }
+
         return SingleChildScrollView(
           child: Column(
             children: [
               ClassAndDateSelector(
-                schoolId: widget.schoolId,
+                schoolId: schoolId,
                 initialClassId: state.selectedClassId,
                 initialDate: state.selectedDate,
                 isLoading:
@@ -149,7 +153,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                       context.read<TeacherAttendanceBloc>().add(
                         InitializeAttendance(
                           classId: state.selectedClassId!,
-                          schoolId: widget.schoolId,
+                          schoolId: schoolId,
                           date: state.selectedDate,
                         ),
                       );
@@ -165,15 +169,14 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                 },
                 onQRAttendance: () {
                   if (state.attendanceRecord != null) {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => QRDisplayScreen(
-                          attendanceId: state.attendanceRecord!.id,
-                          className: state.attendanceRecord!.classInfo.name,
-                          date: state.selectedDate,
-                        ),
-                      ),
+                      RouteConfig.teacherQR,
+                      arguments: {
+                        'attendanceId': state.attendanceRecord!.id,
+                        'className': state.attendanceRecord!.classInfo.name,
+                        'date': state.selectedDate,
+                      },
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -216,7 +219,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
                     context.read<TeacherAttendanceBloc>().add(
                       InitializeAttendance(
                         classId: state.selectedClassId!,
-                        schoolId: widget.schoolId,
+                        schoolId: schoolId,
                         date: state.selectedDate,
                       ),
                     );

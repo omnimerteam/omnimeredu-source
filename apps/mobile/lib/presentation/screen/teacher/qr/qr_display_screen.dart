@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../domain/usecases/qr_attendance/generate_qr_code_usecase.dart';
-import 'bloc/qr/qr_display_bloc.dart';
-import 'bloc/qr/qr_display_event.dart';
-import 'bloc/qr/qr_display_state.dart';
-import 'widgets/attendance_info_card.dart';
+import '../../../../../core/theme/app_colors.dart';
+import '../../../../../domain/usecases/qr_attendance/generate_qr_code_usecase.dart';
+import 'bloc/qr_display_bloc.dart';
+import 'bloc/qr_display_event.dart';
+import 'bloc/qr_display_state.dart';
+import '../home/widgets/attendance_info_card.dart';
 import 'widgets/qr_code_widget.dart';
 import 'widgets/qr_timer_widget.dart';
 

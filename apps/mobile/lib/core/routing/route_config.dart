@@ -18,10 +18,10 @@ import '../../presentation/screen/school_admin/grade/bloc/grade_management_event
 import '../../presentation/screen/school_admin/membership_request/membership_request_screen.dart';
 import '../../presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
 import '../../presentation/screen/school_admin/dashboard/school_admin_dashboard_screen.dart';
-import '../../presentation/screen/teacher/teacher_home_screen.dart';
-import '../../presentation/screen/teacher/attendance/create_attendance_screen.dart';
 import '../../presentation/screen/student/student_home_screen.dart';
 import '../../presentation/screen/student/attendance/scan_qr_screen.dart';
+import '../../presentation/screen/teacher/home/teacher_home_screen.dart';
+import '../../presentation/screen/teacher/qr/qr_display_screen.dart';
 import 'package:mobile/injection_container.dart' as di;
 
 /// RouteConfig - Quản lý routing và navigation cho ứng dụng
@@ -51,6 +51,7 @@ class RouteConfig {
       '/school-admin/reports'; // Placeholder
   static const String teacherHome = '/teacher/home';
   static const String teacherAttendance = '/teacher/attendance';
+  static const String teacherQR = '/teacher/qr';
   static const String studentHome = '/student/home';
   static const String studentScanQr = '/student/scan-qr';
 
@@ -198,8 +199,22 @@ class RouteConfig {
       case teacherHome:
         return const TeacherHomeScreen();
 
-      case teacherAttendance:
-        return const CreateAttendanceScreen();
+      case teacherQR:
+        final attendanceId = arguments?['attendanceId'] as String?;
+        final className = arguments?['className'] as String?;
+        final date = arguments?['date'] as DateTime?;
+        final subject = arguments?['subject'] as String?;
+
+        if (attendanceId == null || className == null || date == null) {
+          return const _ErrorPage(message: 'Thiếu thông tin QR');
+        }
+
+        return QRDisplayScreen(
+          attendanceId: attendanceId,
+          className: className,
+          date: date,
+          subject: subject,
+        );
 
       case studentHome:
         return const StudentHomeScreen();

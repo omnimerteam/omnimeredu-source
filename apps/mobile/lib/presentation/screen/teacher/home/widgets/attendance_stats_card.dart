@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../../../core/theme/app_colors.dart';
-import '../bloc/attendance/teacher_attendance_state.dart';
+import '../../../../../../../core/theme/app_colors.dart';
+import '../bloc/teacher_attendance_state.dart';
 
 class AttendanceStatsCard extends StatelessWidget {
   final AttendanceStats stats;

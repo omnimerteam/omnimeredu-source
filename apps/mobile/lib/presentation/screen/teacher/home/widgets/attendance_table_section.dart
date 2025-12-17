@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
-import '../bloc/attendance/teacher_attendance_state.dart';
+import '../../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
+import '../bloc/teacher_attendance_state.dart';
 import 'student_attendance_table.dart';
 
 class AttendanceTableSection extends StatelessWidget {

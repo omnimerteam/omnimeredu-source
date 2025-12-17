@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile/presentation/common/widgets/input/primary_dropdown.dart';
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
+import '../../../../../../core/theme/app_colors.dart';
+import '../../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
 
 class ClassAndDateSelector extends StatelessWidget {
   final String schoolId;
