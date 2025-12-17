@@ -65,6 +65,17 @@ import 'package:mobile/domain/usecases/membership_request/get_membership_request
 import 'package:mobile/domain/usecases/membership_request/update_status_membership_request_usecase.dart';
 import 'package:mobile/presentation/screen/school_admin/membership_request/bloc/membership_request_bloc.dart';
 
+// Student QR Attendance
+import 'package:mobile/presentation/screen/student/attendance/bloc/qr_scanner_bloc.dart';
+import 'package:mobile/domain/usecases/qr_attendance/submit_attendance_usecase.dart';
+import 'package:mobile/domain/usecases/qr_attendance/sync_offline_scans_usecase.dart';
+import 'package:mobile/domain/repositories/attendance/qr_attendance_repository.dart';
+import 'package:mobile/data/repositories/attendance/qr_attendance_repository_impl.dart';
+import 'package:mobile/data/datasources/remote/attendance/qr_attendance_remote_datasource.dart';
+import 'package:mobile/services/qr_service/connectivity_service.dart';
+import 'package:mobile/services/qr_service/location_service.dart';
+import 'package:mobile/services/qr_service/offline_queue_service.dart';
+
 // Service Locator
 final sl = GetIt.instance;
 
@@ -217,6 +228,38 @@ Future<void> init() async {
   sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
     () => MembershipRequestRemoteDataSource(sl()),
   );
+
+  // ! Features - Student Attendance
+  // Bloc
+  sl.registerFactory(
+    () => QRScannerBloc(
+      sl(), // SubmitAttendanceUseCase
+      sl(), // SyncOfflineScansUseCase
+      sl(), // ConnectivityService
+      sl(), // LocationService
+    ),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(
+    () => SubmitAttendanceUseCase(sl(), sl(), sl(), sl()),
+  );
+  sl.registerLazySingleton(() => SyncOfflineScansUseCase(sl(), sl(), sl()));
+
+  // Repository
+  sl.registerLazySingleton<QRAttendanceRepository>(
+    () => QRAttendanceRepositoryImpl(sl(), sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<QRAttendanceRemoteDatasource>(
+    () => QRAttendanceRemoteDatasource(sl()),
+  );
+
+  // Services
+  sl.registerLazySingleton(() => ConnectivityService());
+  sl.registerLazySingleton(() => LocationService());
+  sl.registerLazySingleton(() => OfflineQueueService());
 
   // ! Core
   sl.registerLazySingleton(() => ApiClient(secureStorage: sl()));
