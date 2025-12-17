@@ -8,6 +8,7 @@ import { GenerateQRCodeUseCase } from "../../domain/usecases/attendance/Generate
 import { InitializeClassAttendanceUseCase } from "../../domain/usecases/attendance/InitializeClassAttendanceUseCase";
 import { ManualAttendanceUseCase } from "../../domain/usecases/attendance/ManualAttendanceUseCase";
 import { VerifyQRAttendanceUseCase } from "../../domain/usecases/attendance/VerifyQRAttendanceUseCase";
+import { GetAttendanceByClassAndDateUseCase } from "../../domain/usecases/attendance/GetAttendanceByClassAndDateUseCase";
 import { CreateAttendanceDto } from "../dtos/CreateAttendanceDto";
 import {
   BulkCreateAttendanceRecordsDto,
@@ -61,7 +62,8 @@ export class AttendanceController {
     private generateQRCodeUseCase: GenerateQRCodeUseCase,
     private initializeClassAttendanceUseCase?: InitializeClassAttendanceUseCase,
     private manualAttendanceUseCase?: ManualAttendanceUseCase,
-    private verifyQRAttendanceUseCase?: VerifyQRAttendanceUseCase
+    private verifyQRAttendanceUseCase?: VerifyQRAttendanceUseCase,
+    private getAttendanceByClassAndDateUseCase?: GetAttendanceByClassAndDateUseCase
   ) {}
 
   /**
@@ -313,6 +315,47 @@ export class AttendanceController {
         sendSuccess(res, result.message, result.record);
       } else {
         sendError(res, result.message, 400);
+      }
+    } catch (error: any) {
+      sendError(res, error.message, 400, error);
+    }
+  }
+
+  /**
+   * Find attendance by class and date
+   * GET /api/attendance/find
+   */
+  async findByClassAndDate(req: Request, res: Response): Promise<void> {
+    try {
+      if (!this.getAttendanceByClassAndDateUseCase) {
+        sendError(res, "Feature not available", 501);
+        return;
+      }
+
+      const classId = req.query.classId as string;
+      const dateStr = req.query.date as string;
+
+      if (!classId || !dateStr) {
+        sendError(res, "classId and date are required", 400);
+        return;
+      }
+
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        sendError(res, "Invalid date format", 400);
+        return;
+      }
+
+      const result = await this.getAttendanceByClassAndDateUseCase.execute(
+        classId,
+        date
+      );
+
+      if (result) {
+        sendSuccess(res, "Attendance found", result);
+      } else {
+        // Return null data instead of 404 to indicate no record found but not an error
+        sendSuccess(res, "Attendance not found", null);
       }
     } catch (error: any) {
       sendError(res, error.message, 400, error);

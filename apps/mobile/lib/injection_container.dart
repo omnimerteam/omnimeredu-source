@@ -76,6 +76,17 @@ import 'package:mobile/services/qr_service/connectivity_service.dart';
 import 'package:mobile/services/qr_service/location_service.dart';
 import 'package:mobile/services/qr_service/offline_queue_service.dart';
 
+// Teacher Attendance
+import 'package:mobile/presentation/screen/teacher/home/bloc/teacher_attendance_bloc.dart';
+import 'package:mobile/presentation/screen/teacher/qr/bloc/qr_display_bloc.dart';
+import 'package:mobile/domain/usecases/qr_attendance/generate_qr_code_usecase.dart';
+import 'package:mobile/domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
+import 'package:mobile/domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import 'package:mobile/domain/usecases/attendance/delete_attendance_usecase.dart';
+import 'package:mobile/domain/repositories/attendance/attendance_repository.dart';
+import 'package:mobile/data/repositories/attendance/attendance_repository_impl.dart';
+import 'package:mobile/data/datasources/remote/attendance/attendance_remote_data_source.dart';
+
 // Service Locator
 final sl = GetIt.instance;
 
@@ -255,6 +266,32 @@ Future<void> init() async {
   sl.registerLazySingleton<QRAttendanceRemoteDatasource>(
     () => QRAttendanceRemoteDatasource(sl()),
   );
+
+  // ! Features - Teacher Attendance
+  // Bloc
+  sl.registerFactory(
+    () => TeacherAttendanceBloc(
+      getAttendanceRecord: sl(),
+      initializeAttendance: sl(),
+      deleteAttendance: sl(),
+      getClasses: sl(),
+    ),
+  );
+  sl.registerFactory(() => QRDisplayBloc(generateQRCode: sl()));
+
+  // Use cases
+  sl.registerLazySingleton(() => GenerateQRCodeUseCase(sl()));
+  sl.registerLazySingleton(() => GetClassAttendanceRecordViewUseCase(sl()));
+  sl.registerLazySingleton(() => InitializeClassAttendanceUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAttendanceUseCase(sl()));
+
+  // Repository
+  sl.registerLazySingleton<AttendanceRepository>(
+    () => AttendanceRepositoryImpl(sl()),
+  );
+
+  // Data sources
+  sl.registerLazySingleton(() => AttendanceRemoteDataSource(sl()));
 
   // Services
   sl.registerLazySingleton(() => ConnectivityService());

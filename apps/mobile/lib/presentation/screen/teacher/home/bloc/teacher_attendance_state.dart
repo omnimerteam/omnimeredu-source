@@ -38,6 +38,7 @@ class TeacherAttendanceState extends Equatable {
   final DateTime selectedDate;
   final AttendanceRecordViewEntity? attendanceRecord;
   final List<StudentAttendanceEntity> filteredStudents;
+  final List<AttendanceClassInfoEntity> classes;
   final AttendanceStats attendanceStats;
   final String searchQuery;
 
@@ -48,6 +49,7 @@ class TeacherAttendanceState extends Equatable {
     required this.selectedDate,
     this.attendanceRecord,
     this.filteredStudents = const [],
+    this.classes = const [],
     this.attendanceStats = const AttendanceStats(),
     this.searchQuery = '',
   });
@@ -59,6 +61,7 @@ class TeacherAttendanceState extends Equatable {
     DateTime? selectedDate,
     AttendanceRecordViewEntity? attendanceRecord,
     List<StudentAttendanceEntity>? filteredStudents,
+    List<AttendanceClassInfoEntity>? classes,
     AttendanceStats? attendanceStats,
     String? searchQuery,
   }) {
@@ -69,6 +72,7 @@ class TeacherAttendanceState extends Equatable {
       selectedDate: selectedDate ?? this.selectedDate,
       attendanceRecord: attendanceRecord ?? this.attendanceRecord,
       filteredStudents: filteredStudents ?? this.filteredStudents,
+      classes: classes ?? this.classes,
       attendanceStats: attendanceStats ?? this.attendanceStats,
       searchQuery: searchQuery ?? this.searchQuery,
     );
@@ -82,6 +86,7 @@ class TeacherAttendanceState extends Equatable {
     selectedDate,
     attendanceRecord,
     filteredStudents,
+    classes,
     attendanceStats,
     searchQuery,
   ];

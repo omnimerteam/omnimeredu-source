@@ -26,9 +26,9 @@ class DetailRecordModel {
   /// Tạo model từ JSON (MongoDB trả về)
   factory DetailRecordModel.fromJson(Map<String, dynamic> json) {
     return DetailRecordModel(
-      id: json['_id'] as String,
-      studentId: json['studentId'] as String,
-      attendanceId: json['attendanceId'] as String,
+      id: json['id'] as String?,
+      studentId: json['studentId'] as String?,
+      attendanceId: json['attendanceId'] as String?,
       status: AttendanceStatusEnum.fromString(json['status'] as String?),
       note: json['note'] as String?,
       createdAt: (json['createdAt'] as String?) != null
@@ -47,7 +47,7 @@ class DetailRecordModel {
   /// Convert model -> JSON (gửi API)
   Map<String, dynamic> toJson() {
     return {
-      '_id': id,
+      'id': id,
       'studentId': studentId,
       'attendanceId': attendanceId,
       'status': status?.name,

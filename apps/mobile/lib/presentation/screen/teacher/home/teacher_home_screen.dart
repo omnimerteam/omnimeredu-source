@@ -4,10 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/routing/route_config.dart';
-import '../../../../../domain/entities/attendance/attendance_record_view_entity.dart';
 import '../../../../../domain/usecases/attendance/delete_attendance_usecase.dart';
 import '../../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import '../../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import '../../../../../domain/usecases/school/get_classes_by_school_usecase.dart';
 import '../../../common/blocs/auth_bloc/auth_bloc.dart';
 import 'bloc/teacher_attendance_bloc.dart';
 import 'bloc/teacher_attendance_event.dart';
@@ -27,22 +27,29 @@ class TeacherHomeScreen extends StatefulWidget {
 
 class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   // Placeholder for classes. In real app, fetch this from ClassBloc/Repository
-  List<AttendanceClassInfoEntity> _classes = [];
-
   @override
   void initState() {
     super.initState();
-    // TODO: Fetch classes here
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => TeacherAttendanceBloc(
-        getAttendanceRecord: GetIt.I<GetClassAttendanceRecordViewUseCase>(),
-        initializeAttendance: GetIt.I<InitializeClassAttendanceUseCase>(),
-        deleteAttendance: GetIt.I<DeleteAttendanceUseCase>(),
-      ),
+      create: (context) {
+        final bloc = TeacherAttendanceBloc(
+          getAttendanceRecord: GetIt.I<GetClassAttendanceRecordViewUseCase>(),
+          initializeAttendance: GetIt.I<InitializeClassAttendanceUseCase>(),
+          deleteAttendance: GetIt.I<DeleteAttendanceUseCase>(),
+          getClasses: GetIt.I<GetClassesBySchoolUseCase>(),
+        );
+
+        final authState = context.read<AuthBloc>().state;
+        if (authState is AuthAuthenticated && authState.user.schoolId != null) {
+          bloc.add(LoadClasses(authState.user.schoolId!));
+        }
+
+        return bloc;
+      },
       child: Scaffold(
         body: SafeArea(
           child: Padding(
@@ -116,7 +123,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     state.status == AttendanceStatus.initializing ||
                     state.status == AttendanceStatus.deleting,
                 hasAttendance: state.attendanceRecord != null,
-                classes: _classes,
+                classes: state.classes,
                 onClassChanged: (id) {
                   context.read<TeacherAttendanceBloc>().add(
                     ChangeSelectedClass(id),

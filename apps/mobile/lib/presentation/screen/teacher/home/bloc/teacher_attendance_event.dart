@@ -83,3 +83,12 @@ class UpdateStudentStatus extends TeacherAttendanceEvent {
   @override
   List<Object?> get props => [recordId, status, note];
 }
+
+class LoadClasses extends TeacherAttendanceEvent {
+  final String schoolId;
+
+  const LoadClasses(this.schoolId);
+
+  @override
+  List<Object?> get props => [schoolId];
+}

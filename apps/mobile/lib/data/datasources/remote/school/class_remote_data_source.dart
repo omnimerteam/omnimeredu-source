@@ -36,7 +36,7 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
       final response = await client.get<Map<String, dynamic>>(
         Endpoints.user.classesBySchool(schoolId),
         query: {if (grade != null) 'grade': grade},
-        requiresAuth: false,
+        requiresAuth: true,
       );
 
       if (!response.success) {

@@ -25,6 +25,14 @@ class AppTheme {
           surfaceTint: AppColors.grey200,
         ),
 
+    // Page Transitions
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
+
     // Input field
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
@@ -118,6 +126,13 @@ class AppTheme {
       surface: AppColors.grey800,
       onSurface: AppColors.textLight,
     ).copyWith(tertiary: AppColors.success, surfaceTint: AppColors.grey700),
+
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      },
+    ),
 
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

@@ -23,7 +23,7 @@ class AttendanceRecordViewModel {
 
   factory AttendanceRecordViewModel.fromJson(Map<String, dynamic> json) {
     return AttendanceRecordViewModel(
-      id: json['_id'] ?? '',
+      id: json['id'] ?? '',
       classId: json['classId'] ?? '',
       schoolId: json['schoolId'] ?? '',
       classInfo: AttendanceClassInfoModel.fromJson(json['classInfo']),

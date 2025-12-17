@@ -5,6 +5,7 @@ import '../../../../../domain/entities/attendance/attendance_record_view_entity.
 import '../../../../../domain/usecases/attendance/delete_attendance_usecase.dart';
 import '../../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
 import '../../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
+import '../../../../../domain/usecases/school/get_classes_by_school_usecase.dart';
 import 'teacher_attendance_event.dart';
 import 'teacher_attendance_state.dart';
 
@@ -13,14 +14,17 @@ class TeacherAttendanceBloc
   final GetClassAttendanceRecordViewUseCase _getAttendanceRecord;
   final InitializeClassAttendanceUseCase _initializeAttendance;
   final DeleteAttendanceUseCase _deleteAttendance;
+  final GetClassesBySchoolUseCase _getClasses;
 
   TeacherAttendanceBloc({
     required GetClassAttendanceRecordViewUseCase getAttendanceRecord,
     required InitializeClassAttendanceUseCase initializeAttendance,
     required DeleteAttendanceUseCase deleteAttendance,
+    required GetClassesBySchoolUseCase getClasses,
   }) : _getAttendanceRecord = getAttendanceRecord,
        _initializeAttendance = initializeAttendance,
        _deleteAttendance = deleteAttendance,
+       _getClasses = getClasses,
        super(TeacherAttendanceState(selectedDate: DateTime.now())) {
     on<ChangeSelectedClass>(_onChangeSelectedClass);
     on<ChangeSelectedDate>(_onChangeSelectedDate);
@@ -29,6 +33,36 @@ class TeacherAttendanceBloc
     on<InitializeAttendance>(_onInitializeAttendance);
     on<DeleteAttendance>(_onDeleteAttendance);
     on<UpdateStudentStatus>(_onUpdateStudentStatus);
+    on<LoadClasses>(_onLoadClasses);
+  }
+
+  Future<void> _onLoadClasses(
+    LoadClasses event,
+    Emitter<TeacherAttendanceState> emit,
+  ) async {
+    final result = await _getClasses(
+      GetClassesBySchoolParams(schoolId: event.schoolId),
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          errorMessage: 'Không thể tải danh sách lớp: ${failure.message}',
+        ),
+      ),
+      (classes) {
+        final attendanceClasses = classes
+            .map(
+              (c) => AttendanceClassInfoEntity(
+                id: c.id,
+                name: c.name,
+                code: c.code,
+              ),
+            )
+            .toList();
+        emit(state.copyWith(classes: attendanceClasses));
+      },
+    );
   }
 
   Future<void> _onChangeSelectedClass(
