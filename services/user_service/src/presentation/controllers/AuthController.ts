@@ -46,10 +46,15 @@ export class AuthController {
       address: user.address,
       gender: user.gender,
       birthday: user.birthday,
-      schoolId: user.schoolId,
+      schoolId: user.schoolId || null,
       isVerified: user.isVerified,
-      schoolName: schoolInfo?.schoolName || user.school?.name,
-      className: schoolInfo?.className || user.studentInfo?.class?.name,
+      schoolName:
+        schoolInfo?.schoolName || user.schoolName || user.school?.name || null,
+      className:
+        schoolInfo?.className ||
+        user.className ||
+        user.studentInfo?.class?.name ||
+        null,
     };
   }
 
@@ -172,8 +177,10 @@ export class AuthController {
             result.user,
             userSchoolInfo || undefined
           ),
-          accessToken: result.tokens.accessToken,
-          refreshToken: result.tokens.refreshToken,
+          tokens: {
+            accessToken: result.tokens.accessToken,
+            refreshToken: result.tokens.refreshToken,
+          },
         },
         201
       );
@@ -290,7 +297,12 @@ export class AuthController {
       }
 
       const userResponse = fullUserInfo
-        ? this.buildUserResponse(fullUserInfo)
+        ? {
+            ...this.buildUserResponse(fullUserInfo),
+            schoolId: result.user.schoolId || fullUserInfo.schoolId,
+            isVerified: result.user.isVerified,
+            roleKey: result.user.roleKey,
+          }
         : this.buildUserResponse(result.user);
 
       return ResponseUtil.sendSuccess(

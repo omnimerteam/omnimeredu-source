@@ -7,10 +7,15 @@ class LoginState extends Equatable {
 
   const LoginState({this.loading = false, this.error, this.isLogin = false});
 
-  LoginState copyWith({bool? loading, String? error, bool? isLogin}) {
+  LoginState copyWith({
+    bool? loading,
+    String? error,
+    bool? isLogin,
+    bool clearError = false,
+  }) {
     return LoginState(
       loading: loading ?? this.loading,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       isLogin: isLogin ?? this.isLogin,
     );
   }

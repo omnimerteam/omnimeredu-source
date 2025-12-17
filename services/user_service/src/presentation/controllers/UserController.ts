@@ -4,6 +4,7 @@ import { UserRepositoryImpl } from "../../data/repositories/UserRepositoryImpl";
 import { CreateUserDto } from "../dtos/CreateUserDto";
 
 import { RoleRepositoryImpl } from "../../data/repositories/RoleRepositoryImpl";
+import { ResponseUtil } from "../../infrastructure/utils/ResponseUtil";
 
 export class UserController {
   private createUserUseCase: CreateUserUseCase;
@@ -21,9 +22,9 @@ export class UserController {
     try {
       const dto: CreateUserDto = req.body;
       const user = await this.createUserUseCase.execute(dto);
-      res.status(201).json(user);
+      ResponseUtil.sendSuccess(res, "User created successfully", user, 201);
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      ResponseUtil.sendError(res, error.message, error, 400);
     }
   }
 }

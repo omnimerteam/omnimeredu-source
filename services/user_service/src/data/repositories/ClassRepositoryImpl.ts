@@ -1,6 +1,11 @@
-import { IClassRepository } from "../../domain/repositories/IClassRepository";
+import {
+  IClassRepository,
+  ClassFilterOptions,
+  SearchClassesOptions,
+} from "../../domain/repositories/IClassRepository";
 import { Class } from "../../domain/entities/Class";
 import { ClassModel } from "../datasources/postgres/models/ClassModel";
+import { Op } from "sequelize";
 
 export class ClassRepositoryImpl implements IClassRepository {
   async create(classEntity: Class): Promise<Class> {
@@ -75,7 +80,7 @@ export class ClassRepositoryImpl implements IClassRepository {
 
     // Add grade filter if provided
     if (params.grade) {
-      whereCondition.grade = params.grade;
+      whereCondition.gradeId = params.grade;
     }
 
     const classes = await ClassModel.findAll({
@@ -105,6 +110,66 @@ export class ClassRepositoryImpl implements IClassRepository {
         updatedAt: cls.updatedAt,
       };
     });
+  }
+
+  async findAllWithPagination(
+    skip: number,
+    limit: number,
+    sortBy: string,
+    sortOrder: "asc" | "desc",
+    filters: ClassFilterOptions
+  ): Promise<Class[]> {
+    const whereClause: any = {};
+
+    if (filters.schoolId) whereClause.schoolId = filters.schoolId;
+    if (filters.gradeId) whereClause.gradeId = filters.gradeId;
+    if (filters.maxStudents) whereClause.maxStudents = filters.maxStudents;
+    if (filters.active !== undefined) whereClause.active = filters.active;
+
+    const models = await ClassModel.findAll({
+      where: whereClause,
+      offset: skip,
+      limit: limit,
+      order: [[sortBy, sortOrder.toUpperCase() as "ASC" | "DESC"]],
+    });
+
+    return models.map((model) => this.toEntity(model));
+  }
+
+  async count(filters: ClassFilterOptions): Promise<number> {
+    const whereClause: any = {};
+
+    if (filters.schoolId) whereClause.schoolId = filters.schoolId;
+    if (filters.gradeId) whereClause.gradeId = filters.gradeId;
+    if (filters.maxStudents) whereClause.maxStudents = filters.maxStudents;
+    if (filters.active !== undefined) whereClause.active = filters.active;
+
+    return await ClassModel.count({ where: whereClause });
+  }
+
+  async searchClasses(options: SearchClassesOptions): Promise<Class[]> {
+    const { query, schoolId, gradeId, limit = 20, offset = 0 } = options;
+
+    const whereClause: any = {};
+
+    if (query) {
+      whereClause[Op.or] = [
+        { name: { [Op.iLike]: `%${query}%` } },
+        { code: { [Op.iLike]: `%${query}%` } },
+      ];
+    }
+
+    if (schoolId) whereClause.schoolId = schoolId;
+    if (gradeId) whereClause.gradeId = gradeId;
+
+    const models = await ClassModel.findAll({
+      where: whereClause,
+      limit,
+      offset,
+      order: [["name", "ASC"]],
+    });
+
+    return models.map((model) => this.toEntity(model));
   }
 
   private toEntity(model: ClassModel): Class {

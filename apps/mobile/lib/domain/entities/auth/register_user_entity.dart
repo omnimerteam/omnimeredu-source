@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 
-import '../school/school_data_entity.dart';
+import 'package:mobile/domain/entities/school/school_data_entity.dart';
 
 class RegisterUserEntity extends Equatable {
   final String email;

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../../../domain/entities/school/class_entity.dart';
+import '../../../../../../domain/entities/class/class_selector_entity.dart';
 
 /// Base state cho ClassBloc
 abstract class ClassState extends Equatable {
@@ -21,7 +21,7 @@ class ClassLoading extends ClassState {
 
 /// State khi tải thành công danh sách lớp
 class ClassLoaded extends ClassState {
-  final List<ClassEntity> classes;
+  final List<ClassSelectorEntity> classes;
 
   const ClassLoaded({required this.classes});
 

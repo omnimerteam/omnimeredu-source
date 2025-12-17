@@ -18,7 +18,7 @@ class OfflineQueueService {
   /// Initialize database
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'qr_attendance.db');
-    
+
     return await openDatabase(
       path,
       version: 1,
@@ -122,7 +122,7 @@ class OfflineQueueService {
     try {
       final db = await database;
       final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
-      
+
       await db.delete(
         tableName,
         where: 'isSynced = ? AND scanTime < ?',
@@ -138,11 +138,7 @@ class OfflineQueueService {
   Future<void> deleteScan(int id) async {
     try {
       final db = await database;
-      await db.delete(
-        tableName,
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
       AppLogger.info('Scan $id deleted');
     } catch (e) {
       AppLogger.error('Failed to delete scan', e);
@@ -169,4 +165,3 @@ class OfflineQueueService {
     }
   }
 }
-

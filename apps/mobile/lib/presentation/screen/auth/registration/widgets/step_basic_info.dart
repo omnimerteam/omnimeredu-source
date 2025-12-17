@@ -2,16 +2,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../utils/display_mapper.dart';
-import '../../../../utils/validator.dart';
-import '../bloc/registration_event.dart';
 import 'package:image_picker/image_picker.dart';
-
-import '../../../../../core/theme/app_colors.dart';
-import '../../../../widgets/dropdown/register_dropdown.dart';
-import '../../../../widgets/image_picker/app_image_picker.dart';
-import '../../../../widgets/text_field/register_text_field.dart';
+import 'package:mobile/presentation/common/widgets/input/app_image_picker.dart';
+import '../../../../../core/constants/enum_constant.dart';
+import '../../../../common/widgets/input/primary_text_field.dart';
+import '../../../../common/widgets/input/primary_dropdown.dart';
+import '../../../../../../core/validation/field_validator.dart';
 import '../bloc/registration_bloc.dart';
+import '../bloc/registration_event.dart';
 import '../bloc/registration_state.dart';
 
 class StepBasicInfo extends StatefulWidget {
@@ -31,6 +29,14 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
   late final TextEditingController _phoneController;
   late final TextEditingController _addressController;
 
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
+  final FocusNode _confirmPasswordFocus = FocusNode();
+  final FocusNode _fullNameFocus = FocusNode();
+  final FocusNode _phoneFocus = FocusNode();
+  final FocusNode _addressFocus = FocusNode();
+  final FocusNode _birthdayFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +48,18 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
     _fullNameController = TextEditingController(text: widget.state.fullName);
     _phoneController = TextEditingController(text: widget.state.phone);
     _addressController = TextEditingController(text: widget.state.address);
+
+    _emailFocus.addListener(_onFocusChange);
+    _passwordFocus.addListener(_onFocusChange);
+    _confirmPasswordFocus.addListener(_onFocusChange);
+    _fullNameFocus.addListener(_onFocusChange);
+    _phoneFocus.addListener(_onFocusChange);
+    _addressFocus.addListener(_onFocusChange);
+    _birthdayFocus.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    setState(() {});
   }
 
   @override
@@ -52,6 +70,23 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
     _fullNameController.dispose();
     _phoneController.dispose();
     _addressController.dispose();
+
+    _emailFocus.removeListener(_onFocusChange);
+    _passwordFocus.removeListener(_onFocusChange);
+    _confirmPasswordFocus.removeListener(_onFocusChange);
+    _fullNameFocus.removeListener(_onFocusChange);
+    _phoneFocus.removeListener(_onFocusChange);
+    _addressFocus.removeListener(_onFocusChange);
+    _birthdayFocus.removeListener(_onFocusChange);
+
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
+    _confirmPasswordFocus.dispose();
+    _fullNameFocus.dispose();
+    _phoneFocus.dispose();
+    _addressFocus.dispose();
+    _birthdayFocus.dispose();
+
     super.dispose();
   }
 
@@ -101,13 +136,15 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           SizedBox(height: 24.h),
 
           /// Email
-          RegisterTextField(
+          PrimaryTextField(
             controller: _emailController,
-            label: 'Email',
+            focusNode: _emailFocus,
+            isFocused: _emailFocus.hasFocus,
             hintText: 'Nhập email của bạn',
-            requiredInput: true,
+            prefixIcon: Icons.email_outlined,
+            required: true,
             keyboardType: TextInputType.emailAddress,
-            validator: Validators.email,
+            validator: FieldValidators.email(fieldName: 'Email'),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(email: v),
             ),
@@ -115,13 +152,15 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           SizedBox(height: 16.h),
 
           /// Password
-          RegisterTextField(
+          PrimaryTextField(
             controller: _passwordController,
-            label: 'Mật khẩu',
+            focusNode: _passwordFocus,
+            isFocused: _passwordFocus.hasFocus,
             hintText: 'Nhập mật khẩu',
-            isPassword: true,
-            requiredInput: true,
-            validator: Validators.password,
+            prefixIcon: Icons.lock_outline,
+            obscureText: true,
+            required: true,
+            validator: FieldValidators.password(),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(password: v),
             ),
@@ -129,14 +168,17 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           SizedBox(height: 16.h),
 
           /// Confirm password
-          RegisterTextField(
+          PrimaryTextField(
             controller: _confirmPasswordController,
-            label: 'Xác nhận mật khẩu',
+            focusNode: _confirmPasswordFocus,
+            isFocused: _confirmPasswordFocus.hasFocus,
             hintText: 'Nhập lại mật khẩu',
-            isPassword: true,
-            requiredInput: true,
-            validator: (v) =>
-                Validators.confirmPassword(v, _passwordController.text),
+            prefixIcon: Icons.lock_outline,
+            obscureText: true,
+            required: true,
+            validator: FieldValidators.confirmPassword(
+              _passwordController.text,
+            ),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(confirmPassword: v),
             ),
@@ -144,14 +186,14 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           SizedBox(height: 16.h),
 
           /// Full name
-          RegisterTextField(
+          PrimaryTextField(
             controller: _fullNameController,
-            label: 'Họ và tên',
+            focusNode: _fullNameFocus,
+            isFocused: _fullNameFocus.hasFocus,
             hintText: 'Nhập họ và tên',
-            requiredInput: true,
-            validator: (v) =>
-                Validators.requiredField(v, name: "Họ và tên") ??
-                Validators.name(v),
+            prefixIcon: Icons.person_outline,
+            required: true,
+            validator: FieldValidators.fullname(),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(fullName: v),
             ),
@@ -159,30 +201,41 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           SizedBox(height: 16.h),
 
           /// Gender
-          RegisterDropdown<String>(
-            label: 'Giới tính',
+          PrimaryDropdown<String>(
             value: state.gender,
-            items: DisplayMapper.gender.entries.map((entry) {
+            isFocused:
+                false, // Dropdown handles its own focus visually mostly or we can add a fake focus node if needed? PrimaryDropdown doesn't seem to take a FocusNode but has an isFocused param.
+            // Since PrimaryDropdown wraps DropdownButtonFormField, focus handling is a bit different. Let's assume false for now or unimplemented for focus color.
+            hintText: 'Giới tính',
+            prefixIcon: Icons.people_outline,
+            items: GenderEnum.values.map((gender) {
               return DropdownMenuItem<String>(
-                value: entry.key,
-                child: Text(entry.value),
+                value: gender.name,
+                child: Text(gender.displayName),
               );
             }).toList(),
-            onChanged: (v) => context.read<RegistrationBloc>().add(
-              UpdateBasicInfoEvent(gender: v),
-            ),
+            onChanged: (v) {
+              if (v != null) {
+                context.read<RegistrationBloc>().add(
+                  UpdateBasicInfoEvent(gender: v),
+                );
+              }
+            },
+            required: true,
+            validator: FieldValidators.required(fieldName: 'Giới tính'),
           ),
           SizedBox(height: 16.h),
 
           /// Phone
-          RegisterTextField(
+          PrimaryTextField(
             controller: _phoneController,
-            label: 'Số điện thoại',
+            focusNode: _phoneFocus,
+            isFocused: _phoneFocus.hasFocus,
             hintText: 'Nhập số điện thoại',
+            prefixIcon: Icons.phone_outlined,
             keyboardType: TextInputType.phone,
-            validator: (v) =>
-                Validators.requiredField(v, name: "Số điện thoại") ??
-                Validators.phone(v),
+            required: true,
+            validator: FieldValidators.phone(),
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(phone: v),
             ),
@@ -193,34 +246,35 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           GestureDetector(
             onTap: _pickBirthday,
             child: AbsorbPointer(
-              child: RegisterTextField(
+              child: PrimaryTextField(
                 controller: TextEditingController(
                   text: state.birthday != null
                       ? "${state.birthday!.day}/${state.birthday!.month}/${state.birthday!.year}"
                       : '',
                 ),
-                label: 'Ngày sinh',
+                focusNode: _birthdayFocus, // Fake focus
+                isFocused: _birthdayFocus.hasFocus,
                 hintText: 'Chọn ngày sinh',
+                prefixIcon: Icons.calendar_today,
                 readOnly: true,
-                suffixIcon: const Icon(
-                  Icons.calendar_today,
-                  color: AppColors.primary,
-                ),
+                required: false,
               ),
             ),
           ),
           SizedBox(height: 16.h),
 
           /// Address
-          RegisterTextField(
+          PrimaryTextField(
             controller: _addressController,
-            label: 'Địa chỉ',
+            focusNode: _addressFocus,
+            isFocused: _addressFocus.hasFocus,
             hintText: 'Nhập địa chỉ',
-            maxLines: 2,
+            prefixIcon: Icons.location_on_outlined,
             onChanged: (v) => context.read<RegistrationBloc>().add(
               UpdateBasicInfoEvent(address: v),
             ),
-            validator: (v) => Validators.address(v),
+            validator: FieldValidators.address(),
+            required: false,
           ),
           SizedBox(height: 24.h),
         ],

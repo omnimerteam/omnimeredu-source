@@ -1,25 +1,93 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { SchoolController } from "../controllers/SchoolController";
+import {
+  objectIdSchema,
+  handleValidationErrors,
+} from "../middleware/validation/common.schemas";
+import {
+  createSchoolSchema,
+  updateSchoolSchema,
+  searchSchoolsQuerySchema,
+  getSchoolClassesQuerySchema,
+} from "../middleware/validation/school.schemas";
+import { RoleGroup } from "shared-lib";
+import {
+  JWTMiddleware,
+  requireRole,
+  requirePermission,
+} from "../middleware/auth";
 
 const router = Router();
 const schoolController = new SchoolController();
 
-// Get schools with filters
-router.get("/", (req, res) => schoolController.getSchools(req, res));
+// Search schools by education level (must be before /:id route)
+router.get(
+  "/search/query",
+  searchSchoolsQuerySchema,
+  (req: Request, res: Response) =>
+    schoolController.searchSchoolByEducationLevel(req, res)
+);
+
+// Get school details for school admin
+router.get(
+  "/school-admin",
+  JWTMiddleware.verifyToken,
+  requireRole(RoleGroup.SchoolAdmin),
+  (req: Request, res: Response) =>
+    schoolController.getSchoolDetailForSchoolAdmin(req, res)
+);
+
 
 // Get school by ID
-router.get("/:id", (req, res) => schoolController.getSchoolById(req, res));
+router.get(
+  "/:id",
+  JWTMiddleware.verifyToken,
+  requirePermission("schools:read"),
+  objectIdSchema,
+  handleValidationErrors,
+  (req: Request, res: Response) => schoolController.getSchoolById(req, res)
+);
 
 // Get classes by school ID
-router.get("/:schoolId/classes", (req, res) => schoolController.getClassesBySchool(req, res));
+// router.get(
+//   "/:schoolId/classes",
+//   JWTMiddleware.verifyToken,
+//   requirePermission("schools:read"),
+//   param("schoolId").isMongoId().withMessage("Invalid school ID format"),
+//   getSchoolClassesQuerySchema,
+//   (req: Request, res: Response) => schoolController.getClassesBySchool(req, res)
+// );
 
 // Create school
-router.post("/", (req, res) => schoolController.registerSchool(req, res));
+router.post(
+  "/",
+  JWTMiddleware.verifyToken,
+  requireRole(RoleGroup.SuperAdmin),
+  requirePermission("schools:create"),
+  createSchoolSchema,
+  (req: Request, res: Response) => schoolController.registerSchool(req, res)
+);
 
 // Update school
-router.put("/:id", (req, res) => schoolController.updateSchool(req, res));
+router.put(
+  "/:id",
+  JWTMiddleware.verifyToken,
+  requireRole([RoleGroup.SuperAdmin, RoleGroup.SchoolAdmin]),
+  requirePermission("schools:update"),
+  objectIdSchema,
+  updateSchoolSchema,
+  (req: Request, res: Response) => schoolController.updateSchool(req, res)
+);
 
 // Delete school
-router.delete("/:id", (req, res) => schoolController.deleteSchool(req, res));
+router.delete(
+  "/:id",
+  JWTMiddleware.verifyToken,
+  requireRole(RoleGroup.SuperAdmin),
+  requirePermission("schools:delete"),
+  objectIdSchema,
+  handleValidationErrors,
+  (req: Request, res: Response) => schoolController.deleteSchool(req, res)
+);
 
 export default router;

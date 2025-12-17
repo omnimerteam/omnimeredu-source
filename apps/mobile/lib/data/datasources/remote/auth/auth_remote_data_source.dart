@@ -1,13 +1,12 @@
-import '../../../../core/api/api_client.dart';
-import '../../../../core/api/api_response.dart';
-import '../../../../core/api/endpoints.dart';
-import '../../../../core/constants/storage_constant.dart';
-import '../../../../core/error/failures.dart';
-import '../../../../domain/entities/auth/login_entity.dart';
-import '../../../../domain/entities/auth/register_user_entity.dart';
-import '../../../../services/secure_storage_service.dart';
-import '../../../models/auth/auth_user_model.dart';
-import 'dart:io';
+import 'package:mobile/core/api/api_client.dart';
+import 'package:mobile/core/api/api_response.dart';
+import 'package:mobile/core/api/endpoints.dart';
+import 'package:mobile/core/constants/storage_constant.dart';
+import 'package:mobile/core/error/failures.dart';
+import 'package:mobile/domain/entities/auth/login_entity.dart';
+import 'package:mobile/domain/entities/auth/register_user_entity.dart';
+import 'package:mobile/services/secure_storage_service.dart';
+import 'package:mobile/data/models/auth/auth_user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthUserModel> login(LoginEntity params);
@@ -40,17 +39,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const AuthFailure("Phản hồi từ server không có dữ liệu");
       }
 
-      // Extract tokens
-      String? accessToken = data['accessToken'];
-      String? refreshToken = data['refreshToken'];
+      // Extract tokens from tokens object
+      final tokensJson = data['tokens'];
+      String? accessToken = tokensJson?['accessToken'];
+      String? refreshToken = tokensJson?['refreshToken'];
 
       // Extract User
       final userJson = data['user'];
 
       if (accessToken == null || refreshToken == null || userJson == null) {
-        // Fallback checking if data IS the user/token wrapper directly
-        // Sometimes data = { accessToken: "...", user: ... }
-        // Just in case structure varies.
         throw const AuthFailure(
           "Cấu trúc phản hồi không hợp lệ (thiếu token hoặc user)",
         );
@@ -75,7 +72,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> logout() async {
     // Gọi API logout nếu cần
     try {
-      await client.post(Endpoints.user.logout);
+      // Backend currently does not have a logout endpoint
+      // await client.post(Endpoints.user.logout);
     } catch (_) {
       // Ignored error on server logout
     }
@@ -88,7 +86,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<AuthUserModel?> getCurrentUser() async {
     try {
       final response = await client.get<Map<String, dynamic>>(
-        Endpoints.user.profile,
+        Endpoints.user.me,
       );
 
       if (!response.success) {
@@ -112,6 +110,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return null;
     } catch (e) {
       return null;
+    }
+  }
+
+  // ... registerUser ...
+
+  Future<ApiResponse<void>> changePassword(
+    String oldPassword,
+    String newPassword,
+  ) async {
+    try {
+      // Backend currently does not have a changePassword endpoint
+      // final response = await client.post<Map<String, dynamic>>(
+      //   Endpoints.user.changePassword,
+      //   data: {"oldPassword": oldPassword, "newPassword": newPassword},
+      // );
+      throw UnimplementedError("Change password not implemented in backend");
+
+      // return ApiResponse<void>(
+      //   success: response.success,
+      //   message: response.message,
+      //   data: null,
+      // );
+    } catch (e) {
+      return ApiResponse<void>.error(e.toString(), error: e);
     }
   }
 
@@ -148,7 +170,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           'address': user.schoolData!.address,
           'phone': user.schoolData!.phone,
           'description': user.schoolData!.description,
-          'level': user.schoolData!.level.name,
+          'level': user.schoolData!.level?.name,
         };
       }
 
@@ -172,9 +194,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw const AuthFailure("Phản hồi từ server không có dữ liệu");
       }
 
-      // Extract tokens
-      String? accessToken = responseData['accessToken'];
-      String? refreshToken = responseData['refreshToken'];
+      // Extract tokens from tokens object
+      final tokensJson = responseData['tokens'];
+      String? accessToken;
+      String? refreshToken;
+
+      if (tokensJson is Map) {
+        accessToken = tokensJson['accessToken'];
+        refreshToken = tokensJson['refreshToken'];
+      }
 
       // Extract User
       final userJson = responseData['user'];
@@ -197,27 +225,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       if (e is Failure) rethrow;
       throw AuthFailure(e.toString());
-    }
-  }
-
-  @override
-  Future<ApiResponse<void>> changePassword(
-    String oldPassword,
-    String newPassword,
-  ) async {
-    try {
-      final response = await client.post<Map<String, dynamic>>(
-        Endpoints.user.changePassword,
-        data: {"oldPassword": oldPassword, "newPassword": newPassword},
-      );
-
-      return ApiResponse<void>(
-        success: response.success,
-        message: response.message,
-        data: null,
-      );
-    } catch (e) {
-      return ApiResponse<void>.error(e.toString(), error: e);
     }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:mobile/core/theme/app_colors.dart';
+import 'package:mobile/core/routing/route_config.dart';
 import '../../../../common/widgets/button/quick_access_button.dart';
 
 class SchoolAdminDashboardQuickAccess extends StatelessWidget {
@@ -41,68 +43,67 @@ class SchoolAdminDashboardQuickAccess extends StatelessWidget {
             DecoratedBox(
               decoration: highlightSchool
                   ? BoxDecoration(
-                      border: Border.all(color: Colors.redAccent, width: 3.w),
+                      border: Border.all(color: AppColors.error, width: 3.w),
                       borderRadius: BorderRadius.circular(16.r),
                     )
                   : const BoxDecoration(),
               child: QuickAccessButton(
                 title: 'Trường',
                 icon: Icons.school,
-                color: Colors.blue, // AppColors.primary might be unavailable or different, using Colors.blue as fallback or check imports
-                onTap: () =>
-                    Navigator.of(context).pushNamed('/school-admin/school'),
+                color: AppColors.blue,
+                onTap: () => Navigator.of(context)
+                    .pushNamed(RouteConfig.schoolAdminSchool),
               ),
             ),
             QuickAccessButton(
               title: 'Khối',
               icon: Icons.roofing,
               color: Colors.cyan,
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/grades'),
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminGrades),
             ),
             QuickAccessButton(
               title: 'Lớp',
               icon: Icons.class_,
-              color: Colors.orange,
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/classes'),
+              color: AppColors.warning,
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminClasses),
             ),
             QuickAccessButton(
               title: 'Yêu cầu',
               icon: Icons.person_add,
-              color: Colors.purple,
-              onTap: () => Navigator.of(
-                context,
-              ).pushNamed('/school-admin/membership-requests'),
+              color: AppColors.adminColor,
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminMembershipRequests),
             ),
             QuickAccessButton(
               title: 'Học sinh',
               icon: Icons.people,
-              color: Colors.blue,
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/students'),
+              color: AppColors.studentColor,
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminStudents),
             ),
             QuickAccessButton(
               title: 'Nhân sự',
               icon: Icons.person,
-              color: Colors.green,
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/personnel'),
+              color: AppColors.success,
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminPersonnel),
             ),
             QuickAccessButton(
               title: 'Điểm danh',
               icon: Icons.fact_check,
               color: Colors.teal,
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/attendance'),
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminAttendance),
             ),
             QuickAccessButton(
               title: 'Học phí',
               icon: Icons.payment,
-              color: Colors.red,
+              color: AppColors.red,
               badge: '12',
-              onTap: () =>
-                  Navigator.of(context).pushNamed('/school-admin/tuition'),
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RouteConfig.schoolAdminTuition),
             ),
           ],
         ),

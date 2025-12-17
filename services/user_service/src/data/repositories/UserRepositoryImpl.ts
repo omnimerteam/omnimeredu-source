@@ -229,6 +229,7 @@ export class UserRepositoryImpl implements IUserRepository {
       phone?: string;
       description?: string;
       level: string;
+      adminId?: string;
     },
     options?: { transaction?: any }
   ): Promise<{ id: string; name: string }> {
@@ -245,6 +246,7 @@ export class UserRepositoryImpl implements IUserRepository {
         phone: data.phone,
         description: data.description,
         level: data.level as any,
+        adminId: data.adminId,
       },
       { transaction: options?.transaction }
     );

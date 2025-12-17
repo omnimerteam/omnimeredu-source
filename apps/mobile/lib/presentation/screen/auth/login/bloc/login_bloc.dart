@@ -1,20 +1,25 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../domain/entities/auth/login_entity.dart';
-import '../../../../../domain/usecases/auth/login_usecase.dart';
 import '../../../../../presentation/common/blocs/auth_bloc/auth_bloc.dart';
 
 import 'login_event.dart';
 import 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final LoginUseCase loginUseCase;
   final AuthBloc authenticationBloc;
+  StreamSubscription<AuthState>? _authSubscription;
 
-  LoginBloc({required this.loginUseCase, required this.authenticationBloc})
-    : super(const LoginState()) {
+  LoginBloc({required this.authenticationBloc}) : super(const LoginState()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<ClearLoginErrorEvent>((event, emit) {
-      emit(state.copyWith(error: null));
+      emit(state.copyWith(error: null, clearError: true));
+    });
+    on<_AuthStateChanged>(_onAuthStateChanged);
+
+    // Listen to AuthBloc state changes
+    _authSubscription = authenticationBloc.stream.listen((authState) {
+      add(_AuthStateChanged(authState));
     });
   }
 
@@ -22,23 +27,62 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginSubmitted event,
     Emitter<LoginState> emit,
   ) async {
-    emit(state.copyWith(loading: true, error: null));
+    emit(state.copyWith(loading: true, error: null, clearError: true));
 
-    try {
-      final loginInfo = LoginEntity(
-        email: event.email,
-        password: event.password,
-        rememberMe: event.rememberMe,
+    final loginInfo = LoginEntity(
+      email: event.email,
+      password: event.password,
+      rememberMe: event.rememberMe,
+    );
+
+    // Delegate login to AuthBloc - it will handle the actual login
+    authenticationBloc.add(AuthLoginRequested(loginInfo));
+  }
+
+  Future<void> _onAuthStateChanged(
+    _AuthStateChanged event,
+    Emitter<LoginState> emit,
+  ) async {
+    final authState = event.authState;
+
+    if (authState is AuthAuthenticated) {
+      // Login successful
+      emit(
+        state.copyWith(
+          loading: false,
+          isLogin: true,
+          error: null,
+          clearError: true,
+        ),
       );
-
-      final user = await loginUseCase.call(loginInfo);
-
-      // báo cho AuthBloc biết user đã login
-      authenticationBloc.add(AuthLoginRequested(loginInfo));
-
-      emit(state.copyWith(loading: false, isLogin: true, error: null));
-    } catch (e) {
-      emit(state.copyWith(loading: false, error: e.toString()));
+    } else if (authState is AuthFailure) {
+      // Login failed
+      emit(
+        state.copyWith(
+          loading: false,
+          error: authState.message,
+          isLogin: false,
+        ),
+      );
+    } else if (authState is AuthLoading) {
+      // Keep loading state
+      emit(state.copyWith(loading: true));
     }
   }
+
+  @override
+  Future<void> close() {
+    _authSubscription?.cancel();
+    return super.close();
+  }
+}
+
+// Private event for internal state sync
+class _AuthStateChanged extends LoginEvent {
+  final AuthState authState;
+
+  _AuthStateChanged(this.authState);
+
+  @override
+  List<Object?> get props => [authState];
 }

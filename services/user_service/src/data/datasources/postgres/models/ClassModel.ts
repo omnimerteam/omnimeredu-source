@@ -64,6 +64,14 @@ export const initClassModel = (sequelize: Sequelize) => {
       tableName: "classes",
       timestamps: true,
       underscored: true,
+      indexes: [
+        {
+          fields: ["school_id"],
+        },
+        {
+          fields: ["grade_id"],
+        },
+      ],
     }
   );
 };
