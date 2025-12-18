@@ -1,13 +1,14 @@
 /**
  * DTO for initializing class attendance
  * Creates or retrieves attendance for a class and creates default records for all students
+ * If studentIds is not provided, will automatically fetch from User Service
  */
 export class InitializeClassAttendanceDto {
   classId!: string;
   schoolId!: string;
   date!: Date;
   sessionType?: "regular" | "weekend" | "holiday" | "extra";
-  studentIds!: string[]; // List of student IDs in the class
+  studentIds?: string[]; // Optional - will be fetched from User Service if not provided
 }
 
 /**

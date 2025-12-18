@@ -64,7 +64,8 @@ export class SchoolController {
 
   async getSchoolById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      // Support both :id (old route) and :schoolId (internal route)
+      const id = req.params.id || req.params.schoolId;
       const school = await this.getSchoolByIdUseCase.execute(id);
       if (!school) {
         ResponseUtil.sendError(res, "School not found", null, 404);

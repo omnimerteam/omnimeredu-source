@@ -137,11 +137,6 @@ class TeacherAttendanceBloc
     emit(state.copyWith(status: AttendanceStatus.initializing));
 
     // Create params for initialization.
-    // Assuming AttendanceEntity matches the requirements
-    // Note: We might need to construct a proper AttendanceEntity here.
-    // Since I don't have the full definition of AttendanceEntity, I will do a best effort guess
-    // based on common patterns. If properties are missing, this might need adjustment.
-
     final attendanceEntity = AttendanceEntity(
       id: '', // New record
       schoolId: event.schoolId,
@@ -159,9 +154,18 @@ class TeacherAttendanceBloc
         ),
       ),
       (entity) {
-        emit(state.copyWith(status: AttendanceStatus.initializeSuccess));
-        // Refresh to get the full view
-        add(RefreshAttendanceRecord(date: event.date, classId: event.classId));
+        // API now returns full AttendanceRecordViewEntity
+        // Use it directly instead of making another API call
+        if (entity != null) {
+          _updateStateWithRecord(emit, entity);
+          emit(state.copyWith(status: AttendanceStatus.initializeSuccess));
+        } else {
+          // Fallback to refresh if entity is null
+          emit(state.copyWith(status: AttendanceStatus.initializeSuccess));
+          add(
+            RefreshAttendanceRecord(date: event.date, classId: event.classId),
+          );
+        }
       },
     );
   }

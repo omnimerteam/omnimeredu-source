@@ -38,6 +38,12 @@ router.get(
     schoolController.getSchoolDetailForSchoolAdmin(req, res)
 );
 
+// Internal route for inter-service communication (no auth required)
+// Used by payment-attendance-service to get school info for attendance initialization
+router.get("/internal/:schoolId", (req: Request, res: Response) =>
+  schoolController.getSchoolById(req, res)
+);
+
 // Get schools with filters
 router.get(
   "/",

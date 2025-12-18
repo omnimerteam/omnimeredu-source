@@ -12,16 +12,16 @@ class AttendanceRemoteDataSource {
 
   AttendanceRemoteDataSource(this.client);
 
-  /// 🔹 Tạo teaching assignment
-  Future<AttendanceModel> initializeClassAttendance(
+  /// 🔹 Initialize class attendance - returns full attendance record view
+  Future<AttendanceRecordViewModel> initializeClassAttendance(
     AttendanceModel assignment,
   ) async {
-    final res = await client.post<AttendanceModel>(
+    final res = await client.post<AttendanceRecordViewModel>(
       Endpoints.paymentAttendance.initializeClassAttendance,
       data: assignment.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
-          return AttendanceModel.fromJson(data);
+          return AttendanceRecordViewModel.fromJson(data);
         }
         throw Exception("API không trả về dữ liệu hợp lệ");
       },

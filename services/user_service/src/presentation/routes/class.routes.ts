@@ -31,6 +31,18 @@ router.get(
     classController.searchClassesInSchool(req, res)
 );
 
+// Internal route for inter-service communication (no auth required)
+// Used by payment-attendance-service to get students for attendance initialization
+router.get("/internal/:classId/students", (req: Request, res: Response) =>
+  classController.getStudentsByClassId(req, res)
+);
+
+// Internal route for inter-service communication (no auth required)
+// Used by payment-attendance-service to get class info for attendance initialization
+router.get("/internal/:classId", (req: Request, res: Response) =>
+  classController.getClassById(req, res)
+);
+
 // Create class
 router.post(
   "/",

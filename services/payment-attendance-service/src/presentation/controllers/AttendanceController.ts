@@ -84,6 +84,9 @@ export class AttendanceController {
   /**
    * Initialize attendance for a class with default records
    * POST /api/attendance/initialize
+   *
+   * If studentIds is not provided, will automatically fetch students
+   * from User Service based on classId
    */
   async initializeClassAttendance(req: Request, res: Response): Promise<void> {
     try {
@@ -95,8 +98,8 @@ export class AttendanceController {
       const dto: InitializeClassAttendanceDto = req.body;
       dto.date = new Date(dto.date);
 
-      if (!dto.classId || !dto.schoolId || !dto.studentIds?.length) {
-        sendError(res, "classId, schoolId, and studentIds are required", 400);
+      if (!dto.classId || !dto.schoolId) {
+        sendError(res, "classId and schoolId are required", 400);
         return;
       }
 
@@ -104,8 +107,8 @@ export class AttendanceController {
       sendSuccess(
         res,
         result.isNewAttendance
-          ? "Attendance initialized successfully"
-          : "Attendance retrieved with updated records",
+          ? `Attendance initialized successfully for ${result.studentCount} students`
+          : `Attendance retrieved with ${result.students.length} records`,
         result,
         result.isNewAttendance ? 201 : 200
       );

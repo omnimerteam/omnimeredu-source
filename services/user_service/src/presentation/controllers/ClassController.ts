@@ -74,7 +74,8 @@ export class ClassController {
 
   async getClassById(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
+      // Support both :id (old route) and :classId (internal route)
+      const id = req.params.id || req.params.classId;
       const classEntity = await this.getClassByIdUseCase.execute(id);
       if (!classEntity) {
         ResponseUtil.sendError(res, "Class not found", null, 404);
@@ -125,8 +126,9 @@ export class ClassController {
 
   async getStudentsByClassId(req: Request, res: Response): Promise<void> {
     try {
-      const { id } = req.params;
-      const students = await this.getStudentsByClassIdUseCase.execute(id);
+      // Support both :id (old route) and :classId (internal route)
+      const classId = req.params.id || req.params.classId;
+      const students = await this.getStudentsByClassIdUseCase.execute(classId);
       ResponseUtil.sendSuccess(
         res,
         "Students retrieved successfully",

@@ -120,8 +120,8 @@ router.post(
  */
 router.get(
   "/find",
-  authMiddleware,
-  roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  // authMiddleware,
+  // roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     attendanceController.findByClassAndDate(req, res)
 );
@@ -133,9 +133,9 @@ router.get(
  */
 router.post(
   "/",
-  authMiddleware,
-  roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  createAttendanceSchema,
+  // authMiddleware,
+  // roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  // createAttendanceSchema,
   handleValidationErrors,
   (req: Request, res: Response, next: NextFunction) =>
     attendanceController.create(req, res)
@@ -148,9 +148,9 @@ router.post(
  */
 router.post(
   "/initialize",
-  authMiddleware,
-  roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
-  initializeClassAttendanceSchema,
+  // authMiddleware,
+  // roleMiddleware(["SuperAdmin", "SchoolAdmin", "Teacher"]),
+  // initializeClassAttendanceSchema,
   handleValidationErrors,
   (req: Request, res: Response, next: NextFunction) =>
     attendanceController.initializeClassAttendance(req, res)

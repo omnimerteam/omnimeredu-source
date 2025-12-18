@@ -7,9 +7,8 @@ import '../../entities/attendance/attendance_entity.dart';
 import '../../entities/query/default_query_entity.dart';
 
 abstract class AttendanceRepository {
-  Future<Either<Failure, AttendanceEntity?>> initializeClassAttendance(
-    AttendanceEntity attendanceDate,
-  );
+  Future<Either<Failure, AttendanceRecordViewEntity?>>
+  initializeClassAttendance(AttendanceEntity attendanceDate);
 
   Future<Either<Failure, AttendanceRecordViewEntity?>>
   getClassAttendanceRecordView(DateTime date, String classId);

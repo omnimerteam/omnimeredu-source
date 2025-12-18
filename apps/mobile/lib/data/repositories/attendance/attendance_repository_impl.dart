@@ -16,9 +16,8 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
   AttendanceRepositoryImpl(this.remote);
 
   @override
-  Future<Either<Failure, AttendanceEntity?>> initializeClassAttendance(
-    AttendanceEntity attendanceDate,
-  ) async {
+  Future<Either<Failure, AttendanceRecordViewEntity?>>
+  initializeClassAttendance(AttendanceEntity attendanceDate) async {
     return safeApiCall(() async {
       final model = await remote.initializeClassAttendance(
         AttendanceModel.fromEntity(attendanceDate),

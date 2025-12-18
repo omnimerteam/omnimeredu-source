@@ -1,27 +1,61 @@
 import { IClassReadRepository } from "../../domain/repositories/IClassReadRepository";
-import { ClassReadModel } from "../datasources/mongodb/schemas/ClassReadSchema";
-import { UserFullReadModel } from "../datasources/mongodb/schemas/UserFullReadSchema";
+import { ClassModel } from "../datasources/postgres/models/ClassModel";
+import { StudentModel } from "../datasources/postgres/models/StudentModel";
+import { UserModel } from "../datasources/postgres/models/UserModel";
 
 export class ClassReadRepositoryImpl implements IClassReadRepository {
   async findById(id: string): Promise<any> {
-    return await ClassReadModel.findOne({ _id: id }).lean();
+    const classEntity = await ClassModel.findByPk(id);
+    return classEntity ? classEntity.get({ plain: true }) : null;
   }
 
   async findBySchoolId(schoolId: string): Promise<any[]> {
-    return await ClassReadModel.find({ schoolId }).sort({ name: 1 }).lean();
+    const classes = await ClassModel.findAll({
+      where: { schoolId },
+      order: [["name", "ASC"]],
+    });
+    return classes.map((c) => c.get({ plain: true }));
   }
 
   async findByGradeId(gradeId: string): Promise<any[]> {
-    return await ClassReadModel.find({ gradeId }).sort({ name: 1 }).lean();
+    const classes = await ClassModel.findAll({
+      where: { gradeId },
+      order: [["name", "ASC"]],
+    });
+    return classes.map((c) => c.get({ plain: true }));
   }
 
   async findStudentsByClassId(classId: string): Promise<any[]> {
-    // Query students from UserFullReadModel where student.classId matches
-    return await UserFullReadModel.find({
-      "student.classId": classId,
-      role: "student",
-    })
-      .select("_id fullName email avatar student")
-      .lean();
+    // Query students from PostgreSQL with join to User
+    const students = await StudentModel.findAll({
+      where: { classId },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+          attributes: ["id", "fullName", "email", "avatarUrl"],
+        },
+      ],
+    });
+
+    // Map to expected format
+    return students.map((student) => {
+      const studentData = student.get({ plain: true }) as any;
+      return {
+        _id: studentData.user?.id || studentData.userId,
+        id: studentData.user?.id || studentData.userId,
+        fullName: studentData.user?.fullName || "Unknown",
+        email: studentData.user?.email,
+        avatar: studentData.user?.avatarUrl,
+        student: {
+          id: studentData.id,
+          classId: studentData.classId,
+          educationLevel: studentData.educationLevel,
+          gradeGroup: studentData.gradeGroup,
+          guardianName: studentData.guardianName,
+          guardianPhone: studentData.guardianPhone,
+        },
+      };
+    });
   }
 }
