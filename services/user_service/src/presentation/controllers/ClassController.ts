@@ -5,9 +5,17 @@ import { GetClassesBySchoolIdUseCase } from "../../domain/usecases/class/GetClas
 import { UpdateClassUseCase } from "../../domain/usecases/class/UpdateClassUseCase";
 import { DeleteClassUseCase } from "../../domain/usecases/class/DeleteClassUseCase";
 import { GetStudentsByClassIdUseCase } from "../../domain/usecases/class/GetStudentsByClassIdUseCase";
-import { GetAllClassesUseCase, PaginationOptions, ClassFilterOptions } from "../../domain/usecases/class/GetAllClassesUseCase";
+import {
+  GetAllClassesUseCase,
+  PaginationOptions,
+  ClassFilterOptions,
+} from "../../domain/usecases/class/GetAllClassesUseCase";
 import { SearchClassesUseCase } from "../../domain/usecases/class/SearchClassesUseCase";
-import { ManageStudentsUseCase, StudentOperationRequest, TransferStudentsRequest } from "../../domain/usecases/class/ManageStudentsUseCase";
+import {
+  ManageStudentsUseCase,
+  StudentOperationRequest,
+  TransferStudentsRequest,
+} from "../../domain/usecases/class/ManageStudentsUseCase";
 import { ClassRepositoryImpl } from "../../data/repositories/ClassRepositoryImpl";
 import { ClassReadRepositoryImpl } from "../../data/repositories/ClassReadRepositoryImpl";
 import { StudentRepositoryImpl } from "../../data/repositories/StudentRepositoryImpl";
@@ -43,7 +51,10 @@ export class ClassController {
     );
     this.getAllClassesUseCase = new GetAllClassesUseCase(classRepository);
     this.searchClassesUseCase = new SearchClassesUseCase(classRepository);
-    this.manageStudentsUseCase = new ManageStudentsUseCase(classRepository, studentRepository);
+    this.manageStudentsUseCase = new ManageStudentsUseCase(
+      classRepository,
+      studentRepository
+    );
   }
 
   async createClass(req: Request, res: Response): Promise<void> {
@@ -131,28 +142,32 @@ export class ClassController {
       const {
         page = 1,
         limit = 20,
-        sortBy = 'name',
-        sortOrder = 'asc',
+        sortBy = "name",
+        sortOrder = "asc",
         gradeId,
         maxStudents,
         active,
-        schoolId
+        schoolId,
       } = req.query;
 
       const pagination: PaginationOptions = {
         page: parseInt(page as string),
         limit: parseInt(limit as string),
         sortBy: sortBy as string,
-        sortOrder: sortOrder as 'asc' | 'desc'
+        sortOrder: sortOrder as "asc" | "desc",
       };
 
       const filters: ClassFilterOptions = {};
       if (schoolId) filters.schoolId = schoolId as string;
       if (gradeId) filters.gradeId = gradeId as string;
-      if (maxStudents !== undefined) filters.maxStudents = parseInt(maxStudents as string);
-      if (active !== undefined) filters.active = active === 'true';
+      if (maxStudents !== undefined)
+        filters.maxStudents = parseInt(maxStudents as string);
+      if (active !== undefined) filters.active = active === "true";
 
-      const result = await this.getAllClassesUseCase.execute(pagination, filters);
+      const result = await this.getAllClassesUseCase.execute(
+        pagination,
+        filters
+      );
       ResponseUtil.sendSuccess(res, "Classes retrieved successfully", result);
     } catch (error: any) {
       ResponseUtil.sendError(res, error.message, error, 400);
@@ -161,15 +176,16 @@ export class ClassController {
 
   async searchClassesInSchool(req: Request, res: Response): Promise<void> {
     try {
-      const { query, schoolId, gradeId, limit, offset } = req.query;
+      const schoolId = req.params.schoolId;
 
-      const classes = await this.searchClassesUseCase.execute({
-        query: query as string,
-        schoolId: schoolId as string,
-        gradeId: gradeId as string,
-        limit: limit ? parseInt(limit as string) : undefined,
-        offset: offset ? parseInt(offset as string) : undefined
-      });
+      if (!schoolId) {
+        ResponseUtil.sendError(res, "Thiếu thông tin");
+        return;
+      }
+
+      const classes = await this.searchClassesUseCase.execute(
+        schoolId.toString()
+      );
 
       ResponseUtil.sendSuccess(res, "Classes searched successfully", classes);
     } catch (error: any) {
@@ -184,11 +200,15 @@ export class ClassController {
 
       const request: StudentOperationRequest = {
         classId: id,
-        studentIds
+        studentIds,
       };
 
       await this.manageStudentsUseCase.addStudentsToClass(request);
-      ResponseUtil.sendSuccess(res, "Students added to class successfully", null);
+      ResponseUtil.sendSuccess(
+        res,
+        "Students added to class successfully",
+        null
+      );
     } catch (error: any) {
       ResponseUtil.sendError(res, error.message, error, 400);
     }
@@ -201,11 +221,15 @@ export class ClassController {
 
       const request: StudentOperationRequest = {
         classId: id,
-        studentIds
+        studentIds,
       };
 
       await this.manageStudentsUseCase.removeStudentsFromClass(request);
-      ResponseUtil.sendSuccess(res, "Students removed from class successfully", null);
+      ResponseUtil.sendSuccess(
+        res,
+        "Students removed from class successfully",
+        null
+      );
     } catch (error: any) {
       ResponseUtil.sendError(res, error.message, error, 400);
     }
@@ -219,7 +243,7 @@ export class ClassController {
       const request: TransferStudentsRequest = {
         fromClassId: id,
         toClassId,
-        studentIds
+        studentIds,
       };
 
       await this.manageStudentsUseCase.transferStudentsBetweenClasses(request);

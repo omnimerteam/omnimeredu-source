@@ -4,10 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/routing/route_config.dart';
-import '../../../../../domain/usecases/attendance/delete_attendance_usecase.dart';
-import '../../../../../domain/usecases/attendance/get_class_attendance_record_view_usecase.dart';
-import '../../../../../domain/usecases/attendance/initialize_class_attendancee_usecase.dart';
-import '../../../../../domain/usecases/school/get_classes_by_school_usecase.dart';
+
 import '../../../common/blocs/auth_bloc/auth_bloc.dart';
 import 'bloc/teacher_attendance_bloc.dart';
 import 'bloc/teacher_attendance_event.dart';
@@ -34,46 +31,60 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = TeacherAttendanceBloc(
-          getAttendanceRecord: GetIt.I<GetClassAttendanceRecordViewUseCase>(),
-          initializeAttendance: GetIt.I<InitializeClassAttendanceUseCase>(),
-          deleteAttendance: GetIt.I<DeleteAttendanceUseCase>(),
-          getClasses: GetIt.I<GetClassesBySchoolUseCase>(),
-        );
+    // Get authState early to avoid issues in BlocProvider create
+    final authState = context.read<AuthBloc>().state;
+    String? schoolId;
+    if (authState is AuthAuthenticated) {
+      schoolId = authState.user.schoolId;
+    }
 
-        final authState = context.read<AuthBloc>().state;
-        if (authState is AuthAuthenticated && authState.user.schoolId != null) {
-          bloc.add(LoadClasses(authState.user.schoolId!));
-        }
-
-        return bloc;
-      },
-      child: Scaffold(
+    // If no schoolId, show an error state
+    if (schoolId == null) {
+      return Scaffold(
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
+          child: Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildHeader(context),
-                SizedBox(height: 16.h),
-                Expanded(child: _buildBody()),
+                Icon(Icons.error_outline, size: 64, color: Colors.orange),
+                SizedBox(height: 16),
+                Text(
+                  'Không tìm thấy thông tin trường học',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Vui lòng đăng nhập lại',
+                  style: TextStyle(color: Colors.grey),
+                ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildHeader(BuildContext context) {
-    return Text(
-      'Bảng điểm danh',
-      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.bold,
-        color: AppColors.textDark,
+    return BlocProvider(
+      create: (context) {
+        final bloc = GetIt.I<TeacherAttendanceBloc>();
+        bloc.add(LoadClasses(schoolId!));
+        return bloc;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Bảng điểm danh',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: AppColors.textDark,
+              fontSize: 20.sp,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: SafeArea(child: _buildBody()),
       ),
     );
   }
@@ -112,117 +123,51 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           schoolId = authState.user.schoolId!;
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              ClassAndDateSelector(
-                schoolId: schoolId,
-                initialClassId: state.selectedClassId,
-                initialDate: state.selectedDate,
-                isLoading:
-                    state.status == AttendanceStatus.initializing ||
-                    state.status == AttendanceStatus.deleting,
-                hasAttendance: state.attendanceRecord != null,
-                classes: state.classes,
-                onClassChanged: (id) {
+        return ListView(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          children: [
+            ClassAndDateSelector(
+              schoolId: schoolId,
+              initialClassId: state.selectedClassId,
+              initialDate: state.selectedDate,
+              isLoading:
+                  state.status == AttendanceStatus.initializing ||
+                  state.status == AttendanceStatus.deleting,
+              hasAttendance: state.attendanceRecord != null,
+              classes: state.classes,
+              onClassChanged: (id) {
+                context.read<TeacherAttendanceBloc>().add(
+                  ChangeSelectedClass(id),
+                );
+              },
+              onDateChanged: (date) {
+                context.read<TeacherAttendanceBloc>().add(
+                  ChangeSelectedDate(date),
+                );
+              },
+              onRefresh: () {
+                if (state.selectedClassId != null) {
                   context.read<TeacherAttendanceBloc>().add(
-                    ChangeSelectedClass(id),
-                  );
-                },
-                onDateChanged: (date) {
-                  context.read<TeacherAttendanceBloc>().add(
-                    ChangeSelectedDate(date),
-                  );
-                },
-                onRefresh: () {
-                  if (state.selectedClassId != null) {
-                    context.read<TeacherAttendanceBloc>().add(
-                      RefreshAttendanceRecord(
-                        date: state.selectedDate,
-                        classId: state.selectedClassId!,
-                      ),
-                    );
-                  }
-                },
-                onNewOrDelete: () {
-                  if (state.selectedClassId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vui lòng chọn lớp')),
-                    );
-                    return;
-                  }
-
-                  AttendanceActionDialog.showCreateOrDeleteDialog(
-                    context: context,
-                    hasAttendance: state.attendanceRecord != null,
-                    selectedDate: state.selectedDate,
-                    onCreateConfirm: () {
-                      context.read<TeacherAttendanceBloc>().add(
-                        InitializeAttendance(
-                          classId: state.selectedClassId!,
-                          schoolId: schoolId,
-                          date: state.selectedDate,
-                        ),
-                      );
-                    },
-                    onDeleteConfirm: () {
-                      if (state.attendanceRecord != null) {
-                        context.read<TeacherAttendanceBloc>().add(
-                          DeleteAttendance(state.attendanceRecord!.id),
-                        );
-                      }
-                    },
-                  );
-                },
-                onQRAttendance: () {
-                  if (state.attendanceRecord != null) {
-                    Navigator.pushNamed(
-                      context,
-                      RouteConfig.teacherQR,
-                      arguments: {
-                        'attendanceId': state.attendanceRecord!.id,
-                        'className': state.attendanceRecord!.classInfo.name,
-                        'date': state.selectedDate,
-                      },
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Vui lòng tạo bảng điểm danh trước'),
-                      ),
-                    );
-                  }
-                },
-              ),
-              SizedBox(height: 16.h),
-              AttendanceStatsCard(stats: state.attendanceStats),
-              SizedBox(height: 16.h),
-              AttendanceTableSection(
-                state: state,
-                onEditStudent: (student) {
-                  showDialog(
-                    context: context,
-                    builder: (_) => AttendanceDialog(
-                      student: student,
-                      onUpdate: (status, note) {
-                        context.read<TeacherAttendanceBloc>().add(
-                          UpdateStudentStatus(
-                            recordId: student.detailRecordId,
-                            status: status,
-                            note: note,
-                          ),
-                        );
-                      },
+                    RefreshAttendanceRecord(
+                      date: state.selectedDate,
+                      classId: state.selectedClassId!,
                     ),
                   );
-                },
-                onExportData: () {
+                }
+              },
+              onNewOrDelete: () {
+                if (state.selectedClassId == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Tính năng đang phát triển')),
+                    const SnackBar(content: Text('Vui lòng chọn lớp')),
                   );
-                },
-                onCreateAttendance: () {
-                  if (state.selectedClassId != null) {
+                  return;
+                }
+
+                AttendanceActionDialog.showCreateOrDeleteDialog(
+                  context: context,
+                  hasAttendance: state.attendanceRecord != null,
+                  selectedDate: state.selectedDate,
+                  onCreateConfirm: () {
                     context.read<TeacherAttendanceBloc>().add(
                       InitializeAttendance(
                         classId: state.selectedClassId!,
@@ -230,15 +175,82 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         date: state.selectedDate,
                       ),
                     );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Vui lòng chọn lớp')),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
+                  },
+                  onDeleteConfirm: () {
+                    if (state.attendanceRecord != null) {
+                      context.read<TeacherAttendanceBloc>().add(
+                        DeleteAttendance(state.attendanceRecord!.id),
+                      );
+                    }
+                  },
+                );
+              },
+              onQRAttendance: () {
+                if (state.attendanceRecord != null) {
+                  Navigator.pushNamed(
+                    context,
+                    RouteConfig.teacherQR,
+                    arguments: {
+                      'attendanceId': state.attendanceRecord!.id,
+                      'className': state.attendanceRecord!.classInfo.name,
+                      'date': state.selectedDate,
+                    },
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Vui lòng tạo bảng điểm danh trước'),
+                    ),
+                  );
+                }
+              },
+            ),
+            SizedBox(height: 16.h),
+            AttendanceStatsCard(stats: state.attendanceStats),
+            SizedBox(height: 16.h),
+            AttendanceTableSection(
+              state: state,
+              onEditStudent: (student) {
+                showDialog(
+                  context: context,
+                  builder: (_) => AttendanceDialog(
+                    student: student,
+                    onUpdate: (status, note) {
+                      context.read<TeacherAttendanceBloc>().add(
+                        UpdateStudentStatus(
+                          recordId: student.detailRecordId,
+                          status: status,
+                          note: note,
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+              onExportData: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Tính năng đang phát triển')),
+                );
+              },
+              onCreateAttendance: () {
+                if (state.selectedClassId != null) {
+                  context.read<TeacherAttendanceBloc>().add(
+                    InitializeAttendance(
+                      classId: state.selectedClassId!,
+                      schoolId: schoolId,
+                      date: state.selectedDate,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Vui lòng chọn lớp')),
+                  );
+                }
+              },
+            ),
+            // Padding to ensure content is not hidden behind CurvedNavigationBar
+            SizedBox(height: 100.h),
+          ],
         );
       },
     );

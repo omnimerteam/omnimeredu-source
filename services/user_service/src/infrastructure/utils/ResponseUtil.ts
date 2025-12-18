@@ -25,6 +25,9 @@ export class ResponseUtil {
     error: any = null,
     statusCode: number = 400
   ) {
+    // Log error to console so it's visible in terminal
+    console.error(`❌ [ResponseUtil] ${message}:`, error);
+
     const response: any = {
       success: false,
       message,

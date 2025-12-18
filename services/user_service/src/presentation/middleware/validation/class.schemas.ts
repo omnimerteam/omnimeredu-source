@@ -1,4 +1,4 @@
-import { body, query } from "express-validator";
+import { body, param, query } from "express-validator";
 import { handleValidationErrors } from "./common.schemas";
 
 // Class creation validation
@@ -66,35 +66,13 @@ export const getClassesQuerySchema = [
     .optional()
     .isBoolean()
     .withMessage("Active must be a boolean"),
-  query("schoolId")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid school ID format"),
+  query("schoolId").optional().isUUID().withMessage("Invalid school ID format"),
   handleValidationErrors,
 ];
 
 // Class search validation
 export const searchClassesQuerySchema = [
-  query("query")
-    .optional()
-    .isLength({ min: 1, max: 100 })
-    .withMessage("Search query must be 1-100 characters"),
-  query("schoolId")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid school ID format"),
-  query("gradeId")
-    .optional()
-    .isMongoId()
-    .withMessage("Invalid grade ID format"),
-  query("limit")
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage("Limit must be between 1 and 100"),
-  query("offset")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Offset must be a non-negative integer"),
+  param("schoolId").isUUID().withMessage("Invalid school ID format"),
   handleValidationErrors,
 ];
 

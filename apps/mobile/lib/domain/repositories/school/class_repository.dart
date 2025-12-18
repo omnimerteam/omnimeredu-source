@@ -7,7 +7,6 @@ import '../../entities/query/default_query_entity.dart';
 abstract class ClassRepository {
   Future<Either<Failure, List<ClassSelectorEntity>>> getClassesBySchool({
     required String schoolId,
-    String? grade,
   });
 
   Future<Either<Failure, List<ClassEntity>>> getAllClasses(
@@ -21,4 +20,8 @@ abstract class ClassRepository {
   Future<Either<Failure, ClassEntity>> updateClass(ClassEntity updateClassData);
 
   Future<Either<Failure, void>> deleteClass(String id);
+
+  Future<Either<Failure, List<ClassSelectorEntity>>> searchClassesBySchool(
+    String schoolId,
+  );
 }

@@ -55,6 +55,8 @@ class UserEndpoints {
   String studentsInClass(String id) => '$baseUrl/classes/$id/students'; // GET
   String classesBySchool(String schoolId) =>
       '$baseUrl/classes/school/$schoolId'; // GET
+  String searchClassesBySchool(String schoolId) =>
+      '$baseUrl/classes/search/$schoolId';
 
   // ===== User endpoints =====
   String get users => '$baseUrl/users'; // POST (Create)

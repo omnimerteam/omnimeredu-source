@@ -44,6 +44,7 @@ class _AttendanceDialogState extends State<AttendanceDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             DropdownButtonFormField<AttendanceStatusEnum>(
+              isExpanded: true,
               value: _status,
               decoration: const InputDecoration(labelText: 'Trạng thái'),
               items: AttendanceStatusEnum.values.map((status) {

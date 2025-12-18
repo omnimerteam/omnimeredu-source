@@ -19,6 +19,8 @@ class RoleGuard {
   static const Map<String, String> roleAlias = {
     'User': 'user',
     'SchoolAdmin': 'school_admin',
+    'Teacher': 'teacher',
+    'Student': 'student',
     // TODO: Thêm các role mapping khác ở đây
   };
 
@@ -42,6 +44,11 @@ class RoleGuard {
     '/school-admin/personnel': ['school_admin'],
     '/school-admin/attendance': ['school_admin'],
     '/school-admin/tuition': ['school_admin'],
+    '/teacher/home': ['teacher'],
+    '/teacher/attendance': ['teacher'],
+    '/teacher/qr': ['teacher'],
+    '/student/home': ['student'],
+    '/student/scan-qr': ['student'],
     // TODO: Thêm các route và quyền truy cập ở đây
   };
 

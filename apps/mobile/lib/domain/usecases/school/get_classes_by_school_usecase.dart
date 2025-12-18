@@ -18,16 +18,12 @@ class GetClassesBySchoolUseCase
   Future<Either<Failure, List<ClassSelectorEntity>>> call(
     GetClassesBySchoolParams params,
   ) async {
-    return await repository.getClassesBySchool(
-      schoolId: params.schoolId,
-      grade: params.grade,
-    );
+    return await repository.getClassesBySchool(schoolId: params.schoolId);
   }
 }
 
 class GetClassesBySchoolParams {
   final String schoolId;
-  final String? grade;
 
-  GetClassesBySchoolParams({required this.schoolId, this.grade});
+  GetClassesBySchoolParams({required this.schoolId});
 }

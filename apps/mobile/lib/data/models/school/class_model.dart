@@ -13,6 +13,7 @@ class ClassModel extends ClassEntity {
     required super.baseFee,
     super.createdAt,
     super.updatedAt,
+    super.gradeGroup,
   });
 
   factory ClassModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +32,7 @@ class ClassModel extends ClassEntity {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
+      gradeGroup: json['gradeGroup'] as String?,
     );
   }
 
@@ -46,6 +48,7 @@ class ClassModel extends ClassEntity {
       'baseFee': baseFee,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
+      'gradeGroup': gradeGroup,
     };
   }
 
@@ -61,6 +64,7 @@ class ClassModel extends ClassEntity {
       baseFee: baseFee,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      gradeGroup: gradeGroup,
     );
   }
 }

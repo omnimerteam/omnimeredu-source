@@ -9,7 +9,7 @@ abstract class TeacherAttendanceEvent extends Equatable {
 }
 
 class ChangeSelectedClass extends TeacherAttendanceEvent {
-  final String classId;
+  final String? classId;
 
   const ChangeSelectedClass(this.classId);
 

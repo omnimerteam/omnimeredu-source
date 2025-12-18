@@ -16,15 +16,37 @@ class AttendanceStatsCard extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildStatItem(context, 'Có mặt', stats.present, AppColors.success),
+            Expanded(
+              child: _buildStatItem(
+                context,
+                'Có mặt',
+                stats.present,
+                AppColors.success,
+              ),
+            ),
             _buildDivider(),
-            _buildStatItem(context, 'Vắng', stats.absent, AppColors.red),
+            Expanded(
+              child: _buildStatItem(
+                context,
+                'Vắng',
+                stats.absent,
+                AppColors.red,
+              ),
+            ),
             _buildDivider(),
-            _buildStatItem(context, 'Muộn', stats.late, Colors.orange),
+            Expanded(
+              child: _buildStatItem(context, 'Muộn', stats.late, Colors.orange),
+            ),
             _buildDivider(),
-            _buildStatItem(context, 'Phép', stats.leave, AppColors.blue),
+            Expanded(
+              child: _buildStatItem(
+                context,
+                'Phép',
+                stats.leave,
+                AppColors.blue,
+              ),
+            ),
           ],
         ),
       ),

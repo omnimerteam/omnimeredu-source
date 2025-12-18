@@ -5,6 +5,7 @@ import {
 } from "../../domain/repositories/IClassRepository";
 import { Class } from "../../domain/entities/Class";
 import { ClassModel } from "../datasources/postgres/models/ClassModel";
+import { GradeModel } from "../datasources/postgres/models/GradeModel";
 import { Op } from "sequelize";
 
 export class ClassRepositoryImpl implements IClassRepository {
@@ -147,32 +148,37 @@ export class ClassRepositoryImpl implements IClassRepository {
     return await ClassModel.count({ where: whereClause });
   }
 
-  async searchClasses(options: SearchClassesOptions): Promise<Class[]> {
-    const { query, schoolId, gradeId, limit = 20, offset = 0 } = options;
-
+  async searchClasses(schoolId: string): Promise<Class[]> {
     const whereClause: any = {};
 
-    if (query) {
-      whereClause[Op.or] = [
-        { name: { [Op.iLike]: `%${query}%` } },
-        { code: { [Op.iLike]: `%${query}%` } },
-      ];
-    }
-
     if (schoolId) whereClause.schoolId = schoolId;
-    if (gradeId) whereClause.gradeId = gradeId;
 
     const models = await ClassModel.findAll({
       where: whereClause,
-      limit,
-      offset,
       order: [["name", "ASC"]],
+      include: [
+        {
+          model: GradeModel,
+          as: "grade",
+          attributes: ["gradeGroup"],
+        },
+      ],
     });
 
-    return models.map((model) => this.toEntity(model));
+    return models.map((model) => {
+      const entity = this.toEntity(model);
+      if (model.grade) {
+        entity.gradeGroup = model.grade.gradeGroup;
+      }
+      return entity;
+    });
   }
 
   private toEntity(model: ClassModel): Class {
+    // Model has GradeModel included as 'grade' via association?
+    // Note: ClassModel definition might need 'grade' property for typing if not using 'any' cast
+    // For now we handle gradeGroup mapping in the calling method if needed or extend here
+
     return new Class(
       model.id,
       model.name,

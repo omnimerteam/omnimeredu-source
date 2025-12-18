@@ -199,6 +199,11 @@ class RouteConfig {
       case teacherHome:
         return const TeacherHomeScreen();
 
+      case teacherAttendance:
+        return const Scaffold(
+          body: Center(child: Text("Tính năng chấm công đang phát triển")),
+        );
+
       case teacherQR:
         final attendanceId = arguments?['attendanceId'] as String?;
         final className = arguments?['className'] as String?;

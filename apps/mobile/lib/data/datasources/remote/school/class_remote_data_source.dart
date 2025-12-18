@@ -6,10 +6,7 @@ import 'package:mobile/data/models/school/class_model.dart';
 import 'package:mobile/domain/entities/query/default_query_entity.dart';
 
 abstract class ClassRemoteDataSource {
-  Future<List<ClassSelectorModel>> getClassesBySchool({
-    required String schoolId,
-    String? grade,
-  });
+  Future<List<ClassSelectorModel>> getClassesBySchool(String schoolId);
 
   Future<List<ClassModel>> getAllClasses(DefaultQueryEntity query);
 
@@ -20,6 +17,8 @@ abstract class ClassRemoteDataSource {
   Future<ClassModel> updateClass(ClassModel updateClassData);
 
   Future<void> deleteClass(String id);
+
+  Future<List<ClassSelectorModel>> searchClassesBySchool(String schoolId);
 }
 
 class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
@@ -28,14 +27,11 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
   ClassRemoteDataSourceImpl(this.client);
 
   @override
-  Future<List<ClassSelectorModel>> getClassesBySchool({
-    required String schoolId,
-    String? grade,
-  }) async {
+  Future<List<ClassSelectorModel>> getClassesBySchool(String schoolId) async {
     try {
-      final response = await client.get<Map<String, dynamic>>(
-        Endpoints.user.classesBySchool(schoolId),
-        query: {if (grade != null) 'grade': grade},
+      final response = await client.get<List<dynamic>>(
+        Endpoints.user.classes,
+        query: {'schoolId': schoolId},
         requiresAuth: true,
       );
 
@@ -48,10 +44,7 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
         return [];
       }
 
-      final List<dynamic> classesJson = data['classes'];
-      return classesJson
-          .map((json) => ClassSelectorModel.fromJson(json))
-          .toList();
+      return data.map((json) => ClassSelectorModel.fromJson(json)).toList();
     } catch (e) {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());
@@ -148,6 +141,32 @@ class ClassRemoteDataSourceImpl implements ClassRemoteDataSource {
       if (!response.success) {
         throw ServerFailure(response.message);
       }
+    } catch (e) {
+      if (e is Failure) rethrow;
+      throw ServerFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<List<ClassSelectorModel>> searchClassesBySchool(
+    String schoolId,
+  ) async {
+    try {
+      final response = await client.get<List<dynamic>>(
+        Endpoints.user.searchClassesBySchool(schoolId),
+        requiresAuth: true,
+      );
+
+      if (!response.success) {
+        throw ServerFailure(response.message);
+      }
+
+      final data = response.data;
+      if (data == null) {
+        return [];
+      }
+
+      return data.map((json) => ClassSelectorModel.fromJson(json)).toList();
     } catch (e) {
       if (e is Failure) rethrow;
       throw ServerFailure(e.toString());

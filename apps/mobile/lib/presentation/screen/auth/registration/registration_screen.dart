@@ -90,6 +90,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         "guardianName": registrationState.guardianName,
         "guardianPhone": registrationState.guardianPhone,
         "educationLevel": registrationState.educationLevel?.name,
+        "gradeGroup": registrationState.gradeGroup?.name,
         // Teacher
         "qualification": registrationState.qualification?.name,
         "subjects": registrationState.subjects?.map((s) => s.name).toList(),

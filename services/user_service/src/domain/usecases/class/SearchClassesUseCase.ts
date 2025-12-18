@@ -12,15 +12,7 @@ export interface SearchClassesOptions {
 export class SearchClassesUseCase {
   constructor(private classRepository: ClassRepositoryImpl) {}
 
-  async execute(options: SearchClassesOptions): Promise<Class[]> {
-    const { query, schoolId, gradeId, limit = 20, offset = 0 } = options;
-
-    return await this.classRepository.searchClasses({
-      query,
-      schoolId,
-      gradeId,
-      limit,
-      offset
-    });
+  async execute(schoollId: string): Promise<Class[]> {
+    return await this.classRepository.searchClasses(schoollId);
   }
 }

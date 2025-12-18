@@ -250,7 +250,10 @@ class _StepRoleState extends State<StepRole> {
             hintText: "Lớp",
             required: true,
             prefixIcon: Icons.grade_outlined,
-            value: state.gradeGroup,
+            value:
+                state.selectedEducationLevel!.grades.contains(state.gradeGroup)
+                ? state.gradeGroup
+                : null,
             items: state.selectedEducationLevel!.grades
                 .map(
                   (g) => DropdownMenuItem(value: g, child: Text(g.displayName)),

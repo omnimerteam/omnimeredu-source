@@ -27,6 +27,7 @@ import 'package:mobile/domain/usecases/auth/get_current_user_usecase.dart';
 import 'package:mobile/domain/usecases/auth/register_user_usecase.dart';
 import 'package:mobile/domain/usecases/school/get_schools_by_level_usecase.dart';
 import 'package:mobile/domain/usecases/school/get_classes_by_school_usecase.dart';
+import 'package:mobile/domain/usecases/school/search_classes_by_school_usecase.dart';
 
 import 'package:mobile/presentation/common/blocs/auth_bloc/auth_bloc.dart';
 import 'package:mobile/presentation/screen/auth/registration/bloc/school/school_bloc.dart';
@@ -104,7 +105,7 @@ Future<void> init() async {
 
   sl.registerFactory(() => SchoolBloc(getSchoolsByLevelUseCase: sl()));
 
-  sl.registerFactory(() => ClassBloc(getClassesBySchoolUseCase: sl()));
+  sl.registerFactory(() => ClassBloc(searchClassesBySchoolUseCase: sl()));
 
   sl.registerFactory(() => GradeSelectCubit(getAllGradesUseCase: sl()));
 
@@ -115,6 +116,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUserUseCase(sl()));
   sl.registerLazySingleton(() => GetSchoolsByLevelUseCase(sl()));
   sl.registerLazySingleton(() => GetClassesBySchoolUseCase(sl()));
+  sl.registerLazySingleton(() => SearchClassesBySchoolUseCase(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -274,7 +276,7 @@ Future<void> init() async {
       getAttendanceRecord: sl(),
       initializeAttendance: sl(),
       deleteAttendance: sl(),
-      getClasses: sl(),
+      searchClasses: sl(),
     ),
   );
   sl.registerFactory(() => QRDisplayBloc(generateQRCode: sl()));

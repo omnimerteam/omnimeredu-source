@@ -16,13 +16,9 @@ class ClassRepositoryImpl implements ClassRepository {
   @override
   Future<Either<Failure, List<ClassSelectorEntity>>> getClassesBySchool({
     required String schoolId,
-    String? grade,
   }) async {
     return safeApiCall(() async {
-      return await remoteDataSource.getClassesBySchool(
-        schoolId: schoolId,
-        grade: grade,
-      );
+      return await remoteDataSource.getClassesBySchool(schoolId);
     });
   }
 
@@ -88,6 +84,15 @@ class ClassRepositoryImpl implements ClassRepository {
   Future<Either<Failure, void>> deleteClass(String id) async {
     return safeApiCall(() async {
       await remoteDataSource.deleteClass(id);
+    });
+  }
+
+  @override
+  Future<Either<Failure, List<ClassSelectorEntity>>> searchClassesBySchool(
+    String schoolId,
+  ) async {
+    return safeApiCall(() async {
+      return await remoteDataSource.searchClassesBySchool(schoolId);
     });
   }
 }

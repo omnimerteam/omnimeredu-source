@@ -15,10 +15,12 @@ class ClassSelectorModel extends ClassSelectorEntity {
     return ClassSelectorModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      code: json['code'] as String,
+      code: (json['code'] as String?) ?? '',
       schoolId: json['schoolId'] as String,
       gradeId: json['gradeId'] as String? ?? '',
-      gradeGroup: EducationGradesEnum.fromString(json['grade']),
+      gradeGroup: EducationGradesEnum.fromString(
+        json['gradeGroup'] ?? json['grade'],
+      ),
     );
   }
 }

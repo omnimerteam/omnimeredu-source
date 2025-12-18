@@ -12,6 +12,7 @@ class ClassEntity extends Equatable {
   final num baseFee;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? gradeGroup;
 
   const ClassEntity({
     required this.id,
@@ -24,6 +25,7 @@ class ClassEntity extends Equatable {
     required this.baseFee,
     this.createdAt,
     this.updatedAt,
+    this.gradeGroup,
   });
 
   @override
@@ -38,5 +40,6 @@ class ClassEntity extends Equatable {
     baseFee,
     createdAt,
     updatedAt,
+    gradeGroup,
   ];
 }

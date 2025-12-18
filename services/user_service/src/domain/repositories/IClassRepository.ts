@@ -4,7 +4,7 @@ export interface PaginationOptions {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
+  sortOrder?: "asc" | "desc";
 }
 
 export interface ClassFilterOptions {
@@ -49,9 +49,9 @@ export interface IClassRepository {
     skip: number,
     limit: number,
     sortBy: string,
-    sortOrder: 'asc' | 'desc',
+    sortOrder: "asc" | "desc",
     filters: ClassFilterOptions
   ): Promise<Class[]>;
   count(filters: ClassFilterOptions): Promise<number>;
-  searchClasses(options: SearchClassesOptions): Promise<Class[]>;
+  searchClasses(schoolId: string): Promise<Class[]>;
 }

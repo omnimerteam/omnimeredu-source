@@ -85,12 +85,19 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     UpdateStudentInfoEvent event,
     Emitter<RegistrationState> emit,
   ) {
+    // Check if education level is changing (and not null), and no new grade is provided -> Reset grade
+    final bool shouldResetGrade =
+        event.educationLevel != null &&
+        event.educationLevel != state.educationLevel &&
+        event.gradeGroup == null;
+
     emit(
       state.copyWith(
         guardianName: event.guardianName ?? state.guardianName,
         guardianPhone: event.guardianPhone ?? state.guardianPhone,
         educationLevel: event.educationLevel ?? state.educationLevel,
         gradeGroup: event.gradeGroup ?? state.gradeGroup,
+        forceNullGradeGroup: shouldResetGrade,
       ),
     );
   }
@@ -152,6 +159,8 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           "guardianName": state.guardianName,
           "guardianPhone": state.guardianPhone,
           "educationLevel": state.educationLevel?.name,
+          "gradeGroup": state.gradeGroup?.name,
+
           // Teacher
           "qualification": state.qualification?.name,
           "subjects": state.subjects?.map((s) => s.name).toList(),

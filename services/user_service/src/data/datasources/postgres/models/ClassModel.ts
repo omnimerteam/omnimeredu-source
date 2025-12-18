@@ -11,6 +11,9 @@ export class ClassModel extends Model {
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  // Association
+  public grade?: any; // or GradeModel if cyclic dependency can be managed, effectively avoiding import cycle issues for now
 }
 
 export const initClassModel = (sequelize: Sequelize) => {

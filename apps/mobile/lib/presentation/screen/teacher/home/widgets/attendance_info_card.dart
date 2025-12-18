@@ -38,15 +38,20 @@ class AttendanceInfoCard extends StatelessWidget {
 
   Widget _buildRow(String label, String value) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: TextStyle(color: AppColors.grey600, fontSize: 14.sp),
         ),
-        Text(
-          value,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+        const Spacer(),
+        SizedBox(width: 8.w),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+          ),
         ),
       ],
     );

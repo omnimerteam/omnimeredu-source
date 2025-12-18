@@ -29,30 +29,6 @@ class StudentAttendanceTable extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columnSpacing: 20.w,
-              horizontalMargin: 16.w,
-              columns: const [
-                DataColumn(label: Text('Trạng thái')),
-                DataColumn(label: Text('Tên')),
-                DataColumn(label: Text('Ngày sinh')),
-                DataColumn(label: Text('Phụ huynh')),
-              ],
-              rows: students.map((student) {
-                return DataRow(
-                  onSelectChanged: (_) => onEditPressed(student),
-                  cells: [
-                    DataCell(_buildStatusDot(student.status)),
-                    DataCell(Text(student.name)),
-                    DataCell(Text(_formatDate(student.birthday))),
-                    DataCell(Text(student.guardianName)),
-                  ],
-                );
-              }).toList(),
-            ),
-          ),
           if (students.isEmpty)
             Padding(
               padding: EdgeInsets.all(24.w),
@@ -62,6 +38,38 @@ class StudentAttendanceTable extends StatelessWidget {
                   style: TextStyle(color: AppColors.grey500),
                 ),
               ),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: DataTable(
+                      columnSpacing: 20.w,
+                      horizontalMargin: 16.w,
+                      columns: const [
+                        DataColumn(label: Text('Trạng thái')),
+                        DataColumn(label: Text('Tên')),
+                        DataColumn(label: Text('Ngày sinh')),
+                        DataColumn(label: Text('Phụ huynh')),
+                      ],
+                      rows: students.map((student) {
+                        return DataRow(
+                          onSelectChanged: (_) => onEditPressed(student),
+                          cells: [
+                            DataCell(_buildStatusDot(student.status)),
+                            DataCell(Text(student.name)),
+                            DataCell(Text(_formatDate(student.birthday))),
+                            DataCell(Text(student.guardianName)),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
             ),
         ],
       ),
