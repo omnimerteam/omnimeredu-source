@@ -111,10 +111,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Core
 import 'core/network/api_client.dart';
+import 'core/network/api_jwt.dart';
+import 'core/add_jwt.dart';
+import 'core/config/auth_config.dart';
+import 'data/datasources/remote/auth/auth_jwt_remote_data_source.dart';
 
 // Services
 import 'services/firebase_auth_service.dart';
 import 'services/firebase_storage_uploader.dart';
+import 'services/token_storage_service.dart';
 import 'services/dashboard_cache_service.dart';
 import 'services/location_service.dart';
 import 'services/brightness_service.dart';
@@ -197,6 +202,22 @@ Future<void> init() async {
   // ======================
   sl.registerLazySingleton<ApiClient>(() => ApiClient());
 
+  // JWT Token Storage
+  sl.registerLazySingleton<TokenStorageService>(() => TokenStorageService());
+
+  // Auth Provider (configurable via AuthConfig)
+  sl.registerLazySingleton<AppAuthProvider>(
+    () => AuthProviderFactory.create(
+      AuthConfig.currentProvider,
+      tokenStorage: sl<TokenStorageService>(),
+    ),
+  );
+
+  // JWT API Client with auto-refresh
+  sl.registerLazySingleton<JwtApiClient>(
+    () => JwtApiClient(tokenStorage: sl<TokenStorageService>()),
+  );
+
   // ======================
   // Services
   // ======================
@@ -224,55 +245,69 @@ Future<void> init() async {
     () => AuthRemoteDataSource(sl(), sl()),
   );
   sl.registerLazySingleton<RoleRemoteDataSource>(
-    () => RoleRemoteDataSource(sl()),
+    () => RoleRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<ClassRemoteDataSource>(
-    () => ClassRemoteDataSource(sl()),
+    () => ClassRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolRemoteDataSource>(
-    () => SchoolRemoteDataSource(sl()),
+    () => SchoolRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolAdminDashboardRemoteDataSource>(
-    () => SchoolAdminDashboardRemoteDataSource(sl()),
+    () => SchoolAdminDashboardRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
-    () => MembershipRequestRemoteDataSource(sl()),
+    () => MembershipRequestRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<GradeRemoteDataSource>(
-    () => GradeRemoteDataSource(sl()),
+    () => GradeRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<StudentRemoteDataSource>(
-    () => StudentRemoteDataSource(sl()),
+    () => StudentRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<TeachingAssignmentRemoteDataSource>(
-    () => TeachingAssignmentRemoteDataSource(sl()),
+    () => TeachingAssignmentRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<PersonnelRemoteDataSource>(
-    () => PersonnelRemoteDataSource(sl()),
+    () => PersonnelRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolAdminRemoteDataSource>(
-    () => SchoolAdminRemoteDataSource(sl()),
+    () => SchoolAdminRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<AttendanceRemoteDataSource>(
-    () => AttendanceRemoteDataSource(sl()),
+    () => AttendanceRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<DetailRecordRemoteDataSource>(
-    () => DetailRecordRemoteDataSource(sl()),
+    () => DetailRecordRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<TeacherRemoteDataSource>(
-    () => TeacherRemoteDataSource(sl()),
+    () => TeacherRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
+  );
+
+  // Auth JWT DataSource
+  sl.registerLazySingleton<AuthJwtRemoteDataSource>(
+    () => AuthJwtRemoteDataSource(sl<ApiClient>()),
   );
   sl.registerLazySingleton<UploadRemoteDataSource>(
-    () => UploadRemoteDataSource(sl()),
+    () => UploadRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<ExtraFeeRemoteDataSource>(
     () => ExtraFeeRemoteDataSource(client: sl(), getIdToken: _getIdToken),
   );
   sl.registerLazySingleton<StaffRemoteDataSource>(
-    () => StaffRemoteDataSource(sl()),
+    () => StaffRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<QRAttendanceRemoteDatasource>(
-    () => QRAttendanceRemoteDatasource(sl()),
+    () => QRAttendanceRemoteDatasource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
 
   // ======================

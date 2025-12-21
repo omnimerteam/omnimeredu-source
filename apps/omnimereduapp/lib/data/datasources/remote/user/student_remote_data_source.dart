@@ -1,29 +1,24 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/user/student_model.dart';
 import '../../../models/user/student_selector_model.dart';
 import '../../../../domain/entities/query/default_query_entity.dart';
+import '../base_remote_data_source.dart';
 
-class StudentRemoteDataSource {
-  final ApiClient client;
-
-  StudentRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class StudentRemoteDataSource extends BaseRemoteDataSource {
+  StudentRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// Lấy danh sách học sinh (có thể kèm query filter)
   Future<List<StudentModel>> getAllStudents(DefaultQueryEntity query) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
     final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<StudentModel>>(
       Endpoints.students,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: queryParams,
       parser: (data) {
         if (data is List) {
@@ -44,11 +39,11 @@ class StudentRemoteDataSource {
 
   /// Lấy thông tin học sinh theo ID
   Future<StudentModel> getStudentById(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<StudentModel>(
       Endpoints.studentId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return StudentModel.fromJson(data);
@@ -66,11 +61,11 @@ class StudentRemoteDataSource {
 
   /// Tạo học sinh mới
   Future<StudentModel> createStudent(StudentModel studentData) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.post<StudentModel>(
       Endpoints.students,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: studentData.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -96,11 +91,11 @@ class StudentRemoteDataSource {
     }
 
     try {
-      final token = await _getIdToken();
+      final headers = await authHeaders;
 
       final res = await client.put<StudentModel?>(
         Endpoints.studentId(studentData.id!),
-        headers: {if (token != null) "Authorization": "Bearer $token"},
+        headers: headers,
         data: studentData.toJson(),
         parser: (data) {
           if (data is Map<String, dynamic>) {
@@ -118,11 +113,11 @@ class StudentRemoteDataSource {
 
   /// Xóa học sinh
   Future<void> deleteStudent(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.delete<void>(
       Endpoints.studentId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
     if (!res.success) {
@@ -133,11 +128,11 @@ class StudentRemoteDataSource {
   Future<ApiResponse<List<StudentSelectorModel>?>> getStudentSelector(
     String? gradeId,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<List<StudentSelectorModel>?>(
       Endpoints.getStudentSelector,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: {"gradeId": gradeId},
       parser: (data) {
         if (data is List) {

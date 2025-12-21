@@ -1,30 +1,25 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/user/personnel_model.dart';
 import '../../../../domain/entities/query/default_query_entity.dart';
+import '../base_remote_data_source.dart';
 
-class PersonnelRemoteDataSource {
-  final ApiClient client;
-
-  PersonnelRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class PersonnelRemoteDataSource extends BaseRemoteDataSource {
+  PersonnelRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// Lấy danh sách nhân sự (có thể kèm query filter)
   Future<ApiResponse<List<PersonnelModel>>> getAllPersonnelFromSchool(
     DefaultQueryEntity query,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
     final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<PersonnelModel>>(
       Endpoints.personnel,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: queryParams,
       parser: (data) {
         if (data is List) {
@@ -43,11 +38,11 @@ class PersonnelRemoteDataSource {
     String personnelId,
     bool isVerified,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.patch<bool>(
       Endpoints.updateVerified(personnelId),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: {"isVerified": isVerified},
       parser: (data) {
         if (data is Map<String, dynamic> && data["isVerified"] != null) {
@@ -61,11 +56,11 @@ class PersonnelRemoteDataSource {
   }
 
   Future<ApiResponse<void>> dismissPersonnel(String personnelId) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.patch<bool>(
       Endpoints.dismissPersonnel(personnelId),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
     return res;
@@ -76,11 +71,11 @@ class PersonnelRemoteDataSource {
     String avatarUrl,
   ) async {
     try {
-      final token = await _getIdToken();
+      final headers = await authHeaders;
 
       final res = await client.patch<void>(
         Endpoints.updateAvatar,
-        headers: {if (token != null) "Authorization": "Bearer $token"},
+        headers: headers,
         data: {"avatarPath": avatarPath, "avatarUrl": avatarUrl},
       );
 

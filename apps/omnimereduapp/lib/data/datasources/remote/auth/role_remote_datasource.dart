@@ -1,17 +1,21 @@
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../models/auth/role_model.dart';
 import '../../../../core/network/endpoints.dart';
+import '../base_remote_data_source.dart';
 
-class RoleRemoteDataSource {
-  final ApiClient client;
-
-  RoleRemoteDataSource(this.client);
+class RoleRemoteDataSource extends BaseRemoteDataSource {
+  RoleRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   Future<List<RoleModel>> getAllRoles() async {
     try {
+      final headers = await authHeaders;
+
       final response = await client.get<List<RoleModel>>(
         Endpoints.roles,
+        headers: headers,
         parser: (data) {
           if (data is List) {
             return data
@@ -35,8 +39,11 @@ class RoleRemoteDataSource {
 
   Future<List<RoleModel>> getRolesPersonnel() async {
     try {
+      final headers = await authHeaders;
+
       final response = await client.get<List<RoleModel>>(
         Endpoints.rolesPersonnel,
+        headers: headers,
         parser: (data) {
           if (data is List) {
             return data

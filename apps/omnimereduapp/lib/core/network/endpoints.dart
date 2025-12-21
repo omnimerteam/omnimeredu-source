@@ -3,12 +3,20 @@ import 'app_config.dart';
 class Endpoints {
   static String get baseUrl => AppConfig.baseUrl;
 
-  // ================== AUTH ==================
+  // ================== AUTH (Firebase) ==================
   static const String login = "/v1/auth/login";
   static const String register = "/v1/auth/register";
   static const String logout = "/v1/auth/logout";
   static const String changePassword = "/v1/auth/change-password";
   static const String forgetPassword = "/v1/auth/forget-password";
+
+  // ================== AUTH JWT ==================
+  static const String jwtLogin = "/api/auth-jwt/login";
+  static const String jwtRegister = "/api/auth-jwt/register";
+  static const String jwtRefreshToken = "/api/auth-jwt/refresh-token";
+  static const String jwtChangePassword = "/api/auth-jwt/change-password";
+  static const String jwtForgetPassword = "/api/auth-jwt/forget-password";
+  static const String jwtLogout = "/api/auth-jwt/logout";
 
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";
@@ -110,7 +118,8 @@ class Endpoints {
   static String staffId(String id) => "/v1/details-records/update-status/$id";
 
   // ================== QR ATTENDANCE ==================
-  static String generateQRCode(String attendanceId) => "/v1/attendance/$attendanceId/qr";
+  static String generateQRCode(String attendanceId) =>
+      "/v1/attendance/$attendanceId/qr";
   static const String submitAttendanceScan = "/v1/attendance/scan";
 
   // ================== UPLOAD ==================

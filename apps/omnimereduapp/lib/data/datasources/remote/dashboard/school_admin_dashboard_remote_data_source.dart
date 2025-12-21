@@ -1,25 +1,22 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/schoolAdminDashboard/attendance_stats_model.dart';
 import '../../../models/schoolAdminDashboard/dashboard_overview_model.dart';
+import '../base_remote_data_source.dart';
 
-class SchoolAdminDashboardRemoteDataSource {
-  final ApiClient client;
-
-  SchoolAdminDashboardRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class SchoolAdminDashboardRemoteDataSource extends BaseRemoteDataSource {
+  SchoolAdminDashboardRemoteDataSource(
+    ApiClient client,
+    AppAuthProvider authProvider,
+  ) : super(client, authProvider);
 
   Future<DashboardOverviewModel> getSummary() async {
-    final idToken = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<DashboardOverviewModel>(
       Endpoints.getSummary,
-      headers: {"Authorization": "Bearer $idToken"},
+      headers: headers,
       parser: (data) => DashboardOverviewModel.fromJson(data),
     );
 
@@ -31,11 +28,11 @@ class SchoolAdminDashboardRemoteDataSource {
   }
 
   Future<AttendanceStatsModel> getSchoolAttendanceStats() async {
-    final idToken = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<AttendanceStatsModel>(
       Endpoints.getSchoolAttendanceStats,
-      headers: {"Authorization": "Bearer $idToken"},
+      headers: headers,
       parser: (data) {
         // Nếu backend trả về [] (list) => gói lại thành object cho model
         final list = (data as List<dynamic>? ?? [])

@@ -1,19 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../../core/add_jwt.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/api_response.dart';
 import '../../../../../core/network/endpoints.dart';
 import '../../../../models/detail_record/detail_record_model.dart';
 import '../../../../models/detail_record/detail_record_student_model.dart';
+import '../../base_remote_data_source.dart';
 
-class DetailRecordRemoteDataSource {
-  final ApiClient client;
-
-  DetailRecordRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class DetailRecordRemoteDataSource extends BaseRemoteDataSource {
+  DetailRecordRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// Cập nhật trạng thái điểm danh cho học sinh
   Future<ApiResponse<DetailRecordModel?>> updateStatusDetailRecord(
@@ -23,11 +18,11 @@ class DetailRecordRemoteDataSource {
       throw Exception("Hãy chọn bảng điểm danh để cập nhật");
     }
 
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.patch<DetailRecordModel?>(
       Endpoints.updateStatusDetailRecord(data.id!),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: data.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -44,11 +39,11 @@ class DetailRecordRemoteDataSource {
   Future<ApiResponse<List<DetailRecordStudentModel>?>> getAttendanceRecordsById(
     String attendanceId,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<List<DetailRecordStudentModel>?>(
       Endpoints.getAttendanceRecordsById(attendanceId),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is List) {
           return data

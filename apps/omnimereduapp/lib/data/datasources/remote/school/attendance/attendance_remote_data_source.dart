@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../../core/add_jwt.dart';
 import 'package:omnimereduapp/data/models/attendance/export_file_model.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/api_response.dart';
@@ -7,26 +7,21 @@ import '../../../../models/attendance/attendance_class_model.dart';
 import '../../../../models/attendance/attendance_model.dart';
 import '../../../../models/view_model/attendance_record_model.dart';
 import '../../../../../domain/entities/query/default_query_entity.dart';
+import '../../base_remote_data_source.dart';
 
-class AttendanceRemoteDataSource {
-  final ApiClient client;
-
-  AttendanceRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class AttendanceRemoteDataSource extends BaseRemoteDataSource {
+  AttendanceRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// 🔹 Tạo teaching assignment
   Future<ApiResponse<AttendanceModel?>> initializeClassAttendance(
     AttendanceModel assignment,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.post<AttendanceModel?>(
       Endpoints.initializeClassAttendance,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: assignment.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -43,11 +38,11 @@ class AttendanceRemoteDataSource {
     DateTime date,
     String classId,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<AttendanceRecordViewModel?>(
       Endpoints.getClassAttendanceRecordView,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: {"date": date.toUtc().toIso8601String(), "classId": classId},
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -63,13 +58,13 @@ class AttendanceRemoteDataSource {
   Future<ApiResponse<List<AttendanceClassModel>?>> getAllAttendances(
     DefaultQueryEntity query,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<AttendanceClassModel>?>(
       Endpoints.attendances,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: queryParams,
       parser: (data) {
         if (data is List) {
@@ -87,11 +82,11 @@ class AttendanceRemoteDataSource {
   }
 
   Future<ApiResponse<bool?>> deleteAttendance(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.delete<bool?>(
       Endpoints.deleteAttendance(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
     return res;
@@ -101,7 +96,7 @@ class AttendanceRemoteDataSource {
     String id, {
     String? mode,
   }) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     // Gắn query param (mode) nếu có
     final queryParams = <String, dynamic>{};
@@ -109,7 +104,7 @@ class AttendanceRemoteDataSource {
 
     final res = await client.get<ExportedFileModel?>(
       Endpoints.exportAttendanceExcel(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: queryParams,
       parser: (data) {
         if (data is Map<String, dynamic>) {

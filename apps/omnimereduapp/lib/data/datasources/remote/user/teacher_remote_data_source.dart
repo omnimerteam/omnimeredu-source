@@ -1,18 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/user/teacher_model.dart';
+import '../base_remote_data_source.dart';
 
-class TeacherRemoteDataSource {
-  final ApiClient client;
-
-  TeacherRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class TeacherRemoteDataSource extends BaseRemoteDataSource {
+  TeacherRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   Future<ApiResponse<TeacherModel?>> updateTeacher(TeacherModel data) async {
     if (data.id == null) {
@@ -20,11 +15,11 @@ class TeacherRemoteDataSource {
     }
 
     try {
-      final token = await _getIdToken();
+      final headers = await authHeaders;
 
       final res = await client.put<TeacherModel?>(
         Endpoints.teacherId(data.id!),
-        headers: {if (token != null) "Authorization": "Bearer $token"},
+        headers: headers,
         data: data.toJson(),
         parser: (data) {
           if (data is Map<String, dynamic>) {

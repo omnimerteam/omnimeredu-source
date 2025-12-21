@@ -65,6 +65,7 @@ dependencies:
   geocoding: ^3.0.0
   screen_brightness: ^1.0.1
   connectivity_plus: ^6.0.3
+  flutter_secure_storage: ^10.0.0
 
 dev_dependencies:
   flutter_test:

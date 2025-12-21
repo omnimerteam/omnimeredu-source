@@ -1,31 +1,26 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../../core/utils/logger.dart';
 import '../../../models/qr_attendance/qr_data_model.dart';
 import '../../../models/qr_attendance/scan_request_model.dart';
 import '../../../models/qr_attendance/scan_response_model.dart';
+import '../base_remote_data_source.dart';
 
 /// Remote datasource cho QR Attendance
-class QRAttendanceRemoteDatasource {
-  final ApiClient _apiClient;
-
-  QRAttendanceRemoteDatasource(this._apiClient);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class QRAttendanceRemoteDatasource extends BaseRemoteDataSource {
+  QRAttendanceRemoteDatasource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// Generate QR code data from server
   Future<QRDataModel> generateQRCode(String attendanceId) async {
     final endpoint = Endpoints.generateQRCode(attendanceId);
     try {
-      final token = await _getIdToken();
-      
-      final response = await _apiClient.get<QRDataModel>(
+      final headers = await authHeaders;
+
+      final response = await client.get<QRDataModel>(
         endpoint,
-        headers: {if (token != null) "Authorization": "Bearer $token"},
+        headers: headers,
         parser: (data) => QRDataModel.fromJson(data as Map<String, dynamic>),
       );
 
@@ -50,12 +45,12 @@ class QRAttendanceRemoteDatasource {
   ) async {
     try {
       AppLogger.info('Submitting attendance scan');
-      
-      final token = await _getIdToken();
-      
-      final response = await _apiClient.post(
+
+      final headers = await authHeaders;
+
+      final response = await client.post(
         Endpoints.submitAttendanceScan,
-        headers: {if (token != null) "Authorization": "Bearer $token"},
+        headers: headers,
         data: request.toJson(),
       );
 
@@ -66,9 +61,8 @@ class QRAttendanceRemoteDatasource {
         throw Exception(response.message ?? 'Failed to submit attendance scan');
       }
     } catch (e) {
-      AppLogger.error('Error submitting attendance scan', e);
+      AppLogger.error('Error s  ubmitting attendance scan', e);
       rethrow;
     }
   }
 }
-
