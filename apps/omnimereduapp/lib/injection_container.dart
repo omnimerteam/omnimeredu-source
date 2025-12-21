@@ -108,6 +108,8 @@ import 'presentation/screens/school_admin/tuition/extra_fee/bloc/extra_fee_manag
 import 'presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'data/datasources/local/auth_local_data_source.dart';
 
 // Core
 import 'core/network/api_client.dart';
@@ -200,6 +202,9 @@ Future<void> init() async {
   // ======================
   // Core
   // ======================
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+
   sl.registerLazySingleton<ApiClient>(() => ApiClient());
 
   // JWT Token Storage
@@ -297,6 +302,12 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthJwtRemoteDataSource>(
     () => AuthJwtRemoteDataSource(sl<ApiClient>()),
   );
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(
+      tokenService: sl<TokenStorageService>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
+  );
   sl.registerLazySingleton<UploadRemoteDataSource>(
     () => UploadRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
@@ -313,7 +324,9 @@ Future<void> init() async {
   // ======================
   // Repositories
   // ======================
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remote: sl(), local: sl()),
+  );
   sl.registerLazySingleton<RoleRepository>(() => RoleRepositoryImpl(sl()));
   sl.registerLazySingleton<ClassRepository>(() => ClassRepositoryImpl(sl()));
   sl.registerLazySingleton<SchoolRepository>(() => SchoolRepositoryImpl(sl()));

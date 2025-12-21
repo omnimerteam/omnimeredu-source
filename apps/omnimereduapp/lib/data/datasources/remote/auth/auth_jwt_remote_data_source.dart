@@ -2,6 +2,12 @@ import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/auth/auth_tokens_model.dart';
 import '../../../models/auth/registration_user_model.dart';
+import '../../../models/user/base_user_model.dart';
+import '../../../models/user/school_admin_model.dart';
+import '../../../models/user/staff_mode.dart';
+import '../../../models/user/student_model.dart';
+import '../../../models/user/teacher_model.dart';
+import '../../../../core/network/api_response.dart';
 
 /// Remote data source cho JWT Authentication
 /// Sử dụng basic ApiClient (không kèm token) cho các endpoint auth
@@ -90,5 +96,48 @@ class AuthJwtRemoteDataSource {
     if (!res.success) {
       throw Exception(res.message ?? 'Đặt lại mật khẩu thất bại');
     }
+  }
+
+  /// Lấy thông tin user theo ID (dùng cho cả admin/user xem profile)
+  Future<ApiResponse<BaseUserModel>> getUserById({
+    required String userId,
+    required String accessToken,
+  }) async {
+    final res = await client.get<Map<String, dynamic>>(
+      Endpoints.personnelId(userId),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (res.data == null) {
+      return ApiResponse.error("Không tìm thấy dữ liệu người dùng");
+    }
+
+    final json = res.data!;
+    final roleKey = json['roleKey'] as String?;
+
+    late BaseUserModel model;
+
+    switch (roleKey) {
+      case 'Student':
+        model = StudentModel.fromJson(json);
+        break;
+      case 'Teacher':
+        model = TeacherModel.fromJson(json);
+        break;
+      case 'SchoolAdmin':
+        model = SchoolAdminModel.fromJson(json);
+        break;
+      case 'Staff':
+        model = StaffModel.fromJson(json);
+        break;
+      default:
+        model = BaseUserModel.fromJson(
+          json,
+          roleKey: (roleKey == null || roleKey.isEmpty) ? 'BaseUser' : roleKey,
+        );
+        break;
+    }
+
+    return ApiResponse.success(model, message: res.message ?? "Thành công");
   }
 }
