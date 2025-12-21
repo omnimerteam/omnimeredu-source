@@ -74,7 +74,8 @@ class AttendanceRemoteDataSource extends BaseRemoteDataSource {
               )
               .toList();
         }
-        throw Exception("API không trả về dữ liệu hợp lệ");
+        // Trả về empty list nếu data null hoặc không phải List
+        return <AttendanceClassModel>[];
       },
     );
 

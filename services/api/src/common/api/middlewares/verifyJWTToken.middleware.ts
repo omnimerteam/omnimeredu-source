@@ -25,6 +25,8 @@ export const verifyJWTToken = async (
       return;
     }
 
+    console.log("Auth Header: ", authHeader);
+
     const token = authHeader.split("Bearer ")[1].trim();
     let decodedToken: TokenPayload;
 

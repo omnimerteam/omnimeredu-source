@@ -13,7 +13,7 @@ import { TeacherController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -38,7 +38,7 @@ router.get(
     headers: authHeaderSchema,
     query: teacherQuerySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.getAllTeachers(req, res, next)
@@ -46,7 +46,7 @@ router.get(
 
 router.get(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.getTeacherById(req, res, next)
@@ -54,7 +54,7 @@ router.get(
 
 router.post(
   "/",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.createTeacher(req, res, next)
@@ -62,7 +62,7 @@ router.post(
 
 router.put(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.updateTeacher(req, res, next)
@@ -70,7 +70,7 @@ router.put(
 
 router.delete(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teacherController.deleteTeacher(req, res, next)

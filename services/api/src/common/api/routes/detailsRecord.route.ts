@@ -13,7 +13,7 @@ import { DetailsRecordController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -52,7 +52,7 @@ router.get(
   validateData({
     headers: authHeaderSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.getAllDetailsRecords(req, res, next)
@@ -64,7 +64,7 @@ router.get(
     headers: authHeaderSchema,
     params: attendanceIdSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.getAttendanceRecordsById(req, res, next)
@@ -76,7 +76,7 @@ router.get(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.getDetailsRecordById(req, res, next)
@@ -88,7 +88,7 @@ router.post(
     headers: authHeaderSchema,
     body: createDetailsRecordBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.createDetailsRecord(req, res, next)
@@ -101,7 +101,7 @@ router.put(
     body: updateDetailsRecordBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.updateDetailsRecord(req, res, next)
@@ -114,7 +114,7 @@ router.patch(
     body: updateStatusDetailsRecordBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.updateStatusDetailRecord(req, res, next)
@@ -126,7 +126,7 @@ router.delete(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req: Request, res: Response, next: NextFunction) =>
     detailsRecordController.deleteDetailsRecord(req, res, next)

@@ -72,7 +72,7 @@ class AuthUserModel {
       'schoolLevel': schoolLevel?.name,
       'avatarUrl': avatarUrl,
       'position': position?.name,
-      'qualification': qualification,
+      'qualification': qualification?.name,
       'classId': classId,
       'className': className,
       'educationLevel': educationLevel?.name,

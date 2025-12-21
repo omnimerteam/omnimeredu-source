@@ -23,7 +23,7 @@ import { AttendanceController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -69,7 +69,7 @@ router.get(
     headers: authHeaderSchema,
     query: queryAttendance,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAllAttendances(req, res, next)
@@ -79,7 +79,7 @@ router.get(
 router.get(
   "/:id/qr",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.generateQRCode(req, res, next)
@@ -88,7 +88,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAttendanceById(req, res, next)
 );
@@ -96,7 +96,7 @@ router.get(
 router.get(
   "/attendance-record-view/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getAttendanceRecordViewById(req, res, next)
 );
@@ -107,7 +107,7 @@ router.get(
     headers: authHeaderSchema,
     query: getClassAttendanceRecordView,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.getClassAttendanceRecordView(req, res, next)
@@ -117,7 +117,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createAttendanceBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.createAttendance(req, res, next)
@@ -127,7 +127,7 @@ router.post(
 router.post(
   "/initialize-class-attendance",
   validateData({ headers: authHeaderSchema, body: createAttendanceBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.initializeClassAttendance(req, res, next)
@@ -140,7 +140,7 @@ router.put(
     body: updateAttendanceBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.updateAttendance(req, res, next)
@@ -149,7 +149,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.deleteAttendance(req, res, next)
@@ -162,7 +162,7 @@ router.get(
     params: objectIdParamSchema,
     query: exportAttendanceExcelQuerySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.exportAttendanceExcel(req, res, next)
 );

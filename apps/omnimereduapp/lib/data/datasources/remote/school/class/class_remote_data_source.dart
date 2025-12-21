@@ -69,8 +69,8 @@ class ClassRemoteDataSource extends BaseRemoteDataSource {
       },
     );
 
-    if (res.success && res.data != null) {
-      return res.data!;
+    if (res.success) {
+      return res.data ?? [];
     } else {
       throw Exception(res.message ?? "Không thể lấy danh sách lớp");
     }

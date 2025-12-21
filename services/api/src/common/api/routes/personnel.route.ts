@@ -6,7 +6,7 @@ import {
 import { PersonnelService } from "../../../domain/services";
 import { PersonnelController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -36,7 +36,7 @@ const personnelQuerySchema = createPaginationSchemaWithSortFilterAndSearch(
 router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: personnelQuerySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.getAllPersonnel(req, res, next)
@@ -49,7 +49,7 @@ router.patch(
     body: updateRoleId,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.updateRoleId(req, res, next)
@@ -62,7 +62,7 @@ router.patch(
     body: updateVerified,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.updateVerified(req, res, next)
@@ -74,7 +74,7 @@ router.patch(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.dismissPersonnel(req, res, next)
@@ -86,7 +86,7 @@ router.get(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.getUserById(req, res, next)
 );
@@ -97,7 +97,7 @@ router.patch(
     headers: authHeaderSchema,
     body: updateAvatar,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     personnelController.updateAvatar(req, res, next)
 );

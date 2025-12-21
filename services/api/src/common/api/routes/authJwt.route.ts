@@ -78,6 +78,16 @@ router.post("/refresh-token", (req, res, next) =>
 );
 
 /**
+ * @route GET /api/auth-jwt/me
+ * Lấy thông tin user hiện tại từ access token
+ * Dùng khi reload app để lấy lại dữ liệu đăng nhập
+ * Yêu cầu JWT access token
+ */
+router.get("/me", verifyJWTToken, (req, res, next) =>
+  authJwtController.getMe(req, res, next)
+);
+
+/**
  * @route PATCH /api/auth-jwt/change-password
  * Đổi mật khẩu người dùng khi còn nhớ mật khẩu
  * Yêu cầu JWT access token

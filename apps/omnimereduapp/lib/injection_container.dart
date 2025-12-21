@@ -205,10 +205,12 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  sl.registerLazySingleton<ApiClient>(() => ApiClient());
-
-  // JWT Token Storage
+  // JWT Token Storage (phải đăng ký trước ApiClient)
   sl.registerLazySingleton<TokenStorageService>(() => TokenStorageService());
+
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(tokenStorage: sl<TokenStorageService>()),
+  );
 
   // Auth Provider (configurable via AuthConfig)
   sl.registerLazySingleton<AppAuthProvider>(

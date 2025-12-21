@@ -1,6 +1,7 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/auth/auth_tokens_model.dart';
+import '../../../models/auth/auth_user_model.dart';
 import '../../../models/auth/registration_user_model.dart';
 import '../../../models/user/base_user_model.dart';
 import '../../../models/user/school_admin_model.dart';
@@ -96,6 +97,26 @@ class AuthJwtRemoteDataSource {
     if (!res.success) {
       throw Exception(res.message ?? 'Đặt lại mật khẩu thất bại');
     }
+  }
+
+  /// Lấy thông tin user hiện tại từ access token
+  /// Dùng khi app reload để lấy lại dữ liệu đăng nhập
+  Future<AuthUserModel> getMe(String accessToken) async {
+    final res = await client.get<Map<String, dynamic>>(
+      Endpoints.jwtMe,
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+
+    if (!res.success || res.data == null) {
+      throw Exception(res.message ?? 'Lấy thông tin người dùng thất bại');
+    }
+
+    final userData = res.data!['user'] as Map<String, dynamic>?;
+    if (userData == null) {
+      throw Exception('Không tìm thấy thông tin người dùng');
+    }
+
+    return AuthUserModel.fromJson(userData);
   }
 
   /// Lấy thông tin user theo ID (dùng cho cả admin/user xem profile)

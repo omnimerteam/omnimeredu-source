@@ -221,12 +221,12 @@ class AuthJwtService {
           email: account.email,
           isVerified: userId.isVerified,
           avatarUrl: userId.avatarUrl,
-          role: {
+          roleId: {
             _id: roleInfo._id,
             name: roleInfo.name,
           },
-          school: userId.schoolId,
-          class: userId.classId,
+          schoolId: userId.schoolId,
+          classId: userId.classId,
         },
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
@@ -400,6 +400,51 @@ class AuthJwtService {
       throw err;
     } finally {
       session.endSession();
+    }
+  }
+
+  /**
+   * Lấy thông tin user từ userId (dùng khi reload app với access token)
+   */
+  async getMe(userId: string) {
+    try {
+      // Tìm account theo userId (có populate thông tin user và role)
+      const account = await this.accountRepository.findUserByUserId(userId);
+      if (!account) {
+        throw new HttpError(404, "Không tìm thấy thông tin người dùng");
+      }
+
+      const userInfo = account.userId as any;
+      if (!userInfo) {
+        throw new HttpError(404, "Không tìm thấy thông tin người dùng");
+      }
+
+      const roleInfo = userInfo.roleId as any;
+      if (!roleInfo) {
+        throw new HttpError(404, "Không tìm thấy thông tin role");
+      }
+
+      console.log(
+        chalk.greenBright(
+          `[GET ME JWT ✅] User: ${userInfo._id}, Role: ${roleInfo.name}`
+        )
+      );
+
+      return {
+        _id: userInfo._id,
+        fullName: userInfo.fullName,
+        email: account.email,
+        isVerified: userInfo.isVerified,
+        avatarUrl: userInfo.avatarUrl,
+        roleId: {
+          _id: roleInfo._id,
+          name: roleInfo.name,
+        },
+        schoolId: userInfo.schoolId,
+        classId: userInfo.classId,
+      };
+    } catch (err) {
+      throw err;
     }
   }
 

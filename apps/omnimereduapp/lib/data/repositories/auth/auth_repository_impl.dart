@@ -81,25 +81,63 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthUserEntity?> getCurrentUser() async {
     try {
-      // 1. Cache memory
+      // 1. Cache memory - nếu có thì trả về ngay
       if (_currentUser != null) {
         return _currentUser!.toEntity();
       }
 
-      // 2. Cache disk
-      final storedUser = await local.getUser();
+      // 2. Kiểm tra tokens từ local storage
       final tokens = await local.getTokens();
-
-      if (tokens == null || storedUser == null) {
+      if (tokens == null) {
         return null;
       }
 
-      _currentUser = storedUser;
+      // 3. Gọi API /me để lấy thông tin user mới nhất từ server
+      try {
+        final user = await remote.getMe(tokens.accessToken);
+        _currentUser = user;
 
-      // Optional: Verify token / refresh / fetch fresh profile
-      // TODO: Implement token verification logic here if needed
+        // Lưu user mới vào local storage
+        await local.saveUser(user);
 
-      return storedUser.toEntity();
+        return user.toEntity();
+      } catch (e) {
+        final errorMessage = e.toString().toLowerCase();
+
+        // Kiểm tra nếu token hết hạn -> thử refresh token
+        if (errorMessage.contains('expired') || errorMessage.contains('401')) {
+          logger.i("Access token hết hạn, đang refresh token...");
+
+          try {
+            // Refresh token
+            final newTokens = await remote.refreshToken(tokens.refreshToken);
+            await local.saveTokens(newTokens);
+
+            // Retry getMe với token mới
+            final user = await remote.getMe(newTokens.accessToken);
+            _currentUser = user;
+            await local.saveUser(user);
+
+            logger.i("Refresh token thành công, đã lấy lại thông tin user");
+            return user.toEntity();
+          } catch (refreshError) {
+            logger.w("Refresh token thất bại: $refreshError");
+          }
+        }
+
+        logger.w("Gọi API /me thất bại, thử dùng local cache: $e");
+
+        // Fallback: đọc từ local cache nếu API fail
+        final storedUser = await local.getUser();
+        if (storedUser != null) {
+          _currentUser = storedUser;
+          return storedUser.toEntity();
+        }
+
+        // Token hết hạn hoặc không hợp lệ -> clear và return null
+        await local.clearTokens();
+        return null;
+      }
     } catch (e) {
       logger.e("getCurrentUser error: $e");
       return null;

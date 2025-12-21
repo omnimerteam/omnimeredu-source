@@ -15,7 +15,7 @@ import { StudentController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -54,7 +54,7 @@ const studentQuerySchema = createPaginationSchemaWithSortAndFilter(
 router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: studentQuerySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Teacher", "SchoolAdmin", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.getAllStudents(req, res, next)
@@ -63,7 +63,7 @@ router.get(
 router.get(
   "/student-selector",
   validateData({ headers: authHeaderSchema, query: queryGradeIdSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Teacher", "SchoolAdmin", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.getStudentSelector(req, res, next)
@@ -72,7 +72,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Teacher", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.getStudentById(req, res, next)
@@ -81,7 +81,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createStudentBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Teacher", "SchoolAdmin", "Student"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.createStudent(req, res, next)
@@ -94,7 +94,7 @@ router.put(
     body: updateStudentBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Teacher", "SchoolAdmin", "Student", "SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.updateStudent(req, res, next)
@@ -103,7 +103,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["Student", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     studentController.deleteStudent(req, res, next)

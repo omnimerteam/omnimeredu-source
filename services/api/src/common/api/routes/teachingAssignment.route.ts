@@ -15,7 +15,7 @@ import { TeachingAssignmentController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -46,7 +46,7 @@ const router = Router();
 router.get(
   "/",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getAllTeachingAssignments(req, res, next)
@@ -55,7 +55,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getTeachingAssignmentById(req, res, next)
 );
@@ -66,7 +66,7 @@ router.get(
     headers: authHeaderSchema,
     params: teacherAndSchoolParamsSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getTeachingAssignmentByTeacherClassAndSchool(
       req,
@@ -77,7 +77,7 @@ router.get(
 
 router.post(
   "/",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.createTeachingAssignment(req, res, next)
@@ -85,7 +85,7 @@ router.post(
 
 router.put(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.updateTeachingAssignment(req, res, next)
@@ -93,7 +93,7 @@ router.put(
 
 router.delete(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.deleteTeachingAssignment(req, res, next)
@@ -105,7 +105,7 @@ router.get(
     headers: authHeaderSchema,
     params: teacherAndSchoolParamsSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getAllAssignmentForTeacherInSchool(
       req,
@@ -120,7 +120,7 @@ router.get(
     headers: authHeaderSchema,
     params: teacherParamsSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     teachingAssignmentController.getClassesTeacherAssignByTeacherId(
       req,

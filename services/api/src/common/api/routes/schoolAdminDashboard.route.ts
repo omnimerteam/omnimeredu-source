@@ -21,7 +21,7 @@ import { SchoolAdminDashboardController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import {
@@ -53,7 +53,7 @@ router.get(
   validateData({
     headers: authHeaderSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) => schoolAdminDashboardController.getSummary(req, res, next)
 );
@@ -64,7 +64,7 @@ router.get(
     headers: authHeaderSchema,
     query: getSchoolAttendanceStatsSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) =>
     schoolAdminDashboardController.getSchoolAttendanceStats(req, res, next)

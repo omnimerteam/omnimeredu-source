@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'api_response.dart';
@@ -11,6 +12,7 @@ class JwtApiClient {
   final Dio dio;
   final TokenStorageService tokenStorage;
   bool _isRefreshing = false;
+  Completer<bool>? _refreshCompleter;
 
   /// Callback khi refresh token thất bại (user cần re-login)
   final void Function()? onAuthError;
@@ -44,9 +46,19 @@ class JwtApiClient {
           return handler.next(response);
         },
         onError: (e, handler) async {
-          // Nếu 401 và chưa đang refresh → thử refresh token
-          if (e.response?.statusCode == 401 && !_isRefreshing) {
-            final success = await _tryRefreshToken();
+          // Nếu 401 thì thử refresh token
+          if (e.response?.statusCode == 401) {
+            // Nếu chưa có request nào đang refresh thì bắt đầu refresh
+            if (_refreshCompleter == null || _refreshCompleter!.isCompleted) {
+              _refreshCompleter = Completer<bool>();
+              _tryRefreshToken().then((success) {
+                _refreshCompleter?.complete(success);
+              });
+            }
+
+            // Đợi kết quả refresh
+            final success = await _refreshCompleter?.future ?? false;
+
             if (success) {
               // Retry request với token mới
               try {
@@ -56,8 +68,10 @@ class JwtApiClient {
                 logger.e("❌ [JWT] Retry failed after refresh");
               }
             } else {
-              // Refresh thất bại → gọi callback logout
-              onAuthError?.call();
+              // Refresh thất bại → gọi callback logout (chỉ gọi 1 lần)
+              if (!_isRefreshing) {
+                onAuthError?.call();
+              }
             }
           }
 
@@ -73,24 +87,41 @@ class JwtApiClient {
 
   /// Thử refresh token
   Future<bool> _tryRefreshToken() async {
+    if (_isRefreshing) return false;
     _isRefreshing = true;
+
     try {
       final refreshToken = await tokenStorage.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) {
+        logger.w("⚠️ [JWT] No refresh token available");
         _isRefreshing = false;
         return false;
       }
 
-      // Dùng Dio mới để tránh interceptor loop
+      logger.i("🔄 [JWT] Refreshing token...");
+
+      // Dùng Dio mới để tránh interceptor loop, set explicit headers
       final response = await Dio().post(
         '${Endpoints.baseUrl}${Endpoints.jwtRefreshToken}',
         data: {'refreshToken': refreshToken},
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          validateStatus: (status) => status != null && status < 500,
+        ),
       );
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;
-        final newAccessToken = data['accessToken'] as String?;
-        final newRefreshToken = data['refreshToken'] as String?;
+        // Handle wrapper response if needed
+        final responseData = data is Map && data.containsKey('data')
+            ? data['data']
+            : data;
+
+        final newAccessToken = responseData['accessToken'] as String?;
+        final newRefreshToken = responseData['refreshToken'] as String?;
 
         if (newAccessToken != null && newRefreshToken != null) {
           await tokenStorage.saveTokens(
@@ -100,13 +131,20 @@ class JwtApiClient {
           logger.i("✅ [JWT] Token refreshed successfully");
           _isRefreshing = false;
           return true;
+        } else {
+          logger.e("❌ [JWT] Invalid response format: missing tokens");
         }
+      } else {
+        logger.e(
+          "❌ [JWT] Refresh failed with status: ${response.statusCode} - ${response.data}",
+        );
       }
     } catch (e) {
-      logger.e("❌ [JWT] Refresh token failed: $e");
+      logger.e("❌ [JWT] Refresh token exception: $e");
     }
 
-    // Refresh thất bại → xóa tokens
+    // Refresh thất bại → xóa tokens để buộc user login lại
+    logger.w("⚠️ [JWT] Clearing tokens due to refresh failure");
     await tokenStorage.clearTokens();
     _isRefreshing = false;
     return false;

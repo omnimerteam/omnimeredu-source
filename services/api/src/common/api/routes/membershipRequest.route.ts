@@ -11,7 +11,7 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { ActivityLogRepository } from "../../../domain/repositories";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -59,7 +59,7 @@ router.get(
     headers: authHeaderSchema,
     query: getAllMemberRequestPaginationSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.getAllMembershipRequest(req, res, next)
@@ -72,7 +72,7 @@ router.get(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) =>
     membershipRequestController.getMemberRequestById(req, res, next)
 );
@@ -84,7 +84,7 @@ router.post(
     headers: authHeaderSchema,
     body: createMembershipRequestBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) =>
     membershipRequestController.createMemberRequest(req, res, next)
 );
@@ -97,7 +97,7 @@ router.put(
     params: objectIdParamSchema,
     body: updateMembershipRequestBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.updateMemberRequest(req, res, next)
@@ -110,7 +110,7 @@ router.delete(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.deleteMemberRequest(req, res, next)
@@ -124,7 +124,7 @@ router.patch(
     params: objectIdParamSchema,
     body: updateStatusMembershipRequestBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) =>
     membershipRequestController.updateStatusMemberRequest(req, res, next)

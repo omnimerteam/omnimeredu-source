@@ -19,7 +19,7 @@ import {
 } from "../../../domain/repositories";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -73,14 +73,14 @@ router.get("/login", (req, res, next) => authController.login(req, res, next));
 router.patch(
   "/change-password",
   validateData({ headers: authHeaderSchema, body: changePasswordSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) => authController.changePassword(req, res, next)
 );
 
 router.patch(
   "/forget-password",
   validateData({ headers: authHeaderSchema, body: updatePasswordSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) => authController.forgetPassword(req, res, next)
 );
 

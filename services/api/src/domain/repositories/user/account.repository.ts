@@ -76,15 +76,28 @@ class AccountRepository {
 
   /**
    * Tìm account theo userId
-   * Trả về Account kèm User + Role
+   * Trả về Account kèm User + Role (dùng cho JWT getMe)
    */
   async findUserByUserId(userId: string) {
     return this.model.findOne({ userId }).populate({
       path: "userId",
-      populate: {
-        path: "roleId",
-        select: "name",
-      },
+      select: [
+        "fullName",
+        "isVerified",
+        "position",
+        "qualification",
+        "educationLevel",
+        "grade",
+        "roleId",
+        "schoolId",
+        "classId",
+        "avatarUrl",
+      ].join(" "),
+      populate: [
+        { path: "roleId", select: "_id name" },
+        { path: "schoolId", select: "_id name level" },
+        { path: "classId", select: "_id name" },
+      ],
     });
   }
 

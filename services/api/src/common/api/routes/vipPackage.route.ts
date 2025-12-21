@@ -13,7 +13,7 @@ import { VipPackageController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -47,7 +47,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createVipPackageBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     vipPackageController.createVipPackage(req, res, next)
@@ -60,7 +60,7 @@ router.put(
     body: updateVipPackageBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     vipPackageController.updateVipPackage(req, res, next)
@@ -69,7 +69,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     vipPackageController.deleteVipPackage(req, res, next)

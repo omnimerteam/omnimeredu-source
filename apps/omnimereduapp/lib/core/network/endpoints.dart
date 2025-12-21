@@ -11,12 +11,13 @@ class Endpoints {
   static const String forgetPassword = "/v1/auth/forget-password";
 
   // ================== AUTH JWT ==================
-  static const String jwtLogin = "/api/auth-jwt/login";
-  static const String jwtRegister = "/api/auth-jwt/register";
-  static const String jwtRefreshToken = "/api/auth-jwt/refresh-token";
-  static const String jwtChangePassword = "/api/auth-jwt/change-password";
-  static const String jwtForgetPassword = "/api/auth-jwt/forget-password";
-  static const String jwtLogout = "/api/auth-jwt/logout";
+  static const String jwtLogin = "/v1/auth-jwt/login";
+  static const String jwtRegister = "/v1/auth-jwt/register";
+  static const String jwtRefreshToken = "/v1/auth-jwt/refresh-token";
+  static const String jwtChangePassword = "/v1/auth-jwt/change-password";
+  static const String jwtForgetPassword = "/v1/auth-jwt/forget-password";
+  static const String jwtLogout = "/v1/auth-jwt/logout";
+  static const String jwtMe = "/v1/auth-jwt/me";
 
   // ================== CLASSES ==================
   static const String classes = "/v1/classes";

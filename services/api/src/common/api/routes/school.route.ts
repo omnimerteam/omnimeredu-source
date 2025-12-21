@@ -14,7 +14,7 @@ import { SchoolController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { searchSchoolsQuerySchema } from "../../validators/common/query/query.validator";
@@ -49,7 +49,7 @@ router.get(
 router.get(
   "/school-admin",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.getSchoolDetailForSchoolAdmin(req, res, next)
@@ -58,7 +58,7 @@ router.get(
 // Todo: Hàm này ko nên tồn tại hoặc nên hiệu chỉnh cho nó tránh hiển thị các thông tin nhạy cảm cảm của trường hoặc thiếu cần thiết
 router.get(
   "/",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.getAllSchools(req, res, next)
@@ -67,7 +67,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createSchoolBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.createSchool(req, res, next)
@@ -76,7 +76,7 @@ router.post(
 router.put(
   "/",
   validateData({ headers: authHeaderSchema, body: updateSchoolBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.updateSchool(req, res, next)
@@ -85,7 +85,7 @@ router.put(
 router.delete(
   "/",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     schoolController.deleteSchool(req, res, next)

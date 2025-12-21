@@ -15,7 +15,7 @@ import { ClassController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -68,7 +68,7 @@ router.get(
     headers: authHeaderSchema,
     query: getAllClassPaginationSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClasses(req, res, next)
 );
@@ -80,7 +80,7 @@ router.get(
     headers: authHeaderSchema,
     query: getAllClassPaginationSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getAllClassDetailView(req, res, next)
 );
@@ -91,7 +91,7 @@ router.get(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getClassDetailViewById(req, res, next)
 );
@@ -100,7 +100,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.getClassById(req, res, next)
 );
@@ -109,7 +109,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createClassBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.createClass(req, res, next)
 );
@@ -122,7 +122,7 @@ router.put(
     params: objectIdParamSchema,
     body: updateClassBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.updateClass(req, res, next)
 );
@@ -131,7 +131,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req, res, next) => classController.deleteClass(req, res, next)
 );
@@ -144,7 +144,7 @@ router.post(
     params: objectIdParamSchema,
     body: modifyStudentsBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
 
   (req, res, next) => classController.addStudentToClass(req, res, next)
@@ -158,7 +158,7 @@ router.post(
     params: objectIdParamSchema,
     body: modifyStudentsBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.removeStudentFromClass(req, res, next)
 );
@@ -171,7 +171,7 @@ router.post(
     params: objectIdParamSchema,
     body: transferClassBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin", "Teacher"]),
   (req, res, next) => classController.transferClass(req, res, next)
 );

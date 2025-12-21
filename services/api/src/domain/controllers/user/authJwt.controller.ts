@@ -101,6 +101,8 @@ class AuthJwtController {
     try {
       const { refreshToken } = req.body;
 
+      console.log("refreshToken: ", refreshToken);
+
       if (!refreshToken) {
         sendError(res, "Vui lòng cung cấp refresh token", 400);
         return;
@@ -171,6 +173,29 @@ class AuthJwtController {
       return;
     } catch (error) {
       console.error("❌ [AuthJwtController.forgetPassword] Error:", error);
+      return next(error);
+    }
+  }
+
+  /**
+   * Lấy thông tin user hiện tại từ access token
+   * Dùng khi reload app để lấy lại thông tin đăng nhập
+   */
+  async getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+
+      if (!actorId) {
+        sendUnauthorized(res, "Không tìm thấy người dùng");
+        return;
+      }
+
+      const user = await this.authJwtService.getMe(actorId);
+
+      sendSuccess(res, { user }, "Lấy thông tin người dùng thành công");
+      return;
+    } catch (error: any) {
+      console.error("❌ [AuthJwtController.getMe] Error:", error.message);
       return next(error);
     }
   }

@@ -10,7 +10,7 @@ import { DefaultLogger } from "../../utils/DefaultLogger";
 import { ActivityLogRepository } from "../../../domain/repositories";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -42,7 +42,7 @@ const router = Router();
 router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: queryDiscountPolicy }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     discountPolicyController.getAllDiscountPolicy(req, res, next)
@@ -51,7 +51,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, query: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     discountPolicyController.getDiscountPolicyById(req, res, next)
@@ -63,7 +63,7 @@ router.post(
     headers: authHeaderSchema,
     query: createDiscountPolicyBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     discountPolicyController.createDiscountPolicy(req, res, next)
@@ -76,7 +76,7 @@ router.put(
     query: updateDiscountPolicyBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     discountPolicyController.updateDiscountPolicy(req, res, next)
@@ -88,7 +88,7 @@ router.delete(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     discountPolicyController.deleteDiscountPolicy(req, res, next)

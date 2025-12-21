@@ -13,7 +13,7 @@ import { SchoolAdminController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -37,7 +37,7 @@ const router = Router();
 router.get(
   "/",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.getAllSchoolAdmins(req, res, next)
 );
@@ -45,7 +45,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.getSchoolAdminById(req, res, next)
 );
@@ -56,7 +56,7 @@ router.post(
     headers: authHeaderSchema,
     body: createSchoolAdminBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.createSchoolAdmin(req, res, next)
@@ -69,7 +69,7 @@ router.put(
     params: objectIdParamSchema,
     body: updateSchoolAdminBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.updateSchoolAdmin(req, res, next)
@@ -81,7 +81,7 @@ router.patch(
     headers: authHeaderSchema,
     body: updatePositionSchoolAdminSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.updatePositionSchoolAdmin(req, res, next)
@@ -89,7 +89,7 @@ router.patch(
 
 router.delete(
   "/:id",
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     schoolAdminController.deleteSchoolAdmin(req, res, next)
