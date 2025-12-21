@@ -40,19 +40,11 @@ export const verifyJWTToken = async (
       return;
     }
 
-    // Gán lại vào req giống verifyFirebaseToken
-    // Cấu trúc mong đợi: req.user là object user (từ BaseUser), req.role là string name role
-    // TokenPayload đã có userId, role, schoolId, classId
-
-    // Nếu controller cần thêm field, có thể fetch DB ở đây.
-    // Tuy nhiên, để tối ưu hiệu năng JWT, ta dùng payload.
-    // Ở đây ta giả lập cấu trúc req.user để tương thích ngược.
-
     req.user = {
       _id: decodedToken.userId,
       id: decodedToken.userId,
       email: decodedToken.email,
-      roleId: decodedToken.roleId, // Giả lập object roleId
+      roleId: decodedToken.roleId,
       schoolId: decodedToken.schoolId,
       classId: decodedToken.classId,
     };

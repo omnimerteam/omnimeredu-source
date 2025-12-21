@@ -1,6 +1,7 @@
 import indexRoutes from "./index";
 import schoolRouter from "./school.route";
 import authRoutes from "./auth.route";
+import authJwtRoutes from "./authJwt.route";
 import classRoutes from "./class.route";
 import teacherRoutes from "./teacher.route";
 import teachingAssignment from "./teachingAssignment.route";
@@ -23,7 +24,8 @@ import { Express } from "express";
 
 function setupRoutes(app: Express) {
   app.use("/", indexRoutes); // Root:/
-  app.use("/api/v1/auth", authRoutes); // Auth API: /api/auth
+  app.use("/api/v1/auth", authRoutes); // Auth API (Firebase): /api/v1/auth
+  app.use("/api/v1/auth-jwt", authJwtRoutes); // Auth JWT API: /api/v1/auth-jwt
   app.use("/api/v1/schools", schoolRouter); // School API: /api/schools
   app.use("/api/v1/teachers", teacherRoutes); // Teacher API: /api/teachers
   app.use("/api/v1/teaching-assignment", teachingAssignment); // Teaching Assignment API: /api/teaching-assignments
@@ -40,8 +42,8 @@ function setupRoutes(app: Express) {
   app.use("/api/v1/extra-fees", extraFee); //Extra fee: /api/v1/extra-fees
   app.use("/api/v1/school-admin-dashboard", schoolAdminDashboardRoute); //Extra School Admin Dashboard: /api/v1/school-admin-dashboard
   app.use("/api/v1/membership-request", membershipRequestRoute); //Membership Request: /api/v1/membership-request
-  app.use("/api/v1/grades", gradeRoute); //Grade: /api/v1/membership-request
+  app.use("/api/v1/grades", gradeRoute); //Grade: /api/v1/grades
   app.use("/api/v1/personnel", personnelRoute); //personnel: /api/v1/personnel
-  app.use("/api/v1/upload", uploadRoute); //personnel: /api/v1/personnel
+  app.use("/api/v1/upload", uploadRoute); //upload: /api/v1/upload
 }
 export default setupRoutes;

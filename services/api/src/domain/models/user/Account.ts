@@ -4,24 +4,24 @@ export interface IAccount extends Document {
   _id: Types.ObjectId;
   email: string;
   password: string;
-  uid: string; // Mã định danh riêng
-  token?: string; // JWT hoặc refresh token
+  uid: string; // Mã định danh riêng (UUID hoặc Firebase UID)
+  refreshToken?: string; // JWT refresh token
   userId: Types.ObjectId; // Liên kết với người dùng
 }
 
 const AccountSchema = new Schema<IAccount>(
   {
     _id: { type: Schema.Types.ObjectId, auto: true },
-    email: { type: String, required: true, unique: true, index: true }, //thêm index
+    email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    uid: { type: String, required: true, unique: true, index: true }, //thêm index
-    token: { type: String },
+    uid: { type: String, required: true, unique: true, index: true },
+    refreshToken: { type: String, default: null },
     userId: {
       type: Schema.Types.ObjectId,
       ref: "BaseUser",
       required: true,
       index: true,
-    }, //thêm index
+    },
   },
   { timestamps: true }
 );
