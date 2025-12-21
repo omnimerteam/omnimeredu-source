@@ -123,6 +123,27 @@ class AttendanceRepository extends BaseRepository<IAttendance> {
       .lean() // trả về object thường thay vì mongoose document
       .exec();
   }
+
+  /**
+   * Update QR config for an attendance session
+   */
+  async updateQrConfig(
+    attendanceId: string,
+    qrConfig: {
+      code: string;
+      expiry: Date;
+      dynamicCode?: string;
+      location?: {
+        latitude: number;
+        longitude: number;
+        radius: number;
+      };
+    }
+  ): Promise<IAttendance | null> {
+    return this.model
+      .findByIdAndUpdate(attendanceId, { qrConfig }, { new: true })
+      .exec();
+  }
 }
 
 export default AttendanceRepository;

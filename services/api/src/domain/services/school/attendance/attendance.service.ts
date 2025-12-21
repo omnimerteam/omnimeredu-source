@@ -7,6 +7,7 @@ import {
   AttendanceRepository,
   ClassRepository,
   AttendanceRecordViewRepository,
+  DetailsRecordRepository,
 } from "../../../repositories";
 import { PaginationQueryOptions } from "../../../../common/utils/buildQueryOptions";
 import { determineSessionType } from "../../../utils/determineSessionType";
@@ -14,22 +15,43 @@ import { translateStatus } from "../../../utils/ExcelUtils";
 import ExcelJS from "exceljs";
 import { AttendanceExcelBuilder } from "./attendance.excel-builder";
 
+// QR Attendance imports
+import {
+  decodeQRPayload,
+  isQRExpired,
+  createQRPayload,
+  ScanRequest,
+  ScanResponse,
+} from "../../../../common/utils/QrHelper";
+import {
+  isWithinRadius,
+  DEFAULT_ALLOWED_RADIUS,
+} from "../../../../common/utils/LocationHelper";
+import {
+  AttendanceStatusEnum,
+  AttendanceMethodEnum,
+  ScanStatusEnum,
+} from "../../../../common/enum/attendanceStatus.enum";
+
 class AttendanceService {
   private readonly attendanceRepository: AttendanceRepository;
   private readonly classRepository: ClassRepository;
   private readonly logger: DefaultLogger;
   private readonly attendanceRecordViewRepository: AttendanceRecordViewRepository;
+  private readonly detailsRecordRepository: DetailsRecordRepository;
 
   constructor(
     attendanceRepository: AttendanceRepository,
     classRepository: ClassRepository,
     attendanceRecordViewRepository: AttendanceRecordViewRepository,
-    logger: DefaultLogger
+    logger: DefaultLogger,
+    detailsRecordRepository?: DetailsRecordRepository
   ) {
     this.attendanceRepository = attendanceRepository;
     this.classRepository = classRepository;
     this.attendanceRecordViewRepository = attendanceRecordViewRepository;
     this.logger = logger;
+    this.detailsRecordRepository = detailsRecordRepository!;
   }
 
   async getAllAttendances(
@@ -484,7 +506,9 @@ class AttendanceService {
       }
 
       // Generate dynamic code (6 digits)
-      const dynamicCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const dynamicCode = Math.floor(
+        100000 + Math.random() * 900000
+      ).toString();
 
       // Create QR data payload
       const payload = {
@@ -555,6 +579,179 @@ class AttendanceService {
       });
       throw error;
     }
+  }
+
+  /**
+   * Process QR scan from student
+   * Validates QR code, checks location, updates attendance record
+   */
+  async submitScan(
+    studentId: string,
+    scanData: ScanRequest
+  ): Promise<ScanResponse> {
+    try {
+      // 1. Decode QR payload
+      const payload = decodeQRPayload(scanData.qrData);
+      if (!payload) {
+        return {
+          status: ScanStatusEnum.InvalidQR,
+          message: "Mã QR không hợp lệ",
+        };
+      }
+
+      // 2. Find attendance
+      const attendance = await this.attendanceRepository.findById(
+        payload.attendanceId
+      );
+      if (!attendance) {
+        return {
+          status: ScanStatusEnum.InvalidQR,
+          message: "Không tìm thấy phiên điểm danh",
+        };
+      }
+
+      // 3. Check QR expiry
+      if (
+        attendance.qrConfig?.expiry &&
+        isQRExpired(attendance.qrConfig.expiry)
+      ) {
+        return {
+          status: ScanStatusEnum.Expired,
+          message: "Mã QR đã hết hạn",
+          attendanceId: attendance._id?.toString(),
+        };
+      }
+
+      // 4. Validate dynamic code if exists
+      if (
+        attendance.qrConfig?.dynamicCode &&
+        attendance.qrConfig.dynamicCode !== payload.dynamicCode
+      ) {
+        return {
+          status: ScanStatusEnum.InvalidQR,
+          message: "Mã QR không khớp",
+        };
+      }
+
+      // 5. Check location (if configured)
+      let distance: number | undefined;
+      if (attendance.qrConfig?.location) {
+        const { latitude, longitude, radius } = attendance.qrConfig.location;
+        const locationCheck = isWithinRadius(
+          scanData.latitude,
+          scanData.longitude,
+          latitude,
+          longitude,
+          radius || DEFAULT_ALLOWED_RADIUS
+        );
+        distance = locationCheck.distance;
+
+        if (!locationCheck.isValid) {
+          return {
+            status: ScanStatusEnum.OutOfRange,
+            message: `Bạn đang ở quá xa (${distance}m). Vui lòng đến gần hơn.`,
+            distance,
+            attendanceId: attendance._id?.toString(),
+          };
+        }
+      }
+
+      // 6. Find student's detail record
+      const detailRecord =
+        await this.detailsRecordRepository.findByStudentAndAttendance(
+          studentId,
+          attendance._id?.toString() || payload.attendanceId
+        );
+
+      if (!detailRecord) {
+        return {
+          status: ScanStatusEnum.Error,
+          message: "Bạn không thuộc lớp này hoặc chưa có bản ghi điểm danh",
+        };
+      }
+
+      // 7. Check if already scanned
+      if (detailRecord.attendanceProof?.method === AttendanceMethodEnum.QR) {
+        return {
+          status: ScanStatusEnum.AlreadyScanned,
+          message: "Bạn đã điểm danh rồi",
+          attendanceTime: detailRecord.attendanceProof.scanTime?.toISOString(),
+          attendanceId: attendance._id?.toString(),
+        };
+      }
+
+      // 8. Update detail record with proof
+      const attendanceProof = {
+        method: AttendanceMethodEnum.QR,
+        scanTime: new Date(),
+        location: {
+          latitude: scanData.latitude,
+          longitude: scanData.longitude,
+          distance,
+        },
+        deviceId: scanData.deviceId,
+        isOfflineSync: false,
+      };
+
+      await this.detailsRecordRepository.updateWithProof(
+        detailRecord._id?.toString() || "",
+        AttendanceStatusEnum.Present,
+        attendanceProof
+      );
+
+      await this.logger.log({
+        userId: studentId,
+        action: "QR_SCAN_SUCCESS",
+        targetId: attendance._id?.toString(),
+        metadata: { deviceId: scanData.deviceId, distance },
+      });
+
+      return {
+        status: ScanStatusEnum.Success,
+        message: "Điểm danh thành công!",
+        attendanceTime: new Date().toISOString(),
+        distance,
+        attendanceId: attendance._id?.toString(),
+      };
+    } catch (error) {
+      await this.logger.log({
+        userId: studentId,
+        action: "QR_SCAN_FAILED",
+        metadata: { error: (error as Error).message },
+      });
+      return {
+        status: ScanStatusEnum.Error,
+        message: "Có lỗi xảy ra khi điểm danh",
+      };
+    }
+  }
+
+  /**
+   * Sync offline scans (batch processing)
+   */
+  async syncOfflineScans(
+    studentId: string,
+    scans: ScanRequest[]
+  ): Promise<ScanResponse[]> {
+    const results: ScanResponse[] = [];
+
+    for (const scan of scans) {
+      // Mark as offline sync
+      const result = await this.submitScan(studentId, scan);
+      results.push(result);
+    }
+
+    await this.logger.log({
+      userId: studentId,
+      action: "SYNC_OFFLINE_SCANS",
+      metadata: {
+        totalScans: scans.length,
+        successCount: results.filter((r) => r.status === ScanStatusEnum.Success)
+          .length,
+      },
+    });
+
+    return results;
   }
 }
 export default AttendanceService;

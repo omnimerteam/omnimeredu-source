@@ -14,6 +14,7 @@ import {
   ClassRepository,
   ActivityLogRepository,
   AttendanceRecordViewRepository,
+  DetailsRecordRepository,
 } from "../../../domain/repositories";
 
 import { AttendanceService } from "../../../domain/services";
@@ -37,6 +38,10 @@ import {
   exportAttendanceExcelQuerySchema,
   getClassAttendanceRecordView,
 } from "../../validators/common/query/query.validator";
+import {
+  scanRequestSchema,
+  syncScansSchema,
+} from "../../validators/app/attendance/scanRequest.validator";
 
 const logger = new DefaultLogger(new ActivityLogRepository());
 const classRepository = new ClassRepository(Class);
@@ -48,11 +53,13 @@ const attendanceRepository = new AttendanceRepository(
   DetailsRecord,
   Class
 );
+const detailsRecordRepository = new DetailsRecordRepository(DetailsRecord);
 const attendanceService = new AttendanceService(
   attendanceRepository,
   classRepository,
   attendanceRecordViewRepository,
-  logger
+  logger,
+  detailsRecordRepository
 );
 const attendanceController = new AttendanceController(attendanceService);
 
@@ -165,6 +172,28 @@ router.get(
   verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     attendanceController.exportAttendanceExcel(req, res, next)
+);
+
+// ==================== QR ATTENDANCE ROUTES ====================
+
+// Submit QR scan (Student only)
+router.post(
+  "/scan",
+  validateData({ headers: authHeaderSchema, body: scanRequestSchema }),
+  verifyJWTToken,
+  verifyRole(["Student"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.submitScan(req, res, next)
+);
+
+// Sync offline scans (Student only)
+router.post(
+  "/sync",
+  validateData({ headers: authHeaderSchema, body: syncScansSchema }),
+  verifyJWTToken,
+  verifyRole(["Student"]),
+  async (req: Request, res: Response, next: NextFunction) =>
+    attendanceController.syncOfflineScans(req, res, next)
 );
 
 export default router;

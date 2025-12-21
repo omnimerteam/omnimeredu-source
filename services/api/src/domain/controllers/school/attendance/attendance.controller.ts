@@ -376,5 +376,74 @@ class AttendanceController {
       next(error);
     }
   }
+
+  /**
+   * Submit QR scan for attendance (Student only)
+   */
+  async submitScan(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const studentId = req.user?.id;
+      if (!studentId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const scanData = req.body;
+      const result = await this.attendanceService.submitScan(
+        studentId,
+        scanData
+      );
+
+      if (result.status === "success") {
+        sendSuccess(res, result, result.message);
+      } else {
+        sendError(res, result.message, 400);
+      }
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error submitting scan:", error));
+      next(error);
+    }
+  }
+
+  /**
+   * Sync offline scans (Student only)
+   */
+  async syncOfflineScans(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const studentId = req.user?.id;
+      if (!studentId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const { scans } = req.body;
+      const results = await this.attendanceService.syncOfflineScans(
+        studentId,
+        scans
+      );
+
+      const successCount = results.filter(
+        (r: any) => r.status === "success"
+      ).length;
+      sendSuccess(
+        res,
+        { results, successCount, totalScans: scans.length },
+        `Đồng bộ thành công ${successCount}/${scans.length} bản ghi`
+      );
+    } catch (error) {
+      console.log(
+        chalk.red("[Attendance] Error syncing offline scans:", error)
+      );
+      next(error);
+    }
+  }
 }
 export default AttendanceController;
