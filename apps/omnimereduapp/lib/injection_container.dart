@@ -108,14 +108,26 @@ import 'presentation/screens/school_admin/tuition/extra_fee/bloc/extra_fee_manag
 import 'presentation/screens/student/student_managent/bloc/student_management_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'data/datasources/local/auth_local_data_source.dart';
 
 // Core
 import 'core/network/api_client.dart';
+import 'core/network/api_jwt.dart';
+import 'core/add_jwt.dart';
+import 'core/config/auth_config.dart';
+import 'data/datasources/remote/auth/auth_jwt_remote_data_source.dart';
 
 // Services
 import 'services/firebase_auth_service.dart';
 import 'services/firebase_storage_uploader.dart';
+import 'services/token_storage_service.dart';
 import 'services/dashboard_cache_service.dart';
+import 'services/location_service.dart';
+import 'services/brightness_service.dart';
+import 'services/offline_queue_service.dart';
+import 'services/connectivity_service.dart';
+import 'services/auto_sync_service.dart';
 
 // DataSources
 import 'data/datasources/remote/auth/auth_remote_data_source.dart';
@@ -123,6 +135,7 @@ import 'data/datasources/remote/auth/role_remote_datasource.dart';
 import 'data/datasources/remote/school/class/class_remote_data_source.dart';
 import 'data/datasources/remote/school/school_remote_data_source.dart';
 import 'data/datasources/remote/dashboard/school_admin_dashboard_remote_data_source.dart';
+import 'data/datasources/remote/qr_attendance/qr_attendance_remote_datasource.dart';
 
 // Repositories
 import 'data/repositories/auth/auth_repository_impl.dart';
@@ -130,6 +143,7 @@ import 'data/repositories/auth/role_repository_impl.dart';
 import 'data/repositories/school/class/class_repository_impl.dart';
 import 'data/repositories/school/school_repository_impl.dart';
 import 'data/repositories/dashboard/dashboard_repository_impl.dart';
+import 'data/repositories/qr_attendance/qr_attendance_repository_impl.dart';
 
 // Domain Repositories
 import 'domain/repositories/auth/auth_repository.dart';
@@ -137,6 +151,7 @@ import 'domain/repositories/auth/role_repository.dart';
 import 'domain/repositories/school/class/class_repository.dart';
 import 'domain/repositories/school/school_repository.dart';
 import 'domain/repositories/dashboard/school_admin_dashboard_repository.dart';
+import 'domain/repositories/qr_attendance/qr_attendance_repository.dart';
 
 // UseCases - Auth
 import 'domain/usecases/auth/register_user_usecase.dart';
@@ -159,6 +174,12 @@ import 'domain/usecases/class/get_all_classes_in_school_usecase.dart';
 import 'domain/usecases/school_admin_dashboard/get_dashboard_overview.dart';
 import 'domain/usecases/school_admin_dashboard/get_school_attendance_stats.dart';
 
+// UseCases - QR Attendance
+import 'domain/usecases/qr_attendance/generate_qr_code_usecase.dart';
+import 'domain/usecases/qr_attendance/submit_attendance_usecase.dart';
+import 'domain/usecases/qr_attendance/verify_location_usecase.dart';
+import 'domain/usecases/qr_attendance/sync_offline_scans_usecase.dart';
+
 // Blocs / Cubits
 import 'core/bloc/authentication/authentication_bloc.dart';
 import 'presentation/screens/auth/login/bloc/login_bloc.dart';
@@ -167,6 +188,9 @@ import 'presentation/screens/auth/registration/bloc/school/school_bloc.dart';
 import 'presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
 import 'presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 import 'presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
+import 'presentation/screens/qr_attendance/teacher/bloc/qr_display_bloc.dart';
+import 'presentation/screens/qr_attendance/student/bloc/qr_scanner_bloc.dart';
+import 'core/bloc/permission/permission_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -179,7 +203,28 @@ Future<void> init() async {
   // ======================
   // Core
   // ======================
-  sl.registerLazySingleton<ApiClient>(() => ApiClient());
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+
+  // JWT Token Storage (phải đăng ký trước ApiClient)
+  sl.registerLazySingleton<TokenStorageService>(() => TokenStorageService());
+
+  sl.registerLazySingleton<ApiClient>(
+    () => ApiClient(tokenStorage: sl<TokenStorageService>()),
+  );
+
+  // Auth Provider (configurable via AuthConfig)
+  sl.registerLazySingleton<AppAuthProvider>(
+    () => AuthProviderFactory.create(
+      AuthConfig.currentProvider,
+      tokenStorage: sl<TokenStorageService>(),
+    ),
+  );
+
+  // JWT API Client with auto-refresh
+  sl.registerLazySingleton<JwtApiClient>(
+    () => JwtApiClient(tokenStorage: sl<TokenStorageService>()),
+  );
 
   // ======================
   // Services
@@ -194,6 +239,13 @@ Future<void> init() async {
     () => DashboardCacheService(),
   );
 
+  // QR Attendance Services
+  sl.registerLazySingleton<LocationService>(() => LocationService());
+  sl.registerLazySingleton<BrightnessService>(() => BrightnessService());
+  sl.registerLazySingleton<OfflineQueueService>(() => OfflineQueueService());
+  sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
+  sl.registerLazySingleton<AutoSyncService>(() => AutoSyncService(sl(), sl()));
+
   // ======================
   // DataSources
   // ======================
@@ -201,58 +253,83 @@ Future<void> init() async {
     () => AuthRemoteDataSource(sl(), sl()),
   );
   sl.registerLazySingleton<RoleRemoteDataSource>(
-    () => RoleRemoteDataSource(sl()),
+    () => RoleRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<ClassRemoteDataSource>(
-    () => ClassRemoteDataSource(sl()),
+    () => ClassRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolRemoteDataSource>(
-    () => SchoolRemoteDataSource(sl()),
+    () => SchoolRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolAdminDashboardRemoteDataSource>(
-    () => SchoolAdminDashboardRemoteDataSource(sl()),
+    () => SchoolAdminDashboardRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<MembershipRequestRemoteDataSource>(
-    () => MembershipRequestRemoteDataSource(sl()),
+    () => MembershipRequestRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<GradeRemoteDataSource>(
-    () => GradeRemoteDataSource(sl()),
+    () => GradeRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<StudentRemoteDataSource>(
-    () => StudentRemoteDataSource(sl()),
+    () => StudentRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<TeachingAssignmentRemoteDataSource>(
-    () => TeachingAssignmentRemoteDataSource(sl()),
+    () => TeachingAssignmentRemoteDataSource(
+      sl<ApiClient>(),
+      sl<AppAuthProvider>(),
+    ),
   );
   sl.registerLazySingleton<PersonnelRemoteDataSource>(
-    () => PersonnelRemoteDataSource(sl()),
+    () => PersonnelRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<SchoolAdminRemoteDataSource>(
-    () => SchoolAdminRemoteDataSource(sl()),
+    () => SchoolAdminRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<AttendanceRemoteDataSource>(
-    () => AttendanceRemoteDataSource(sl()),
+    () => AttendanceRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<DetailRecordRemoteDataSource>(
-    () => DetailRecordRemoteDataSource(sl()),
+    () => DetailRecordRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<TeacherRemoteDataSource>(
-    () => TeacherRemoteDataSource(sl()),
+    () => TeacherRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
+  );
+
+  // Auth JWT DataSource
+  sl.registerLazySingleton<AuthJwtRemoteDataSource>(
+    () => AuthJwtRemoteDataSource(sl<ApiClient>()),
+  );
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(
+      tokenService: sl<TokenStorageService>(),
+      sharedPreferences: sl<SharedPreferences>(),
+    ),
   );
   sl.registerLazySingleton<UploadRemoteDataSource>(
-    () => UploadRemoteDataSource(sl()),
+    () => UploadRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
   sl.registerLazySingleton<ExtraFeeRemoteDataSource>(
     () => ExtraFeeRemoteDataSource(client: sl(), getIdToken: _getIdToken),
   );
   sl.registerLazySingleton<StaffRemoteDataSource>(
-    () => StaffRemoteDataSource(sl()),
+    () => StaffRemoteDataSource(sl<ApiClient>(), sl<AppAuthProvider>()),
+  );
+  sl.registerLazySingleton<QRAttendanceRemoteDatasource>(
+    () => QRAttendanceRemoteDatasource(sl<ApiClient>(), sl<AppAuthProvider>()),
   );
 
   // ======================
   // Repositories
   // ======================
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remote: sl(), local: sl()),
+  );
   sl.registerLazySingleton<RoleRepository>(() => RoleRepositoryImpl(sl()));
   sl.registerLazySingleton<ClassRepository>(() => ClassRepositoryImpl(sl()));
   sl.registerLazySingleton<SchoolRepository>(() => SchoolRepositoryImpl(sl()));
@@ -288,6 +365,9 @@ Future<void> init() async {
   sl.registerLazySingleton<StaffRepository>(() => StaffRepositoryImpl(sl()));
   sl.registerLazySingleton<TeacherRepository>(
     () => TeacherRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<QRAttendanceRepository>(
+    () => QRAttendanceRepositoryImpl(sl(), sl()),
   );
 
   // ======================
@@ -396,6 +476,14 @@ Future<void> init() async {
 
   // User
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl(), sl(), sl(), sl()));
+
+  // QR Attendance
+  sl.registerLazySingleton(() => GenerateQRCodeUsecase(sl()));
+  sl.registerLazySingleton(
+    () => SubmitAttendanceUsecase(sl(), sl(), sl(), sl()),
+  );
+  sl.registerLazySingleton(() => VerifyLocationUsecase(sl(), sl()));
+  sl.registerLazySingleton(() => SyncOfflineScansUsecase(sl(), sl(), sl()));
 
   // ======================
   // Blocs / Cubits
@@ -567,4 +655,10 @@ Future<void> init() async {
       updateExtraFeeUseCase: sl(),
     ),
   );
+
+  // QR Attendance BLoCs
+  sl.registerFactory(() => QRDisplayBloc(sl(), sl()));
+  sl.registerFactory(() => QRScannerBloc(sl(), sl(), sl(), sl()));
+
+  sl.registerFactory(() => PermissionCubit());
 }

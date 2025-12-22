@@ -2,6 +2,7 @@
 // User Module
 // ======================
 export { default as AuthController } from "./user/auth.controller";
+export { default as AuthJwtController } from "./user/authJwt.controller";
 export { default as SchoolAdminController } from "./user/schoolAdmin.controller";
 export { default as SuperAdminController } from "./user/superAdmin.controller";
 export { default as TeacherController } from "./user/teacher.controller";

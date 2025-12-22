@@ -57,10 +57,10 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
       return ApiResponse<List<AttendanceClassEntity>?>(
         success: model.success,
         message: model.message,
-        data: model.data?.map((e) => e.toEntity()).toList(),
+        data: model.data?.map((e) => e.toEntity()).toList() ?? [],
       );
     } catch (e) {
-      throw ServerFailure("Không thể khởi tạo điểm danh: $e");
+      throw ServerFailure("Không thể lấy danh sách điểm danh: $e");
     }
   }
 

@@ -23,3 +23,31 @@ export enum AttendanceSessionTypeEnum {
 export const AttendanceAttendanceSessionTypeTuple = Object.values(
   AttendanceSessionTypeEnum
 ) as [AttendanceSessionTypeEnum, ...AttendanceSessionTypeEnum[]];
+
+// ================== QR ATTENDANCE ENUMS ==================
+
+// Method of attendance (QR scan or manual by teacher)
+export enum AttendanceMethodEnum {
+  QR = "QR",
+  Manual = "MANUAL",
+}
+
+export const AttendanceMethodTuple = Object.values(AttendanceMethodEnum) as [
+  AttendanceMethodEnum,
+  ...AttendanceMethodEnum[]
+];
+
+// Result status of QR scan
+export enum ScanStatusEnum {
+  Success = "success",
+  Expired = "expired",
+  OutOfRange = "out_of_range",
+  InvalidQR = "invalid_qr",
+  AlreadyScanned = "already_scanned",
+  Error = "error",
+}
+
+export const ScanStatusTuple = Object.values(ScanStatusEnum) as [
+  ScanStatusEnum,
+  ...ScanStatusEnum[]
+];

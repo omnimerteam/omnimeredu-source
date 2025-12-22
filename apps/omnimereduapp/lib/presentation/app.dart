@@ -5,6 +5,7 @@ import '../injection_container.dart';
 import 'app_view.dart';
 import '../core/bloc/authentication/authentication_bloc.dart';
 import '../core/bloc/authentication/authentication_event.dart';
+import '../core/bloc/permission/permission_cubit.dart';
 import 'screens/auth/login/bloc/login_bloc.dart';
 
 class App extends StatelessWidget {
@@ -25,6 +26,7 @@ class App extends StatelessWidget {
         ),
         // thêm các bloc khác nếu cần
         BlocProvider(create: (_) => ThemeCubit()),
+        BlocProvider(create: (_) => sl<PermissionCubit>()),
       ],
       child: const AppView(),
     );

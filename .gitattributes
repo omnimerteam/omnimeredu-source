@@ -1,0 +1,115 @@
+# ==================== CORE SETTINGS ====================
+# Thiết lập mặc định: Git tự động xử lý text
+* text=auto
+
+# ==================== NODEJS & WEB ====================
+# Ép buộc sử dụng LF (Line Feed) cho các file code để tránh lỗi "CRLF vs LF" 
+# đặc biệt quan trọng khi làm việc nhóm (Windows vs Mac) hoặc chạy trên Docker/Linux
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.html text eol=lf
+*.svg text eol=lf
+*.vue text eol=lf
+
+# Config files
+.eslintrc text eol=lf
+.prettierrc text eol=lf
+.editorconfig text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+.env* text eol=lf
+
+# Lock files - Quan trọng: Giữ LF để nhất quán hash
+package-lock.json text eol=lf
+yarn.lock text eol=lf
+pnpm-lock.yaml text eol=lf
+
+# Generated / Minified files - Đánh dấu để Git bỏ qua diff stats và ngôn ngữ
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+*.map binary
+
+# ==================== FLUTTER & DART ====================
+*.dart text eol=lf
+*.yaml text eol=lf
+pubspec.lock text eol=lf
+
+# Generated Dart code - Đánh dấu generated để ẩn khỏi Git diff mặc định
+# Giúp review code dễ dàng hơn và tránh conflict "ảo"
+*.g.dart linguist-generated=true
+*.freezed.dart linguist-generated=true
+*.config.dart linguist-generated=true
+*.isar.dart linguist-generated=true
+*.gen.dart linguist-generated=true
+
+# ==================== MOBILE SPECIFIC ====================
+# Android
+*.gradle text eol=lf
+*.properties text eol=lf
+*.xml text eol=lf
+*.pro text eol=lf
+# Gradle Wrapper script phải là LF để chạy được trên Linux/Mac (CI/CD)
+gradlew text eol=lf
+# Batch file cho Windows phải là CRLF
+gradlew.bat text eol=crlf
+
+# iOS / macOS
+Podfile text eol=lf
+Podfile.lock text eol=lf
+*.pbxproj text eol=lf
+*.plist text eol=lf
+*.xib text eol=lf
+*.storyboard text eol=lf
+*.xcprivacy text eol=lf
+
+# ==================== SCRIPTS & SHELL ====================
+# Shell scripts phải là LF để chạy được trên Unix-based systems
+*.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ==================== BINARY FILES ====================
+# Đánh dấu các file nhị phân để Git không cố gắng merge text
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.otf binary
+*.pdf binary
+*.dll binary
+*.exe binary
+*.so binary
+*.dylib binary
+*.jar binary
+*.keystore binary
+*.jks binary
+*.zip binary
+*.tar.gz binary
+*.7z binary
+*.mp3 binary
+*.mp4 binary
+*.mov binary
+*.sqlite binary
+*.db binary
+
+# ==================== DOCUMENTATION ====================
+*.md text eol=lf
+*.txt text eol=lf
+LICENSE text eol=lf

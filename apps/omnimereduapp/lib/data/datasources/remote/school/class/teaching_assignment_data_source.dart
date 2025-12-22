@@ -1,20 +1,17 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../../core/add_jwt.dart';
 import '../../../../../core/network/api_client.dart';
 import '../../../../../core/network/api_response.dart';
 import '../../../../../core/network/endpoints.dart';
 import '../../../../models/class/class_search_model.dart';
 import '../../../../models/class/class_teacher_assign_model.dart';
 import '../../../../models/teaching_assignment/teaching_assignment_model.dart';
+import '../../base_remote_data_source.dart';
 
-class TeachingAssignmentRemoteDataSource {
-  final ApiClient client;
-
-  TeachingAssignmentRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class TeachingAssignmentRemoteDataSource extends BaseRemoteDataSource {
+  TeachingAssignmentRemoteDataSource(
+    ApiClient client,
+    AppAuthProvider authProvider,
+  ) : super(client, authProvider);
 
   /// 🔹 Lấy danh sách teaching assignment theo teacherId + schoolId
   Future<ApiResponse<TeachingAssignmentModel?>>
@@ -23,7 +20,7 @@ class TeachingAssignmentRemoteDataSource {
     String schoolId,
     String classId,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<TeachingAssignmentModel?>(
       Endpoints.getTeachingAssignmentByTeacherClassAndSchool(
@@ -31,7 +28,7 @@ class TeachingAssignmentRemoteDataSource {
         schoolId,
         classId,
       ),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return TeachingAssignmentModel.fromJson(data);
@@ -47,11 +44,11 @@ class TeachingAssignmentRemoteDataSource {
   Future<ApiResponse<TeachingAssignmentModel>> createTeachingAssignment(
     TeachingAssignmentModel assignment,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.post<TeachingAssignmentModel>(
       Endpoints.teachingAssignment,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: assignment.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -68,11 +65,11 @@ class TeachingAssignmentRemoteDataSource {
   Future<ApiResponse<TeachingAssignmentModel>> updateTeachingAssignment(
     TeachingAssignmentModel assignment,
   ) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.put<TeachingAssignmentModel>(
       Endpoints.teachingAssignmentId(assignment.id!),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: assignment.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -87,11 +84,11 @@ class TeachingAssignmentRemoteDataSource {
 
   /// 🔹 Xóa teaching assignment
   Future<ApiResponse<void>> delete(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.delete<void>(
       Endpoints.teachingAssignmentId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
     return res;
@@ -100,11 +97,11 @@ class TeachingAssignmentRemoteDataSource {
   // Lấy danh sách lớp học của giáo viên quản lý
   Future<ApiResponse<List<ClassTeacherAssignModel>?>>
   getClassTeacherAssignments(String teacherId, String schoolId) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<List<ClassTeacherAssignModel>?>(
       Endpoints.getAllAssignmentForTeacherInSchool(teacherId, schoolId),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is List) {
           return data
@@ -124,11 +121,11 @@ class TeachingAssignmentRemoteDataSource {
   // Lấy danh sách lớp cô giáo quản lý cho selectors
   Future<ApiResponse<List<ClassSearchModel>?>>
   getClassesTeacherAssignByTeacherId(String teacherId) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<List<ClassSearchModel>?>(
       Endpoints.getClassesTeacherAssignByTeacherId(teacherId),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is List) {
           return data

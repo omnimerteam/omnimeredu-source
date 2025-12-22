@@ -1,7 +1,8 @@
 import '../../../core/error/failures.dart';
 import '../../../core/network/api_response.dart';
 import '../../../core/utils/logger.dart';
-import '../../datasources/remote/auth/auth_remote_data_source.dart';
+import '../../datasources/local/auth_local_data_source.dart';
+import '../../datasources/remote/auth/auth_jwt_remote_data_source.dart';
 import '../../models/auth/auth_user_model.dart';
 import '../../models/auth/registration_user_model.dart';
 import '../../../domain/entities/auth/auth_user_entity.dart';
@@ -11,10 +12,11 @@ import '../../../domain/entities/user/base_user_entity.dart';
 import '../../../domain/repositories/auth/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource remote;
+  final AuthJwtRemoteDataSource remote;
+  final AuthLocalDataSource local;
   AuthUserModel? _currentUser;
 
-  AuthRepositoryImpl(this.remote);
+  AuthRepositoryImpl({required this.remote, required this.local});
 
   @override
   Future<void> register(RegisterUserEntity req) async {
@@ -29,27 +31,53 @@ class AuthRepositoryImpl implements AuthRepository {
         schoolData: req.schoolData,
       );
 
-      await remote.register(requestModel);
+      final tokens = await remote.register(requestModel);
+
+      // Nếu có token trả về thì lưu và set current user (Auto login)
+      if (tokens != null) {
+        await local.saveTokens(tokens);
+        _currentUser = tokens.user;
+      }
+      // Nếu tokens == null: Đăng ký thành công nhưng không có token (cần login lại).
+      // Hàm này trả về void nên coi như thành công.
     } catch (e) {
-      throw ServerFailure("${e.toString()}");
+      throw ServerFailure(e.toString());
     }
   }
 
   @override
   Future<AuthUserEntity> login({required LoginEntity loginInfo}) async {
     try {
-      final userModel = await remote.login(loginInfo);
-      _currentUser = userModel;
-      return userModel.toEntity();
+      final tokens = await remote.login(loginInfo.email, loginInfo.password);
+
+      await local.saveTokens(tokens);
+      _currentUser = tokens.user;
+
+      if (_currentUser == null) {
+        throw ServerFailure(
+          "Đăng nhập thành công nhưng không có thông tin user",
+        );
+      }
+
+      return _currentUser!.toEntity();
     } catch (e) {
-      throw ServerFailure("${e.toString()}");
+      throw ServerFailure(e.toString());
     }
   }
 
   @override
   Future<void> logout() async {
     try {
-      await remote.logout();
+      final tokens = await local.getTokens();
+      if (tokens != null) {
+        // Gọi API logout nếu cần (để invalidate token trên server)
+        try {
+          await remote.logout(tokens.accessToken);
+        } catch (e) {
+          logger.w("Logout remote failed (ignored): $e");
+        }
+      }
+      await local.clearTokens();
       _currentUser = null;
     } catch (e) {
       throw ServerFailure("Đăng xuất thất bại: ${e.toString()}");
@@ -59,33 +87,63 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthUserEntity?> getCurrentUser() async {
     try {
-      // Nếu đã cache user → trả luôn
+      // 1. Cache memory - nếu có thì trả về ngay
       if (_currentUser != null) {
         return _currentUser!.toEntity();
       }
 
-      // Lấy user hiện tại từ Firebase
-      final firebaseUser = remote.firebaseAuthService.getCurrentUser();
-      if (firebaseUser == null) return null; // chưa đăng nhập
-
-      // Lấy idToken từ Firebase
-      final idToken = await firebaseUser.getIdToken();
-
-      if (idToken == null || idToken.isEmpty) {
-        throw Exception("Không lấy được idToken từ Firebase");
+      // 2. Kiểm tra tokens từ local storage
+      final tokens = await local.getTokens();
+      if (tokens == null) {
+        return null;
       }
 
-      // Gọi backend
-      final userModel = await remote.getCurrentUserFromBackend(
-        idToken: idToken,
-      );
+      // 3. Gọi API /me để lấy thông tin user mới nhất từ server
+      try {
+        final user = await remote.getMe(tokens.accessToken);
+        _currentUser = user;
 
-      if (userModel != null) {
-        _currentUser = userModel; // cập nhật cache
-        return userModel.toEntity();
+        // Lưu user mới vào local storage
+        await local.saveUser(user);
+
+        return user.toEntity();
+      } catch (e) {
+        final errorMessage = e.toString().toLowerCase();
+
+        // Kiểm tra nếu token hết hạn -> thử refresh token
+        if (errorMessage.contains('expired') || errorMessage.contains('401')) {
+          logger.i("Access token hết hạn, đang refresh token...");
+
+          try {
+            // Refresh token
+            final newTokens = await remote.refreshToken(tokens.refreshToken);
+            await local.saveTokens(newTokens);
+
+            // Retry getMe với token mới
+            final user = await remote.getMe(newTokens.accessToken);
+            _currentUser = user;
+            await local.saveUser(user);
+
+            logger.i("Refresh token thành công, đã lấy lại thông tin user");
+            return user.toEntity();
+          } catch (refreshError) {
+            logger.w("Refresh token thất bại: $refreshError");
+          }
+        }
+
+        logger.w("Gọi API /me thất bại, thử dùng local cache: $e");
+
+        // Fallback: đọc từ local cache nếu API fail
+        final storedUser = await local.getUser();
+        if (storedUser != null) {
+          _currentUser = storedUser;
+          return storedUser.toEntity();
+        }
+
+        // Token hết hạn hoặc không hợp lệ -> clear và return null
+        await local.clearTokens();
+        return null;
       }
-
-      return null; // chưa đăng nhập
     } catch (e) {
       logger.e("getCurrentUser error: $e");
       return null;
@@ -98,18 +156,35 @@ class AuthRepositoryImpl implements AuthRepository {
     String newPassword,
   ) async {
     try {
-      final res = await remote.changePassword(oldPassword, newPassword);
+      final tokens = await local.getTokens();
+      if (tokens == null) {
+        throw ServerFailure("Bạn chưa đăng nhập");
+      }
 
-      return res;
+      await remote.changePassword(
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        accessToken: tokens.accessToken,
+      );
+
+      return ApiResponse.success(null, message: "Đổi mật khẩu thành công");
     } catch (e) {
-      throw ServerFailure(e.toString());
+      return ApiResponse.error(e.toString());
     }
   }
 
   @override
   Future<ApiResponse<BaseUserEntity>> getUserProfileById(String userId) async {
     try {
-      final res = await remote.getUserById(userId);
+      final tokens = await local.getTokens();
+      if (tokens == null) {
+        throw ServerFailure("Bạn chưa đăng nhập");
+      }
+
+      final res = await remote.getUserById(
+        userId: userId,
+        accessToken: tokens.accessToken,
+      );
 
       return ApiResponse(
         success: res.success,

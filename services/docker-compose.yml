@@ -1,0 +1,129 @@
+version: "3.8"
+
+services:
+
+  # ========================================
+  # API GATEWAY
+  # ========================================
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: omnimeredu_gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - user_service
+      - payment-attendance-service
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+
+  # ========================================
+  # MICROSERVICES
+  # ========================================
+  user_service:
+    build:
+      context: .
+      dockerfile: user_service/Dockerfile
+    container_name: omnimeredu_user_service
+    dns: 
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://neondb_owner:npg_p3QKAVy0TXzY@ep-red-dust-a4oslx74-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require 
+      - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-token-key}
+      - JWT_ACCESS_EXPIRY=15m
+      - JWT_REFRESH_EXPIRY=7d
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  payment-attendance-service:
+    build:
+      context: .
+      dockerfile: payment-attendance-service/Dockerfile
+    container_name: omnimeredu_payment_attendance_service
+    dns: 
+      - 8.8.8.8
+      - 1.1.1.1
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - DATABASE_URL='postgresql://neondb_owner:npg_lUz9wFasMc5I@ep-dry-dust-a1x6n5fw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+      - MONGODB_URI=mongodb://root:password@mongo:27017/omnimeredu_read_db?authSource=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your-super-secret-refresh-token-key}
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  # ========================================
+  # DATABASES & INFRASTRUCTURE
+  # ========================================
+
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: omnimeredu_postgres
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: omnimeredu_user_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./init-scripts/postgres:/docker-entrypoint-initdb.d
+  #   networks:
+  #     - omnimeredu_network
+  #   restart: unless-stopped
+
+  mongo:
+    image: mongo:6.0
+    container_name: omnimeredu_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: omnimeredu_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - omnimeredu_network
+    restart: unless-stopped
+
+networks:
+  omnimeredu_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:

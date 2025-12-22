@@ -223,6 +223,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
           "guardianName": state.guardianName,
           "guardianPhone": state.guardianPhone,
           "educationLevel": state.educationLevel?.name,
+          "gradeGroup": state.gradeGroup?.name,
           // Teacher
           "qualification": state.qualification?.name,
           "subjects": state.subjects?.map((s) => s.name).toList(),

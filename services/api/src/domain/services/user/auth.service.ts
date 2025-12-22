@@ -70,8 +70,6 @@ class AuthService {
     schoolData?: Partial<ISchool>
   ) {
     let fbUser: admin.auth.UserRecord | null = null;
-    let copiedAvatar = false;
-    const avatarPath = baseUserInfo.avatarPath;
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -88,32 +86,7 @@ class AuthService {
       // 3️⃣ Tạo user Firebase
       fbUser = await admin.auth().createUser({ email, password });
 
-      // 4️⃣ Copy avatar nếu có
-      if (avatarPath) {
-        const bucket = admin.storage().bucket();
-        const src = bucket.file(avatarPath);
-        const destPath = `avatar_user/${fbUser.uid}`;
-        const dest = bucket.file(destPath);
-
-        try {
-          await src.copy(dest);
-          copiedAvatar = true;
-          await src.delete(); // Xoá file tạm
-
-          // 🧠 Lấy download URL mới
-          const [url] = await dest.getSignedUrl({
-            action: "read",
-            expires: "03-09-2491", // gần như vĩnh viễn
-          });
-
-          // ✅ Cập nhật lại baseUserInfo để lưu vào DB
-          baseUserInfo.avatarPath = destPath;
-          baseUserInfo.avatarUrl = url;
-        } catch (err) {
-          console.error("❌ Lỗi copy avatar:", err);
-          throw new Error("Không thể lưu avatar, vui lòng thử lại");
-        }
-      }
+      // 4️⃣ Copy avatar section removed as per request
 
       // 5️⃣ Tạo user trong MongoDB
       const UserModel = getModelByRoleName(role.name);
@@ -166,7 +139,7 @@ class AuthService {
       console.error(chalk.red.bold("❌ [registerUser] error:"), error);
       await session.abortTransaction();
 
-      const bucket = admin.storage().bucket();
+      // const bucket = admin.storage().bucket(); // Removed
 
       // Rollback Firebase user
       if (fbUser) {
@@ -177,19 +150,7 @@ class AuthService {
         }
       }
 
-      // Rollback file avatar
-      try {
-        if (copiedAvatar && fbUser) {
-          await bucket
-            .file(`avatar_user/${fbUser.uid}`)
-            .delete({ ignoreNotFound: true });
-        }
-        if (avatarPath) {
-          await bucket.file(avatarPath).delete({ ignoreNotFound: true });
-        }
-      } catch (fileErr) {
-        console.error("⚠️ Rollback file thất bại:", fileErr);
-      }
+      // Rollback file avatar section removed
 
       await this.logger.log({
         userId: "System",

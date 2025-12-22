@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/attendance_action_dialog.dart';
 import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/attendance_loading_state.dart';
-import '../../../../domain/entities/view_model/attendance_record_view_entity.dart';
-import '../../common/class_selector/bloc/class_selector_bloc.dart';
-import '../../common/class_selector/bloc/class_selector_state.dart';
-import 'bloc/teacher_attendance_bloc.dart';
-import 'bloc/teacher_attendance_event.dart';
-import 'bloc/teacher_attendance_state.dart';
-import 'widgets/attendance_dialog.dart';
-import 'widgets/attendance_stats_card.dart';
-import 'widgets/class_and_date_selector.dart';
-import 'widgets/attendance_table_section.dart';
-import '../../../widgets/text_field/search_text_field.dart';
+import 'package:omnimereduapp/domain/entities/view_model/attendance_record_view_entity.dart';
+import 'package:omnimereduapp/presentation/screens/common/class_selector/bloc/class_selector_bloc.dart';
+import 'package:omnimereduapp/presentation/screens/common/class_selector/bloc/class_selector_state.dart';
+import 'package:omnimereduapp/presentation/screens/qr_attendance/teacher/qr_display_screen.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/bloc/teacher_attendance_bloc.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/bloc/teacher_attendance_event.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/bloc/teacher_attendance_state.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/attendance_dialog.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/attendance_stats_card.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/class_and_date_selector.dart';
+import 'package:omnimereduapp/presentation/screens/main_feature/teacher/widgets/attendance_table_section.dart';
+import 'package:omnimereduapp/presentation/widgets/text_field/search_text_field.dart';
 
 class TeacherAttendanceScreen extends StatefulWidget {
   final String schoolId;
@@ -114,6 +115,7 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
       onDateChanged: _handleDateChanged,
       onRefresh: () => _handleRefresh(state),
       onNewOrDelete: () => _handleCreateOrDelete(state),
+      onQRAttendance: () => _handleQRAttendance(state),
     );
   }
 
@@ -304,6 +306,32 @@ class _TeacherAttendanceScreenState extends State<TeacherAttendanceScreen> {
           },
         );
       },
+    );
+  }
+
+  void _handleQRAttendance(TeacherAttendanceState state) {
+    if (state.attendanceRecord == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng tạo bảng điểm danh trước'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Navigate to QR Display Screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QRDisplayScreen(
+          attendanceId: state.attendanceRecord!.id,
+          className: state.attendanceRecord!.classInfo.name,
+          subject: null, // subject không có trong entity này
+          date: state.selectedDate,
+        ),
+      ),
     );
   }
 }

@@ -13,7 +13,7 @@ import { SuperAdminController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { authHeaderSchema } from "../../validators/common/header/header.validator";
@@ -31,7 +31,7 @@ const router = Router();
 router.get(
   "/",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     superAdminController.getAllSuperAdmins(req, res, next)
@@ -40,7 +40,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     superAdminController.getSuperAdminById(req, res, next)
@@ -49,7 +49,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createSuperAdminSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     superAdminController.createSuperAdmin(req, res, next)
@@ -62,7 +62,7 @@ router.put(
     body: createSuperAdminSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     superAdminController.updateSuperAdmin(req, res, next)
@@ -71,7 +71,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     superAdminController.deleteSuperAdmin(req, res, next)

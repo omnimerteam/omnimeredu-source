@@ -13,7 +13,7 @@ import { GradeController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 
@@ -45,7 +45,7 @@ router.get(
     headers: authHeaderSchema,
     query: getAllGradePaginationSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.getAllGrades(req, res, next)
 );
@@ -54,7 +54,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ params: objectIdParamSchema, headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.getGradeById(req, res, next)
 );
@@ -63,7 +63,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createGradeBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.createGrade(req, res, next)
@@ -77,7 +77,7 @@ router.put(
     body: updateGradeBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.updateGrade(req, res, next)
@@ -87,7 +87,7 @@ router.put(
 router.delete(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.deleteGrade(req, res, next)
@@ -97,7 +97,7 @@ router.delete(
 router.get(
   "/select/box",
   validateData({ headers: authHeaderSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   async (req: Request, res: Response, next: NextFunction) =>
     gradeController.getGradesForSelect(req, res, next)
 );

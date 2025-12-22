@@ -8,7 +8,7 @@ import ExtraFeeController from "../../../domain/controllers/school/tuition/extra
 import { DefaultLogger } from "../../utils/DefaultLogger";
 import { ActivityLogRepository } from "../../../domain/repositories";
 
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { createPaginationSchemaWithSortAndFilter } from "../../validators/common/query/query.validator";
 import { validateData } from "../middlewares/validateData";
@@ -42,7 +42,7 @@ const router = Router();
 router.get(
   "/",
   validateData({ headers: authHeaderSchema, query: queryExtraFee }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     extraFeeController.getAllExtraFee(req, res, next)
@@ -51,7 +51,7 @@ router.get(
 router.get(
   "/:id",
   validateData({ headers: authHeaderSchema, params: objectIdParamSchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     extraFeeController.getExtraFeeById(req, res, next)
@@ -60,7 +60,7 @@ router.get(
 router.post(
   "/",
   validateData({ headers: authHeaderSchema, body: createExtraFeeBodySchema }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     extraFeeController.createExtraFee(req, res, next)
@@ -73,7 +73,7 @@ router.put(
     body: updateExtraFeeBodySchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     extraFeeController.updateExtraFee(req, res, next)
@@ -85,7 +85,7 @@ router.delete(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SuperAdmin", "SchoolAdmin"]),
   (req: Request, res: Response, next: NextFunction) =>
     extraFeeController.deleteExtraFee(req, res, next)

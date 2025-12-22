@@ -299,6 +299,43 @@ class AttendanceController {
       return next(error);
     }
   }
+  async generateQRCode(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const actorId = req.user?.id;
+      const userRole = req.role;
+      const actorSchoolId = req.user?.schoolId?.toString();
+
+      if (!actorId || !userRole) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      if (!actorSchoolId) {
+        sendError(res, "Người dùng chưa tham gia trường nào", 400);
+        return;
+      }
+
+      const attendanceId = req.params.id;
+      const qrData = await this.attendanceService.generateQRCode(
+        attendanceId,
+        actorSchoolId,
+        actorId,
+        userRole
+      );
+
+      console.log(chalk.green("[Attendance] QR code generated successfully"));
+      sendSuccess(res, qrData, "Tạo mã QR thành công");
+      return;
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error generating QR code:", error));
+      return next(error);
+    }
+  }
+
   /**
    * Xuất file Excel điểm danh (tải xuống hoặc trả JSON base64)
    */
@@ -336,6 +373,75 @@ class AttendanceController {
       );
     } catch (error) {
       console.log(chalk.red("[Attendance] Error exporting attendance:", error));
+      next(error);
+    }
+  }
+
+  /**
+   * Submit QR scan for attendance (Student only)
+   */
+  async submitScan(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const studentId = req.user?.id;
+      if (!studentId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const scanData = req.body;
+      const result = await this.attendanceService.submitScan(
+        studentId,
+        scanData
+      );
+
+      if (result.status === "success") {
+        sendSuccess(res, result, result.message);
+      } else {
+        sendError(res, result.message, 400);
+      }
+    } catch (error) {
+      console.log(chalk.red("[Attendance] Error submitting scan:", error));
+      next(error);
+    }
+  }
+
+  /**
+   * Sync offline scans (Student only)
+   */
+  async syncOfflineScans(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const studentId = req.user?.id;
+      if (!studentId) {
+        sendUnauthorized(res);
+        return;
+      }
+
+      const { scans } = req.body;
+      const results = await this.attendanceService.syncOfflineScans(
+        studentId,
+        scans
+      );
+
+      const successCount = results.filter(
+        (r: any) => r.status === "success"
+      ).length;
+      sendSuccess(
+        res,
+        { results, successCount, totalScans: scans.length },
+        `Đồng bộ thành công ${successCount}/${scans.length} bản ghi`
+      );
+    } catch (error) {
+      console.log(
+        chalk.red("[Attendance] Error syncing offline scans:", error)
+      );
       next(error);
     }
   }

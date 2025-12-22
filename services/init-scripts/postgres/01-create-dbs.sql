@@ -1,0 +1,1 @@
+CREATE DATABASE omnimeredu_payment_db;

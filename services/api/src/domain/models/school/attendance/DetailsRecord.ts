@@ -2,7 +2,22 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 import {
   AttendanceStatusEnum,
   AttendanceStatusTuple,
+  AttendanceMethodEnum,
+  AttendanceMethodTuple,
 } from "../../../../common/enum/attendanceStatus.enum";
+
+// Attendance proof for QR scans
+export interface IAttendanceProof {
+  method: AttendanceMethodEnum;
+  scanTime?: Date;
+  location?: {
+    latitude: number;
+    longitude: number;
+    distance?: number; // Calculated distance from school
+  };
+  deviceId?: string;
+  isOfflineSync?: boolean;
+}
 
 export interface IDetailsRecord extends Document {
   _id: Types.ObjectId;
@@ -11,6 +26,7 @@ export interface IDetailsRecord extends Document {
 
   status: AttendanceStatusEnum;
   note?: string;
+  attendanceProof?: IAttendanceProof;
 }
 
 const DetailsRecordSchema = new Schema<IDetailsRecord>(
@@ -30,6 +46,24 @@ const DetailsRecordSchema = new Schema<IDetailsRecord>(
       required: true,
     },
     note: String,
+    attendanceProof: {
+      type: {
+        method: {
+          type: String,
+          enum: AttendanceMethodTuple,
+          default: AttendanceMethodEnum.Manual,
+        },
+        scanTime: { type: Date },
+        location: {
+          latitude: { type: Number },
+          longitude: { type: Number },
+          distance: { type: Number },
+        },
+        deviceId: { type: String },
+        isOfflineSync: { type: Boolean, default: false },
+      },
+      required: false,
+    },
   },
   { timestamps: true }
 );

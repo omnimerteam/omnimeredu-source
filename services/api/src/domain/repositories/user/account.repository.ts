@@ -76,15 +76,28 @@ class AccountRepository {
 
   /**
    * Tìm account theo userId
-   * Trả về Account kèm User + Role
+   * Trả về Account kèm User + Role (dùng cho JWT getMe)
    */
   async findUserByUserId(userId: string) {
     return this.model.findOne({ userId }).populate({
       path: "userId",
-      populate: {
-        path: "roleId",
-        select: "name",
-      },
+      select: [
+        "fullName",
+        "isVerified",
+        "position",
+        "qualification",
+        "educationLevel",
+        "grade",
+        "roleId",
+        "schoolId",
+        "classId",
+        "avatarUrl",
+      ].join(" "),
+      populate: [
+        { path: "roleId", select: "_id name" },
+        { path: "schoolId", select: "_id name level" },
+        { path: "classId", select: "_id name" },
+      ],
     });
   }
 
@@ -108,6 +121,66 @@ class AccountRepository {
       { password: hashedPassword },
       options
     );
+  }
+
+  /**
+   * Tìm account theo email
+   * Trả về Account kèm User + Role (dùng cho JWT login)
+   */
+  async findAccountByEmail(email: string) {
+    return this.model.findOne({ email }).populate({
+      path: "userId",
+      select: [
+        "fullName",
+        "isVerified",
+        "position",
+        "qualification",
+        "educationLevel",
+        "grade",
+        "roleId",
+        "schoolId",
+        "classId",
+        "avatarUrl",
+      ].join(" "),
+      populate: [
+        { path: "roleId", select: "_id name" },
+        { path: "schoolId", select: "_id name level" },
+        { path: "classId", select: "_id name" },
+      ],
+    });
+  }
+
+  /**
+   * Cập nhật refresh token cho account
+   */
+  async updateRefreshToken(
+    userId: string,
+    refreshToken: string | null,
+    options: { session?: mongoose.ClientSession } = {}
+  ) {
+    return this.model.updateOne({ userId }, { refreshToken }, options);
+  }
+
+  /**
+   * Tìm account theo refresh token
+   */
+  async findByRefreshToken(refreshToken: string) {
+    return this.model.findOne({ refreshToken }).populate({
+      path: "userId",
+      select: [
+        "fullName",
+        "isVerified",
+        "roleId",
+        "schoolId",
+        "classId",
+        "avatarUrl",
+      ].join(" "),
+      populate: [
+        { path: "roleId", select: "_id name" },
+        { path: "schoolId", select: "_id name level" },
+        { path: "classId", select: "_id name" },
+      ],
+    });
   }
 }
 

@@ -15,7 +15,7 @@ import { NewsController } from "../../../domain/controllers";
 import { DefaultLogger } from "../../utils/DefaultLogger";
 
 // Middleware
-import { verifyFirebaseToken } from "../middlewares/verifyFirebaseToken";
+import { verifyJWTToken } from "../middlewares/verifyJWTToken.middleware";
 import { verifyRole } from "../middlewares/verifyRole";
 import { validateData } from "../middlewares/validateData";
 import { createPaginationSchemaWithSort } from "../../validators/common/query/query.validator";
@@ -53,7 +53,7 @@ router.get(
     params: schoolIdParamSchema,
     query: getNewsBySchoolIdPaginationSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) => newsController.getNewsBySchoolID(req, res, next)
 );
 
@@ -66,7 +66,7 @@ router.get(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   (req, res, next) => newsController.getNewsByID(req, res, next)
 );
 
@@ -80,7 +80,7 @@ router.post(
     headers: authHeaderSchema,
     body: createNewsBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) => newsController.createNews(req, res, next)
 );
@@ -96,7 +96,7 @@ router.put(
     params: objectIdParamSchema,
     body: updateNewsBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) => newsController.updateNews(req, res, next)
 );
@@ -112,7 +112,7 @@ router.patch(
     params: objectIdParamSchema,
     body: updateNewsVisibilityBodySchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) => newsController.updateNewsVisibility(req, res, next)
 );
@@ -127,7 +127,7 @@ router.delete(
     headers: authHeaderSchema,
     params: objectIdParamSchema,
   }),
-  verifyFirebaseToken,
+  verifyJWTToken,
   verifyRole(["SchoolAdmin"]),
   (req, res, next) => newsController.deleteNews(req, res, next)
 );

@@ -1,0 +1,109 @@
+import { connectPostgres } from "shared-lib";
+import dotenv from "dotenv";
+import { initUserModel, UserModel } from "./models/UserModel";
+import { initAccountModel, AccountModel } from "./models/AccountModel";
+import { initStudentModel, StudentModel } from "./models/StudentModel";
+import { initSchoolModel, SchoolModel } from "./models/SchoolModel";
+import { initGradeModel, GradeModel } from "./models/GradeModel";
+import { initClassModel, ClassModel } from "./models/ClassModel";
+import {
+  initMembershipRequestModel,
+  MembershipRequestModel,
+} from "./models/MembershipRequestModel";
+import { initRoleModel, RoleModel } from "./models/RoleModel";
+import {
+  initSchoolAdminModel,
+  SchoolAdminModel,
+} from "./models/SchoolAdminModel";
+import { initSuperAdminModel, SuperAdminModel } from "./models/SuperAdminModel";
+import { initTeacherModel, TeacherModel } from "./models/TeacherModel";
+
+dotenv.config();
+
+const uri = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_p3QKAVy0TXzY@ep-red-dust-a4oslx74-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+
+export const sequelize = connectPostgres(uri);
+
+// Initialize Models
+initUserModel(sequelize);
+initAccountModel(sequelize);
+initStudentModel(sequelize);
+initSchoolModel(sequelize);
+initGradeModel(sequelize);
+initClassModel(sequelize);
+initMembershipRequestModel(sequelize);
+initRoleModel(sequelize);
+initSchoolAdminModel(sequelize);
+initSuperAdminModel(sequelize);
+initTeacherModel(sequelize);
+
+// Define Associations
+// Role & User
+RoleModel.hasMany(UserModel, { foreignKey: "roleId", as: "users" });
+UserModel.belongsTo(RoleModel, { foreignKey: "roleId", as: "role" });
+
+// User & Account
+UserModel.hasOne(AccountModel, { foreignKey: "userId", as: "account" });
+AccountModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
+
+// User & Student
+UserModel.hasOne(StudentModel, { foreignKey: "userId", as: "studentProfile" });
+StudentModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
+
+// User & SchoolAdmin
+UserModel.hasOne(SchoolAdminModel, {
+  foreignKey: "userId",
+  as: "schoolAdminProfile",
+});
+SchoolAdminModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
+
+// User & SuperAdmin
+UserModel.hasOne(SuperAdminModel, {
+  foreignKey: "userId",
+  as: "superAdminProfile",
+});
+SuperAdminModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
+
+// User & Teacher
+UserModel.hasOne(TeacherModel, { foreignKey: "userId", as: "teacherProfile" });
+TeacherModel.belongsTo(UserModel, { foreignKey: "userId", as: "user" });
+
+// School & Grade
+SchoolModel.hasMany(GradeModel, { foreignKey: "schoolId", as: "grades" });
+GradeModel.belongsTo(SchoolModel, { foreignKey: "schoolId", as: "school" });
+
+// School & Class
+SchoolModel.hasMany(ClassModel, { foreignKey: "schoolId", as: "classes" });
+ClassModel.belongsTo(SchoolModel, { foreignKey: "schoolId", as: "school" });
+
+// Grade & Class
+GradeModel.hasMany(ClassModel, { foreignKey: "gradeId", as: "classes" });
+ClassModel.belongsTo(GradeModel, { foreignKey: "gradeId", as: "grade" });
+
+// MembershipRequest Associations
+UserModel.hasMany(MembershipRequestModel, {
+  foreignKey: "userId",
+  as: "membershipRequests",
+});
+MembershipRequestModel.belongsTo(UserModel, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+SchoolModel.hasMany(MembershipRequestModel, {
+  foreignKey: "schoolId",
+  as: "membershipRequests",
+});
+MembershipRequestModel.belongsTo(SchoolModel, {
+  foreignKey: "schoolId",
+  as: "school",
+});
+
+ClassModel.hasMany(MembershipRequestModel, {
+  foreignKey: "classId",
+  as: "membershipRequests",
+});
+MembershipRequestModel.belongsTo(ClassModel, {
+  foreignKey: "classId",
+  as: "class",
+});

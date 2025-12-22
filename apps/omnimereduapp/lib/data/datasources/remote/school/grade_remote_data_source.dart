@@ -1,28 +1,23 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/add_jwt.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/endpoints.dart';
 import '../../../models/grade/grade_model.dart';
 import '../../../models/grade/grade_select_model.dart';
 import '../../../../domain/entities/query/default_query_entity.dart';
+import '../base_remote_data_source.dart';
 
-class GradeRemoteDataSource {
-  final ApiClient client;
-
-  GradeRemoteDataSource(this.client);
-
-  Future<String?> _getIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
-    return await user?.getIdToken();
-  }
+class GradeRemoteDataSource extends BaseRemoteDataSource {
+  GradeRemoteDataSource(ApiClient client, AppAuthProvider authProvider)
+    : super(client, authProvider);
 
   /// 🔹 Lấy tất cả grade
   Future<List<GradeModel>> getAllGrades(DefaultQueryEntity query) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
     final queryParams = query.toQueryBuilder().build();
 
     final res = await client.get<List<GradeModel>>(
       Endpoints.grades,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       query: queryParams,
       parser: (data) {
         if (data is List) {
@@ -34,8 +29,8 @@ class GradeRemoteDataSource {
       },
     );
 
-    if (res.success && res.data != null) {
-      return res.data!;
+    if (res.success) {
+      return res.data ?? [];
     } else {
       throw Exception(res.message ?? "Không thể lấy danh sách grade");
     }
@@ -43,11 +38,11 @@ class GradeRemoteDataSource {
 
   /// 🔹 Lấy grade theo id
   Future<GradeModel> getGradeById(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<GradeModel>(
       Endpoints.gradeId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is Map<String, dynamic>) {
           return GradeModel.fromJson(data);
@@ -65,11 +60,11 @@ class GradeRemoteDataSource {
 
   /// 🔹 Tạo grade mới
   Future<GradeModel> createGrade(GradeModel grade) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.post<GradeModel>(
       Endpoints.grades,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: grade.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -89,12 +84,11 @@ class GradeRemoteDataSource {
   /// 🔹 Cập nhật grade
   Future<GradeModel> updateGrade(GradeModel grade) async {
     final id = grade.id;
-
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.put<GradeModel>(
       Endpoints.gradeId(id!),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       data: grade.toJson(),
       parser: (data) {
         if (data is Map<String, dynamic>) {
@@ -113,11 +107,11 @@ class GradeRemoteDataSource {
 
   /// 🔹 Xóa grade
   Future<void> deleteGrade(String id) async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.delete<void>(
       Endpoints.gradeId(id),
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
     if (res.success) {
@@ -129,11 +123,11 @@ class GradeRemoteDataSource {
 
   /// 🔹 Lấy grade cho selectbox
   Future<List<GradeSelectModel>> getGradesForSelect() async {
-    final token = await _getIdToken();
+    final headers = await authHeaders;
 
     final res = await client.get<List<GradeSelectModel>>(
       Endpoints.gradeSelect,
-      headers: {if (token != null) "Authorization": "Bearer $token"},
+      headers: headers,
       parser: (data) {
         if (data is List) {
           return data
@@ -144,8 +138,8 @@ class GradeRemoteDataSource {
       },
     );
 
-    if (res.success && res.data != null) {
-      return res.data!;
+    if (res.success) {
+      return res.data ?? [];
     } else {
       throw Exception(res.message ?? "Không thể lấy danh sách grade select");
     }
