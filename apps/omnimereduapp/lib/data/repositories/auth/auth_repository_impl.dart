@@ -32,8 +32,14 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       final tokens = await remote.register(requestModel);
-      await local.saveTokens(tokens);
-      _currentUser = tokens.user;
+
+      // Nếu có token trả về thì lưu và set current user (Auto login)
+      if (tokens != null) {
+        await local.saveTokens(tokens);
+        _currentUser = tokens.user;
+      }
+      // Nếu tokens == null: Đăng ký thành công nhưng không có token (cần login lại).
+      // Hàm này trả về void nên coi như thành công.
     } catch (e) {
       throw ServerFailure(e.toString());
     }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../../core/theme/app_colors.dart';
 
 /// Widget hiển thị timer đếm ngược
@@ -17,7 +16,8 @@ class QRTimerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final minutes = remainingSeconds ~/ 60;
     final seconds = remainingSeconds % 60;
-    final timeString = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    final timeString =
+        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
     Color timerColor;
     IconData timerIcon;
@@ -65,4 +65,3 @@ class QRTimerWidget extends StatelessWidget {
     );
   }
 }
-

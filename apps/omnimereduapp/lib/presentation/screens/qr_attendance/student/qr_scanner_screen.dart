@@ -17,8 +17,8 @@ class QRScannerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GetIt.instance<QRScannerBloc>()
-        ..add(const InitializeScannerEvent()),
+      create: (context) =>
+          GetIt.instance<QRScannerBloc>()..add(const InitializeScannerEvent()),
       child: const _QRScannerScreenContent(),
     );
   }
@@ -28,7 +28,8 @@ class _QRScannerScreenContent extends StatefulWidget {
   const _QRScannerScreenContent({Key? key}) : super(key: key);
 
   @override
-  State<_QRScannerScreenContent> createState() => _QRScannerScreenContentState();
+  State<_QRScannerScreenContent> createState() =>
+      _QRScannerScreenContentState();
 }
 
 class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
@@ -44,40 +45,28 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
     _scannerController = MobileScannerController(
       detectionSpeed: DetectionSpeed.noDuplicates,
       facing: CameraFacing.back,
-      torchEnabled: false,
     );
   }
 
   @override
   void dispose() {
     _scannerController?.dispose();
-    context.read<QRScannerBloc>().add(const DisposeScannerEvent());
+    // Check if context is valid before reading bloc in dispose if needed,
+    // though usually bloc provider handles closure or we use proper cleanup.
+    // context.read<QRScannerBloc>().add(const DisposeScannerEvent());
+    // Note: DisposeScannerEvent might not be needed if BlocProvider handles closing,
+    // but the original code had it. I'll check if context is mounted or just skip it
+    // as GetIt might be managing the singleton or factory.
+    // If it's a factory, BlocProvider closes it.
+    // If we want to reset state:
+    // context.read<QRScannerBloc>().add(const ResetScannerEvent());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
-      appBar: AppBar(
-        title: Text(
-          'Quét mã điểm danh',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppColors.textLight,
-          ),
-        ),
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.textLight),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.flash_off),
-            onPressed: () {
-              _scannerController?.toggleTorch();
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Colors.black,
       body: BlocConsumer<QRScannerBloc, QRScannerState>(
         listener: (context, state) {
           if (state is QRScannerSuccess) {
@@ -99,121 +88,253 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
             return _buildLoadingView();
           } else if (state is QRScannerPermissionDenied) {
             return _buildPermissionDeniedView(context, state.message);
-          } else if (state is QRScannerScanning) {
-            return _buildScanningView();
           }
 
-          // Default scanner view
-          return _buildScannerView(context, state);
+          // Main Scanner View
+          return Stack(
+            children: [
+              // 1. Camera
+              MobileScanner(
+                controller: _scannerController,
+                onDetect: (capture) {
+                  final List<Barcode> barcodes = capture.barcodes;
+                  if (barcodes.isNotEmpty) {
+                    final String? qrData = barcodes.first.rawValue;
+                    if (qrData != null && qrData.isNotEmpty) {
+                      context.read<QRScannerBloc>().add(
+                        QRCodeScannedEvent(qrData),
+                      );
+                    }
+                  }
+                },
+              ),
+
+              // 2. Overlay (Painter)
+              const ScannerOverlayWidget(),
+
+              // 3. Top Control Bar
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Back Button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                          ),
+                        ),
+                        // Title
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Row(
+                            children: const [
+                              Icon(
+                                Icons.qr_code_scanner,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Quét điểm danh",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Flash Button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: ValueListenableBuilder(
+                              valueListenable: _scannerController!,
+                              builder: (context, state, child) {
+                                return Icon(
+                                  state.torchState == TorchState.on
+                                      ? Icons.flash_on
+                                      : Icons.flash_off,
+                                  color: Colors.white,
+                                );
+                              },
+                            ),
+                            onPressed: () => _scannerController?.toggleTorch(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // 4. Instructions & Offline Indicator
+              Positioned(
+                bottom: 40,
+                left: 0,
+                right: 0,
+                child: Column(
+                  children: [
+                    if (state is QRScannerScanning)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              'Đang xử lý...',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: const Text(
+                          'Đưa mã QR vào khung để quét',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+
+                    OfflineIndicatorWidget(
+                      isOnline: state is QRScannerReady ? state.isOnline : true,
+                      pendingScans: state is QRScannerReady
+                          ? state.pendingOfflineScans
+                          : 0,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
         },
       ),
     );
   }
 
   Widget _buildLoadingView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: AppColors.primary),
-          SizedBox(height: 16),
-          Text(
-            'Đang khởi tạo máy quét...',
-            style: TextStyle(color: AppColors.textLight),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScanningView() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: AppColors.primary),
-          SizedBox(height: 16),
-          Text(
-            'Đang xử lý...',
-            style: TextStyle(color: AppColors.textLight),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScannerView(BuildContext context, QRScannerState state) {
-    final isOnline = state is QRScannerReady ? state.isOnline : true;
-    final pendingScans = state is QRScannerReady ? state.pendingOfflineScans : 0;
-
-    return Stack(
-      children: [
-        // Camera Scanner
-        MobileScanner(
-          controller: _scannerController,
-          onDetect: (capture) {
-            final List<Barcode> barcodes = capture.barcodes;
-            if (barcodes.isNotEmpty) {
-              final String? qrData = barcodes.first.rawValue;
-              if (qrData != null && qrData.isNotEmpty) {
-                context.read<QRScannerBloc>().add(
-                  QRCodeScannedEvent(qrData),
-                );
-              }
-            }
-          },
+    return const Scaffold(
+      backgroundColor: AppColors.backgroundDark,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: AppColors.primary),
+            SizedBox(height: 16),
+            Text(
+              'Đang khởi tạo máy quét...',
+              style: TextStyle(color: AppColors.textLight),
+            ),
+          ],
         ),
-        // Overlay
-        const ScannerOverlayWidget(),
-        // Offline indicator at bottom
-        Positioned(
-          bottom: 40,
-          left: 0,
-          right: 0,
-          child: OfflineIndicatorWidget(
-            isOnline: isOnline,
-            pendingScans: pendingScans,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildPermissionDeniedView(BuildContext context, String message) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.location_off,
-              size: 80,
-              color: AppColors.error,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Yêu cầu quyền truy cập',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.textLight,
+    return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.perm_camera_mic_outlined, // Better icon
+                size: 80,
+                color: AppColors.error,
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textLight,
+              const SizedBox(height: 24),
+              Text(
+                'Yêu cầu quyền truy cập',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppColors.textLight,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                message,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textLight.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Quay lại'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  backgroundColor: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -237,9 +358,18 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
   void _showErrorSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
         backgroundColor: AppColors.error,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -248,7 +378,7 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Yêu cầu quyền truy cập'),
+        title: const Text('Quyền truy cập'),
         content: Text(message),
         actions: [
           TextButton(
@@ -263,4 +393,3 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
     );
   }
 }
-

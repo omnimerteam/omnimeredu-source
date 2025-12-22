@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/qr_theme.dart';
 
-/// Widget overlay cho scanner camera với khung quét
-class ScannerOverlayWidget extends StatelessWidget {
+/// Widget overlay cho scanner camera với khung quét và hiệu ứng animation
+class ScannerOverlayWidget extends StatefulWidget {
   final double scanAreaSize;
 
   const ScannerOverlayWidget({
@@ -12,157 +12,171 @@ class ScannerOverlayWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Dark overlay
-        ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            QRAttendanceTheme.scannerOverlay,
-            BlendMode.srcOut,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  backgroundBlendMode: BlendMode.dstOut,
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  height: scanAreaSize,
-                  width: scanAreaSize,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Scan frame with corners
-        Center(
-          child: Container(
-            height: scanAreaSize,
-            width: scanAreaSize,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.primary.withOpacity(0.5),
-                width: 2,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Stack(
-              children: [
-                // Top-left corner
-                _buildCorner(
-                  top: 0,
-                  left: 0,
-                  topBorder: true,
-                  leftBorder: true,
-                ),
-                // Top-right corner
-                _buildCorner(
-                  top: 0,
-                  right: 0,
-                  topBorder: true,
-                  rightBorder: true,
-                ),
-                // Bottom-left corner
-                _buildCorner(
-                  bottom: 0,
-                  left: 0,
-                  bottomBorder: true,
-                  leftBorder: true,
-                ),
-                // Bottom-right corner
-                _buildCorner(
-                  bottom: 0,
-                  right: 0,
-                  bottomBorder: true,
-                  rightBorder: true,
-                ),
-              ],
-            ),
-          ),
-        ),
-        // Instruction text
-        Positioned(
-          bottom: 100,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Đưa mã QR vào khung để quét',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textLight,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ],
+  State<ScannerOverlayWidget> createState() => _ScannerOverlayWidgetState();
+}
+
+class _ScannerOverlayWidgetState extends State<ScannerOverlayWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
 
-  Widget _buildCorner({
-    double? top,
-    double? bottom,
-    double? left,
-    double? right,
-    bool topBorder = false,
-    bool bottomBorder = false,
-    bool leftBorder = false,
-    bool rightBorder = false,
-  }) {
-    return Positioned(
-      top: top,
-      bottom: bottom,
-      left: left,
-      right: right,
-      child: Container(
-        width: QRAttendanceTheme.cornerLength,
-        height: QRAttendanceTheme.cornerLength,
-        decoration: BoxDecoration(
-          border: Border(
-            top: topBorder
-                ? BorderSide(
-                    color: QRAttendanceTheme.scannerCorner,
-                    width: QRAttendanceTheme.cornerWidth,
-                  )
-                : BorderSide.none,
-            bottom: bottomBorder
-                ? BorderSide(
-                    color: QRAttendanceTheme.scannerCorner,
-                    width: QRAttendanceTheme.cornerWidth,
-                  )
-                : BorderSide.none,
-            left: leftBorder
-                ? BorderSide(
-                    color: QRAttendanceTheme.scannerCorner,
-                    width: QRAttendanceTheme.cornerWidth,
-                  )
-                : BorderSide.none,
-            right: rightBorder
-                ? BorderSide(
-                    color: QRAttendanceTheme.scannerCorner,
-                    width: QRAttendanceTheme.cornerWidth,
-                  )
-                : BorderSide.none,
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: ScannerOverlayPainter(
+            scanAreaSize: widget.scanAreaSize,
+            scanLinePosition: _animation.value,
           ),
-        ),
-      ),
+          child: Container(),
+        );
+      },
     );
   }
 }
 
+class ScannerOverlayPainter extends CustomPainter {
+  final double scanAreaSize;
+  final double scanLinePosition;
+
+  ScannerOverlayPainter({
+    required this.scanAreaSize,
+    required this.scanLinePosition,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double scanAreaHalf = scanAreaSize / 2;
+    final Offset center = size.center(Offset.zero);
+
+    final Rect scanRect = Rect.fromCenter(
+      center: center,
+      width: scanAreaSize,
+      height: scanAreaSize,
+    );
+
+    // 1. Draw Dark Overlay with Hole
+    final Path backgroundPath = Path()
+      ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final Path scanPath = Path()
+      ..addRRect(RRect.fromRectAndRadius(scanRect, const Radius.circular(20)));
+
+    final Path overlayPath = Path.combine(
+      PathOperation.difference,
+      backgroundPath,
+      scanPath,
+    );
+
+    final Paint backgroundPaint = Paint()
+      ..color = Colors.black.withOpacity(0.6)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(overlayPath, backgroundPaint);
+
+    // 2. Draw Corners
+    final Paint cornerPaint = Paint()
+      ..color = QRAttendanceTheme.scannerCorner
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = QRAttendanceTheme.cornerWidth
+      ..strokeCap = StrokeCap.round;
+
+    final double cornerLen = QRAttendanceTheme.cornerLength;
+
+    // Top Left
+    canvas.drawPath(
+      Path()
+        ..moveTo(scanRect.left, scanRect.top + cornerLen)
+        ..lineTo(scanRect.left, scanRect.top)
+        ..lineTo(scanRect.left + cornerLen, scanRect.top),
+      cornerPaint,
+    );
+
+    // Top Right
+    canvas.drawPath(
+      Path()
+        ..moveTo(scanRect.right - cornerLen, scanRect.top)
+        ..lineTo(scanRect.right, scanRect.top)
+        ..lineTo(scanRect.right, scanRect.top + cornerLen),
+      cornerPaint,
+    );
+
+    // Bottom Left
+    canvas.drawPath(
+      Path()
+        ..moveTo(scanRect.left, scanRect.bottom - cornerLen)
+        ..lineTo(scanRect.left, scanRect.bottom)
+        ..lineTo(scanRect.left + cornerLen, scanRect.bottom),
+      cornerPaint,
+    );
+
+    // Bottom Right
+    canvas.drawPath(
+      Path()
+        ..moveTo(scanRect.right - cornerLen, scanRect.bottom)
+        ..lineTo(scanRect.right, scanRect.bottom)
+        ..lineTo(scanRect.right, scanRect.bottom - cornerLen),
+      cornerPaint,
+    );
+
+    // 3. Draw Scanning Line (Animated)
+    final Paint linePaint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          QRAttendanceTheme.scannerCorner.withOpacity(0),
+          QRAttendanceTheme.scannerCorner,
+          QRAttendanceTheme.scannerCorner.withOpacity(0),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(scanRect)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final double currentY = scanRect.top + (scanRect.height * scanLinePosition);
+
+    // Draw line only if within rect height (logic is implicit by calculation)
+    canvas.drawLine(
+      Offset(scanRect.left + 10, currentY),
+      Offset(scanRect.right - 10, currentY),
+      linePaint,
+    );
+
+    // Soft glow for line
+    final Paint glowPaint = Paint()
+      ..color = QRAttendanceTheme.scannerCorner.withOpacity(0.3)
+      ..style = PaintingStyle.fill
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+
+    canvas.drawRect(
+      Rect.fromLTWH(scanRect.left, currentY - 5, scanRect.width, 10),
+      glowPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(ScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanLinePosition != scanLinePosition ||
+        oldDelegate.scanAreaSize != scanAreaSize;
+  }
+}

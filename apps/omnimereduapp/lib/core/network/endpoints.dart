@@ -120,8 +120,9 @@ class Endpoints {
 
   // ================== QR ATTENDANCE ==================
   static String generateQRCode(String attendanceId) =>
-      "/v1/attendance/$attendanceId/qr";
-  static const String submitAttendanceScan = "/v1/attendance/scan";
+      "/v1/attendances/$attendanceId/qr";
+  static const String submitAttendanceScan = "/v1/attendances/scan";
+  static const String syncOfflineScans = "/v1/attendances/sync";
 
   // ================== UPLOAD ==================
   static const String uploadAvatar = "/v1/upload/avatar-temp";

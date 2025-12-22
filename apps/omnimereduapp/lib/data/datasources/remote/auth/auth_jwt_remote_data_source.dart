@@ -33,12 +33,19 @@ class AuthJwtRemoteDataSource {
   }
 
   /// Đăng ký tài khoản mới
-  /// Trả về accessToken, refreshToken và user info
-  Future<AuthTokensModel> register(RegisterUserModel user) async {
+  /// Trả về accessToken, refreshToken và user info nếu có (tự động login)
+  /// Trả về null nếu đăng ký thành công nhưng không trả về token (cần login thủ công)
+  Future<AuthTokensModel?> register(RegisterUserModel user) async {
     final res = await client.post(Endpoints.jwtRegister, data: user.toJson());
 
-    if (!res.success || res.data == null) {
+    // Nếu không thành công thì throw lỗi
+    if (!res.success) {
       throw Exception(res.message ?? 'Đăng ký thất bại');
+    }
+
+    // Nếu thành công nhưng data null => Đăng ký thành công nhưng không tự động login
+    if (res.data == null) {
+      return null;
     }
 
     return AuthTokensModel.fromApiResponse(res.data as Map<String, dynamic>);
