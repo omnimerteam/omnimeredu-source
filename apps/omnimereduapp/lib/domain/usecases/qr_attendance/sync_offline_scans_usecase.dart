@@ -31,8 +31,8 @@ class SyncOfflineScansUsecase {
       }
 
       // Get all unsynced scans
-      final List<OfflineScanModel> unsyncedScans = 
-          await _offlineQueueService.getUnsyncedScans();
+      final List<OfflineScanModel> unsyncedScans = await _offlineQueueService
+          .getUnsyncedScans();
 
       if (unsyncedScans.isEmpty) {
         AppLogger.info('No offline scans to sync');
@@ -51,6 +51,7 @@ class SyncOfflineScansUsecase {
             latitude: scan.latitude,
             longitude: scan.longitude,
             deviceId: scan.deviceId,
+            scanTime: DateTime.parse(scan.scanTime),
           );
 
           if (result.isSuccess) {
@@ -60,22 +61,20 @@ class SyncOfflineScansUsecase {
             AppLogger.info('Successfully synced scan ${scan.id}');
           } else {
             // Update error message
-            await _offlineQueueService.updateError(
-              scan.id!,
-              result.message,
+            await _offlineQueueService.updateError(scan.id!, result.message);
+            AppLogger.warning(
+              'Failed to sync scan ${scan.id}: ${result.message}',
             );
-            AppLogger.warning('Failed to sync scan ${scan.id}: ${result.message}');
           }
         } catch (e) {
           AppLogger.error('Error syncing scan ${scan.id}', e);
-          await _offlineQueueService.updateError(
-            scan.id!,
-            'Sync error: $e',
-          );
+          await _offlineQueueService.updateError(scan.id!, 'Sync error: $e');
         }
       }
 
-      AppLogger.info('Sync completed. $successCount/${unsyncedScans.length} successful');
+      AppLogger.info(
+        'Sync completed. $successCount/${unsyncedScans.length} successful',
+      );
 
       // Cleanup old synced scans
       await _offlineQueueService.cleanupOldScans();
@@ -92,4 +91,3 @@ class SyncOfflineScansUsecase {
     return await _offlineQueueService.getUnsyncedCount();
   }
 }
-

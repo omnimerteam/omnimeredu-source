@@ -9,6 +9,8 @@ import '../injection_container.dart';
 import 'screens/auth/login/bloc/login_bloc.dart';
 import 'screens/auth/login/login_screen.dart';
 import 'screens/main_screen.dart';
+import '../core/bloc/permission/permission_cubit.dart';
+import '../core/bloc/permission/permission_state.dart';
 
 class AppView extends StatelessWidget {
   const AppView({super.key});
@@ -58,10 +60,42 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthenticationBloc, AuthenticationState>(
-      listenWhen: (previous, current) =>
-          previous.runtimeType != current.runtimeType,
-      listener: (context, state) {},
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PermissionCubit, PermissionState>(
+          listener: (context, state) {
+            if (state is PermissionPermanentlyDenied) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Quyền bị từ chối vĩnh viễn'),
+                  content: const Text(
+                    'Bạn đã từ chối quyền này vĩnh viễn. Vui lòng vào cài đặt để cấp quyền.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Hủy'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.read<PermissionCubit>().openSettings();
+                      },
+                      child: const Text('Mở Cài đặt'),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+        BlocListener<AuthenticationBloc, AuthenticationState>(
+          listenWhen: (previous, current) =>
+              previous.runtimeType != current.runtimeType,
+          listener: (context, state) {},
+        ),
+      ],
       child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state is AuthenticationAuthenticated) {

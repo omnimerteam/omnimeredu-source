@@ -11,10 +11,7 @@ class QRAttendanceRepositoryImpl implements QRAttendanceRepository {
   final QRAttendanceRemoteDatasource _remoteDatasource;
   final LocationService _locationService;
 
-  QRAttendanceRepositoryImpl(
-    this._remoteDatasource,
-    this._locationService,
-  );
+  QRAttendanceRepositoryImpl(this._remoteDatasource, this._locationService);
 
   @override
   Future<QRCodeEntity> generateQRCode(String attendanceId) async {
@@ -34,16 +31,19 @@ class QRAttendanceRepositoryImpl implements QRAttendanceRepository {
     required double latitude,
     required double longitude,
     required String deviceId,
+    DateTime? scanTime,
   }) async {
     try {
       AppLogger.info('Repository: Submitting attendance scan');
-      
+
+      final timestamp = scanTime ?? DateTime.now();
+
       final request = ScanRequestModel(
         qrData: qrData,
         latitude: latitude,
         longitude: longitude,
         deviceId: deviceId,
-        timestamp: DateTime.now().toIso8601String(),
+        timestamp: timestamp.toUtc().toIso8601String(),
       );
 
       final response = await _remoteDatasource.submitAttendanceScan(request);
@@ -64,9 +64,11 @@ class QRAttendanceRepositoryImpl implements QRAttendanceRepository {
       // This would typically call an API to get school location and allowed radius
       // For now, we'll implement it client-side with hardcoded school location
       // In production, this should be retrieved from the attendance/school data
-      
-      AppLogger.info('Repository: Verifying location for attendance $attendanceId');
-      
+
+      AppLogger.info(
+        'Repository: Verifying location for attendance $attendanceId',
+      );
+
       // TODO: Get school location from API based on attendanceId
       // For now, return true as location check is done server-side in submitAttendanceScan
       return true;
@@ -76,4 +78,3 @@ class QRAttendanceRepositoryImpl implements QRAttendanceRepository {
     }
   }
 }
-

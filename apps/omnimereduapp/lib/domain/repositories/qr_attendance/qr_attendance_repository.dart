@@ -12,6 +12,7 @@ abstract class QRAttendanceRepository {
     required double latitude,
     required double longitude,
     required String deviceId,
+    DateTime? scanTime,
   });
 
   /// Verify if location is within allowed radius
@@ -21,4 +22,3 @@ abstract class QRAttendanceRepository {
     required String attendanceId,
   });
 }
-

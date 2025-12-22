@@ -190,6 +190,7 @@ import 'presentation/screens/dashboard/cubit/dashboard_cubit.dart';
 import 'presentation/screens/school_admin/school/bloc/school_data_schooladmin_bloc.dart';
 import 'presentation/screens/qr_attendance/teacher/bloc/qr_display_bloc.dart';
 import 'presentation/screens/qr_attendance/student/bloc/qr_scanner_bloc.dart';
+import 'core/bloc/permission/permission_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -658,4 +659,6 @@ Future<void> init() async {
   // QR Attendance BLoCs
   sl.registerFactory(() => QRDisplayBloc(sl(), sl()));
   sl.registerFactory(() => QRScannerBloc(sl(), sl(), sl(), sl()));
+
+  sl.registerFactory(() => PermissionCubit());
 }
