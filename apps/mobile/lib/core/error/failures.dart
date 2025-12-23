@@ -33,3 +33,10 @@ class AuthFailure extends Failure {
   @override
   String toString() => 'Lỗi Xác Thực: $message';
 }
+
+class TimeoutFailure extends Failure {
+  const TimeoutFailure(super.message);
+
+  @override
+  String toString() => 'Lỗi Quá Thời Gian: $message';
+}

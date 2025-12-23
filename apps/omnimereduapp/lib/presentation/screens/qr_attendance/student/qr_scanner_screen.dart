@@ -17,8 +17,8 @@ class QRScannerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => GetIt.instance<QRScannerBloc>()
-        ..add(const InitializeScannerEvent()),
+      create: (context) =>
+          GetIt.instance<QRScannerBloc>()..add(const InitializeScannerEvent()),
       child: const _QRScannerScreenContent(),
     );
   }
@@ -28,11 +28,14 @@ class _QRScannerScreenContent extends StatefulWidget {
   const _QRScannerScreenContent({Key? key}) : super(key: key);
 
   @override
-  State<_QRScannerScreenContent> createState() => _QRScannerScreenContentState();
+  State<_QRScannerScreenContent> createState() =>
+      _QRScannerScreenContentState();
 }
 
 class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
   MobileScannerController? _scannerController;
+  double _zoomLevel = 1.0;
+  bool _isTorchOn = false;
 
   @override
   void initState() {
@@ -46,6 +49,37 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
       facing: CameraFacing.back,
       torchEnabled: false,
     );
+  }
+
+  void _zoomIn() {
+    setState(() {
+      _zoomLevel = (_zoomLevel + 0.1).clamp(1.0, 5.0);
+      try {
+        _scannerController?.setZoomScale(_zoomLevel);
+      } catch (e) {
+        // Zoom might not be supported on all devices
+        // Fallback: just update the UI indicator
+      }
+    });
+  }
+
+  void _zoomOut() {
+    setState(() {
+      _zoomLevel = (_zoomLevel - 0.1).clamp(1.0, 5.0);
+      try {
+        _scannerController?.setZoomScale(_zoomLevel);
+      } catch (e) {
+        // Zoom might not be supported on all devices
+        // Fallback: just update the UI indicator
+      }
+    });
+  }
+
+  void _toggleTorch() {
+    setState(() {
+      _isTorchOn = !_isTorchOn;
+      _scannerController?.toggleTorch();
+    });
   }
 
   @override
@@ -62,19 +96,18 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
       appBar: AppBar(
         title: Text(
           'Quét mã điểm danh',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppColors.textLight,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: AppColors.textLight),
         ),
         backgroundColor: AppColors.primary,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.textLight),
         actions: [
           IconButton(
-            icon: const Icon(Icons.flash_off),
-            onPressed: () {
-              _scannerController?.toggleTorch();
-            },
+            icon: Icon(_isTorchOn ? Icons.flash_on : Icons.flash_off),
+            onPressed: _toggleTorch,
+            tooltip: _isTorchOn ? 'Tắt đèn flash' : 'Bật đèn flash',
           ),
         ],
       ),
@@ -133,10 +166,7 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
         children: [
           CircularProgressIndicator(color: AppColors.primary),
           SizedBox(height: 16),
-          Text(
-            'Đang xử lý...',
-            style: TextStyle(color: AppColors.textLight),
-          ),
+          Text('Đang xử lý...', style: TextStyle(color: AppColors.textLight)),
         ],
       ),
     );
@@ -144,7 +174,9 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
 
   Widget _buildScannerView(BuildContext context, QRScannerState state) {
     final isOnline = state is QRScannerReady ? state.isOnline : true;
-    final pendingScans = state is QRScannerReady ? state.pendingOfflineScans : 0;
+    final pendingScans = state is QRScannerReady
+        ? state.pendingOfflineScans
+        : 0;
 
     return Stack(
       children: [
@@ -156,15 +188,67 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
             if (barcodes.isNotEmpty) {
               final String? qrData = barcodes.first.rawValue;
               if (qrData != null && qrData.isNotEmpty) {
-                context.read<QRScannerBloc>().add(
-                  QRCodeScannedEvent(qrData),
-                );
+                context.read<QRScannerBloc>().add(QRCodeScannedEvent(qrData));
               }
             }
           },
         ),
         // Overlay
         const ScannerOverlayWidget(),
+        // Zoom controls on the right
+        Positioned(
+          right: 16,
+          top: MediaQuery.of(context).size.height * 0.35,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Zoom in button
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  onPressed: _zoomIn,
+                  tooltip: 'Phóng to',
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Zoom out button
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.remove, color: Colors.white),
+                  onPressed: _zoomOut,
+                  tooltip: 'Thu nhỏ',
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Zoom level indicator
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _zoomLevel == 1.0
+                      ? '1:1'
+                      : '${_zoomLevel.toStringAsFixed(1)}x',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         // Offline indicator at bottom
         Positioned(
           bottom: 40,
@@ -186,24 +270,20 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.location_off,
-              size: 80,
-              color: AppColors.error,
-            ),
+            const Icon(Icons.location_off, size: 80, color: AppColors.error),
             const SizedBox(height: 24),
             Text(
               'Yêu cầu quyền truy cập',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.textLight,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppColors.textLight),
             ),
             const SizedBox(height: 12),
             Text(
               message,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textLight,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textLight),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -263,4 +343,3 @@ class _QRScannerScreenContentState extends State<_QRScannerScreenContent> {
     );
   }
 }
-

@@ -7,6 +7,8 @@ Future<Either<Failure, T>> safeApiCall<T>(Future<T> Function() apiCall) async {
     return Right(await apiCall());
   } on Failure catch (e) {
     return Left(e);
+  } on TimeoutException catch (e) {
+    return Left(TimeoutFailure(e.message));
   } on NetworkException catch (e) {
     return Left(NetworkFailure(e.message));
   } on UnauthorizedException catch (e) {

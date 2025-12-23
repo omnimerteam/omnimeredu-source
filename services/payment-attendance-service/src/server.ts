@@ -23,10 +23,13 @@ const startServer = async () => {
     // Setup Sync Hooks
     setupSyncHooks();
 
-    // Start server
-    app.listen(port, () => {
+    // Start server - bind to 0.0.0.0 to allow access from emulator/network
+    app.listen(port, "0.0.0.0", () => {
       console.log(
-        `[server]: Payment & Attendance Server is running at http://localhost:${port}`
+        `[server]: Payment & Attendance Server is running at http://0.0.0.0:${port}`
+      );
+      console.log(
+        `[server]: Accessible from emulator at http://10.0.2.2:${port}`
       );
     });
   } catch (error) {

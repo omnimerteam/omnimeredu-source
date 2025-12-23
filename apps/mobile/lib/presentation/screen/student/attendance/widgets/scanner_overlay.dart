@@ -30,32 +30,11 @@ class ScannerOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Dark overlay
-        ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            QRAttendanceTheme.scannerOverlay,
-            BlendMode.srcOut,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  backgroundBlendMode: BlendMode.dstOut,
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  height: scanAreaSize,
-                  width: scanAreaSize,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
+        // Dark overlay with transparent cutout
+        CustomPaint(
+          painter: ScannerOverlayPainter(
+            scanAreaSize: scanAreaSize,
+            overlayColor: QRAttendanceTheme.scannerOverlay,
           ),
         ),
         // Scan frame with corners
@@ -178,5 +157,65 @@ class ScannerOverlayWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Custom painter để vẽ overlay đen với vùng trong suốt ở giữa
+class ScannerOverlayPainter extends CustomPainter {
+  final double scanAreaSize;
+  final Color overlayColor;
+
+  ScannerOverlayPainter({
+    required this.scanAreaSize,
+    required this.overlayColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = overlayColor
+      ..style = PaintingStyle.fill;
+
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final halfSize = scanAreaSize / 2;
+
+    // Vẽ 4 hình chữ nhật xung quanh để tạo hiệu ứng cutout
+    // Top rectangle
+    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, centerY - halfSize), paint);
+
+    // Bottom rectangle
+    canvas.drawRect(
+      Rect.fromLTWH(
+        0,
+        centerY + halfSize,
+        size.width,
+        size.height - (centerY + halfSize),
+      ),
+      paint,
+    );
+
+    // Left rectangle
+    canvas.drawRect(
+      Rect.fromLTWH(0, centerY - halfSize, centerX - halfSize, scanAreaSize),
+      paint,
+    );
+
+    // Right rectangle
+    canvas.drawRect(
+      Rect.fromLTWH(
+        centerX + halfSize,
+        centerY - halfSize,
+        centerX - halfSize,
+        scanAreaSize,
+      ),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(ScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanAreaSize != scanAreaSize ||
+        oldDelegate.overlayColor != overlayColor;
   }
 }

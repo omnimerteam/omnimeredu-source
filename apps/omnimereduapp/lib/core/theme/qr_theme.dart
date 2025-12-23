@@ -22,8 +22,8 @@ class QRAttendanceTheme {
 
   // Scanner overlay
   static const Color scannerOverlay = Color(0x88000000);
-  static const Color scannerBorder = AppColors.primary;
-  static const Color scannerCorner = AppColors.success;
+  static const Color scannerBorder = Color(0xFF4FC3F7); // Light blue
+  static const Color scannerCorner = Color(0xFF4FC3F7); // Light blue
   
   // Sizes
   static const double qrSize = 280.0;

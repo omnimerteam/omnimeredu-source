@@ -37,21 +37,53 @@ class QRAttendanceRemoteDatasource {
     ScanRequestModel request,
   ) async {
     try {
-      AppLogger.info('Submitting attendance scan');
+      final endpoint = Endpoints.paymentAttendance.submitAttendanceScan;
+      final requestData = request.toJson();
 
-      final response = await _apiClient.post(
-        Endpoints.paymentAttendance.submitAttendanceScan,
-        data: request.toJson(),
+      final response = await _apiClient.post<ScanResponseModel>(
+        endpoint,
+        data: requestData,
+        parser: (data) {
+          // Handle both cases: data is Map or already parsed
+          if (data is Map<String, dynamic>) {
+            return ScanResponseModel.fromJson(data);
+          } else if (data is ScanResponseModel) {
+            return data;
+          } else {
+            throw Exception('Invalid response data format');
+          }
+        },
       );
 
-      if (response.success && response.data != null) {
-        AppLogger.info('Attendance scan submitted successfully');
-        return ScanResponseModel.fromJson(response.data);
+      if (response.success) {
+        if (response.data != null) {
+          return response.data!;
+        } else {
+          throw Exception('Phản hồi từ server không có dữ liệu');
+        }
       } else {
-        throw Exception(response.message);
+        // Response is not success - try to get error message
+        String errorMsg = response.message.isNotEmpty
+            ? response.message
+            : 'Không thể quét mã QR. Vui lòng thử lại.';
+
+        // Try to extract error from response.error if available
+        if (response.error != null) {
+          if (response.error is Map) {
+            final errorMap = response.error as Map;
+            if (errorMap.containsKey('message')) {
+              errorMsg = errorMap['message'].toString();
+            } else if (errorMap.containsKey('error')) {
+              errorMsg = errorMap['error'].toString();
+            }
+          } else {
+            errorMsg = response.error.toString();
+          }
+        }
+
+        throw Exception(errorMsg);
       }
     } catch (e) {
-      AppLogger.error('Error submitting attendance scan', e);
       rethrow;
     }
   }

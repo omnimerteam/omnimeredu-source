@@ -50,17 +50,6 @@ class ApiClient {
             }
           }
 
-          // Log thông tin request
-          logger.i('''
-───────────────────── REQUEST ─────────────────────
-[${options.method}] ${options.uri}
-Headers: ${options.headers}
-Query: ${options.queryParameters}
-Data: ${options.data}
-RequiresAuth: $requiresAuth
-───────────────────────────────────────────────────
-''');
-
           // Remove flag khỏi extra để không gửi lên server
           options.extra.remove('requiresAuth');
 
@@ -68,30 +57,12 @@ RequiresAuth: $requiresAuth
         },
 
         onResponse: (response, handler) {
-          // Log thông tin response
-          logger.i('''
-───────────────────── RESPONSE ─────────────────────
-[${response.requestOptions.method}] ${response.requestOptions.uri}
-Status: ${response.statusCode}
-Data: ${response.data}
-───────────────────────────────────────────────────
-''');
           return handler.next(response);
         },
 
         onError: (error, handler) async {
           final request = error.requestOptions;
           final requiresAuth = request.extra['requiresAuth'] ?? true;
-
-          // Log thông tin lỗi
-          logger.e('''
-───────────────────── ERROR ─────────────────────
-[${request.method}] ${request.uri}
-Status: ${error.response?.statusCode}
-Message: ${error.message}
-Data: ${error.response?.data}
-────────────────────────────────────────────────
-''');
 
           // Nếu lỗi 401 (Unauthorized) và request yêu cầu auth
           if (error.response?.statusCode == 401 && requiresAuth) {
@@ -310,17 +281,15 @@ Data: ${error.response?.data}
         // Add files to form data
         for (var entry in files.entries) {
           final file = entry.value;
-          if (file != null) {
-            formData.files.add(
-              MapEntry(
-                entry.key,
-                await MultipartFile.fromFile(
-                  file.path,
-                  filename: file.uri.pathSegments.last,
-                ),
+          formData.files.add(
+            MapEntry(
+              entry.key,
+              await MultipartFile.fromFile(
+                file.path,
+                filename: file.uri.pathSegments.last,
               ),
-            );
-          }
+            ),
+          );
         }
 
         response = await dio.post(

@@ -13,35 +13,45 @@ class ScannerOverlayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final scanAreaTop = (screenSize.height - scanAreaSize) / 2;
+    final scanAreaLeft = (screenSize.width - scanAreaSize) / 2;
+    // Màu xám mờ đậm hơn để khung nổi bật
+    final overlayColor = Colors.black.withOpacity(0.6);
+
     return Stack(
       children: [
-        // Dark overlay
-        ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            QRAttendanceTheme.scannerOverlay,
-            BlendMode.srcOut,
-          ),
-          child: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  backgroundBlendMode: BlendMode.dstOut,
-                ),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Container(
-                  height: scanAreaSize,
-                  width: scanAreaSize,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        // Top overlay
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          height: scanAreaTop,
+          child: Container(color: overlayColor),
+        ),
+        // Bottom overlay
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: scanAreaTop,
+          child: Container(color: overlayColor),
+        ),
+        // Left overlay
+        Positioned(
+          top: scanAreaTop,
+          bottom: scanAreaTop,
+          left: 0,
+          width: scanAreaLeft,
+          child: Container(color: overlayColor),
+        ),
+        // Right overlay
+        Positioned(
+          top: scanAreaTop,
+          bottom: scanAreaTop,
+          right: 0,
+          width: scanAreaLeft,
+          child: Container(color: overlayColor),
         ),
         // Scan frame with corners
         Center(
@@ -49,10 +59,7 @@ class ScannerOverlayWidget extends StatelessWidget {
             height: scanAreaSize,
             width: scanAreaSize,
             decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.primary.withOpacity(0.5),
-                width: 2,
-              ),
+              border: Border.all(color: const Color(0xFF4FC3F7), width: 2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Stack(
@@ -91,20 +98,22 @@ class ScannerOverlayWidget extends StatelessWidget {
         ),
         // Instruction text
         Positioned(
-          bottom: 100,
+          bottom: 120,
           left: 0,
           right: 0,
           child: Center(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
+                color: const Color(0xFF424242).withOpacity(0.85),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 'Đưa mã QR vào khung để quét',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.textLight,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -165,4 +174,3 @@ class ScannerOverlayWidget extends StatelessWidget {
     );
   }
 }
-

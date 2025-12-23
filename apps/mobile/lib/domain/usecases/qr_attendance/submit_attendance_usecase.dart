@@ -8,6 +8,7 @@ import '../../../core/error/failures.dart';
 import '../../../core/utils/either.dart';
 import '../../../core/usecases/usecase.dart';
 import '../../../core/utils/logger.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../data/models/qr_attendance/offline_scan_model.dart';
 import '../../../domain/entities/qr_attendance/location_entity.dart';
 import '../../../domain/entities/qr_attendance/scan_result_entity.dart';
@@ -58,15 +59,74 @@ class SubmitAttendanceUseCase
         );
       }
 
-      // Submit to server
-      return await _repository.submitAttendanceScan(
-        qrData: params,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        deviceId: deviceId,
+      // Submit to server with timeout wrapper
+      Either<Failure, ScanResultEntity> result;
+      try {
+        result = await _repository.submitAttendanceScan(
+          qrData: params,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          deviceId: deviceId,
+        ).timeout(
+          const Duration(seconds: 65), // Slightly longer than API timeout
+          onTimeout: () {
+            AppLogger.warning('Request timeout in usecase');
+            return Left(TimeoutFailure('Yêu cầu quá thời gian'));
+          },
+        );
+      } on TimeoutException catch (e) {
+        AppLogger.warning('Request timeout: $e');
+        result = Left(TimeoutFailure('Yêu cầu quá thời gian'));
+      }
+
+      // Check if result is a failure (timeout or network error)
+      return result.fold(
+        (failure) {
+          // If timeout or network error, save to offline queue
+          if (failure is TimeoutFailure || failure is NetworkFailure) {
+            AppLogger.info(
+              'Network/timeout error. Saving to offline queue.',
+            );
+            // Save to offline queue (async but don't wait)
+            _saveToOfflineQueue(params, location, deviceId).catchError((e) {
+              AppLogger.error('Failed to save to offline queue', e);
+            });
+            return Right(
+              ScanResultEntity(
+                status: ScanStatus.offline,
+                message: 'Đã lưu vào hàng đợi. Sẽ đồng bộ khi có kết nối.',
+                attendanceTime: DateTime.now(),
+              ),
+            );
+          }
+          // Return the failure for other errors
+          return Left(failure);
+        },
+        (success) => Right(success),
       );
     } catch (e) {
       AppLogger.error('Usecase: Failed to submit attendance scan', e);
+
+      // Check if it's a timeout exception
+      if (e is TimeoutException) {
+        AppLogger.info('Timeout exception. Saving to offline queue.');
+        try {
+          final LocationEntity location = await _locationService
+              .getCurrentLocation();
+          final String deviceId = await _getDeviceId();
+          await _saveToOfflineQueue(params, location, deviceId);
+          return Right(
+            ScanResultEntity(
+              status: ScanStatus.offline,
+              message: 'Đã lưu vào hàng đợi. Sẽ đồng bộ khi có kết nối.',
+              attendanceTime: DateTime.now(),
+            ),
+          );
+        } catch (locationError) {
+          AppLogger.error('Failed to save to offline queue', locationError);
+          return Left(TimeoutFailure('Yêu cầu quá thời gian và không thể lưu vào hàng đợi'));
+        }
+      }
 
       // Check if it's a location error
       if (e is LocationServiceDisabledException ||
@@ -75,6 +135,26 @@ class SubmitAttendanceUseCase
         return Right(
           ScanResultEntity(status: ScanStatus.error, message: e.toString()),
         );
+      }
+
+      // Check if it's a network error
+      if (e is NetworkException) {
+        try {
+          final LocationEntity location = await _locationService
+              .getCurrentLocation();
+          final String deviceId = await _getDeviceId();
+          await _saveToOfflineQueue(params, location, deviceId);
+          return Right(
+            ScanResultEntity(
+              status: ScanStatus.offline,
+              message: 'Đã lưu vào hàng đợi. Sẽ đồng bộ khi có kết nối.',
+              attendanceTime: DateTime.now(),
+            ),
+          );
+        } catch (locationError) {
+          AppLogger.error('Failed to save to offline queue', locationError);
+          return Left(NetworkFailure('Không có kết nối mạng và không thể lưu vào hàng đợi'));
+        }
       }
 
       return Left(ServerFailure(e.toString()));
