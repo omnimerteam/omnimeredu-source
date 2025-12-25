@@ -3,12 +3,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const CA_BUNDLE_PATH = "C:/Users/ASUS1/Downloads/global-bundle.pem";
+
 /**
  * Kết nối MongoDB Atlas.
  */
 export const connectMongoDB = async (): Promise<void> => {
   try {
-    await mongoose.connect(process.env.MONGO_URI!);
+    await mongoose.connect(process.env.MONGO_URI!, {
+      tlsCAFile: CA_BUNDLE_PATH,
+      autoIndex: false, // Tắt tự động tạo index để tránh lỗi khi kết nối Secondary
+    });
     console.log("✅ MongoDB Atlas connected.");
   } catch (error) {
     console.error("❌ MongoDB connection error:", error);
