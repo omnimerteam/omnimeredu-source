@@ -10,15 +10,13 @@ import { initHolidayModel, HolidayModel } from "./models/HolidayModel";
 
 import { connectPostgres } from "shared-lib";
 
-
 // const dbName = process.env.PG_DATABASE || "omnimeredu_payment_db";
 // const dbUser = process.env.PG_USER || "postgres";
 // const dbPass = process.env.PG_PASSWORD || "postgres";
 // const dbHost = process.env.PG_HOST || "localhost";
 // const dbPort = process.env.PG_PORT || "5432";
 
-const uri =
-  process.env.DATABASE_URL || "postgresql://neondb_owner:npg_lUz9wFasMc5I@ep-dry-dust-a1x6n5fw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+const uri = process.env.DATABASE_URL || "";
 
 const sequelize = connectPostgres(uri, {
   logging: process.env.NODE_ENV === "development" ? console.log : false,
