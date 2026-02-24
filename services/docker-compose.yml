@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-
   # ========================================
   # API GATEWAY
   # ========================================
@@ -20,7 +19,6 @@ services:
       - omnimeredu_network
     restart: unless-stopped
 
-
   # ========================================
   # MICROSERVICES
   # ========================================
@@ -29,14 +27,14 @@ services:
       context: .
       dockerfile: user_service/Dockerfile
     container_name: omnimeredu_user_service
-    dns: 
+    dns:
       - 8.8.8.8
       - 1.1.1.1
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - DATABASE_URL=postgresql://neondb_owner:npg_p3QKAVy0TXzY@ep-red-dust-a4oslx74-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require 
-      - MONGO_URI=mongodb+srv://edu11:edu11@cluster0.ofnftrr.mongodb.net/
+      - DATABASE_URL=postgresql://neondb_owner:npg_p3QKAVy0TXzY@ep-red-dust-a4oslx74-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - MONGO_URI=
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
@@ -55,14 +53,14 @@ services:
       context: .
       dockerfile: payment-attendance-service/Dockerfile
     container_name: omnimeredu_payment_attendance_service
-    dns: 
+    dns:
       - 8.8.8.8
       - 1.1.1.1
     environment:
       - NODE_ENV=production
       - PORT=3002
-      - DATABASE_URL=postgresql://neondb_owner:npg_lUz9wFasMc5I@ep-dry-dust-a1x6n5fw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-      - MONGO_URI=mongodb+srv://edu11:edu11@cluster0.ofnftrr.mongodb.net/
+      - DATABASE_URL=
+      - MONGO_URI=
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your-super-secret-access-token-key}
