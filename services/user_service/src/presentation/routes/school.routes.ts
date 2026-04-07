@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import { SchoolController } from "../controllers/SchoolController";
-import { param, query } from "express-validator";
 import {
   objectIdSchema,
   handleValidationErrors,
@@ -38,24 +37,6 @@ router.get(
     schoolController.getSchoolDetailForSchoolAdmin(req, res)
 );
 
-// Get schools with filters
-router.get(
-  "/",
-  [
-    query("educationLevel")
-      .notEmpty()
-      .withMessage("Education level is required"),
-    query("educationLevel")
-      .isIn(["Preschool", "Primary", "Secondary", "HighSchool", "University"])
-      .withMessage("Invalid education level"),
-    query("search")
-      .optional()
-      .isLength({ min: 1, max: 100 })
-      .withMessage("Search term must be 1-100 characters"),
-    handleValidationErrors,
-  ],
-  (req: Request, res: Response) => schoolController.getSchools(req, res)
-);
 
 // Get school by ID
 router.get(
@@ -68,14 +49,14 @@ router.get(
 );
 
 // Get classes by school ID
-router.get(
-  "/:schoolId/classes",
-  JWTMiddleware.verifyToken,
-  requirePermission("schools:read"),
-  param("schoolId").isMongoId().withMessage("Invalid school ID format"),
-  getSchoolClassesQuerySchema,
-  (req: Request, res: Response) => schoolController.getClassesBySchool(req, res)
-);
+// router.get(
+//   "/:schoolId/classes",
+//   JWTMiddleware.verifyToken,
+//   requirePermission("schools:read"),
+//   param("schoolId").isMongoId().withMessage("Invalid school ID format"),
+//   getSchoolClassesQuerySchema,
+//   (req: Request, res: Response) => schoolController.getClassesBySchool(req, res)
+// );
 
 // Create school
 router.post(

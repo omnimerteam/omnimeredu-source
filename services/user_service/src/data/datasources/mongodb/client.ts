@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const mongoUri =
-  process.env.MONGO_URI || "mongodb://localhost:27017/omnimeredu_read_db";
+  process.env.MONGO_URI || "";
 
 export const noSQLClient = NoSQLClientFactory.createClient(
   NoSQLType.MONGODB,

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const MONGODB_URI =
-  process.env.MONGO_URI || "";
+  process.env.MONGODB_URI || "mongodb://localhost:27017/omnimeredu_read_db";
 
 export const connectMongoDB = async () => {
   try {

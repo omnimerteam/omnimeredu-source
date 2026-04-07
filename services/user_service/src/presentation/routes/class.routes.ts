@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import { ClassController } from "../controllers/ClassController";
-import { param } from "express-validator";
 import {
   objectIdSchema,
   handleValidationErrors,
